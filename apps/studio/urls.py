@@ -1,0 +1,30 @@
+# apps/studio/urls.py
+from django.urls import path
+from .views import (
+    user_reservation_list_view,
+    user_reservation_create_view,
+    user_equipment_list_view,
+    user_equipment_detail_view,
+    user_equipment_reserve_view,
+    user_studio_list_view,
+    user_studio_detail_view,
+    user_studio_reserve_view,
+)
+
+app_name = "studio"
+
+urlpatterns = [
+    # Réservations utilisateur
+    path("my/reservations/", user_reservation_list_view, name="user_reservations_list"),
+    path("my/reservations/create/", user_reservation_create_view, name="user_reservations_create"),
+
+    # Matériel
+    path("equipments/", user_equipment_list_view, name="user_equipment_list"),
+    path("equipments/<int:pk>/", user_equipment_detail_view, name="user_equipment_detail"),
+    path("equipments/<int:pk>/reserve/", user_equipment_reserve_view, name="user_equipment_reserve"),
+
+    # Studios
+    path("studios/", user_studio_list_view, name="user_studio_list"),
+    path("studios/<int:pk>/", user_studio_detail_view, name="user_studio_detail"),
+    path("studios/<int:pk>/reserve/", user_studio_reserve_view, name="user_studio_reserve"),
+]

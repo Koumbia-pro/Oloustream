@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Studios - Oloustream{% endblock %}
+
+{% block content %}
+
+<style>
+    :root {
+        --studio-primary: #4f46e5;
+        --studio-primary-dark: #4338ca;
+        --studio-yellow: #facc15;
+        --studio-yellow-dark: #eab308;
+    }
+
+    .studios-page {
+        margin-bottom: 2.5rem;
+    }
+
+    /* Onglets catégories (Enregistrement / Répétition / Podcast / DJ) */
+    .studios-tabs {
+        background: #020617;
+        border-radius: 1.3rem;
+        padding: 0.7rem;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        box-shadow: 0 16px 40px rgba(15,23,42,0.3);
+    }
+
+    .studios-tab {
+        flex: 1;
+        border-radius: 1rem;
+        border: none;
+        padding: 0.7rem 0.9rem;
+        background: #111827;
+        color: #e5e7eb;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        transition: background 0.15s ease, transform 0.1s ease, color 0.15s ease;
+    }
+
+    .studios-tab.active {
+        background: var(--studio-primary);
+        color: #f9fafb;
+        transform: translateY(-1px);
+    }
+
+    /* Barre de recherche (date, heure, durée) */
+    .studios-filters {
+        background: #020617;
+        border-radius: 1.3rem;
+        padding: 0.9rem 1rem;
+        color: #e5e7eb;
+        box-shadow: 0 16px 40px rgba(15,23,42,0.3);
+        margin-bottom: 1.2rem;
+    }
+
+    .studios-filters label {
+        font-size: 0.8rem;
+        margin-bottom: 0.15rem;
+        color: #9ca3af;
+    }
+
+    .studios-filters input,
+    .studios-filters select {
+        border-radius: 999px;
+        border: 1px solid #374151;
+        background: #020617;
+        color: #e5e7eb;
+        font-size: 0.86rem;
+    }
+
+    .studios-filters input:focus,
+    .studios-filters select:focus {
+        outline: none;
+        border-color: var(--studio-primary);
+        box-shadow: 0 0 0 1px rgba(79,70,229,0.5);
+    }
+
+    .btn-studios-search {
+        border-radius: 999px;
+        background: var(--studio-primary);
+        border-color: var(--studio-primary);
+        color: #f9fafb;
+        font-weight: 500;
+        padding-inline: 1.4rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-studios-search:hover {
+        background: var(--studio-primary-dark);
+        border-color: var(--studio-primary-dark);
+    }
+
+    /* Cartes des studios */
+    .studios-count {
+        font-size: 0.9rem;
+        margin: 1rem 0 0.5rem;
+        color: #4b5563;
+    }
+
+    .studio-card {
+        border-radius: 1.3rem;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 16px 35px rgba(15,23,42,0.15);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .studio-card-media {
+        height: 170px;
+        overflow: hidden;
+        background: #020617;
+    }
+
+    .studio-card-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .studio-card-body {
+        padding: 0.85rem 1rem 1rem;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .studio-card-tag {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #6b7280;
+        margin-bottom: 0.15rem;
+    }
+
+    .studio-card-title {
+        font-size: 0.96rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--studio-primary);
+        margin-bottom: 0.15rem;
+        text-decoration: none;
+    }
+
+    .studio-card-title:hover {
+        text-decoration: underline;
+    }
+
+    .studio-card-location {
+        font-size: 0.82rem;
+        color: #6b7280;
+        margin-bottom: 0.35rem;
+    }
+
+    .studio-card-meta {
+        font-size: 0.8rem;
+        color: #4b5563;
+        margin-bottom: 0.6rem;
+    }
+
+    .studio-card-price {
+        font-size: 0.96rem;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .studio-card-price small {
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+
+    .studio-card-footer {
+        margin-top: auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.7rem;
+    }
+
+    .btn-studio-reserve {
+        border-radius: 999px;
+        border: none;
+        padding: 0.45rem 1.1rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        background: var(--studio-yellow);
+        color: #111827;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        white-space: nowrap;
+    }
+
+    .btn-studio-reserve i {
+        font-size: 0.85rem;
+    }
+
+    .btn-studio-reserve:hover {
+        background: var(--studio-yellow-dark);
+        color: #111827;
+    }
+
+    @media (max-width: 768px) {
+        .studios-tabs {
+            flex-wrap: wrap;
+            padding: 0.6rem;
+        }
+    }
+</style>
+
+<div class="studios-page">
+    <!-- Onglets de catégories -->
+    <div class="studios-tabs mb-3">
+        <button type="button" class="studios-tab active" data-type="">
+            Enregistrement
+        </button>
+        <button type="button" class="studios-tab" data-type="REPETITION">
+            Répétition
+        </button>
+        <button type="button" class="studios-tab" data-type="PODCAST">
+            Podcast
+        </button>
+        <button type="button" class="studios-tab" data-type="DJ">
+            DJ
+        </button>
+    </div>
+
+    <!-- Barre date / heure / durée -->
+    <div class="studios-filters mb-3">
+        <form id="studios-filter-form">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label for="id_date">Date</label>
+                    <input type="date" id="id_date" name="date" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label for="id_time">Heure</label>
+                    <input type="time" id="id_time" name="time" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label for="id_duration">Durée</label>
+                    <select id="id_duration" name="duration" class="form-select">
+                        <option value="">Choisir…</option>
+                        <option value="1">1 heure</option>
+                        <option value="2">2 heures</option>
+                        <option value="3">3 heures</option>
+                        <option value="4">4 heures</option>
+                        <option value="day">Journée entière</option>
+                    </select>
+                </div>
+                <div class="col-md-3 text-md-end">
+                    <button type="submit" class="btn btn-studios-search mt-2 mt-md-0">
+                        <i class="fa-solid fa-magnifying-glass me-1"></i>
+                        Rechercher
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <p class="studios-count">
+        {{ studios|length }} studio{% if studios|length > 1 %}s{% endif %}
+    </p>
+
+    <div class="row g-3">
+        {% for studio in studios %}
+            <div class="col-md-4 studio-card-wrapper"
+                 data-type="{{ studio.studio_type }}">
+                <div class="studio-card">
+                    <div class="studio-card-media">
+                        {% if studio.image %}
+                            <img src="{{ studio.image.url }}" alt="{{ studio.name }}">
+                        {% else %}
+                            <img src="{% static 'img/default_studio.jpg' %}" alt="{{ studio.name }}">
+                        {% endif %}
+                    </div>
+                    <div class="studio-card-body">
+                        <div class="studio-card-tag">
+                            {{ studio.get_studio_type_display|upper }}
+                        </div>
+                        <a href="{% url 'studio:user_studio_detail' studio.pk %}"
+                           class="studio-card-title">
+                            {{ studio.name|upper }}
+                        </a>
+                        <div class="studio-card-location">
+                            {% if studio.city or studio.address %}
+                                {{ studio.city|default:"" }}{% if studio.city and studio.address %} - {% endif %}{{ studio.address|default:"" }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
+                        <div class="studio-card-meta">
+                            {% if studio.area_m2 %}
+                                {{ studio.area_m2 }} m²
+                            {% else %}
+                                —
+                            {% endif %}
+                            {% if studio.capacity %}
+                                &nbsp; | &nbsp; {{ studio.capacity }} pers.
+                            {% endif %}
+                        </div>
+                        <div class="studio-card-footer">
+                            <div class="studio-card-price">
+                                {% if studio.price_per_hour %}
+                                    {{ studio.price_per_hour }} FCFA
+                                    <small>par heure</small>
+                                {% else %}
+                                    <small>Tarif sur devis</small>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'studio:user_studio_reserve' studio.pk %}"
+                               class="btn-studio-reserve">
+                                <i class="fa-solid fa-arrow-right"></i>
+                                Réserver un studio
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-muted">Aucun studio n'est disponible pour le moment.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const tabs = document.querySelectorAll(".studios-tab");
+    const cards = document.querySelectorAll(".studio-card-wrapper");
+
+    // Filtrage par type via les onglets (client-side)
+    tabs.forEach(tab => {
+        tab.addEventListener("click", function () {
+            const type = tab.dataset.type;
+            tabs.forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+
+            cards.forEach(card => {
+                const cardType = card.dataset.type || "";
+                if (!type || cardType === type) {
+                    card.style.display = "";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        });
+    });
+
+    // Le formulaire de recherche peut plus tard envoyer des paramètres GET.
+    // Pour l'instant, on bloqe l'envoi pour ne pas recharger la page.
+    const filterForm = document.getElementById("studios-filter-form");
+    if (filterForm) {
+        filterForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            // Ici tu pourras plus tard ajouter de la logique (appel AJAX, filtrage avancé)
+        });
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,181 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Détail Partenaire - {{ partner.name }} - Oloustream Admin{% endblock %}
+
+{% block content %}
+<style>
+.ptD-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+  animation: ptD-fadeInUp 0.4s ease-out;
+}
+.ptD-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.ptD-header h1 {
+  font-size: 1.6rem;
+  margin: 0;
+}
+.ptD-header .subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+.ptD-badge-active-yes {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.ptD-badge-active-no {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background: #e5e7eb;
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.ptD-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+  padding: 1.25rem 1.5rem;
+}
+
+.ptD-logo {
+  width: 160px;
+  height: 100px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  object-fit: contain;
+  padding: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Animation */
+@keyframes ptD-fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<div class="ptD-wrapper">
+    <div class="ptD-header">
+        <div>
+            <h1>{{ partner.name }}</h1>
+            <p class="subtitle">
+                Détails du partenaire Oloustream.
+            </p>
+        </div>
+        <div class="text-end">
+            {% if partner.active %}
+                <span class="ptD-badge-active-yes">
+                    <i class="ph ph-check-circle"></i> Actif
+                </span>
+            {% else %}
+                <span class="ptD-badge-active-no">
+                    <i class="ph ph-x-circle"></i> Inactif
+                </span>
+            {% endif %}
+            <div class="mt-2 btn-group btn-group-sm">
+                <a href="{% url 'dashboard:partners_edit' partner.id %}" class="btn btn-primary">
+                    <i class="ph ph-pencil-simple"></i> Modifier
+                </a>
+                <a href="{% url 'dashboard:partners_delete' partner.id %}" class="btn btn-danger">
+                    <i class="ph ph-trash"></i> Supprimer
+                </a>
+                <a href="{% url 'dashboard:partners_list' %}" class="btn btn-secondary">
+                    Retour à la liste
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="ptD-card">
+        <div class="row align-items-start">
+            <div class="col-md-4 text-center mb-3 mb-md-0">
+                {% if partner.logo %}
+                    <img src="{{ partner.logo.url }}" alt="Logo partenaire" class="ptD-logo">
+                {% else %}
+                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded"
+                        style="width: 160px; height: 100px; font-size: 2rem; margin: 0 auto;">
+                        <i class="ph ph-handshake"></i>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-8">
+                <p class="mb-2">
+                    <span class="fw-semibold">Nom :</span><br>
+                    <span>{{ partner.name }}</span>
+                </p>
+                <p class="mb-2">
+                    <span class="fw-semibold">Type de partenariat :</span><br>
+                    <span>{{ partner.get_partnership_type_display }}</span>
+                </p>
+                <p class="mb-2">
+                    <span class="fw-semibold">Site web :</span><br>
+                    {% if partner.website %}
+                        <a href="{{ partner.website }}" target="_blank" rel="noopener noreferrer">
+                            {{ partner.website }}
+                        </a>
+                    {% else %}
+                        <span class="text-muted">Non renseigné</span>
+                    {% endif %}
+                </p>
+
+                <hr>
+
+                <p class="mb-2">
+                    <span class="fw-semibold">Contact principal :</span><br>
+                    {% if partner.contact_name %}
+                        {{ partner.contact_name }}
+                    {% else %}
+                        <span class="text-muted">Non renseigné</span>
+                    {% endif %}
+                </p>
+                <p class="mb-1">
+                    <span class="fw-semibold">Email :</span><br>
+                    {% if partner.contact_email %}
+                        <a href="mailto:{{ partner.contact_email }}">{{ partner.contact_email }}</a>
+                    {% else %}
+                        <span class="text-muted">Non renseigné</span>
+                    {% endif %}
+                </p>
+                <p class="mb-2">
+                    <span class="fw-semibold">Téléphone :</span><br>
+                    {% if partner.contact_phone %}
+                        {{ partner.contact_phone }}
+                    {% else %}
+                        <span class="text-muted">Non renseigné</span>
+                    {% endif %}
+                </p>
+
+                {% if partner.address %}
+                    <p class="mb-2">
+                        <span class="fw-semibold">Adresse :</span><br>
+                        {{ partner.address }}
+                    </p>
+                {% endif %}
+
+                {% if partner.notes %}
+                    <p class="mb-0">
+                        <span class="fw-semibold">Notes internes :</span><br>
+                        {{ partner.notes|linebreaksbr }}
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

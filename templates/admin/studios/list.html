@@ -1,0 +1,273 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Studios - Oloustream Admin{% endblock %}
+
+{% block content %}
+
+<style>
+    .studio-list-wrapper {
+        margin: 0 auto 1.5rem;
+        animation: fadeInUp 0.3s ease-out;
+    }
+
+    .studio-list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .studio-list-header h1 {
+        font-size: 1.6rem;
+        margin: 0;
+    }
+
+    .studio-list-header .subtitle {
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+
+    .studio-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        background: #eef2ff;
+        color: #4338ca;
+    }
+
+    .studio-list-filters {
+        margin-bottom: 1rem;
+    }
+
+    .studio-list-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+        overflow: hidden;
+    }
+
+    .studio-list-table thead th {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #6b7280;
+        background: #f9fafb;
+    }
+
+    .studio-list-table tbody td {
+        font-size: 0.86rem;
+        vertical-align: middle;
+    }
+
+    .studio-status-badge {
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+    }
+
+    .studio-status-badge.available {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .studio-status-badge.unavailable {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .studio-status-badge.maintenance {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .studio-active-badge {
+        padding: 0.1rem 0.45rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    .studio-active-badge.on {
+        background: #d1fae5;
+        color: #047857;
+    }
+
+    .studio-search-input {
+        font-size: 0.85rem;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="studio-list-wrapper">
+    <div class="studio-list-header">
+        <div>
+            <h1>Studios</h1>
+            <p class="subtitle">
+                Gérez les studios disponibles pour les réservations (type, lieu, tarifs, statut).
+            </p>
+        </div>
+        <div>
+            <span class="studio-badge me-2">
+                <i class="fa-solid fa-video"></i> Total : {{ studios|length }}
+            </span>
+            <a href="{% url 'dashboard:studios_create' %}" class="btn btn-primary">
+                <i class="fa-solid fa-plus me-1"></i> Nouveau studio
+            </a>
+        </div>
+    </div>
+
+    <!-- Barre de recherche front-end -->
+    <div class="studio-list-filters card mb-3">
+        <div class="card-body py-2">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-2 mb-md-0">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-light">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input type="text"
+                               id="studio-search-input"
+                               class="form-control studio-search-input"
+                               placeholder="Rechercher un studio (nom, ville, pays…)">
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end" style="font-size:0.8rem;">
+                    <span class="text-muted">
+                        Filtrage instantané côté interface, sans recharger la page.
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if studios %}
+        <div class="studio-list-card">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 studio-list-table" id="studio-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Nom</th>
+                            <th>Type</th>
+                            <th>Localisation</th>
+                            <th>Prix / heure</th>
+                            <th>Statut</th>
+                            <th>Actif</th>
+                            <th>Réservations</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for studio in studios %}
+                            <tr class="studio-row">
+                                <td>
+                                    {% if studio.image %}
+                                        <img src="{{ studio.image.url }}"
+                                            alt="{{ studio.name }}"
+                                            style="width:48px;height:48px;object-fit:cover;border-radius:8px;">
+                                    {% else %}
+                                        <span class="text-muted" style="font-size:0.75rem;">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="studio-name">
+                                    <a href="{% url 'dashboard:studios_detail' studio.pk %}">
+                                        {{ studio.name }}
+                                    </a>
+                                    {% if studio.code %}
+                                        <div class="text-muted" style="font-size:0.75rem;">
+                                            Code : {{ studio.code }}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ studio.get_studio_type_display }}
+                                </td>
+                                <td class="studio-location">
+                                    {% if studio.city or studio.country %}
+                                        {{ studio.city|default:"" }}{% if studio.city and studio.country %}, {% endif %}{{ studio.country|default:"" }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if studio.price_per_hour %}
+                                        {{ studio.price_per_hour }} FCFA
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if studio.status == "AVAILABLE" %}
+                                        <span class="studio-status-badge available">Disponible</span>
+                                    {% elif studio.status == "MAINTENANCE" %}
+                                        <span class="studio-status-badge maintenance">En maintenance</span>
+                                    {% else %}
+                                        <span class="studio-status-badge unavailable">Indisponible</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="studio-active-badge {% if studio.is_active %}on{% endif %}">
+                                        {% if studio.is_active %}Oui{% else %}Non{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    {{ studio.reservation_set.count }}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{% url 'dashboard:studios_detail' studio.pk %}"
+                                       class="btn btn-sm btn-outline-secondary">
+                                        Détails
+                                    </a>
+                                    <a href="{% url 'dashboard:studios_edit' studio.pk %}"
+                                       class="btn btn-sm btn-outline-primary">
+                                        Modifier
+                                    </a>
+                                    <a href="{% url 'dashboard:studios_delete' studio.pk %}"
+                                       class="btn btn-sm btn-outline-danger">
+                                        Supprimer
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info mt-3">
+            Aucun studio n'a encore été créé. Utilisez le bouton
+            <strong>“Nouveau studio”</strong> pour en ajouter un.
+        </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const input = document.getElementById("studio-search-input");
+    const rows = document.querySelectorAll("#studio-table .studio-row");
+
+    if (!input || !rows.length) return;
+
+    input.addEventListener("input", function () {
+        const term = input.value.toLowerCase();
+        rows.forEach(function (row) {
+            const name = (row.querySelector(".studio-name")?.textContent || "").toLowerCase();
+            const loc  = (row.querySelector(".studio-location")?.textContent || "").toLowerCase();
+            const text = name + " " + loc;
+            row.style.display = text.includes(term) ? "" : "none";
+        });
+    });
+});
+</script>
+
+{% endblock %}

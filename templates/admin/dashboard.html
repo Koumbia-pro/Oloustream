@@ -1,0 +1,106 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Dashboard - Oloustream Admin{% endblock %}
+
+{% block content %}
+<div class="detail-dashboard-wrapper">
+    <h2>Dashboard</h2>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-bg-primary">
+            <div class="card-body">
+                <h6 class="card-title">Chiffre d'affaires total</h6>
+                <p class="card-text fs-4">{{ total_revenue }} F CFA</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-success">
+            <div class="card-body">
+                <h6 class="card-title">Réservations</h6>
+                <p class="card-text fs-4">{{ total_reservations }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-info">
+            <div class="card-body">
+                <h6 class="card-title">Clients</h6>
+                <p class="card-text fs-4">{{ total_clients }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-secondary">
+            <div class="card-body">
+                <h6 class="card-title">Employés</h6>
+                <p class="card-text fs-4">{{ total_employees }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Équipements</div>
+            <div class="card-body">
+                <p>Fonctionnels : {{ equipments_functional }}</p>
+                <p>En maintenance : {{ equipments_maintenance }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Offre de services</div>
+            <div class="card-body">
+                <p>Services actifs : {{ active_services }}</p>
+                <p>Formations actives : {{ active_trainings }}</p>
+                <p>Partenaires : {{ active_partners }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Revenus récents</div>
+            <div class="card-body">
+                <p>30 derniers jours : {{ recent_revenue }} F CFA</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="h5 mt-4 mb-3">Dernières réservations</h2>
+<div class="table-responsive">
+    <table class="table table-striped table-sm align-middle">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Client</th>
+            <th>Studio</th>
+            <th>Début</th>
+            <th>Fin</th>
+            <th>Statut</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for r in last_reservations %}
+            <tr>
+                <td>{{ r.id }}</td>
+                <td>{{ r.user.get_full_name|default:r.user.username }}</td>
+                <td>{{ r.studio|default:"-" }}</td>
+                <td>{{ r.start_datetime|date:"d/m/Y H:i" }}</td>
+                <td>{{ r.end_datetime|date:"d/m/Y H:i" }}</td>
+                <td>{{ r.get_status_display }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="6" class="text-center text-muted">Aucune réservation récente.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+{% endblock %}

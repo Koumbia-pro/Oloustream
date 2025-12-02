@@ -1,0 +1,44 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Supprimer le studio {{ studio.name }}{% endblock %}
+
+{% block content %}
+<div class="studio-delete-page mb-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-danger text-white">
+            <i class="fa-solid fa-triangle-exclamation me-1"></i>
+            Confirmer la suppression
+        </div>
+        <div class="card-body">
+            <p>
+                Voulez-vous vraiment supprimer le studio
+                <strong>{{ studio.name }}</strong> ?
+            </p>
+            <p class="text-muted" style="font-size:0.9rem;">
+                Cette action est <strong>irréversible</strong>. Les réservations existantes
+                ne seront pas supprimées mais ne pointeront plus vers ce studio.
+            </p>
+
+            <form method="post" class="mt-3">
+                {% csrf_token %}
+                <a href="{% url 'dashboard:studios_detail' studio.pk %}" class="btn btn-outline-secondary">
+                    Annuler
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    Oui, supprimer définitivement
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .studio-delete-page .card {
+        border-radius: 1rem;
+    }
+</style>
+
+<script>
+    // Tu peux ajouter une alerte JS supplémentaire si tu veux
+</script>
+{% endblock %}

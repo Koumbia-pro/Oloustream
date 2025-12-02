@@ -1,0 +1,538 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Offre - Oloustream Admin{% endblock %}
+
+{% block content %}
+
+<style>
+/* =========================================================
+   FORMULAIRE OFFRE – STYLE ULTRA PRO
+   ========================================================= */
+
+.offer-form-wrapper {
+  margin: 0 auto;
+  animation: off-fadeInUp 0.4s ease-out;
+}
+
+.off-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.off-header h1 {
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.off-header .subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.off-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Statut période */
+.off-badge-period-current { background: #dbeafe; color: #1d4ed8; }
+.off-badge-period-upcoming { background: #fef3c7; color: #92400e; }
+.off-badge-period-expired { background: #fee2e2; color: #b91c1c; }
+.off-badge-active-yes { background: #dcfce7; color: #166534; }
+.off-badge-active-no { background: #e5e7eb; color: #6b7280; }
+
+/* Tabs */
+.off-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.off-tab {
+  border-radius: 999px;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  color: #4b5563;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.off-tab.active {
+  background: linear-gradient(135deg, #e60023, #b3001b);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(230, 0, 35, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Sections */
+.off-section {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+  margin-bottom: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+.off-section.active {
+  border-color: #e60023;
+  box-shadow: 0 8px 20px rgba(230, 0, 35, 0.12);
+  transform: translateY(-1px);
+}
+
+.off-section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.off-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.off-section-title span.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.off-section-desc {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Grille */
+.off-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1.25rem;
+}
+
+/* Champs */
+.off-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.off-field label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #4b5563;
+  margin-bottom: 0.2rem;
+}
+
+.off-field input,
+.off-field select,
+.off-field textarea {
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.85rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.off-field input:focus,
+.off-field select:focus,
+.off-field textarea:focus {
+  border-color: #e60023;
+  box-shadow: 0 0 0 1px rgba(230, 0, 35, 0.35);
+  outline: none;
+  background: #fffafa;
+}
+
+.off-field .error-text {
+  font-size: 0.75rem;
+  color: #b91c1c;
+  margin-top: 0.15rem;
+}
+
+.off-field .help-text {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.15rem;
+}
+
+/* Footer */
+.off-form-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .off-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes off-fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<div class="offer-form-wrapper">
+    <div class="off-header">
+        <div>
+            <h1>
+                {% if offer %}
+                    Modifier l’offre : {{ offer.title }}
+                {% else %}
+                    Créer une nouvelle offre
+                {% endif %}
+            </h1>
+            <p class="subtitle">
+                Liez l’offre à un service, définissez la réduction et la période de validité.
+            </p>
+        </div>
+        {% if offer %}
+            <div class="text-end">
+                <div class="mb-1">
+                    <!-- Badge période -->
+                    {% now "Y-m-d" as today_str %}
+                    {% with today=today_str|date:"Y-m-d" %}
+                        {% if offer.start_date and offer.end_date %}
+                            {% if offer.start_date <= today|date and offer.end_date >= today|date %}
+                                <span class="off-badge off-badge-period-current">
+                                    <i class="ph ph-calendar-check"></i> En cours
+                                </span>
+                            {% elif offer.start_date > today|date %}
+                                <span class="off-badge off-badge-period-upcoming">
+                                    <i class="ph ph-calendar-plus"></i> À venir
+                                </span>
+                            {% else %}
+                                <span class="off-badge off-badge-period-expired">
+                                    <i class="ph ph-calendar-x"></i> Expirée
+                                </span>
+                            {% endif %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <!-- Badge actif -->
+                    {% if offer.is_active %}
+                        <span class="off-badge off-badge-active-yes ms-1">
+                            <i class="ph ph-check-circle"></i> Active
+                        </span>
+                    {% else %}
+                        <span class="off-badge off-badge-active-no ms-1">
+                            <i class="ph ph-x-circle"></i> Inactive
+                        </span>
+                    {% endif %}
+                </div>
+                <small class="text-muted">
+                    Service : {{ offer.service.name|default:"-" }}
+                </small>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Onglets -->
+    <div class="off-tabs">
+        <button type="button" class="off-tab active" data-target="#off-section-base">
+            <i class="ph ph-tag"></i> Informations de base
+        </button>
+        <button type="button" class="off-tab" data-target="#off-section-period">
+            <i class="ph ph-calendar"></i> Période & statut
+        </button>
+        <button type="button" class="off-tab" data-target="#off-section-desc">
+            <i class="ph ph-text-align-left"></i> Description
+        </button>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <!-- SECTION 1 : BASE -->
+        <section class="off-section active" id="off-section-base">
+            <div class="off-section-header">
+                <h2 class="off-section-title">
+                    <span class="icon"><i class="ph ph-tag"></i></span>
+                    Informations de base
+                </h2>
+                <p class="off-section-desc">
+                    L’offre est toujours liée à un service Oloustream, avec un titre marketing clair.
+                </p>
+            </div>
+
+            <div class="off-grid-2">
+                {% if form.service %}
+                <div class="off-field">
+                    <label for="{{ form.service.id_for_label }}">{{ form.service.label }}</label>
+                    {{ form.service }}
+                    {% if form.service.errors %}
+                        <div class="error-text">{{ form.service.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.discount_percent %}
+                <div class="off-field">
+                    <label for="{{ form.discount_percent.id_for_label }}">{{ form.discount_percent.label }}</label>
+                    {{ form.discount_percent }}
+                    {% if form.discount_percent.errors %}
+                        <div class="error-text">{{ form.discount_percent.errors|striptags }}</div>
+                    {% endif %}
+                    <div class="help-text">Réduction en pourcentage appliquée au prix de base du service.</div>
+                </div>
+                {% endif %}
+
+                {% if form.title %}
+                <div class="off-field" style="grid-column: 1 / -1;">
+                    <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <div class="error-text">{{ form.title.errors|striptags }}</div>
+                    {% endif %}
+                    <div class="help-text">Exemple : “Pack Live Streaming -30% pour événements corporate”.</div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- SECTION 2 : PÉRIODE & STATUT -->
+        <!-- SECTION 2 : PÉRIODE & STATUT -->
+        <section class="off-section" id="off-section-period">
+            <div class="off-section-header">
+                <h2 class="off-section-title">
+                    <span class="icon"><i class="ph ph-calendar"></i></span>
+                    Période & statut
+                </h2>
+                <p class="off-section-desc">
+                    Dates de validité de l’offre et activation dans le catalogue.
+                </p>
+            </div>
+
+                <div class="off-grid-2">
+                    {% if form.start_date %}
+                    <div class="off-field">
+                        <label for="{{ form.start_date.id_for_label }}">{{ form.start_date.label }}</label>
+                        {{ form.start_date }}
+                        {% if form.start_date.errors %}
+                            <div class="error-text">{{ form.start_date.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if form.end_date %}
+                    <div class="off-field">
+                        <label for="{{ form.end_date.id_for_label }}">{{ form.end_date.label }}</label>
+                        {{ form.end_date }}
+                        {% if form.end_date.errors %}
+                            <div class="error-text">{{ form.end_date.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Nouveau champ durée en jours (uniquement front) -->
+                    <div class="off-field">
+                        <label for="off_duration_days">Durée (jours)</label>
+                        <input type="number" id="off_duration_days" class="form-control"
+                            placeholder="Ex : 30">
+                        <div class="help-text">
+                            Si vous renseignez ce champ, la date de fin sera calculée automatiquement
+                            à partir de la date de début.
+                        </div>
+                    </div>
+
+                    {% if form.is_active %}
+                    <div class="off-field">
+                        <label>{{ form.is_active.label }}</label>
+                        <label class="off-toggle">
+                            {{ form.is_active }}
+                            <span>Offre active (affichée et utilisable)</span>
+                        </label>
+                        {% if form.is_active.errors %}
+                            <div class="error-text">{{ form.is_active.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+        </section>
+
+        <!-- SECTION 3 : DESCRIPTION -->
+        <section class="off-section" id="off-section-desc">
+            <div class="off-section-header">
+                <h2 class="off-section-title">
+                    <span class="icon"><i class="ph ph-text-align-left"></i></span>
+                    Description de l’offre
+                </h2>
+                <p class="off-section-desc">
+                    Détaillez ce qui est inclus dans l’offre, les conditions, les limites, etc.
+                </p>
+            </div>
+
+            <div class="off-field">
+                {% if form.description %}
+                    <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="error-text">{{ form.description.errors|striptags }}</div>
+                    {% endif %}
+                    <div class="help-text">Cet espace peut être utilisé pour l’affichage public ou interne.</div>
+                {% endif %}
+            </div>
+        </section>
+
+        <div class="off-form-footer">
+            <a href="{% url 'dashboard:offers_list' %}" class="btn btn-secondary">
+                Annuler
+            </a>
+            <button type="submit" class="btn btn-primary">
+                {% if offer %}Mettre à jour{% else %}Créer l’offre{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // --- Gestion des onglets ---
+    const tabs = document.querySelectorAll('.off-tab');
+    const sections = document.querySelectorAll('.off-section');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = document.querySelector(tab.dataset.target);
+            if (!target) return;
+
+            tabs.forEach(t => t.classList.remove('active'));
+            sections.forEach(s => s.classList.remove('active'));
+
+            tab.classList.add('active');
+            target.classList.add('active');
+
+            const y = target.getBoundingClientRect().top + window.scrollY - 80;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+        });
+    });
+
+    sections.forEach(section => {
+        section.addEventListener('focusin', () => {
+            sections.forEach(s => s.classList.remove('active'));
+            section.classList.add('active');
+        });
+    });
+
+    // --- Validation front (réduction & dates) + durée auto ---
+    const discountInput = document.getElementById('{{ form.discount_percent.id_for_label }}');
+    const startDateInput = document.getElementById('{{ form.start_date.id_for_label }}');
+    const endDateInput = document.getElementById('{{ form.end_date.id_for_label }}');
+    const durationInput = document.getElementById('off_duration_days');
+
+    function showFieldError(input, message) {
+        const container = input.closest('.off-field');
+        if (!container) return;
+
+        let oldError = container.querySelector('.off-js-error');
+        if (oldError) oldError.remove();
+
+        if (message) {
+            const err = document.createElement('div');
+            err.className = 'error-text off-js-error';
+            err.textContent = message;
+            container.appendChild(err);
+        }
+    }
+
+    // Validation réduction (0-100)
+    if (discountInput) {
+        discountInput.addEventListener('input', function() {
+            const value = parseFloat(this.value);
+            if (isNaN(value)) {
+                showFieldError(this, null);
+                return;
+            }
+            if (value < 0 || value > 100) {
+                showFieldError(this, "La réduction doit être entre 0 et 100 %.");
+            } else {
+                showFieldError(this, null);
+            }
+        });
+    }
+
+    // Validation de cohérence dates
+    function validateDates() {
+        if (!startDateInput || !endDateInput) return;
+        const startVal = startDateInput.value;
+        const endVal = endDateInput.value;
+
+        if (startVal && endVal && endVal < startVal) {
+            showFieldError(endDateInput, "La date de fin doit être supérieure ou égale à la date de début.");
+        } else {
+            showFieldError(endDateInput, null);
+        }
+    }
+
+    // Calcul automatique de la date de fin en fonction de la durée en jours
+    function autofillEndDate() {
+        if (!startDateInput || !endDateInput || !durationInput) return;
+
+        const startVal = startDateInput.value;
+        const days = parseInt(durationInput.value, 10);
+
+        if (!startVal || isNaN(days) || days <= 0) {
+            return; // on ne fait rien si durée invalide ou pas de date de début
+        }
+
+        const date = new Date(startVal);
+        // + (days - 1) pour avoir une période inclusive (par ex. 01/04 + 30j -> 30/04)
+        date.setDate(date.getDate() + (days - 1));
+
+        // Format AAAA-MM-JJ pour le champ date HTML
+        const iso = date.toISOString().slice(0, 10);
+        endDateInput.value = iso;
+
+        validateDates();
+    }
+
+    if (startDateInput && endDateInput) {
+        startDateInput.addEventListener('change', function() {
+            autofillEndDate();
+            validateDates();
+        });
+        endDateInput.addEventListener('change', validateDates);
+    }
+
+    if (durationInput) {
+        durationInput.addEventListener('input', function() {
+            autofillEndDate();
+        });
+    }
+});
+</script>
+
+{% endblock %}

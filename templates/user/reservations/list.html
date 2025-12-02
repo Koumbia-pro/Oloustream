@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Mes réservations - Oloustream{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Mes réservations</h1>
+    <a href="{% url 'studio:user_reservations_create' %}" class="btn btn-primary btn-sm">
+        + Nouvelle réservation
+    </a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-sm align-middle">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Studio</th>
+            <th>Service</th>
+            <th>Début</th>
+            <th>Fin</th>
+            <th>Statut</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for r in reservations %}
+            <tr>
+                <td>{{ r.id }}</td>
+                <td>{{ r.studio|default:"-" }}</td>
+                <td>{{ r.service|default:"-" }}</td>
+                <td>{{ r.start_datetime|date:"d/m/Y H:i" }}</td>
+                <td>{{ r.end_datetime|date:"d/m/Y H:i" }}</td>
+                <td>{{ r.get_status_display }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="6" class="text-center text-muted">
+                    Vous n'avez pas encore de réservation.
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

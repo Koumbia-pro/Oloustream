@@ -1,0 +1,186 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Chat - Conversation {{ conversation.id }} - Oloustream Admin{% endblock %}
+
+{% block content %}
+
+<style>
+/* =========================================================
+   CHAT ADMIN – STYLE ULTRA PRO
+   ========================================================= */
+
+.msg-chat-wrapper {
+  {% comment %} max-width: 1100px; {% endcomment %}
+  margin: 0 auto;
+  animation: msgC-fadeInUp 0.4s ease-out;
+}
+
+.msgC-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.msgC-header h1 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.msgC-header .subtitle {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.msgC-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  height: 520px;
+}
+
+.msgC-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.25rem;
+  background: #f3f4f6;
+}
+
+.msgC-message {
+  max-width: 70%;
+  margin-bottom: 0.5rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.8rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  position: relative;
+}
+
+.msgC-message.me {
+  margin-left: auto;
+  background: #e60023;
+  color: #ffffff;
+  border-bottom-right-radius: 0.2rem;
+}
+
+.msgC-message.other {
+  margin-right: auto;
+  background: #ffffff;
+  color: #111827;
+  border-bottom-left-radius: 0.2rem;
+  border: 1px solid #e5e7eb;
+}
+
+.msgC-meta {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-top: 0.1rem;
+}
+
+/* Zone input */
+.msgC-input {
+  border-top: 1px solid #e5e7eb;
+  padding: 0.75rem 1rem;
+  background: #ffffff;
+}
+
+.msgC-input form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.msgC-input textarea {
+  flex: 1;
+  resize: none;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.85rem;
+  max-height: 80px;
+  min-height: 38px;
+}
+
+.msgC-input textarea:focus {
+  border-color: #e60023;
+  box-shadow: 0 0 0 1px rgba(230, 0, 35, 0.35);
+  outline: none;
+}
+
+/* Animation */
+@keyframes msgC-fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<div class="msg-chat-wrapper">
+    <div class="msgC-header">
+        <div>
+            <h1>Conversation avec {{ conversation.user.get_full_name|default:conversation.user.username }}</h1>
+            <p class="subtitle">
+                ID : {{ conversation.id }} –
+                Utilisateur : {{ conversation.user.email|default:"-" }}
+            </p>
+        </div>
+        <div class="btn-group btn-group-sm">
+            <a href="{% url 'messaging:admin_conversations_list' %}" class="btn btn-secondary">
+                Retour aux conversations
+            </a>
+        </div>
+    </div>
+
+    <div class="msgC-card">
+        <div class="msgC-messages" id="chat-messages">
+            {% for msg in messages %}
+                <div class="msgC-message {% if msg.sender == request.user %}me{% else %}other{% endif %}">
+                    <div>{{ msg.content|linebreaksbr }}</div>
+                    <div class="msgC-meta">
+                        {% if msg.sender == request.user %}
+                            Vous
+                        {% else %}
+                            {{ msg.sender.get_full_name|default:msg.sender.username }}
+                        {% endif %}
+                        • {{ msg.sent_at|date:"d/m/Y H:i" }}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted small">Aucun message pour le moment. Envoyez un message pour commencer la conversation.</p>
+            {% endfor %}
+        </div>
+        <div class="msgC-input">
+            <form method="post">
+                {% csrf_token %}
+                <textarea name="message" rows="1" placeholder="Écrivez votre message..."></textarea>
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="ph ph-paper-plane-tilt"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Scroll en bas au chargement
+    const chatMessages = document.getElementById('chat-messages');
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Auto-agrandissement du textarea
+    const textarea = document.querySelector('.msgC-input textarea');
+    if (textarea) {
+        const autoResize = () => {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+        };
+        textarea.addEventListener('input', autoResize);
+        autoResize();
+    }
+});
+</script>
+
+{% endblock %}

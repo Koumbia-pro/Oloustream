@@ -1,0 +1,227 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Messages - Oloustream Admin{% endblock %}
+
+{% block content %}
+
+<style>
+/* =========================================================
+   LISTE CONVERSATIONS – STYLE ULTRA PRO
+   ========================================================= */
+
+.msg-list-wrapper {
+  {% comment %} max-width: 1100px; {% endcomment %}
+  margin: 0 auto;
+  animation: msgL-fadeInUp 0.4s ease-out;
+}
+
+.msgL-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.msgL-header h1 {
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.msgL-header .subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.msgL-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.msgL-conv-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+  padding: 0.9rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+}
+
+.msgL-conv-card:hover {
+  border-color: #e60023;
+  box-shadow: 0 8px 16px rgba(230, 0, 35, 0.12);
+  transform: translateY(-1px);
+}
+
+.msgL-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.msgL-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.msgL-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.msgL-meta {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.msgL-last-message {
+  font-size: 0.85rem;
+  color: #4b5563;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.msgL-right {
+  text-align: right;
+  font-size: 0.8rem;
+}
+
+.msgL-badge-unread {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+@keyframes msgL-fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<div class="msg-list-wrapper">
+    <div class="msgL-header">
+        <div>
+            <h1>Conversations</h1>
+            <p class="subtitle">
+                Liste des conversations client & échanges de messages.
+            </p>
+        </div>
+        <div>
+            {% if only_unread %}
+                <a href="{% url 'messaging:admin_conversations_list' %}" class="btn btn-outline-secondary btn-sm">
+                    Voir toutes
+                </a>
+            {% else %}
+                <a href="?only_unread=yes" class="btn btn-outline-primary btn-sm">
+                    <i class="ph ph-envelope-open"></i> Seulement non lues
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Barre de recherche -->
+    <form method="get" class="msgL-filters">
+        <div class="input-group input-group-sm" style="max-width: 320px;">
+            <span class="input-group-text"><i class="ph ph-magnifying-glass"></i></span>
+            <input type="text" name="q" class="form-control"
+                   placeholder="Nom, email, contenu du message..."
+                   value="{{ q }}">
+        </div>
+        {% if only_unread %}
+            <input type="hidden" name="only_unread" value="yes">
+        {% endif %}
+        <button type="submit" class="btn btn-primary btn-sm">
+            Rechercher
+        </button>
+        {% if q or only_unread %}
+            <a href="{% url 'messaging:admin_conversations_list' %}" class="btn btn-outline-secondary btn-sm">
+                Réinitialiser
+            </a>
+        {% endif %}
+    </form>
+
+    {% if conversations_data %}
+        {% for item in conversations_data %}
+            {% with c=item.conversation last=item.last_message has_unread=item.has_unread %}
+                <a href="{% url 'messaging:admin_conversation_chat' c.id %}" class="text-decoration-none">
+                    <div class="msgL-conv-card {% if has_unread %}border-danger{% endif %}">
+                        <div class="msgL-avatar">
+                            {{ c.user.first_name|default:c.user.username|first|upper }}
+                        </div>
+                        <div class="msgL-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="msgL-name">
+                                        {{ c.user.get_full_name|default:c.user.username }}
+                                        {% if has_unread %}
+                                            <span class="badge bg-danger ms-1">Nouveaux</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="msgL-meta">
+                                        {{ c.user.email|default:"-" }}
+                                    </div>
+                                </div>
+                                <div class="msgL-right">
+                                    {% if last %}
+                                        <div class="text-muted small">
+                                            {{ last.sent_at|date:"d/m/Y H:i" }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="msgL-last-message mt-1">
+                                {% if last %}
+                                    {% if last.sender == request.user %}
+                                        <strong>Vous :</strong>
+                                    {% else %}
+                                        <strong>{{ last.sender.get_full_name|default:last.sender.username }} :</strong>
+                                    {% endif %}
+                                    {{ last.content|truncatechars:80 }}
+                                {% else %}
+                                    <span class="text-muted">Aucun message encore.</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="msgL-right">
+                            {% if has_unread %}
+                                <span class="msgL-badge-unread">
+                                    !
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            {% endwith %}
+        {% endfor %}
+    {% else %}
+        <div class="card shadow-sm">
+            <div class="card-body text-center text-muted py-4">
+                Aucune conversation pour le moment.
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

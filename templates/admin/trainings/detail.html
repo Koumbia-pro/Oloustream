@@ -1,0 +1,366 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Détail Formation - {{ training.title }} - Oloustream Admin{% endblock %}
+
+{% block content %}
+<style>
+/* =========================================================
+   DÉTAIL FORMATION – STYLE ULTRA PRO
+   ========================================================= */
+
+.trnD-wrapper {
+  max-width: 1100px;
+  margin: 0 auto;
+  animation: trnD-fadeInUp 0.4s ease-out;
+}
+
+.trnD-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.trnD-header h1 {
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.trnD-header .subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+/* Badges */
+.trnD-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.trnD-badge-level {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.trnD-badge-mode {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.trnD-badge-period-current { background: #dbeafe; color: #1d4ed8; }
+.trnD-badge-period-upcoming { background: #fef3c7; color: #92400e; }
+.trnD-badge-period-past { background: #fee2e2; color: #b91c1c; }
+.trnD-badge-period-none { background: #e5e7eb; color: #6b7280; }
+
+.trnD-badge-active-yes { background: #dcfce7; color: #166534; }
+.trnD-badge-active-no { background: #e5e7eb; color: #6b7280; }
+
+/* Carte image */
+.trnD-image-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+  padding: 1rem;
+  text-align: center;
+}
+
+.trnD-image-preview {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Sections */
+.trnD-section {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+  margin-bottom: 1.25rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.trnD-section-header {
+  margin-bottom: 0.75rem;
+}
+
+.trnD-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.trnD-section-title span.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.trnD-section-desc {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Grille */
+.trnD-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1.25rem;
+}
+
+.trnD-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.trnD-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .trnD-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Animation */
+@keyframes trnD-fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<div class="trnD-wrapper">
+    <div class="trnD-header">
+        <div>
+            <h1>{{ training.title }}</h1>
+            <p class="subtitle">
+                {% if training.category %}
+                    Catégorie : {{ training.category.name }}<br>
+                {% endif %}
+                Créée le {{ training.created_at|date:"d/m/Y H:i" }} – 
+                Mise à jour le {{ training.updated_at|date:"d/m/Y H:i" }}
+            </p>
+        </div>
+        <div class="text-end">
+            <div class="mb-2">
+                <span class="trnD-badge trnD-badge-level">
+                    <i class="ph ph-graduation-cap"></i>
+                    {{ training.get_level_display }}
+                </span>
+                <span class="trnD-badge trnD-badge-mode ms-1">
+                    <i class="ph ph-monitor-play"></i>
+                    {{ training.get_mode_display }}
+                </span>
+
+                {% if period_label == "En cours" %}
+                    <span class="trnD-badge trnD-badge-period-current ms-1">
+                        <i class="ph ph-calendar-check"></i> En cours
+                    </span>
+                {% elif period_label == "À venir" %}
+                    <span class="trnD-badge trnD-badge-period-upcoming ms-1">
+                        <i class="ph ph-calendar-plus"></i> À venir
+                    </span>
+                {% elif period_label == "Terminée" %}
+                    <span class="trnD-badge trnD-badge-period-past ms-1">
+                        <i class="ph ph-calendar-x"></i> Terminée
+                    </span>
+                {% else %}
+                    <span class="trnD-badge trnD-badge-period-none ms-1">
+                        <i class="ph ph-calendar-dots"></i> Non planifiée
+                    </span>
+                {% endif %}
+
+                {% if training.is_active %}
+                    <span class="trnD-badge trnD-badge-active-yes ms-1">
+                        <i class="ph ph-check-circle"></i> Active
+                    </span>
+                {% else %}
+                    <span class="trnD-badge trnD-badge-active-no ms-1">
+                        <i class="ph ph-x-circle"></i> Inactive
+                    </span>
+                {% endif %}
+            </div>
+            <div class="btn-group btn-group-sm" role="group">
+                <a href="{% url 'dashboard:trainings_edit' training.id %}" class="btn btn-primary">
+                    <i class="ph ph-pencil-simple"></i> Modifier
+                </a>
+                <a href="{% url 'dashboard:trainings_delete' training.id %}" class="btn btn-danger">
+                    <i class="ph ph-trash"></i> Supprimer
+                </a>
+                <a href="{% url 'dashboard:trainings_list' %}" class="btn btn-secondary">
+                    Retour à la liste
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Colonne gauche : image + infos clefs -->
+        <div class="col-lg-4 mb-4">
+            <div class="trnD-image-card mb-3">
+                {% if training.image %}
+                    <img src="{{ training.image.url }}" alt="Image formation" class="trnD-image-preview mb-2">
+                {% else %}
+                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded mb-2"
+                         style="width: 100%; height: 180px; font-size: 2rem;">
+                        <i class="ph ph-image-square"></i>
+                    </div>
+                {% endif %}
+                <p class="mb-0 trnD-label">Slug (URL) :</p>
+                <p class="trnD-value">{{ training.slug }}</p>
+
+                {% if training.duration_hours %}
+                    <p class="mb-0 trnD-label">Durée totale :</p>
+                    <p class="trnD-value">{{ training.duration_hours }} h</p>
+                {% endif %}
+                {% if training.price %}
+                    <p class="mb-0 trnD-label">Prix :</p>
+                    <p class="trnD-value">{{ training.price }} F CFA</p>
+                {% endif %}
+            </div>
+
+            <div class="trnD-section">
+                <div class="trnD-section-header">
+                    <h2 class="trnD-section-title">
+                        Informations logistiques
+                    </h2>
+                </div>
+                <div class="trnD-grid-2">
+                    <div>
+                        <p class="mb-0 trnD-label">Lieu :</p>
+                        <p class="trnD-value">{{ training.location|default:"-" }}</p>
+                    </div>
+                    <div>
+                        <p class="mb-0 trnD-label">Certification :</p>
+                        <p class="trnD-value">
+                            {% if training.certification %}Oui{% else %}Non{% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="mb-0 trnD-label">Places max :</p>
+                        <p class="trnD-value">{{ training.max_seats|default:"-" }}</p>
+                    </div>
+                    <div>
+                        <p class="mb-0 trnD-label">Période :</p>
+                        <p class="trnD-value">
+                            {% if training.start_date %}
+                                {{ training.start_date|date:"d/m/Y" }}
+                                {% if training.end_date %} – {{ training.end_date|date:"d/m/Y" }}{% endif %}
+                            {% else %}
+                                <span class="text-muted">Non définie</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                {% if training.schedule %}
+                    <hr class="my-2">
+                    <p class="mb-0 trnD-label">Horaires / planning :</p>
+                    <p class="trnD-value">{{ training.schedule|linebreaksbr }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Colonne droite : contenu pédagogique -->
+        <div class="col-lg-8 mb-4">
+            <div class="trnD-section mb-3">
+                <div class="trnD-section-header">
+                    <h2 class="trnD-section-title">
+                        <span class="icon"><i class="ph ph-text-align-left"></i></span>
+                        Description
+                    </h2>
+                </div>
+                {% if training.short_description %}
+                    <p class="mb-2"><strong>Résumé :</strong> {{ training.short_description }}</p>
+                {% endif %}
+                <p class="mb-0">{{ training.description|linebreaksbr }}</p>
+            </div>
+
+            <div class="trnD-section mb-3">
+                <div class="trnD-section-header">
+                    <h2 class="trnD-section-title">
+                        <span class="icon"><i class="ph ph-target"></i></span>
+                        Objectifs & prérequis
+                    </h2>
+                </div>
+                <div class="trnD-grid-2">
+                    <div>
+                        <p class="mb-0 trnD-label">Objectifs pédagogiques :</p>
+                        <p class="trnD-value">
+                            {{ training.objectives|linebreaksbr|default:"Non renseignés." }}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="mb-0 trnD-label">Prérequis :</p>
+                        <p class="trnD-value">
+                            {{ training.prerequisites|linebreaksbr|default:"Aucun prérequis indiqué." }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="trnD-section mb-3">
+                <div class="trnD-section-header">
+                    <h2 class="trnD-section-title">
+                        <span class="icon"><i class="ph ph-users-three"></i></span>
+                        Public cible
+                    </h2>
+                </div>
+                <p class="mb-0 trnD-value">
+                    {{ training.target_audience|linebreaksbr|default:"Non spécifié." }}
+                </p>
+            </div>
+
+            <div class="trnD-section">
+                <div class="trnD-section-header">
+                    <h2 class="trnD-section-title">
+                        <span class="icon"><i class="ph ph-list-numbers"></i></span>
+                        Programme détaillé
+                    </h2>
+                </div>
+                <p class="mb-0 trnD-value">
+                    {{ training.program|linebreaksbr|default:"Programme non renseigné." }}
+                </p>
+            </div>
+
+            <div class="trnD-section">
+                <div class="trnD-section-header">
+                    <h2 class="trnD-section-title">
+                        <span class="icon"><i class="ph ph-file-pdf"></i></span>
+                        Documents
+                    </h2>
+                </div>
+                <p class="mb-2">
+                    <span class="trnD-label">Brochure PDF :</span><br>
+                    {% if training.brochure %}
+                        <a href="{{ training.brochure.url }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                            <i class="ph ph-file-pdf"></i> Voir la brochure
+                        </a>
+                    {% else %}
+                        <span class="text-muted">Aucune brochure disponible.</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

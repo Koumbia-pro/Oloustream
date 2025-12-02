@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Réserver {{ equipment.name }}{% endblock %}
+
+{% block content %}
+
+<style>
+    .reserve-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .reserve-eq-card {
+        border-radius: 1rem;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 25px rgba(15,23,42,0.09);
+        padding: 1.1rem 1.3rem;
+    }
+    .reserve-form-card {
+        border-radius: 1rem;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 25px rgba(15,23,42,0.09);
+        padding: 1.1rem 1.3rem;
+    }
+    .reserve-eq-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+    .reserve-eq-meta {
+        font-size: 0.86rem;
+        color: #6b7280;
+    }
+    .reserve-eq-media {
+        border-radius: 0.8rem;
+        overflow: hidden;
+        margin-top: 0.7rem;
+        background: #020617;
+        height: 190px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .reserve-eq-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    @media (max-width: 768px) {
+        .reserve-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<a href="{% url 'studio:user_equipment_detail' equipment.pk %}" class="btn btn-sm btn-outline-secondary mb-3">
+    ← Retour au détail du matériel
+</a>
+
+<div class="reserve-layout">
+    <div class="reserve-eq-card">
+        <div class="reserve-eq-title">{{ equipment.name }}</div>
+        <div class="reserve-eq-meta">
+            {% if equipment.category %}
+                {{ equipment.category.name }} ·
+            {% endif %}
+            {% if equipment.brand or equipment.model %}
+                {{ equipment.brand }} {{ equipment.model }}
+            {% endif %}
+        </div>
+        <div class="reserve-eq-media mt-2">
+            {% if equipment.photo %}
+                <img src="{{ equipment.photo.url }}" alt="{{ equipment.name }}">
+            {% else %}
+                <span class="text-light" style="font-size:0.85rem;">
+                    Aucune image disponible
+                </span>
+            {% endif %}
+        </div>
+        {% if equipment.accessories_included %}
+            <p class="mt-3" style="font-size:0.85rem;color:#4b5563;">
+                <strong>Accessoires inclus :</strong><br>
+                {{ equipment.accessories_included }}
+            </p>
+        {% endif %}
+    </div>
+
+    <div class="reserve-form-card">
+        <h2 class="h5 mb-3">Réserver ce matériel</h2>
+        <p class="text-muted" style="font-size:0.86rem;">
+            Choisissez la date et l'heure de début et de fin de la réservation.
+            La demande sera d'abord validée par notre équipe.
+        </p>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="mb-2">
+                <label for="{{ form.start_datetime.id_for_label }}" class="form-label">
+                    Date et heure de début
+                </label>
+                {{ form.start_datetime }}
+                {% if form.start_datetime.errors %}
+                    <div class="text-danger small">{{ form.start_datetime.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.end_datetime.id_for_label }}" class="form-label">
+                    Date et heure de fin
+                </label>
+                {{ form.end_datetime }}
+                {% if form.end_datetime.errors %}
+                    <div class="text-danger small">{{ form.end_datetime.errors }}</div>
+                {% endif %}
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary">
+                Envoyer la demande de réservation
+            </button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

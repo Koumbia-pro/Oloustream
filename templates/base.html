@@ -1,0 +1,761 @@
+{% load static %}
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Oloustream{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap via CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+          crossorigin="anonymous">
+
+    <!-- Font Awesome pour les icônes (optionnel mais conseillé) -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        :root {
+            --olou-primary: #E60023;
+            --olou-primary-dark: #c1001c;
+            --olou-bg-dark: #020617;
+            --olou-bg-soft: #0b1120;
+            --text-muted: #6b7280;
+        }
+
+        body {
+            background-color: #f3f4f6;
+        }
+
+        /* ===== HEADER / NAVBAR =================================================== */
+
+        .site-header {
+            background: radial-gradient(circle at top left, #111827 0, #020617 40%, #000 100%);
+            color: #f9fafb;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .main-nav {
+            padding: 0.6rem 0;
+        }
+
+        .main-nav-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-decoration: none;
+            color: #f9fafb;
+        }
+
+        .nav-brand img {
+            height: 38px;
+            width: auto;
+            border-radius: 0.4rem;
+        }
+
+        .nav-brand-text {
+            font-weight: 600;
+            font-size: 1.05rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* Menu desktop */
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 1.8rem;
+            font-size: 0.9rem;
+        }
+
+        .nav-menu a {
+            color: #e5e7eb;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .nav-menu a:hover {
+            color: #ffffff;
+        }
+
+        .nav-link-underline::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -0.25rem;
+            width: 0;
+            height: 2px;
+            background: var(--olou-primary);
+            transition: width 0.2s ease;
+        }
+
+        .nav-link-underline:hover::after {
+            width: 100%;
+        }
+
+        /* Dropdown Services */
+
+        .nav-item-dropdown {
+            position: relative;
+        }
+
+        .nav-dropdown-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            cursor: pointer;
+        }
+
+        .nav-dropdown {
+            position: absolute;
+            top: 130%;
+            left: 0;
+            min-width: 260px;
+            background: #020617;
+            border-radius: 1rem;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            box-shadow: 0 18px 35px rgba(15, 23, 42, 0.8);
+            padding: 0.7rem 0.8rem;
+            display: none;
+            z-index: 1100;
+        }
+
+        .nav-dropdown-section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #9ca3af;
+            margin: 0.3rem 0 0.2rem;
+        }
+
+        .nav-dropdown-link {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 0.86rem;
+            color: #e5e7eb;
+            padding: 0.3rem 0.15rem;
+            border-radius: 0.4rem;
+            text-decoration: none;
+        }
+
+        .nav-dropdown-link i {
+            font-size: 0.85rem;
+            color: #9ca3af;
+        }
+
+        .nav-dropdown-link:hover {
+            background: #111827;
+            color: #f9fafb;
+        }
+
+        .nav-item-dropdown:hover .nav-dropdown {
+            display: block;
+        }
+
+        /* Zone actions (auth + CTA) */
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-auth {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-nav {
+            border-radius: 999px;
+            padding: 0.4rem 0.9rem;
+            font-size: 0.82rem;
+            font-weight: 500;
+        }
+
+        .btn-nav-outline {
+            border: 1px solid rgba(249, 250, 251, 0.7);
+            color: #e5e7eb;
+            background: transparent;
+        }
+
+        .btn-nav-outline:hover {
+            background: rgba(15,23,42,0.8);
+            color: #fff;
+        }
+
+        .btn-nav-primary {
+            background-color: var(--olou-primary);
+            border-color: var(--olou-primary);
+            color: #f9fafb;
+        }
+
+        .btn-nav-primary:hover {
+            background-color: var(--olou-primary-dark);
+            border-color: var(--olou-primary-dark);
+            color: #fff;
+        }
+
+        /* User menu */
+
+        .user-menu {
+            position: relative;
+            font-size: 0.85rem;
+        }
+
+        .user-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            cursor: pointer;
+            color: #e5e7eb;
+        }
+
+        .user-toggle i {
+            font-size: 1rem;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            right: 0;
+            top: 130%;
+            min-width: 200px;
+            background: #020617;
+            border-radius: 0.9rem;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            box-shadow: 0 18px 35px rgba(15, 23, 42, 0.8);
+            padding: 0.4rem 0;
+            display: none;
+            z-index: 1200;
+        }
+
+        .user-dropdown a {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.86rem;
+            padding: 0.45rem 0.9rem;
+            color: #e5e7eb;
+            text-decoration: none;
+        }
+
+        .user-dropdown a i {
+            font-size: 0.9rem;
+            color: #9ca3af;
+        }
+
+        .user-dropdown a:hover {
+            background: #111827;
+            color: #fff;
+        }
+
+        .user-dropdown-divider {
+            border-top: 1px solid rgba(55, 65, 81, 0.8);
+            margin: 0.25rem 0;
+        }
+
+        .user-dropdown-logout {
+            color: #fca5a5 !important;
+        }
+
+        .user-menu.open .user-dropdown {
+            display: block;
+        }
+
+        /* Burger mobile */
+
+        .nav-toggle {
+            display: none;
+            width: 2.2rem;
+            height: 2.2rem;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            background: transparent;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            cursor: pointer;
+            color: #e5e7eb;
+        }
+
+        .nav-toggle span {
+            display: block;
+            width: 16px;
+            height: 2px;
+            background: #e5e7eb;
+            border-radius: 999px;
+            position: relative;
+        }
+
+        .nav-toggle span::before,
+        .nav-toggle span::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #e5e7eb;
+            border-radius: 999px;
+        }
+
+        .nav-toggle span::before {
+            top: -5px;
+        }
+
+        .nav-toggle span::after {
+            top: 5px;
+        }
+
+        /* Menu mobile */
+
+        .mobile-nav {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.7);
+            backdrop-filter: blur(6px);
+            display: none;
+            z-index: 1500;
+        }
+
+        .mobile-nav-inner {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: min(320px, 80vw);
+            height: 100%;
+            background: #020617;
+            color: #e5e7eb;
+            padding: 1.2rem 1.2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mobile-nav-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.8rem;
+        }
+
+        .mobile-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .mobile-brand img {
+            height: 32px;
+            border-radius: 0.4rem;
+        }
+
+        .mobile-close {
+            border: none;
+            background: transparent;
+            color: #e5e7eb;
+            font-size: 1.4rem;
+            cursor: pointer;
+        }
+
+        .mobile-nav-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0.8rem 0;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .mobile-nav-item a,
+        .mobile-nav-item button {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            width: 100%;
+            padding: 0.45rem 0.1rem;
+            font-size: 0.9rem;
+            color: #e5e7eb;
+            text-decoration: none;
+            border: none;
+            background: transparent;
+            text-align: left;
+        }
+
+        .mobile-nav-item a i,
+        .mobile-nav-item button i {
+            width: 18px;
+            text-align: center;
+            color: #9ca3af;
+        }
+
+        .mobile-nav-item a:hover,
+        .mobile-nav-item button:hover {
+            background: #111827;
+            border-radius: 0.5rem;
+        }
+
+        .mobile-nav-auth {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .mobile-nav-footer {
+            font-size: 0.8rem;
+            color: #9ca3af;
+            border-top: 1px solid rgba(55, 65, 81, 0.8);
+            padding-top: 0.6rem;
+        }
+
+        .mobile-nav-footer .social-links a {
+            color: #9ca3af;
+            margin-right: 0.4rem;
+        }
+
+        .mobile-nav-footer .social-links a:hover {
+            color: #f9fafb;
+        }
+
+        .mobile-nav.open {
+            display: block;
+        }
+
+        /* Responsive */
+
+        @media (max-width: 992px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .nav-actions {
+                display: none;
+            }
+
+            .nav-toggle {
+                display: inline-flex;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-nav-inner {
+                gap: 0.8rem;
+            }
+        }
+
+        /* ===== CONTENU ========================================================== */
+
+        .site-main {
+            padding-top: 0.8rem;
+            padding-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+<header class="site-header">
+    <nav class="main-nav">
+        <div class="container-xl">
+            <div class="main-nav-inner">
+                <!-- Logo -->
+                <a href="{% url 'core:home' %}" class="nav-brand">
+                    <img src="{% static 'img/logo.jpg' %}" alt="Oloustream">
+                    <span class="nav-brand-text">Oloustream</span>
+                </a>
+
+                <!-- Menu desktop -->
+                <div class="nav-menu">
+                    <a href="{% url 'core:home' %}" class="nav-link-underline">Accueil</a>
+
+                    <div class="nav-item-dropdown">
+                        <span class="nav-dropdown-toggle nav-link-underline">
+                            Services <i class="fa fa-chevron-down" style="font-size:0.65rem;"></i>
+                        </span>
+                        <div class="nav-dropdown">
+                            <div class="mb-1">
+                                <div class="nav-dropdown-section-title">Production & live</div>
+                                <a href="{% url 'core:home' %}#reservations" class="nav-dropdown-link">
+                                    <i class="fa-solid fa-video"></i>
+                                    Studio & livestream
+                                </a>
+                                <a href="{% url 'core:home' %}#services" class="nav-dropdown-link">
+                                    <i class="fa-solid fa-tower-broadcast"></i>
+                                    Live streaming événementiel
+                                </a>
+                            </div>
+                            <div class="mb-1">
+                                <div class="nav-dropdown-section-title">Location & matériel</div>
+                                <a href="{% url 'services_app:user_offers_list' %}" class="nav-dropdown-link">
+                                    <i class="fa-solid fa-camera"></i>
+                                    Location matériel pro
+                                </a>
+                            </div>
+                            <div>
+                                <div class="nav-dropdown-section-title">Formations</div>
+                                <a href="{% url 'services_app:user_trainings_list' %}" class="nav-dropdown-link">
+                                    <i class="fa-solid fa-graduation-cap"></i>
+                                    Formations & ateliers
+                                </a>
+                            </div>
+                             <div>
+                                <div class="nav-dropdown-section-title">Matériel</div>
+                                <a href="{% url 'studio:user_equipment_list' %}" class="nav-dropdown-link">
+                                    <i class="fa-solid fa-graduation-cap"></i>
+                                    Matériel
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="{% url 'studio:user_studio_list' %}" class="nav-link-underline">
+                        Studio
+                    </a>
+                    <a href="{% url 'services_app:user_trainings_list' %}" class="nav-link-underline">
+                        Formations
+                    </a>
+                    <a href="{% url 'services_app:user_offers_list' %}" class="nav-link-underline">
+                        Offres
+                    </a>
+                    <a href="{% url 'core:home' %}#portfolio" class="nav-link-underline">
+                        Réalisations
+                    </a>
+                    <a href="{% url 'core:home' %}#devis" class="nav-link-underline">
+                        Devis
+                    </a>
+                </div>
+
+                <!-- Actions (auth + CTA) desktop -->
+                <div class="nav-actions">
+                    <div class="nav-auth">
+                        {% if user.is_authenticated %}
+                            <div class="user-menu" id="user-menu">
+                                <div class="user-toggle">
+                                    <i class="fa-solid fa-circle-user"></i>
+                                    <span>{{ user.first_name|default:user.username }}</span>
+                                    <i class="fa-solid fa-chevron-down" style="font-size:0.65rem;"></i>
+                                </div>
+                                <div class="user-dropdown">
+                                    <a href="{% url 'accounts:profile' %}">
+                                        <i class="fa-solid fa-id-badge"></i> Mon profil
+                                    </a>
+                                    <a href="{% url 'studio:user_reservations_list' %}">
+                                        <i class="fa-solid fa-calendar-check"></i> Mes réservations
+                                    </a>
+                                    <a href="{% url 'services_app:user_trainings_list' %}">
+                                        <i class="fa-solid fa-book-open"></i> Mes formations
+                                    </a>
+                                    <a href="{% url 'messaging:user_chat' %}">
+                                        <i class="fa-solid fa-comments"></i> Chat
+                                    </a>
+                                    <div class="user-dropdown-divider"></div>
+                                    <a href="{% url 'accounts:logout' %}" class="user-dropdown-logout">
+                                        <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+                                    </a>
+                                </div>
+                            </div>
+                        {% else %}
+                            <a href="{% url 'accounts:login' %}" class="btn btn-nav btn-nav-outline">
+                                <i class="fa-solid fa-right-to-bracket me-1"></i> Connexion
+                            </a>
+                            <a href="{% url 'accounts:register' %}" class="btn btn-nav btn-nav-primary">
+                                <i class="fa-solid fa-user-plus me-1"></i> Inscription
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <a href="{% url 'core:home' %}#devis" class="btn btn-nav btn-nav-primary d-none d-md-inline-flex">
+                        <i class="fa-solid fa-file-contract me-1"></i> Devis gratuit
+                    </a>
+                </div>
+
+                <!-- Burger mobile -->
+                <button class="nav-toggle" id="nav-toggle" aria-label="Menu mobile">
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Menu mobile -->
+    <div class="mobile-nav" id="mobile-nav">
+        <div class="mobile-nav-inner">
+            <div class="mobile-nav-header">
+                <div class="mobile-brand">
+                    <img src="{% static 'img/logo.jpg' %}" alt="Oloustream">
+                    <span>Oloustream</span>
+                </div>
+                <button class="mobile-close" id="mobile-close" aria-label="Fermer le menu">
+                    &times;
+                </button>
+            </div>
+
+            <div class="mobile-nav-auth mt-2">
+                {% if user.is_authenticated %}
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-circle-user"></i>
+                        <div>
+                            <strong>{{ user.first_name|default:user.username }}</strong><br>
+                            <span style="font-size:0.8rem;color:#9ca3af;">Connecté</span>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="btn btn-nav btn-nav-outline w-100 mb-1">
+                        <i class="fa-solid fa-right-to-bracket me-1"></i> Se connecter
+                    </a>
+                    <a href="{% url 'accounts:register' %}" class="btn btn-nav btn-nav-primary w-100">
+                        <i class="fa-solid fa-user-plus me-1"></i> S'inscrire
+                    </a>
+                {% endif %}
+            </div>
+
+            <ul class="mobile-nav-list">
+                <li class="mobile-nav-item">
+                    <a href="{% url 'core:home' %}">
+                        <i class="fa-solid fa-house"></i> Accueil
+                    </a>
+                </li>
+                <li class="mobile-nav-item">
+                    <a href="{% url 'core:home' %}#reservations">
+                        <i class="fa-solid fa-video"></i> Réserver un studio
+                    </a>
+                </li>
+                <li class="mobile-nav-item">
+                    <a href="{% url 'services_app:user_offers_list' %}">
+                        <i class="fa-solid fa-camera"></i> Location matériel
+                    </a>
+                </li>
+                <li class="mobile-nav-item">
+                    <a href="{% url 'services_app:user_trainings_list' %}">
+                        <i class="fa-solid fa-graduation-cap"></i> Formations
+                    </a>
+                </li>
+                <li class="mobile-nav-item">
+                    <a href="{% url 'core:home' %}#services">
+                        <i class="fa-solid fa-layer-group"></i> Tous les services
+                    </a>
+                </li>
+                <li class="mobile-nav-item">
+                    <a href="{% url 'core:home' %}#portfolio">
+                        <i class="fa-solid fa-briefcase"></i> Réalisations
+                    </a>
+                </li>
+                <li class="mobile-nav-item">
+                    <a href="{% url 'core:home' %}#devis">
+                        <i class="fa-solid fa-file-contract"></i> Devis gratuit
+                    </a>
+                </li>
+
+                {% if user.is_authenticated %}
+                    <li class="mobile-nav-item">
+                        <a href="{% url 'studio:user_reservations_list' %}">
+                            <i class="fa-solid fa-calendar-check"></i> Mes réservations
+                        </a>
+                    </li>
+                    <li class="mobile-nav-item">
+                        <a href="{% url 'messaging:user_chat' %}">
+                            <i class="fa-solid fa-comments"></i> Chat
+                        </a>
+                    </li>
+                    <li class="mobile-nav-item">
+                        <a href="{% url 'accounts:profile' %}">
+                            <i class="fa-solid fa-id-badge"></i> Mon profil
+                        </a>
+                    </li>
+                    <li class="mobile-nav-item">
+                        <a href="{% url 'accounts:logout' %}">
+                            <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+
+            <div class="mobile-nav-footer">
+                <div class="mb-1">
+                    <i class="fa-solid fa-envelope"></i> info@oloustream.com<br>
+                    <i class="fa-solid fa-location-dot"></i> Ouagadougou, Secteur 15
+                </div>
+                <div class="social-links mt-1">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="site-main">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} mt-2">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+<script>
+    // Toggle menu utilisateur
+    document.addEventListener('click', function (e) {
+        const userMenu = document.getElementById('user-menu');
+        if (!userMenu) return;
+        const toggle = userMenu.querySelector('.user-toggle');
+        const dropdown = userMenu.querySelector('.user-dropdown');
+
+        if (toggle.contains(e.target)) {
+            userMenu.classList.toggle('open');
+        } else if (!dropdown.contains(e.target)) {
+            userMenu.classList.remove('open');
+        }
+    });
+
+    // Menu mobile
+    (function () {
+        const navToggle = document.getElementById('nav-toggle');
+        const mobileNav = document.getElementById('mobile-nav');
+        const mobileClose = document.getElementById('mobile-close');
+
+        if (!navToggle || !mobileNav || !mobileClose) return;
+
+        navToggle.addEventListener('click', function () {
+            mobileNav.classList.add('open');
+        });
+
+        mobileClose.addEventListener('click', function () {
+            mobileNav.classList.remove('open');
+        });
+
+        mobileNav.addEventListener('click', function (e) {
+            if (e.target === mobileNav) {
+                mobileNav.classList.remove('open');
+            }
+        });
+    })();
+</script>
+
+</body>
+</html>

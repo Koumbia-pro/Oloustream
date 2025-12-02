@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ studio.name }} - Studio{% endblock %}
+
+{% block content %}
+
+<style>
+    :root {
+        --studio-primary: #4f46e5;
+        --studio-primary-dark: #4338ca;
+        --studio-yellow: #facc15;
+        --studio-yellow-dark: #eab308;
+    }
+
+    .studio-detail-page {
+        margin-bottom: 2.5rem;
+    }
+
+    .studio-detail-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .studio-detail-header h1 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-bottom: 0.2rem;
+    }
+
+    .studio-detail-header .subtitle {
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+
+    .studio-detail-hero {
+        border-radius: 1.2rem;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .studio-detail-hero img {
+        width: 100%;
+        max-height: 320px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .studio-detail-card {
+        background: #ffffff;
+        border-radius: 1.2rem;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 8px 24px rgba(15,23,42,0.12);
+        padding: 1.2rem 1.4rem;
+        margin-bottom: 1rem;
+    }
+
+    .studio-detail-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: #9ca3af;
+        letter-spacing: 0.05em;
+    }
+
+    .studio-detail-value {
+        font-size: 0.95rem;
+        color: #111827;
+    }
+
+    .studio-tags {
+        margin-top: 0.6rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+
+    .studio-tag {
+        font-size: 0.76rem;
+        padding: 0.15rem 0.55rem;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #4338ca;
+    }
+
+    .studio-price-big {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .studio-price-big small {
+        font-size: 0.82rem;
+        color: #6b7280;
+    }
+
+    .studio-detail-section-title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+    }
+
+    .studio-detail-text {
+        font-size: 0.9rem;
+        color: #4b5563;
+        line-height: 1.7;
+    }
+
+    .side-panel {
+        background: #fefce8;
+        border-radius: 1.2rem;
+        border: 1px solid #facc15;
+        padding: 1.1rem 1.3rem;
+        box-shadow: 0 8px 24px rgba(202, 138, 4, 0.25);
+    }
+
+    .side-panel h3 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin-bottom: 0.6rem;
+    }
+
+    .side-panel p {
+        font-size: 0.9rem;
+        color: #4b5563;
+        margin-bottom: 0.8rem;
+    }
+
+    .btn-side-primary {
+        border-radius: 999px;
+        background: var(--studio-yellow);
+        border-color: var(--studio-yellow);
+        color: #111827;
+        font-weight: 600;
+        padding: 0.55rem 1.1rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-side-primary:hover {
+        background: var(--studio-yellow-dark);
+        border-color: var(--studio-yellow-dark);
+        color: #111827;
+    }
+
+    .side-panel-small {
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+
+    .side-panel-small a {
+        color: #4f46e5;
+        text-decoration: none;
+    }
+</style>
+
+<div class="studio-detail-page">
+    <div class="studio-detail-header">
+        <h1>{{ studio.name }}</h1>
+        <p class="subtitle">
+            {{ studio.get_studio_type_display }} ·
+            {% if studio.city or studio.country %}
+                {{ studio.city|default:"" }}{% if studio.city and studio.country %}, {% endif %}{{ studio.country|default:"" }}
+            {% else %}
+                Localisation à préciser
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Image principale -->
+    <div class="studio-detail-hero">
+        {% if studio.image %}
+            <img src="{{ studio.image.url }}" alt="{{ studio.name }}">
+        {% else %}
+            <img src="{% static 'img/default_studio.jpg' %}" alt="{{ studio.name }}">
+        {% endif %}
+    </div>
+
+    <div class="row g-3">
+        <!-- Colonne gauche : infos studio -->
+        <div class="col-lg-8">
+            <div class="studio-detail-card mb-3">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="studio-detail-label">Superficie</div>
+                        <div class="studio-detail-value">
+                            {% if studio.area_m2 %}
+                                {{ studio.area_m2 }} m²
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="studio-detail-label">Capacité</div>
+                        <div class="studio-detail-value">
+                            {% if studio.capacity %}
+                                {{ studio.capacity }} personne(s)
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="studio-detail-label">Tarif</div>
+                        <div class="studio-detail-value studio-price-big">
+                            {% if studio.price_per_hour %}
+                                {{ studio.price_per_hour }} FCFA
+                                <small>/ heure</small>
+                            {% else %}
+                                <small>Sur devis</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="studio-tags">
+                    <span class="studio-tag">{{ studio.get_studio_type_display }}</span>
+                    {% if studio.lighting_included %}<span class="studio-tag">Éclairage intégré</span>{% endif %}
+                    {% if studio.price_half_day %}<span class="studio-tag">Demi-journée</span>{% endif %}
+                    {% if studio.price_day %}<span class="studio-tag">Journée complète</span>{% endif %}
+                </div>
+
+                <div class="mt-3">
+                    <a href="{% url 'studio:user_studio_reserve' studio.pk %}"
+                       class="btn btn-primary btn-sm">
+                        Réserver ce studio
+                    </a>
+                </div>
+            </div>
+
+            <div class="studio-detail-card">
+                <h2 class="studio-detail-section-title">À propos de ce studio</h2>
+                <div class="studio-detail-text">
+                    {{ studio.description|default:"Aucune description détaillée n'a encore été fournie pour ce studio."|linebreaksbr }}
+                </div>
+            </div>
+
+            <div class="studio-detail-card">
+                <h2 class="studio-detail-section-title">Équipements & éclairage</h2>
+                <div class="studio-detail-text">
+                    <strong>Éclairage :</strong><br>
+                    {% if studio.lighting_included %}
+                        Éclairage intégré.<br>
+                    {% else %}
+                        Pas d'éclairage intégré indiqué.<br>
+                    {% endif %}
+                    {{ studio.lighting_type|default:"" | linebreaksbr }}
+
+                    <br><strong>Caméras :</strong><br>
+                    {{ studio.equip_cameras|default:"—"|linebreaksbr }}
+
+                    <br><strong>Micros :</strong><br>
+                    {{ studio.equip_microphones|default:"—"|linebreaksbr }}
+
+                    <br><strong>Lumières :</strong><br>
+                    {{ studio.equip_lights|default:"—"|linebreaksbr }}
+
+                    <br><strong>Écrans :</strong><br>
+                    {{ studio.equip_screens|default:"—"|linebreaksbr }}
+
+                    <br><strong>Régie :</strong><br>
+                    {{ studio.equip_control_room|default:"—"|linebreaksbr }}
+
+                    <br><strong>Accessoires :</strong><br>
+                    {{ studio.equip_accessories|default:"—"|linebreaksbr }}
+                </div>
+            </div>
+
+            <div class="studio-detail-card">
+                <h2 class="studio-detail-section-title">Disponibilités</h2>
+                <div class="studio-detail-text">
+                    <strong>Heures d'ouverture :</strong>
+                    {{ studio.opening_hours|default:"Non renseigné" }}<br>
+                    <strong>Jours d'ouverture :</strong>
+                    {{ studio.opening_days|default:"Non renseigné" }}<br>
+                    <strong>Dates indisponibles :</strong><br>
+                    {{ studio.unavailable_dates|default:"Non renseigné"|linebreaksbr }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne droite : panneau “Pas encore membre ?” -->
+        <div class="col-lg-4">
+            <div class="side-panel mb-3">
+                <h3>Pas encore membre ?</h3>
+                <p>
+                    Inscrivez-vous pour pouvoir réserver ce studio,
+                    gérer vos projets et suivre vos réservations en toute simplicité.
+                </p>
+                <a href="{% url 'accounts:register' %}" class="btn btn-side-primary w-100 mb-2">
+                    Je m'inscris
+                </a>
+                <div class="side-panel-small">
+                    Déjà un compte ?
+                    <a href="{% url 'accounts:login' %}">Je me connecte</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

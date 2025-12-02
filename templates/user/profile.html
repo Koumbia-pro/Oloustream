@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}Mon profil - Oloustream{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Colonne gauche : résumé du profil -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h5 class="card-title mb-3">Mon profil</h5>
+
+                {% if request.user.avatar %}
+                    <img src="{{ request.user.avatar.url }}" alt="Avatar"
+                         class="img-thumbnail mb-3" style="width: 140px; height: 140px; object-fit: cover;">
+                {% else %}
+                    <div class="d-flex align-items-center justify-content-center rounded-circle bg-secondary text-white mb-3"
+                         style="width: 140px; height: 140px; font-size: 3rem;">
+                        {{ request.user.first_name|default:request.user.username|first|upper }}
+                    </div>
+                {% endif %}
+
+                <h6 class="mb-0">{{ request.user.get_full_name|default:request.user.username }}</h6>
+                <p class="text-muted mb-1">{{ request.user.email }}</p>
+                {% if request.user.is_employee %}
+                    <span class="badge bg-primary">Employé</span>
+                {% else %}
+                    <span class="badge bg-secondary">Client</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Colonne droite : édition des infos de base -->
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Informations de compte</h5>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        {% for field in form %}
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <div class="form-text">{{ field.help_text }}</div>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="text-danger small">{{ field.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Mettre à jour</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if employee_profile %}
+    <!-- Informations spécifiques employé -->
+    <div class="row">
+        <!-- Données personnelles -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Données personnelles</h5>
+                    <p class="mb-1"><strong>Poste :</strong> {{ employee_profile.position|default:"-" }}</p>
+                    <p class="mb-1"><strong>Genre :</strong> {{ employee_profile.get_gender_display|default:"-" }}</p>
+                    <p class="mb-1"><strong>Date de naissance :</strong> {{ employee_profile.date_of_birth|date:"d/m/Y"|default:"-" }}</p>
+                    <p class="mb-1"><strong>Adresse :</strong> {{ employee_profile.address|default:"-" }}</p>
+                    <p class="mb-1"><strong>Ville :</strong> {{ employee_profile.city|default:"-" }}</p>
+                    <p class="mb-1"><strong>Téléphone :</strong> {{ request.user.phone|default:"-" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Infos professionnelles & administratives -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Informations professionnelles</h5>
+                    <p class="mb-1"><strong>Années d'expérience :</strong> {{ employee_profile.years_of_experience|default:"-" }}</p>
+                    <p class="mb-1"><strong>Niveau d'études :</strong> {{ employee_profile.get_education_level_display|default:"-" }}</p>
+                    <p class="mb-1"><strong>Diplômes :</strong> {{ employee_profile.diploma|default:"-" }}</p>
+                    <p class="mb-1"><strong>Type de contrat :</strong> {{ employee_profile.get_contract_type_display|default:"-" }}</p>
+                    <p class="mb-1"><strong>Salaire (confidentiel) :</strong>
+                        {% if employee_profile.salary %}
+                            ******
+                        {% else %}
+                            -
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Données administratives</h5>
+                    <p class="mb-1"><strong>Date d'embauche :</strong> {{ employee_profile.hire_date|date:"d/m/Y"|default:"-" }}</p>
+                    <p class="mb-1"><strong>Fin de contrat :</strong> {{ employee_profile.contract_end_date|date:"d/m/Y"|default:"-" }}</p>
+                    <p class="mb-1"><strong>Manager :</strong>
+                        {% if employee_profile.manager %}
+                            {{ employee_profile.manager.get_full_name|default:employee_profile.manager.username }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Réseaux sociaux -->
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Réseaux professionnels</h5>
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <strong>LinkedIn :</strong><br>
+                            {% if employee_profile.linkedin_url %}
+                                <a href="{{ employee_profile.linkedin_url }}" target="_blank">Voir le profil</a>
+                            {% else %}
+                                <span class="text-muted">Non renseigné</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <strong>Facebook :</strong><br>
+                            {% if employee_profile.facebook_url %}
+                                <a href="{{ employee_profile.facebook_url }}" target="_blank">Voir le profil</a>
+                            {% else %}
+                                <span class="text-muted">Non renseigné</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <strong>Twitter / X :</strong><br>
+                            {% if employee_profile.twitter_url %}
+                                <a href="{{ employee_profile.twitter_url }}" target="_blank">Voir le profil</a>
+                            {% else %}
+                                <span class="text-muted">Non renseigné</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <strong>Instagram :</strong><br>
+                            {% if employee_profile.instagram_url %}
+                                <a href="{{ employee_profile.instagram_url }}" target="_blank">Voir le profil</a>
+                            {% else %}
+                                <span class="text-muted">Non renseigné</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endif %}
+{% endblock %}

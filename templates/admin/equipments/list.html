@@ -1,0 +1,269 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Équipements - Oloustream Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Équipements</h1>
+    <div class="d-flex gap-2">
+        <a href="{% url 'dashboard:equipments_export_excel' %}{% if base_querystring %}?{{ base_querystring }}{% endif %}"
+           class="btn btn-success btn-sm">
+            <i class="ph ph-download-simple"></i> Export Excel
+        </a>
+        <a href="{% url 'dashboard:equipments_create' %}" class="btn btn-primary btn-sm">
+            <i class="ph ph-plus"></i> Nouvel équipement
+        </a>
+    </div>
+    <!-- Statistiques sur la liste filtrée -->
+    <div class="row g-3 mb-3">
+        <div class="col-md-2 col-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body py-2">
+                    <p class="text-muted mb-1">Total</p>
+                    <h5 class="mb-0">{{ total_count }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body py-2">
+                    <p class="text-muted mb-1">Disponibles</p>
+                    <h5 class="mb-0 text-success">{{ available_count }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body py-2">
+                    <p class="text-muted mb-1">En utilisation</p>
+                    <h5 class="mb-0 text-primary">{{ in_use_count }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body py-2">
+                    <p class="text-muted mb-1">Maintenance</p>
+                    <h5 class="mb-0 text-warning">{{ maintenance_count }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body py-2">
+                    <p class="text-muted mb-1">Hors service / Retirés</p>
+                    <h5 class="mb-0 text-danger">{{ out_of_service_count|add:retired_count }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body py-2">
+                    <p class="text-muted mb-1">Valeur totale (achat)</p>
+                    <h6 class="mb-0">{{ total_value|floatformat:0 }} F CFA</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recherche & filtres -->
+<form method="get" class="row g-3 mb-3 align-items-end">
+    <div class="col-md-4">
+        <label class="form-label" for="id_q">Recherche</label>
+        <input type="text" name="q" id="id_q" class="form-control"
+               placeholder="Nom, marque, modèle, n° de série, emplacement..."
+               value="{{ q }}">
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label" for="id_category">Catégorie</label>
+        <select name="category" id="id_category" class="form-select">
+            <option value="">Toutes</option>
+            {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if selected_category|add:'' == cat.id|add:'' %}selected{% endif %}>
+                    {{ cat.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label" for="id_status">Statut</label>
+        <select name="status" id="id_status" class="form-select">
+            <option value="">Tous</option>
+            {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label" for="id_rental">Location</label>
+        <select name="rental" id="id_rental" class="form-select">
+            <option value="">Tous</option>
+            <option value="yes" {% if selected_rental == "yes" %}selected{% endif %}>Disponible</option>
+            <option value="no" {% if selected_rental == "no" %}selected{% endif %}>Non disponible</option>
+        </select>
+    </div>
+
+    <div class="col-md-1 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="ph ph-magnifying-glass"></i>
+        </button>
+        <a href="{% url 'dashboard:equipments_list' %}" class="btn btn-outline-secondary" title="Réinitialiser">
+            <i class="ph ph-arrow-counter-clockwise"></i>
+        </a>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Photo</th>
+                    <th scope="col">Nom</th>
+                    <th scope="col">Catégorie</th>
+                    <th scope="col">Marque / Modèle</th>
+                    <th scope="col">N° de série</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col">Loc.</th>
+                    <th scope="col">Emplacement</th>
+                    <th scope="col">Prochaine maint.</th>
+                    <th scope="col" class="text-end">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for e in page_obj %}
+                    <tr>
+                        <td>{{ e.id }}</td>
+                        <td>
+                            {% if e.photo %}
+                                <img src="{{ e.photo.url }}" alt="Photo"
+                                     class="rounded"
+                                     style="width: 50px; height: 38px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded"
+                                     style="width: 50px; height: 38px; font-size: 0.9rem;">
+                                    <i class="ph ph-device-mobile"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>{{ e.name }}</td>
+                        <td>{{ e.category.name|default:"-" }}</td>
+                        <td>
+                            {% if e.brand or e.model %}
+                                {{ e.brand|default:"" }}{% if e.brand and e.model %} / {% endif %}{{ e.model|default:"" }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ e.serial_number|default:"-" }}</td>
+                        <td>
+                            {{ e.get_status_display }}
+                            {% if e.maintenance_alert %}
+                                <span class="badge bg-warning text-dark ms-1">Maintenance</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if e.is_available_for_rent %}
+                                <span class="badge bg-success">Oui</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Non</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ e.location|default:"-" }}</td>
+                        <td>
+                            {% if e.next_maintenance_date %}
+                                {{ e.next_maintenance_date|date:"d/m/Y" }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="{% url 'dashboard:equipments_detail' e.id %}"
+                                class="btn btn-outline-secondary" title="Détails">
+                                    <i class="ph ph-eye"></i>
+                                </a>
+                                <a href="{% url 'dashboard:equipments_edit' e.id %}"
+                                class="btn btn-outline-primary" title="Modifier">
+                                    <i class="ph ph-pencil-simple"></i>
+                                </a>
+                                <a href="{% url 'dashboard:equipments_delete' e.id %}"
+                                class="btn btn-outline-danger" title="Supprimer">
+                                    <i class="ph ph-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="11" class="text-center text-muted py-4">
+                            Aucun équipement ne correspond à la recherche.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+        <div class="card-footer bg-white">
+            <nav aria-label="Pagination équipements">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page=1{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                « Première
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.previous_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                ‹ Précédente
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="?page={{ num }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                    {{ num }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.next_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                Suivante ›
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.paginator.num_pages }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                Dernière »
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

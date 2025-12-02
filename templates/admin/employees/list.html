@@ -1,0 +1,200 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Employés - Oloustream Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Employés</h1>
+    <div class="d-flex gap-2">
+        <a href="{% url 'dashboard:employees_export_excel' %}{% if base_querystring %}?{{ base_querystring }}{% endif %}"
+           class="btn btn-success btn-sm">
+            <i class="ph ph-download-simple"></i> Export Excel
+        </a>
+        <a href="{% url 'dashboard:employees_create' %}" class="btn btn-primary btn-sm">
+            <i class="ph ph-plus"></i> Nouvel employé
+        </a>
+    </div>
+</div>
+
+<!-- Recherche & filtres -->
+<form method="get" class="row g-3 mb-3 align-items-end">
+    <div class="col-md-4">
+        <label class="form-label" for="id_q">Recherche</label>
+        <input type="text" name="q" id="id_q" class="form-control"
+               placeholder="Nom, email, téléphone, poste, ville..."
+               value="{{ q }}">
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label" for="id_role">Rôle</label>
+        <select name="role" id="id_role" class="form-select">
+            <option value="">Tous</option>
+            {% for value, label in role_choices %}
+                <option value="{{ value }}" {% if selected_role == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label" for="id_status">Statut</label>
+        <select name="status" id="id_status" class="form-select">
+            <option value="">Tous</option>
+            <option value="active" {% if selected_status == "active" %}selected{% endif %}>Actif</option>
+            <option value="inactive" {% if selected_status == "inactive" %}selected{% endif %}>Inactif</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label" for="id_contract_type">Type de contrat</label>
+        <select name="contract_type" id="id_contract_type" class="form-select">
+            <option value="">Tous</option>
+            {% for value, label in contract_type_choices %}
+                <option value="{{ value }}" {% if selected_contract_type == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="ph ph-magnifying-glass"></i> Filtrer
+        </button>
+        <a href="{% url 'dashboard:employees_list' %}" class="btn btn-outline-secondary">
+            Réinitialiser
+        </a>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Photo</th>
+                    <th scope="col">Nom d’utilisateur</th>
+                    <th scope="col">Nom & prénom</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Téléphone</th>
+                    <th scope="col">Rôle</th>
+                    <th scope="col">Date d’embauche</th>
+                    <th scope="col" class="text-end">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for e in page_obj %}
+                    {% with profile=e.employee_profile %}
+                    <tr>
+                        <td>{{ e.id }}</td>
+                        <td>
+                            {% if e.avatar %}
+                                <img src="{{ e.avatar.url }}" alt="Avatar"
+                                     class="rounded-circle"
+                                     style="width: 36px; height: 36px; object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
+                                     style="width: 36px; height: 36px; font-size: 0.9rem;">
+                                    {{ e.first_name|default:e.username|first|upper }}
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>{{ e.username }}</td>
+                        <td>{{ e.get_full_name|default:"-" }}</td>
+                        <td>{{ e.email|default:"-" }}</td>
+                        <td>{{ e.phone|default:"-" }}</td>
+                        <td>{{ e.get_role_display }}</td>
+                        <td>
+                            {% if profile and profile.hire_date %}
+                                {{ profile.hire_date|date:"d/m/Y" }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="{% url 'dashboard:employees_detail' e.id %}"
+                                   class="btn btn-outline-secondary" title="Détails">
+                                    <i class="ph ph-eye"></i>
+                                </a>
+                                <a href="{% url 'dashboard:employees_edit' e.id %}"
+                                   class="btn btn-outline-primary" title="Modifier">
+                                    <i class="ph ph-pencil-simple"></i>
+                                </a>
+                                <a href="{% url 'dashboard:employees_delete' e.id %}"
+                                   class="btn btn-outline-danger" title="Supprimer">
+                                    <i class="ph ph-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endwith %}
+                {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">
+                            Aucun employé ne correspond à la recherche.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+        <div class="card-footer bg-white">
+            <nav aria-label="Pagination employés">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page=1{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                « Première
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.previous_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                ‹ Précédente
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="?page={{ num }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                    {{ num }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.next_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                Suivante ›
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.paginator.num_pages }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                Dernière »
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

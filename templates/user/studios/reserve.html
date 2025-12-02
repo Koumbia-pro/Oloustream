@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Réserver {{ studio.name }}{% endblock %}
+
+{% block content %}
+
+<style>
+    :root {
+        --studio-primary: #4f46e5;
+        --studio-primary-dark: #4338ca;
+        --studio-yellow: #facc15;
+        --studio-yellow-dark: #eab308;
+    }
+
+    .studio-reserve-page {
+        margin-bottom: 2.5rem;
+    }
+
+    .studio-reserve-header {
+        margin-bottom: 1.2rem;
+    }
+
+    .studio-reserve-header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.2rem;
+    }
+
+    .studio-reserve-header .subtitle {
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+
+    .studio-reserve-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.1fr);
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 992px) {
+        .studio-reserve-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .studio-reserve-card {
+        background: #ffffff;
+        border-radius: 1.2rem;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 28px rgba(15,23,42,0.12);
+        padding: 1.1rem 1.3rem;
+    }
+
+    .studio-reserve-hero {
+        border-radius: 1rem;
+        overflow: hidden;
+        margin-bottom: 0.9rem;
+        background: #020617;
+    }
+
+    .studio-reserve-hero img {
+        width: 100%;
+        max-height: 220px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .studio-reserve-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin-bottom: 0.2rem;
+    }
+
+    .studio-reserve-location {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin-bottom: 0.4rem;
+    }
+
+    .studio-reserve-meta {
+        font-size: 0.84rem;
+        color: #4b5563;
+        margin-bottom: 0.4rem;
+    }
+
+    .studio-reserve-meta strong {
+        font-weight: 600;
+    }
+
+    .studio-reserve-price {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 0.6rem;
+    }
+
+    .studio-reserve-price small {
+        font-size: 0.82rem;
+        color: #6b7280;
+    }
+
+    .studio-reserve-smallnote {
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+
+    /* Formulaire */
+    .reserve-form-title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .reserve-form-subtitle {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin-bottom: 0.9rem;
+    }
+
+    .reserve-form label {
+        font-size: 0.84rem;
+        font-weight: 500;
+        color: #4b5563;
+        margin-bottom: 0.2rem;
+    }
+
+    .reserve-form input[type="datetime-local"],
+    .reserve-form textarea {
+        border-radius: 0.75rem;
+        font-size: 0.88rem;
+    }
+
+    .reserve-error {
+        font-size: 0.8rem;
+        color: #b91c1c;
+        margin-top: 0.15rem;
+    }
+
+    .reserve-submit-btn {
+        width: 100%;
+        border-radius: 999px;
+        border: none;
+        padding: 0.65rem 1rem;
+        background: var(--studio-primary);
+        color: #f9fafb;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .reserve-submit-btn:hover {
+        background: var(--studio-primary-dark);
+        color: #ffffff;
+    }
+
+    .reserve-side-info {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin-top: 0.5rem;
+    }
+
+    .reserve-login-info {
+        font-size: 0.85rem;
+        color: #f97316;
+        margin-bottom: 0.7rem;
+    }
+</style>
+
+<div class="studio-reserve-page">
+    <div class="studio-reserve-header">
+        <a href="{% url 'studio:user_studio_detail' studio.pk %}" class="btn btn-sm btn-outline-secondary mb-2">
+            ← Retour au détail du studio
+        </a>
+        <h1>Réserver {{ studio.name }}</h1>
+        <p class="subtitle">
+            {% if studio.city or studio.country %}
+                {{ studio.city|default:"" }}{% if studio.city and studio.country %}, {% endif %}{{ studio.country|default:"" }}
+            {% else %}
+                Localisation à préciser
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="studio-reserve-layout">
+        <!-- Colonne gauche : résumé du studio -->
+        <div class="studio-reserve-card">
+            <div class="studio-reserve-hero">
+                {% if studio.image %}
+                    <img src="{{ studio.image.url }}" alt="{{ studio.name }}">
+                {% else %}
+                    <img src="{% static 'img/default_studio.jpg' %}" alt="{{ studio.name }}">
+                {% endif %}
+            </div>
+
+            <div class="studio-reserve-title">
+                {{ studio.name }}
+            </div>
+            <div class="studio-reserve-location">
+                {{ studio.address|default:"" }}{% if studio.address and studio.city %}, {% endif %}{{ studio.city|default:"" }}
+            </div>
+
+            <div class="studio-reserve-meta">
+                <strong>Type :</strong> {{ studio.get_studio_type_display }}<br>
+                <strong>Superficie :</strong>
+                {% if studio.area_m2 %}{{ studio.area_m2 }} m²{% else %}—{% endif %}<br>
+                <strong>Capacité :</strong>
+                {% if studio.capacity %}{{ studio.capacity }} personne(s){% else %}—{% endif %}
+            </div>
+
+            <div class="studio-reserve-price">
+                {% if studio.price_per_hour %}
+                    {{ studio.price_per_hour }} FCFA
+                    <small>/ heure</small>
+                {% else %}
+                    <small>Tarif sur devis</small>
+                {% endif %}
+            </div>
+
+            <div class="studio-reserve-smallnote">
+                Votre demande de réservation sera examinée par notre équipe.
+                Vous recevrez une confirmation par email et/ou via votre espace utilisateur.
+            </div>
+        </div>
+
+        <!-- Colonne droite : formulaire de réservation -->
+        <div class="studio-reserve-card">
+            <div class="reserve-form-title">Choisissez votre créneau</div>
+            <div class="reserve-form-subtitle">
+                Sélectionnez la date et l’heure de début et de fin souhaitées pour votre réservation.
+                Le studio reste soumis à validation de disponibilité.
+            </div>
+
+            {% if not request.user.is_authenticated %}
+                <div class="reserve-login-info">
+                    Vous n'êtes pas connecté. Vous pourrez vous connecter ou créer un compte après avoir
+                    choisi votre créneau.
+                </div>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <form method="post" class="reserve-form" novalidate>
+                {% csrf_token %}
+
+                <div class="mb-2">
+                    <label for="{{ form.start_datetime.id_for_label }}">Date et heure de début</label>
+                    {{ form.start_datetime }}
+                    {% if form.start_datetime.errors %}
+                        <div class="reserve-error">{{ form.start_datetime.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-2">
+                    <label for="{{ form.end_datetime.id_for_label }}">Date et heure de fin</label>
+                    {{ form.end_datetime }}
+                    {% if form.end_datetime.errors %}
+                        <div class="reserve-error">{{ form.end_datetime.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-2">
+                    <label for="{{ form.event_type.id_for_label }}">{{ form.event_type.label }}</label>
+                    {{ form.event_type }}
+                    {% if form.event_type.help_text %}
+                        <div class="form-text" style="font-size:0.8rem;">
+                            {{ form.event_type.help_text }}
+                        </div>
+                    {% endif %}
+                    {% if form.event_type.errors %}
+                        <div class="reserve-error">{{ form.event_type.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-2">
+                    <label for="{{ form.guests_count.id_for_label }}">{{ form.guests_count.label }}</label>
+                    {{ form.guests_count }}
+                    {% if form.guests_count.help_text %}
+                        <div class="form-text" style="font-size:0.8rem;">
+                            {{ form.guests_count.help_text }}
+                        </div>
+                    {% endif %}
+                    {% if form.guests_count.errors %}
+                        <div class="reserve-error">{{ form.guests_count.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.message.id_for_label }}">{{ form.message.label }}</label>
+                    {{ form.message }}
+                    {% if form.message.help_text %}
+                        <div class="form-text" style="font-size:0.8rem;">
+                            {{ form.message.help_text }}
+                        </div>
+                    {% endif %}
+                    {% if form.message.errors %}
+                        <div class="reserve-error">{{ form.message.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="reserve-submit-btn">
+                    Envoyer la demande de réservation
+                </button>
+
+                <div class="reserve-side-info">
+                    En cliquant sur "Envoyer la demande de réservation", vous consentez à être
+                    contacté par l’équipe Oloustream pour confirmer les détails de votre projet.
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

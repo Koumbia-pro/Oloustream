@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Matériel disponible - Oloustream{% endblock %}
+
+{% block content %}
+
+<style>
+    .equipment-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .equipment-card {
+        border-radius: 1rem;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 8px 20px rgba(15,23,42,0.08);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .equipment-card-media {
+        height: 160px;
+        background: #020617;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .equipment-card-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .equipment-card-body {
+        padding: 0.9rem 1rem 1rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .equipment-name {
+        font-weight: 600;
+        font-size: 0.98rem;
+        margin-bottom: 0.1rem;
+    }
+    .equipment-meta {
+        font-size: 0.8rem;
+        color: #6b7280;
+        margin-bottom: 0.4rem;
+    }
+    .equipment-category {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #9ca3af;
+        margin-bottom: 0.2rem;
+    }
+    .equipment-actions {
+        margin-top: auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    .equipment-status {
+        font-size: 0.78rem;
+        color: #16a34a;
+    }
+    .btn-eq {
+        border-radius: 999px;
+        font-size: 0.8rem;
+        padding: 0.4rem 0.9rem;
+    }
+</style>
+
+<h1 class="mb-3">Matériel disponible à la location</h1>
+<p class="text-muted mb-4">
+    Découvrez notre parc de caméras, micros, lumières et accessoires disponibles pour vos productions.
+</p>
+
+{% if equipments %}
+    <div class="equipment-grid">
+        {% for equipment in equipments %}
+            <div class="equipment-card">
+                <div class="equipment-card-media">
+                    {% if equipment.photo %}
+                        <img src="{{ equipment.photo.url }}" alt="{{ equipment.name }}">
+                    {% else %}
+                        <span class="text-light" style="font-size:0.85rem;">
+                            Aucune image disponible
+                        </span>
+                    {% endif %}
+                </div>
+                <div class="equipment-card-body">
+                    {% if equipment.category %}
+                        <div class="equipment-category">
+                            {{ equipment.category.name }}
+                        </div>
+                    {% endif %}
+                    <div class="equipment-name">
+                        {{ equipment.name }}
+                    </div>
+                    <div class="equipment-meta">
+                        {% if equipment.brand or equipment.model %}
+                            {{ equipment.brand }} {{ equipment.model }}
+                        {% else %}
+                            &nbsp;
+                        {% endif %}
+                    </div>
+                    <div class="equipment-actions">
+                        <span class="equipment-status">
+                            Disponible
+                        </span>
+                        <div>
+                            <a href="{% url 'studio:user_equipment_detail' equipment.pk %}"
+                               class="btn btn-outline-secondary btn-eq">
+                                Détails
+                            </a>
+                            <a href="{% url 'studio:user_equipment_reserve' equipment.pk %}"
+                               class="btn btn-primary btn-eq">
+                                Réserver
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-muted">Aucun matériel n'est disponible pour le moment.</p>
+{% endif %}
+
+{% endblock %}

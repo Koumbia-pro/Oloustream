@@ -1,0 +1,299 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Détail Service - {{ service.name }} - Oloustream Admin{% endblock %}
+
+{% block content %}
+
+<style>
+/* =========================================================
+   DÉTAIL SERVICE – STYLE ULTRA PRO
+   ========================================================= */
+
+.svc-detail-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: svcD-fadeInUp 0.4s ease-out;
+}
+
+.svcD-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.svcD-header h1 {
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.svcD-header .subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+/* Badges */
+.svcD-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.svcD-badge-type {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.svcD-badge-active-yes {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.svcD-badge-active-no {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Carte image */
+.svcD-image-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+  padding: 1rem;
+  text-align: center;
+}
+
+.svcD-image-preview {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Sections */
+.svcD-section {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+  margin-bottom: 1.25rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.svcD-section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.svcD-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.svcD-section-title span.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.svcD-section-desc {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Grille */
+.svcD-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1.25rem;
+}
+
+.svcD-item-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.svcD-item-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .svcD-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Animation */
+@keyframes svcD-fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<div class="svc-detail-wrapper">
+    <div class="svcD-header">
+        <div>
+            <h1>{{ service.name }}</h1>
+            <p class="subtitle">
+                Créé le {{ service.created_at|date:"d/m/Y H:i" }} – 
+                Mis à jour le {{ service.updated_at|date:"d/m/Y H:i" }}
+            </p>
+        </div>
+        <div class="text-end">
+            <div class="mb-2">
+                <span class="svcD-badge svcD-badge-type">
+                    <i class="ph ph-gear-six"></i>
+                    {{ service.get_service_type_display }}
+                </span>
+                {% if service.is_active %}
+                    <span class="svcD-badge svcD-badge-active-yes ms-1">
+                        <i class="ph ph-check-circle"></i> Actif
+                    </span>
+                {% else %}
+                    <span class="svcD-badge svcD-badge-active-no ms-1">
+                        <i class="ph ph-x-circle"></i> Inactif
+                    </span>
+                {% endif %}
+            </div>
+            <div class="btn-group btn-group-sm" role="group">
+                <a href="{% url 'dashboard:services_edit' service.id %}" class="btn btn-primary">
+                    <i class="ph ph-pencil-simple"></i> Modifier
+                </a>
+                <a href="{% url 'dashboard:services_delete' service.id %}" class="btn btn-danger">
+                    <i class="ph ph-trash"></i> Supprimer
+                </a>
+                <a href="{% url 'dashboard:services_list' %}" class="btn btn-secondary">
+                    Retour à la liste
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Colonne gauche : image + infos rapides -->
+        <div class="col-lg-4 mb-4">
+            <div class="svcD-image-card mb-3">
+                {% if service.image %}
+                    <img src="{{ service.image.url }}" alt="Image du service" class="svcD-image-preview mb-2">
+                {% else %}
+                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded mb-2"
+                         style="width: 100%; height: 180px; font-size: 2rem;">
+                        <i class="ph ph-image-square"></i>
+                    </div>
+                {% endif %}
+                <p class="mb-0 svcD-item-label">Slug (URL) :</p>
+                <p class="svcD-item-value">{{ service.slug }}</p>
+                <p class="mb-0 svcD-item-label">Catégorie :</p>
+                <p class="svcD-item-value">{{ service.category.name|default:"-" }}</p>
+            </div>
+
+            <div class="svcD-section">
+                <div class="svcD-section-header">
+                    <h2 class="svcD-section-title">
+                        <span class="icon"><i class="ph ph-chart-donut"></i></span>
+                        Statut & configuration
+                    </h2>
+                </div>
+                <div class="svcD-grid-2">
+                    <div>
+                        <p class="mb-0 svcD-item-label">Lieu de prestation :</p>
+                        <p class="svcD-item-value">{{ service.get_location_type_display }}</p>
+                    </div>
+                    <div>
+                        <p class="mb-0 svcD-item-label">Complexité :</p>
+                        <p class="svcD-item-value">{{ service.get_difficulty_level_display }}</p>
+                    </div>
+                    <div>
+                        <p class="mb-0 svcD-item-label">Studio requis :</p>
+                        <p class="svcD-item-value">
+                            {% if service.requires_studio %}Oui{% else %}Non{% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="mb-0 svcD-item-label">Location matériel requise :</p>
+                        <p class="svcD-item-value">
+                            {% if service.requires_equipment_rental %}Oui{% else %}Non{% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne droite : description, tarification, durée, notes -->
+        <div class="col-lg-8 mb-4">
+            <div class="svcD-section mb-3">
+                <div class="svcD-section-header">
+                    <h2 class="svcD-section-title">
+                        <span class="icon"><i class="ph ph-text-align-left"></i></span>
+                        Description
+                    </h2>
+                </div>
+                {% if service.short_description %}
+                    <p class="mb-2"><strong>Résumé :</strong> {{ service.short_description }}</p>
+                {% endif %}
+                <p class="mb-0">{{ service.description|linebreaksbr }}</p>
+            </div>
+
+            <div class="svcD-section mb-3">
+                <div class="svcD-section-header">
+                    <h2 class="svcD-section-title">
+                        <span class="icon"><i class="ph ph-currency-circle-dollar"></i></span>
+                        Tarification & durée
+                    </h2>
+                </div>
+                <div class="svcD-grid-2">
+                    <div>
+                        <p class="mb-0 svcD-item-label">Prix de base :</p>
+                        <p class="svcD-item-value">{{ service.base_price }} F CFA</p>
+                    </div>
+                    <div>
+                        <p class="mb-0 svcD-item-label">Durée estimée :</p>
+                        <p class="svcD-item-value">
+                            {% if service.duration_min_minutes or service.duration_max_minutes %}
+                                {{ service.duration_min_minutes|default:"-" }} – {{ service.duration_max_minutes|default:"-" }} min
+                            {% else %}
+                                <span class="text-muted">Non spécifiée</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="svcD-section">
+                <div class="svcD-section-header">
+                    <h2 class="svcD-section-title">
+                        <span class="icon"><i class="ph ph-clipboard-text"></i></span>
+                        Notes internes
+                    </h2>
+                    <p class="svcD-section-desc">
+                        Informations internes pour l’équipe (non visibles côté client).
+                    </p>
+                </div>
+                <p class="mb-0">
+                    {{ service.internal_notes|linebreaksbr|default:"Aucune note interne pour ce service." }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

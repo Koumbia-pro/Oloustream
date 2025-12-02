@@ -1,0 +1,227 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Services - Oloustream Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Services</h1>
+    <div class="d-flex gap-2">
+        <a href="{% url 'dashboard:services_export_excel' %}{% if base_querystring %}?{{ base_querystring }}{% endif %}"
+           class="btn btn-success btn-sm">
+            <i class="ph ph-download-simple"></i> Export Excel
+        </a>
+        <a href="{% url 'dashboard:services_create' %}" class="btn btn-primary btn-sm">
+            <i class="ph ph-plus"></i> Nouveau service
+        </a>
+    </div>
+</div>
+
+<!-- Statistiques -->
+<div class="row g-3 mb-3">
+    <div class="col-md-4 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-2">
+                <p class="text-muted mb-1">Total</p>
+                <h5 class="mb-0">{{ total_count }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-2">
+                <p class="text-muted mb-1">Actifs</p>
+                <h5 class="mb-0 text-success">{{ active_count }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-2">
+                <p class="text-muted mb-1">Inactifs</p>
+                <h5 class="mb-0 text-muted">{{ inactive_count }}</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recherche & filtres -->
+<form method="get" class="row g-3 mb-3 align-items-end">
+    <div class="col-md-4">
+        <label class="form-label" for="id_q">Recherche</label>
+        <input type="text" name="q" id="id_q" class="form-control"
+               placeholder="Nom, description, catégorie..."
+               value="{{ q }}">
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label" for="id_category">Catégorie</label>
+        <select name="category" id="id_category" class="form-select">
+            <option value="">Toutes</option>
+            {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if selected_category|add:'' == cat.id|add:'' %}selected{% endif %}>
+                    {{ cat.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label" for="id_service_type">Type de service</label>
+        <select name="service_type" id="id_service_type" class="form-select">
+            <option value="">Tous</option>
+            {% for value, label in service_type_choices %}
+                <option value="{{ value }}" {% if selected_service_type == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label" for="id_active">Statut</label>
+        <select name="active" id="id_active" class="form-select">
+            <option value="">Tous</option>
+            <option value="yes" {% if selected_active == "yes" %}selected{% endif %}>Actif</option>
+            <option value="no" {% if selected_active == "no" %}selected{% endif %}>Inactif</option>
+        </select>
+    </div>
+
+    <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="ph ph-magnifying-glass"></i> Filtrer
+        </button>
+        <a href="{% url 'dashboard:services_list' %}" class="btn btn-outline-secondary">
+            <i class="ph ph-arrow-counter-clockwise"></i>
+        </a>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Nom</th>
+                    <th scope="col">Catégorie</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Prix de base</th>
+                    <th scope="col">Durée (min–max)</th>
+                    <th scope="col">Lieu</th>
+                    <th scope="col">Complexité</th>
+                    <th scope="col">Actif</th>
+                    <th scope="col" class="text-end">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for s in page_obj %}
+                    <tr>
+                        <td>{{ s.id }}</td>
+                        <td>
+                            <strong>{{ s.name }}</strong><br>
+                            <small class="text-muted">
+                                {{ s.short_description|default:"" }}
+                            </small>
+                        </td>
+                        <td>{{ s.category.name|default:"-" }}</td>
+                        <td>{{ s.get_service_type_display }}</td>
+                        <td>{{ s.base_price }} F CFA</td>
+                        <td>
+                            {% if s.duration_min_minutes or s.duration_max_minutes %}
+                                {{ s.duration_min_minutes|default:"-" }} – {{ s.duration_max_minutes|default:"-" }} min
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ s.get_location_type_display }}</td>
+                        <td>{{ s.get_difficulty_level_display }}</td>
+                        <td>
+                            {% if s.is_active %}
+                                <span class="badge bg-success">Oui</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Non</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="{% url 'dashboard:services_detail' s.id %}"
+                                class="btn btn-outline-secondary" title="Détails">
+                                    <i class="ph ph-eye"></i>
+                                </a>
+                                <a href="{% url 'dashboard:services_edit' s.id %}"
+                                class="btn btn-outline-primary" title="Modifier">
+                                    <i class="ph ph-pencil-simple"></i>
+                                </a>
+                                <a href="{% url 'dashboard:services_delete' s.id %}"
+                                class="btn btn-outline-danger" title="Supprimer">
+                                    <i class="ph ph-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="10" class="text-center text-muted py-4">
+                            Aucun service ne correspond à la recherche.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+        <div class="card-footer bg-white">
+            <nav aria-label="Pagination services">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page=1{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                « Première
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.previous_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                ‹ Précédente
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="?page={{ num }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                    {{ num }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.next_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                Suivante ›
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.paginator.num_pages }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                Dernière »
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

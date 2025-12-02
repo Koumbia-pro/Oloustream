@@ -1,0 +1,222 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Partenaires - Oloustream Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Partenaires</h1>
+    <div class="d-flex gap-2">
+        <a href="{% url 'dashboard:partners_export_excel' %}{% if base_querystring %}?{{ base_querystring }}{% endif %}"
+           class="btn btn-success btn-sm">
+            <i class="ph ph-download-simple"></i> Export Excel
+        </a>
+        <a href="{% url 'dashboard:partners_create' %}" class="btn btn-primary btn-sm">
+            <i class="ph ph-plus"></i> Nouveau partenaire
+        </a>
+    </div>
+</div>
+
+<!-- Statistiques -->
+<div class="row g-3 mb-3">
+    <div class="col-md-4 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-2">
+                <p class="text-muted mb-1">Total</p>
+                <h5 class="mb-0">{{ total_count }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-2">
+                <p class="text-muted mb-1">Actifs</p>
+                <h5 class="mb-0 text-success">{{ active_count }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-2">
+                <p class="text-muted mb-1">Inactifs</p>
+                <h5 class="mb-0 text-muted">{{ inactive_count }}</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recherche & filtre actif -->
+<form method="get" class="row g-3 mb-3 align-items-end">
+    <div class="col-md-6">
+        <label class="form-label" for="id_q">Recherche</label>
+        <input type="text" name="q" id="id_q" class="form-control"
+               placeholder="Nom, site web..."
+               value="{{ q }}">
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label" for="id_active">Statut</label>
+        <select name="active" id="id_active" class="form-select">
+            <option value="">Tous</option>
+            <option value="yes" {% if selected_active == "yes" %}selected{% endif %}>Actif</option>
+            <option value="no" {% if selected_active == "no" %}selected{% endif %}>Inactif</option>
+        </select>
+    </div>
+
+    <div class="col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="ph ph-magnifying-glass"></i> Filtrer
+        </button>
+        <a href="{% url 'dashboard:partners_list' %}" class="btn btn-outline-secondary">
+            <i class="ph ph-arrow-counter-clockwise"></i>
+        </a>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Logo</th>
+                    <th scope="col">Nom</th>
+                    <th scope="col">Site web</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Contact</th>
+                    <th scope="col">Actif</th>
+                    <th scope="col" class="text-end">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for p in page_obj %}
+                    <tr>
+                        <td>{{ p.id }}</td>
+                        <td>
+                            {% if p.logo %}
+                                <img src="{{ p.logo.url }}" alt="Logo"
+                                     class="rounded"
+                                     style="width: 50px; height: 50px; object-fit: contain; background:#f9fafb;">
+                            {% else %}
+                                <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded"
+                                     style="width: 50px; height: 50px; font-size: 1.2rem;">
+                                    <i class="ph ph-handshake"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>{{ p.name }}</td>
+                        <td>
+                            {% if p.website %}
+                                <a href="{{ p.website }}" target="_blank" rel="noopener noreferrer">
+                                    {{ p.website|truncatechars:40 }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ p.get_partnership_type_display }}
+                        </td>
+                        <td>
+                            {% if p.contact_name %}
+                                <strong>{{ p.contact_name }}</strong><br>
+                            {% endif %}
+                            {% if p.contact_email %}
+                                <small class="text-muted">{{ p.contact_email }}</small><br>
+                            {% endif %}
+                            {% if p.contact_phone %}
+                                <small class="text-muted">{{ p.contact_phone }}</small>
+                            {% endif %}
+                            {% if not p.contact_name and not p.contact_email and not p.contact_phone %}
+                                <span class="text-muted">Non renseigné</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if p.active %}
+                                <span class="badge bg-success">Oui</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Non</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="{% url 'dashboard:partners_detail' p.id %}"
+                                   class="btn btn-outline-secondary" title="Détails">
+                                    <i class="ph ph-eye"></i>
+                                </a>
+                                <a href="{% url 'dashboard:partners_edit' p.id %}"
+                                   class="btn btn-outline-primary" title="Modifier">
+                                    <i class="ph ph-pencil-simple"></i>
+                                </a>
+                                <a href="{% url 'dashboard:partners_delete' p.id %}"
+                                   class="btn btn-outline-danger" title="Supprimer">
+                                    <i class="ph ph-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            Aucun partenaire ne correspond à la recherche.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+        <div class="card-footer bg-white">
+            <nav aria-label="Pagination partenaires">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page=1{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                « Première
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.previous_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                ‹ Précédente
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="?page={{ num }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                    {{ num }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.next_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                Suivante ›
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.paginator.num_pages }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                Dernière »
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

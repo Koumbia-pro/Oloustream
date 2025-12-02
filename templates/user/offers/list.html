@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Offres - Oloustream{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">Offres</h1>
+
+<div class="row">
+    {% for o in offers %}
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ o.title }}</h5>
+                    <p class="card-text">
+                        {{ o.description|truncatewords:25 }}
+                    </p>
+                    <p class="mb-1"><strong>Service :</strong> {{ o.service.name }}</p>
+                    <p class="mb-1"><strong>Réduction :</strong> {{ o.discount_percent }} %</p>
+                    <p class="mb-1"><strong>Période :</strong> du {{ o.start_date }} au {{ o.end_date }}</p>
+                </div>
+                <div class="card-footer bg-white border-0">
+                    {% if user.is_authenticated %}
+                        {% if o.id in user_offer_ids %}
+                            <span class="badge bg-success">Déjà postulé</span>
+                        {% else %}
+                            <a href="{% url 'services_app:user_offer_apply' o.id %}"
+                               class="btn btn-primary btn-sm">
+                                Postuler
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}?next={% url 'services_app:user_offers_list' %}"
+                           class="btn btn-outline-primary btn-sm">
+                            Se connecter pour postuler
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <p class="text-muted">Aucune offre disponible pour le moment.</p>
+    {% endfor %}
+</div>
+{% endblock %}

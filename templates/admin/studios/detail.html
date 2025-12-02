@@ -1,0 +1,420 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Studio {{ studio.name }} - Détail{% endblock %}
+
+{% block content %}
+
+<style>
+.studio-detail-wrapper {
+  margin: 0 auto 1.5rem;
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.studio-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.studio-detail-header h1 {
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.studio-detail-header .subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.studio-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.studio-detail-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.studio-detail-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #9ca3af;
+  letter-spacing: 0.05em;
+}
+
+.studio-detail-value {
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+.studio-detail-value small {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+.studio-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.studio-section-title i {
+  margin-right: 0.25rem;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<div class="studio-detail-wrapper">
+    <div class="studio-detail-header">
+        <div>
+            <h1>Studio : {{ studio.name }}</h1>
+            <p class="subtitle">
+                Détail complet du studio, de ses équipements et de sa tarification.
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <span class="studio-badge">
+                <i class="fa-solid fa-video"></i> Studio #{{ studio.id }}
+            </span>
+            <a href="{% url 'dashboard:studios_edit' studio.pk %}" class="btn btn-primary btn-sm">
+                <i class="fa-solid fa-pen-to-square me-1"></i> Modifier
+            </a>
+            <a href="{% url 'dashboard:studios_delete' studio.pk %}" class="btn btn-outline-danger btn-sm">
+                <i class="fa-solid fa-trash-can me-1"></i> Supprimer
+            </a>
+            <a href="{% url 'dashboard:studios_list' %}" class="btn btn-outline-secondary btn-sm">
+                Retour à la liste
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- Colonne gauche : infos principales + localisation + dimensions -->
+        <div class="col-lg-7">
+            <div class="studio-detail-card mb-3">
+                {% if studio.image %}
+                    <img src="{{ studio.image.url }}"
+                        alt="{{ studio.name }}"
+                        style="width:100%;max-height:260px;object-fit:cover;border-radius:10px;">
+                {% else %}
+                    <div class="text-muted" style="font-size:0.85rem;">
+                        Aucune image principale n'est définie pour ce studio.
+                    </div>
+                {% endif %}
+            </div>
+            <!-- Infos de base -->
+            <div class="studio-detail-card">
+                <div class="studio-section-title">
+                    <i class="fa-solid fa-circle-info"></i> Informations de base
+                </div>
+
+                <div class="mb-3">
+                    <div class="studio-detail-label">Nom du studio</div>
+                    <div class="studio-detail-value">
+                        {{ studio.name }}
+                        {% if studio.code %}
+                            <small class="ms-1">(Code : {{ studio.code }})</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="studio-detail-label">Type de studio</div>
+                    <div class="studio-detail-value">
+                        {{ studio.get_studio_type_display }}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="studio-detail-label">Statut</div>
+                    <div class="studio-detail-value">
+                        {{ studio.get_status_display }}
+                        {% if studio.is_active %}
+                            <span class="badge bg-success ms-1">Actif</span>
+                        {% else %}
+                            <span class="badge bg-secondary ms-1">Inactif</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-0">
+                    <div class="studio-detail-label">Description</div>
+                    <div class="studio-detail-value">
+                        {{ studio.description|default:"Aucune description fournie."|linebreaksbr }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Localisation -->
+            <div class="studio-detail-card">
+                <div class="studio-section-title">
+                    <i class="fa-solid fa-location-dot"></i> Localisation
+                </div>
+
+                <div class="mb-2">
+                    <div class="studio-detail-label">Adresse</div>
+                    <div class="studio-detail-value">
+                        {{ studio.address|default:"—" }}
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <div class="studio-detail-label">Ville</div>
+                    <div class="studio-detail-value">
+                        {{ studio.city|default:"—" }}
+                    </div>
+                </div>
+
+                <div class="mb-0">
+                    <div class="studio-detail-label">Pays</div>
+                    <div class="studio-detail-value">
+                        {{ studio.country|default:"—" }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dimensions -->
+            <div class="studio-detail-card">
+                <div class="studio-section-title">
+                    <i class="fa-solid fa-ruler-combined"></i> Dimensions
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-3 mb-2">
+                        <div class="studio-detail-label">Longueur (m)</div>
+                        <div class="studio-detail-value">
+                            {{ studio.length_m|default:"—" }}
+                        </div>
+                    </div>
+                    <div class="col-sm-3 mb-2">
+                        <div class="studio-detail-label">Largeur (m)</div>
+                        <div class="studio-detail-value">
+                            {{ studio.width_m|default:"—" }}
+                        </div>
+                    </div>
+                    <div class="col-sm-3 mb-2">
+                        <div class="studio-detail-label">Hauteur (m)</div>
+                        <div class="studio-detail-value">
+                            {{ studio.height_m|default:"—" }}
+                        </div>
+                    </div>
+                    <div class="col-sm-3 mb-2">
+                        <div class="studio-detail-label">Superficie (m²)</div>
+                        <div class="studio-detail-value">
+                            {{ studio.area_m2|default:"—" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne droite : tarifs, équipements, stats -->
+        <div class="col-lg-5">
+            <!-- Tarification -->
+            <div class="studio-detail-card">
+                <div class="studio-section-title">
+                    <i class="fa-solid fa-money-bill-wave"></i> Tarification
+                </div>
+
+                <div class="mb-2">
+                    <div class="studio-detail-label">Prix par heure</div>
+                    <div class="studio-detail-value">
+                        {% if studio.price_per_hour %}
+                            {{ studio.price_per_hour }} FCFA
+                        {% else %}
+                            —
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <div class="studio-detail-label">Prix par demi-journée</div>
+                    <div class="studio-detail-value">
+                        {% if studio.price_half_day %}
+                            {{ studio.price_half_day }} FCFA
+                        {% else %}
+                            —
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <div class="studio-detail-label">Prix par journée</div>
+                    <div class="studio-detail-value">
+                        {% if studio.price_day %}
+                            {{ studio.price_day }} FCFA
+                        {% else %}
+                            —
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <div class="studio-detail-label">Réduction / promotion</div>
+                    <div class="studio-detail-value">
+                        {% if studio.discount_percent %}
+                            {{ studio.discount_percent }} %
+                        {% else %}
+                            —
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-0">
+                    <div class="studio-detail-label">Options supplémentaires</div>
+                    <div class="studio-detail-value">
+                        {{ studio.extra_options|default:"—"|linebreaksbr }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Éclairage & équipements -->
+            <div class="studio-detail-card">
+                <div class="studio-section-title">
+                    <i class="fa-solid fa-lightbulb"></i> Éclairage & équipements
+                </div>
+
+                <div class="mb-2">
+                    <div class="studio-detail-label">Éclairage intégré</div>
+                    <div class="studio-detail-value">
+                        {% if studio.lighting_included %}
+                            Oui
+                        {% else %}
+                            Non
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <div class="studio-detail-label">Type de lumières</div>
+                    <div class="studio-detail-value">
+                        {{ studio.lighting_type|default:"—"|linebreaksbr }}
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <div class="studio-detail-label">Caméras présentes</div>
+                    <div class="studio-detail-value">
+                        {{ studio.equip_cameras|default:"—"|linebreaksbr }}
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <div class="studio-detail-label">Micros disponibles</div>
+                    <div class="studio-detail-value">
+                        {{ studio.equip_microphones|default:"—"|linebreaksbr }}
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <div class="studio-detail-label">Lumières</div>
+                    <div class="studio-detail-value">
+                        {{ studio.equip_lights|default:"—"|linebreaksbr }}
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <div class="studio-detail-label">Écrans</div>
+                    <div class="studio-detail-value">
+                        {{ studio.equip_screens|default:"—"|linebreaksbr }}
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <div class="studio-detail-label">Régie</div>
+                    <div class="studio-detail-value">
+                        {{ studio.equip_control_room|default:"—"|linebreaksbr }}
+                    </div>
+                </div>
+
+                <div class="mb-0">
+                    <div class="studio-detail-label">Accessoires</div>
+                    <div class="studio-detail-value">
+                        {{ studio.equip_accessories|default:"—"|linebreaksbr }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Disponibilités & capacité -->
+            <div class="studio-detail-card">
+                <div class="studio-section-title">
+                    <i class="fa-solid fa-clock"></i> Disponibilités & capacité
+                </div>
+
+                <div class="mb-2">
+                    <div class="studio-detail-label">Heures d'ouverture</div>
+                    <div class="studio-detail-value">
+                        {{ studio.opening_hours|default:"—" }}
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <div class="studio-detail-label">Jours d'ouverture</div>
+                    <div class="studio-detail-value">
+                        {{ studio.opening_days|default:"—" }}
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <div class="studio-detail-label">Dates indisponibles</div>
+                    <div class="studio-detail-value">
+                        {{ studio.unavailable_dates|default:"—"|linebreaksbr }}
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <div class="studio-detail-label">Capacité maximale</div>
+                    <div class="studio-detail-value">
+                        {% if studio.capacity %}
+                            {{ studio.capacity }} personne(s)
+                        {% else %}
+                            —
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-0">
+                    <div class="studio-detail-label">Techniciens requis</div>
+                    <div class="studio-detail-value">
+                        {% if studio.technicians_required %}
+                            {{ studio.technicians_required }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistiques rapides -->
+            <div class="studio-detail-card">
+                <div class="studio-section-title">
+                    <i class="fa-solid fa-chart-line"></i> Statistiques rapides
+                </div>
+                <p class="mb-1">
+                    <span class="studio-detail-label">Nombre total de réservations</span><br>
+                    <span class="studio-detail-value">
+                        {{ studio.reservation_set.count }}
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

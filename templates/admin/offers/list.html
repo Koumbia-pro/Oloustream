@@ -1,0 +1,252 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Offres - Oloustream Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Offres</h1>
+    <div class="d-flex gap-2">
+        <a href="{% url 'dashboard:offers_export_excel' %}{% if base_querystring %}?{{ base_querystring }}{% endif %}"
+           class="btn btn-success btn-sm">
+            <i class="ph ph-download-simple"></i> Export Excel
+        </a>
+        <a href="{% url 'dashboard:offers_create' %}" class="btn btn-primary btn-sm">
+            <i class="ph ph-plus"></i> Nouvelle offre
+        </a>
+    </div>
+</div>
+
+<!-- Statistiques -->
+<div class="row g-3 mb-3">
+    <div class="col-md-2 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-2">
+                <p class="text-muted mb-1">Total</p>
+                <h5 class="mb-0">{{ total_count }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-2">
+                <p class="text-muted mb-1">Actives</p>
+                <h5 class="mb-0 text-success">{{ active_count }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-2">
+                <p class="text-muted mb-1">Inactives</p>
+                <h5 class="mb-0 text-muted">{{ inactive_count }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-2">
+                <p class="text-muted mb-1">En cours</p>
+                <h5 class="mb-0 text-primary">{{ current_count }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-2">
+                <p class="text-muted mb-1">À venir</p>
+                <h5 class="mb-0 text-warning">{{ upcoming_count }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-2">
+                <p class="text-muted mb-1">Expirées</p>
+                <h5 class="mb-0 text-danger">{{ expired_count }}</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recherche & filtres -->
+<form method="get" class="row g-3 mb-3 align-items-end">
+    <div class="col-md-4">
+        <label class="form-label" for="id_q">Recherche</label>
+        <input type="text" name="q" id="id_q" class="form-control"
+               placeholder="Titre, description, service..."
+               value="{{ q }}">
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label" for="id_service">Service</label>
+        <select name="service" id="id_service" class="form-select">
+            <option value="">Tous</option>
+            {% for s in services %}
+                <option value="{{ s.id }}" {% if selected_service|add:'' == s.id|add:'' %}selected{% endif %}>
+                    {{ s.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label" for="id_active">Actif</label>
+        <select name="active" id="id_active" class="form-select">
+            <option value="">Tous</option>
+            <option value="yes" {% if selected_active == "yes" %}selected{% endif %}>Oui</option>
+            <option value="no" {% if selected_active == "no" %}selected{% endif %}>Non</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label" for="id_period">Période</label>
+        <select name="period" id="id_period" class="form-select">
+            <option value="">Toutes</option>
+            <option value="current" {% if selected_period == "current" %}selected{% endif %}>En cours</option>
+            <option value="upcoming" {% if selected_period == "upcoming" %}selected{% endif %}>À venir</option>
+            <option value="expired" {% if selected_period == "expired" %}selected{% endif %}>Expirées</option>
+        </select>
+    </div>
+
+    <div class="col-md-1 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="ph ph-magnifying-glass"></i>
+        </button>
+        <a href="{% url 'dashboard:offers_list' %}" class="btn btn-outline-secondary" title="Réinitialiser">
+            <i class="ph ph-arrow-counter-clockwise"></i>
+        </a>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Titre</th>
+                    <th scope="col">Service</th>
+                    <th scope="col">Réduction</th>
+                    <th scope="col">Période</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col" class="text-end">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for o in page_obj %}
+                    {% now "Y-m-d" as today_str %}
+                    {% with today=today_str|date:"Y-m-d" %}
+                        <tr>
+                            <td>{{ o.id }}</td>
+                            <td>
+                                <strong>{{ o.title }}</strong><br>
+                                <small class="text-muted">
+                                    {% if o.description %}
+                                        {{ o.description|truncatechars:80 }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </small>
+                            </td>
+                            <td>{{ o.service.name|default:"-" }}</td>
+                            <td>-{{ o.discount_percent }} %</td>
+                            <td>
+                                {{ o.start_date|date:"d/m/Y" }} – {{ o.end_date|date:"d/m/Y" }}
+                            </td>
+                            <td>
+                                {% if o.is_active %}
+                                    {% if o.start_date <= today|date and o.end_date >= today|date %}
+                                        <span class="badge bg-primary">En cours</span>
+                                    {% elif o.start_date > today|date %}
+                                        <span class="badge bg-warning text-dark">À venir</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Expirée</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{% url 'dashboard:offers_detail' o.id %}"
+                                       class="btn btn-outline-secondary" title="Détails">
+                                        <i class="ph ph-eye"></i>
+                                    </a>
+                                    <a href="{% url 'dashboard:offers_edit' o.id %}"
+                                       class="btn btn-outline-primary" title="Modifier">
+                                        <i class="ph ph-pencil-simple"></i>
+                                    </a>
+                                    <a href="{% url 'dashboard:offers_delete' o.id %}"
+                                       class="btn btn-outline-danger" title="Supprimer">
+                                        <i class="ph ph-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endwith %}
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            Aucune offre ne correspond à la recherche.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+        <div class="card-footer bg-white">
+            <nav aria-label="Pagination offres">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page=1{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                « Première
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.previous_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                ‹ Précédente
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="?page={{ num }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                    {{ num }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.next_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                Suivante ›
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.paginator.num_pages }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                Dernière »
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

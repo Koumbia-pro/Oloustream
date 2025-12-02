@@ -1,0 +1,669 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Employé - Oloustream Admin{% endblock %}
+
+{% block content %}
+
+<style>
+/* =========================================================
+   STYLE ULTRA PRO – FORMULAIRE EMPLOYÉ
+   ========================================================= */
+
+.employee-form-wrapper {
+
+  margin: 0 auto;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.employee-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.employee-form-header h1 {
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.employee-form-header .subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.employee-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+/* Tabs de sections */
+.employee-form-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.employee-form-tab {
+  border-radius: 999px;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  color: #4b5563;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.employee-form-tab.active {
+  background: linear-gradient(135deg, #e60023, #b3001b);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(230, 0, 35, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Sections */
+.employee-section {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+  margin-bottom: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+.employee-section.active {
+  border-color: #e60023;
+  box-shadow: 0 8px 20px rgba(230, 0, 35, 0.12);
+  transform: translateY(-1px);
+}
+
+.employee-section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.employee-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.employee-section-title span.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.employee-section-desc {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Grille des champs */
+.employee-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1.25rem;
+}
+
+.employee-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.employee-field label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #4b5563;
+  margin-bottom: 0.2rem;
+}
+
+.employee-field input,
+.employee-field select,
+.employee-field textarea {
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.85rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.employee-field input:focus,
+.employee-field select:focus,
+.employee-field textarea:focus {
+  border-color: #e60023;
+  box-shadow: 0 0 0 1px rgba(230, 0, 35, 0.35);
+  outline: none;
+  background: #fffafa;
+}
+
+.employee-field .help-text {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.15rem;
+}
+
+.employee-field .error-text {
+  font-size: 0.75rem;
+  color: #b91c1c;
+  margin-top: 0.15rem;
+}
+
+/* Champs booléens */
+.employee-booleans {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+}
+
+.employee-boolean {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: #4b5563;
+}
+
+.employee-boolean input {
+  width: 16px;
+  height: 16px;
+}
+
+/* Pied de formulaire */
+.employee-form-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* Responsivité */
+@media (max-width: 992px) {
+  .employee-fields-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
+
+<div class="employee-form-wrapper">
+    <div class="employee-form-header">
+        <div>
+            <h1>
+                {% if employee %}
+                    Modifier l'employé : {{ employee.get_full_name|default:employee.username }}
+                {% else %}
+                    Créer un nouvel employé
+                {% endif %}
+            </h1>
+            <p class="subtitle">
+                Gérez toutes les informations personnelles, contractuelles et administratives de l'employé.
+            </p>
+        </div>
+        {% if employee %}
+            <span class="employee-badge">
+                <i class="ph ph-user-circle"></i>
+                Employé #{{ employee.id }}
+            </span>
+        {% endif %}
+    </div>
+
+    <!-- Onglets rapides (scroll vers les sections) -->
+    <div class="employee-form-tabs">
+        <button type="button" class="employee-form-tab active" data-target="#section-compte">
+            <i class="ph ph-user-circle"></i> Compte & rôle
+        </button>
+        <button type="button" class="employee-form-tab" data-target="#section-personnel">
+            <i class="ph ph-identification-badge"></i> Données personnelles
+        </button>
+        <button type="button" class="employee-form-tab" data-target="#section-contrat">
+            <i class="ph ph-briefcase"></i> Informations contractuelles
+        </button>
+        <button type="button" class="employee-form-tab" data-target="#section-contacts">
+            <i class="ph ph-chat-circle-dots"></i> Contacts & réseaux
+        </button>
+        <button type="button" class="employee-form-tab" data-target="#section-admin">
+            <i class="ph ph-buildings"></i> Données administratives
+        </button>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="employee-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <!-- SECTION 1 : COMPTE & RÔLE -->
+        <section class="employee-section active" id="section-compte">
+            <div class="employee-section-header">
+                <h2 class="employee-section-title">
+                    <span class="icon"><i class="ph ph-user"></i></span>
+                    Compte & rôle
+                </h2>
+                <p class="employee-section-desc">
+                    Identité de connexion et droits dans le système.
+                </p>
+            </div>
+
+            <div class="employee-fields-grid">
+                {% if form.username %}
+                <div class="employee-field">
+                    <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="error-text">{{ form.username.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.email %}
+                <div class="employee-field">
+                    <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="error-text">{{ form.email.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.first_name %}
+                <div class="employee-field">
+                    <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <div class="error-text">{{ form.first_name.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.last_name %}
+                <div class="employee-field">
+                    <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <div class="error-text">{{ form.last_name.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.phone %}
+                <div class="employee-field">
+                    <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                        <div class="error-text">{{ form.phone.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.role %}
+                <div class="employee-field">
+                    <label for="{{ form.role.id_for_label }}">{{ form.role.label }}</label>
+                    {{ form.role }}
+                    {% if form.role.errors %}
+                        <div class="error-text">{{ form.role.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.password1 %}
+                <div class="employee-field">
+                    <label for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                        <div class="error-text">{{ form.password1.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.password2 %}
+                <div class="employee-field">
+                    <label for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <div class="error-text">{{ form.password2.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="employee-booleans mt-3">
+                {% if form.is_staff %}
+                <label class="employee-boolean">
+                    {{ form.is_staff }} <span>{{ form.is_staff.label }}</span>
+                </label>
+                {% endif %}
+                {% if form.is_employee %}
+                <label class="employee-boolean">
+                    {{ form.is_employee }} <span>{{ form.is_employee.label }}</span>
+                </label>
+                {% endif %}
+                {% if form.is_active %}
+                <label class="employee-boolean">
+                    {{ form.is_active }} <span>{{ form.is_active.label }}</span>
+                </label>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- SECTION 2 : DONNÉES PERSONNELLES -->
+        <section class="employee-section" id="section-personnel">
+            <div class="employee-section-header">
+                <h2 class="employee-section-title">
+                    <span class="icon"><i class="ph ph-identification-card"></i></span>
+                    Données personnelles
+                </h2>
+                <p class="employee-section-desc">
+                    Informations d’état civil et de localisation.
+                </p>
+            </div>
+
+            <div class="employee-fields-grid">
+                {% if form.position %}
+                <div class="employee-field">
+                    <label for="{{ form.position.id_for_label }}">{{ form.position.label }}</label>
+                    {{ form.position }}
+                    {% if form.position.errors %}
+                        <div class="error-text">{{ form.position.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.gender %}
+                <div class="employee-field">
+                    <label for="{{ form.gender.id_for_label }}">{{ form.gender.label }}</label>
+                    {{ form.gender }}
+                    {% if form.gender.errors %}
+                        <div class="error-text">{{ form.gender.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.date_of_birth %}
+                <div class="employee-field">
+                    <label for="{{ form.date_of_birth.id_for_label }}">{{ form.date_of_birth.label }}</label>
+                    {{ form.date_of_birth }}
+                    {% if form.date_of_birth.errors %}
+                        <div class="error-text">{{ form.date_of_birth.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.address %}
+                <div class="employee-field">
+                    <label for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
+                    {{ form.address }}
+                    {% if form.address.errors %}
+                        <div class="error-text">{{ form.address.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.city %}
+                <div class="employee-field">
+                    <label for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
+                    {{ form.city }}
+                    {% if form.city.errors %}
+                        <div class="error-text">{{ form.city.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- SECTION 3 : INFORMATIONS CONTRACTUELLES -->
+        <section class="employee-section" id="section-contrat">
+            <div class="employee-section-header">
+                <h2 class="employee-section-title">
+                    <span class="icon"><i class="ph ph-briefcase"></i></span>
+                    Informations contractuelles
+                </h2>
+                <p class="employee-section-desc">
+                    Type de contrat, salaire et parcours professionnel.
+                </p>
+            </div>
+
+            <div class="employee-fields-grid">
+                {% if form.salary %}
+                <div class="employee-field">
+                    <label for="{{ form.salary.id_for_label }}">{{ form.salary.label }}</label>
+                    {{ form.salary }}
+                    {% if form.salary.errors %}
+                        <div class="error-text">{{ form.salary.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.contract_type %}
+                <div class="employee-field">
+                    <label for="{{ form.contract_type.id_for_label }}">{{ form.contract_type.label }}</label>
+                    {{ form.contract_type }}
+                    {% if form.contract_type.errors %}
+                        <div class="error-text">{{ form.contract_type.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.years_of_experience %}
+                <div class="employee-field">
+                    <label for="{{ form.years_of_experience.id_for_label }}">{{ form.years_of_experience.label }}</label>
+                    {{ form.years_of_experience }}
+                    {% if form.years_of_experience.errors %}
+                        <div class="error-text">{{ form.years_of_experience.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.education_level %}
+                <div class="employee-field">
+                    <label for="{{ form.education_level.id_for_label }}">{{ form.education_level.label }}</label>
+                    {{ form.education_level }}
+                    {% if form.education_level.errors %}
+                        <div class="error-text">{{ form.education_level.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.diploma %}
+                <div class="employee-field">
+                    <label for="{{ form.diploma.id_for_label }}">{{ form.diploma.label }}</label>
+                    {{ form.diploma }}
+                    {% if form.diploma.errors %}
+                        <div class="error-text">{{ form.diploma.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.contract_document %}
+                <div class="employee-field">
+                    <label for="{{ form.contract_document.id_for_label }}">{{ form.contract_document.label }}</label>
+                    {{ form.contract_document }}
+                    {% if form.contract_document.errors %}
+                        <div class="error-text">{{ form.contract_document.errors|striptags }}</div>
+                    {% endif %}
+                    <div class="help-text">PDF, DOC ou image. Optionnel.</div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- SECTION 4 : CONTACTS & RÉSEAUX -->
+        <section class="employee-section" id="section-contacts">
+            <div class="employee-section-header">
+                <h2 class="employee-section-title">
+                    <span class="icon"><i class="ph ph-chat-circle-dots"></i></span>
+                    Contacts & réseaux sociaux
+                </h2>
+                <p class="employee-section-desc">
+                    Informations de contact professionnelles et profils sociaux.
+                </p>
+            </div>
+
+            <div class="employee-fields-grid">
+                {% if form.linkedin_url %}
+                <div class="employee-field">
+                    <label for="{{ form.linkedin_url.id_for_label }}">{{ form.linkedin_url.label }}</label>
+                    {{ form.linkedin_url }}
+                    {% if form.linkedin_url.errors %}
+                        <div class="error-text">{{ form.linkedin_url.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.facebook_url %}
+                <div class="employee-field">
+                    <label for="{{ form.facebook_url.id_for_label }}">{{ form.facebook_url.label }}</label>
+                    {{ form.facebook_url }}
+                    {% if form.facebook_url.errors %}
+                        <div class="error-text">{{ form.facebook_url.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.twitter_url %}
+                <div class="employee-field">
+                    <label for="{{ form.twitter_url.id_for_label }}">{{ form.twitter_url.label }}</label>
+                    {{ form.twitter_url }}
+                    {% if form.twitter_url.errors %}
+                        <div class="error-text">{{ form.twitter_url.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.instagram_url %}
+                <div class="employee-field">
+                    <label for="{{ form.instagram_url.id_for_label }}">{{ form.instagram_url.label }}</label>
+                    {{ form.instagram_url }}
+                    {% if form.instagram_url.errors %}
+                        <div class="error-text">{{ form.instagram_url.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- SECTION 5 : DONNÉES ADMINISTRATIVES -->
+        <section class="employee-section" id="section-admin">
+            <div class="employee-section-header">
+                <h2 class="employee-section-title">
+                    <span class="icon"><i class="ph ph-buildings"></i></span>
+                    Données administratives
+                </h2>
+                <p class="employee-section-desc">
+                    Dates clés et rattachement hiérarchique.
+                </p>
+            </div>
+
+            <div class="employee-fields-grid">
+                {% if form.hire_date %}
+                <div class="employee-field">
+                    <label for="{{ form.hire_date.id_for_label }}">{{ form.hire_date.label }}</label>
+                    {{ form.hire_date }}
+                    {% if form.hire_date.errors %}
+                        <div class="error-text">{{ form.hire_date.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.contract_end_date %}
+                <div class="employee-field">
+                    <label for="{{ form.contract_end_date.id_for_label }}">{{ form.contract_end_date.label }}</label>
+                    {{ form.contract_end_date }}
+                    {% if form.contract_end_date.errors %}
+                        <div class="error-text">{{ form.contract_end_date.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.manager %}
+                <div class="employee-field">
+                    <label for="{{ form.manager.id_for_label }}">{{ form.manager.label }}</label>
+                    {{ form.manager }}
+                    {% if form.manager.errors %}
+                        <div class="error-text">{{ form.manager.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <div class="employee-form-footer">
+            <a href="{% url 'dashboard:employees_list' %}" class="btn btn-secondary">Annuler</a>
+            <button type="submit" class="btn btn-primary">
+                {% if employee %}Mettre à jour{% else %}Créer l'employé{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des onglets
+    const tabs = document.querySelectorAll('.employee-form-tab');
+    const sections = document.querySelectorAll('.employee-section');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = document.querySelector(tab.dataset.target);
+            if (!target) return;
+
+            tabs.forEach(t => t.classList.remove('active'));
+            sections.forEach(s => s.classList.remove('active'));
+
+            tab.classList.add('active');
+            target.classList.add('active');
+
+            // Scroll doux vers la section
+            const y = target.getBoundingClientRect().top + window.scrollY - 80;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+        });
+    });
+
+    // Highlight de la section contenant le champ focus
+    sections.forEach(section => {
+        section.addEventListener('focusin', () => {
+            sections.forEach(s => s.classList.remove('active'));
+            section.classList.add('active');
+        });
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Formations - Oloustream{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">Formations</h1>
+
+<div class="row">
+    {% for t in trainings %}
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ t.title }}</h5>
+                    <p class="card-text">
+                        {{ t.description|truncatewords:25 }}
+                    </p>
+                    <p class="mb-1"><strong>Durée :</strong> {{ t.duration_hours }} h</p>
+                    <p class="mb-1"><strong>Prix :</strong> {{ t.price }} F CFA</p>
+                    <p class="mb-1"><strong>Certification :</strong> {{ t.certification|yesno:"Oui,Non" }}</p>
+                </div>
+                <div class="card-footer bg-white border-0">
+                    {% if user.is_authenticated %}
+                        {% if t.id in user_training_ids %}
+                            <span class="badge bg-success">Déjà inscrit</span>
+                        {% else %}
+                            <a href="{% url 'services_app:user_training_enroll' t.id %}"
+                               class="btn btn-primary btn-sm">
+                                S'inscrire
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}?next={% url 'services_app:user_trainings_list' %}"
+                           class="btn btn-outline-primary btn-sm">
+                            Se connecter pour s'inscrire
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <p class="text-muted">Aucune formation disponible pour le moment.</p>
+    {% endfor %}
+</div>
+{% endblock %}

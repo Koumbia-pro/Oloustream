@@ -1,0 +1,175 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Détails employé - Oloustream Admin{% endblock %}
+
+{% block content %}
+<div class="detail-dashboard-wrapper">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Détails de l’employé</h2>
+        <div class="btn-group btn-group-sm">
+            <a href="{% url 'dashboard:employees_edit' employee.id %}" class="btn btn-primary">
+                <i class="ph ph-pencil-simple"></i> Modifier
+            </a>
+            <a href="{% url 'dashboard:employees_delete' employee.id %}" class="btn btn-danger">
+                <i class="ph ph-trash"></i> Supprimer
+            </a>
+            <a href="{% url 'dashboard:employees_list' %}" class="btn btn-secondary">
+                Retour à la liste
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Profil -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    {% if employee.avatar %}
+                        <img src="{{ employee.avatar.url }}" alt="Avatar"
+                             class="img-thumbnail mb-3"
+                             style="width: 120px; height: 120px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mb-3"
+                             style="width: 120px; height: 120px; font-size: 2.5rem;">
+                            {{ employee.first_name|default:employee.username|first|upper }}
+                        </div>
+                    {% endif %}
+                    <h5 class="mb-1">{{ employee.get_full_name|default:employee.username }}</h5>
+                    <p class="text-muted mb-1">{{ employee.email }}</p>
+                    <p class="mb-0"><span class="badge bg-primary">{{ employee.get_role_display }}</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Infos personnelles & pro -->
+        <div class="col-md-8 mb-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <h5 class="mb-3">Données personnelles</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <strong>Téléphone :</strong><br>
+                            {{ employee.phone|default:"-" }}
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <strong>Poste :</strong><br>
+                            {{ profile.position|default:"-" }}
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <strong>Genre :</strong><br>
+                            {{ profile.get_gender_display|default:"-" }}
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <strong>Date de naissance :</strong><br>
+                            {{ profile.date_of_birth|date:"d/m/Y"|default:"-" }}
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <strong>Adresse :</strong><br>
+                            {{ profile.address|default:"-" }}
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <strong>Ville :</strong><br>
+                            {{ profile.city|default:"-" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <h5 class="mb-3">Informations contractuelles</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <strong>Type de contrat :</strong><br>
+                            {{ profile.get_contract_type_display|default:"-" }}
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <strong>Salaire :</strong><br>
+                            {% if profile.salary %}
+                                {{ profile.salary }} F CFA
+                            {% else %}
+                                -
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <strong>Années d’expérience :</strong><br>
+                            {{ profile.years_of_experience|default:"-" }}
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <strong>Niveau d’études :</strong><br>
+                            {{ profile.get_education_level_display|default:"-" }}
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <strong>Diplômes :</strong><br>
+                            {{ profile.diploma|default:"-" }}
+                        </div>
+                        {% if profile.contract_document %}
+                        <div class="col-md-12 mb-2">
+                            <strong>Document de contrat :</strong><br>
+                            <a href="{{ profile.contract_document.url }}" target="_blank">Télécharger</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="mb-3">Données administratives & réseaux</h5>
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <strong>Date d’embauche :</strong><br>
+                            {{ profile.hire_date|date:"d/m/Y"|default:"-" }}
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <strong>Fin de contrat :</strong><br>
+                            {{ profile.contract_end_date|date:"d/m/Y"|default:"-" }}
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <strong>Manager :</strong><br>
+                            {% if profile.manager %}
+                                {{ profile.manager.get_full_name|default:profile.manager.username }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-3 mb-2">
+                            <strong>LinkedIn :</strong><br>
+                            {% if profile.linkedin_url %}
+                                <a href="{{ profile.linkedin_url }}" target="_blank">Voir</a>
+                            {% else %}
+                                <span class="text-muted">Non renseigné</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <strong>Facebook :</strong><br>
+                            {% if profile.facebook_url %}
+                                <a href="{{ profile.facebook_url }}" target="_blank">Voir</a>
+                            {% else %}
+                                <span class="text-muted">Non renseigné</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <strong>Twitter / X :</strong><br>
+                            {% if profile.twitter_url %}
+                                <a href="{{ profile.twitter_url }}" target="_blank">Voir</a>
+                            {% else %}
+                                <span class="text-muted">Non renseigné</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <strong>Instagram :</strong><br>
+                            {% if profile.instagram_url %}
+                                <a href="{{ profile.instagram_url }}" target="_blank">Voir</a>
+                            {% else %}
+                                <span class="text-muted">Non renseigné</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

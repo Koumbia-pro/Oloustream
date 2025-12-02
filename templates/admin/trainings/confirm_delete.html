@@ -1,0 +1,14 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Supprimer formation - Oloustream Admin{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">Supprimer la formation</h1>
+<p>Êtes-vous sûr de vouloir supprimer la formation <strong>{{ training.title }}</strong> ?</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+    <a href="{% url 'dashboard:trainings_list' %}" class="btn btn-secondary">Annuler</a>
+</form>
+{% endblock %}

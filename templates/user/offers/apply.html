@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Postuler - {{ offer.title }} - Oloustream{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">Postuler à l'offre : {{ offer.title }}</h1>
+
+<div class="mb-3">
+    <p><strong>Service :</strong> {{ offer.service.name }}</p>
+    <p><strong>Réduction :</strong> {{ offer.discount_percent }} %</p>
+    <p><strong>Période :</strong> du {{ offer.start_date }} au {{ offer.end_date }}</p>
+    <p>{{ offer.description }}</p>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="mb-3">
+        <label class="form-label" for="{{ form.message.id_for_label }}">Message (optionnel)</label>
+        {{ form.message }}
+        {% if form.message.errors %}
+            <div class="text-danger small">{{ form.message.errors|striptags }}</div>
+        {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Envoyer ma candidature</button>
+    <a href="{% url 'services_app:user_offers_list' %}" class="btn btn-secondary">Annuler</a>
+</form>
+{% endblock %}

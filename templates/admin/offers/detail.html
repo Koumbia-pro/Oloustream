@@ -1,0 +1,165 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Détail Offre - {{ offer.title }} - Oloustream Admin{% endblock %}
+
+{% block content %}
+<style>
+.svco-wrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+  animation: svco-fadeInUp 0.4s ease-out;
+}
+.svco-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.svco-header h1 {
+  font-size: 1.6rem;
+  margin: 0;
+}
+.svco-header .subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+.svco-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.svco-badge-period-current { background: #dbeafe; color: #1d4ed8; }
+.svco-badge-period-upcoming { background: #fef3c7; color: #92400e; }
+.svco-badge-period-expired { background: #fee2e2; color: #b91c1c; }
+.svco-badge-active-yes { background: #dcfce7; color: #166534; }
+.svco-badge-active-no { background: #e5e7eb; color: #6b7280; }
+
+.svco-section {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+  margin-bottom: 1.25rem;
+  padding: 1.25rem 1.5rem;
+}
+.svco-section-header {
+  margin-bottom: 0.75rem;
+}
+.svco-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+.svco-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1.25rem;
+}
+.svco-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+.svco-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+@media (max-width: 768px) {
+  .svco-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes svco-fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<div class="svco-wrapper">
+    <div class="svco-header">
+        <div>
+            <h1>{{ offer.title }}</h1>
+            <p class="subtitle">
+                Service : {{ offer.service.name|default:"-" }}<br>
+                Période : {{ offer.start_date|date:"d/m/Y" }} – {{ offer.end_date|date:"d/m/Y" }}
+            </p>
+        </div>
+        <div class="text-end">
+            <div class="mb-2">
+                {% if period_label == "En cours" %}
+                    <span class="svco-badge svco-badge-period-current">
+                        <i class="ph ph-calendar-check"></i> En cours
+                    </span>
+                {% elif period_label == "À venir" %}
+                    <span class="svco-badge svco-badge-period-upcoming">
+                        <i class="ph ph-calendar-plus"></i> À venir
+                    </span>
+                {% else %}
+                    <span class="svco-badge svco-badge-period-expired">
+                        <i class="ph ph-calendar-x"></i> Expirée
+                    </span>
+                {% endif %}
+
+                {% if offer.is_active %}
+                    <span class="svco-badge svco-badge-active-yes ms-1">
+                        <i class="ph ph-check-circle"></i> Active
+                    </span>
+                {% else %}
+                    <span class="svco-badge svco-badge-active-no ms-1">
+                        <i class="ph ph-x-circle"></i> Inactive
+                    </span>
+                {% endif %}
+            </div>
+            <div class="btn-group btn-group-sm" role="group">
+                <a href="{% url 'dashboard:offers_edit' offer.id %}" class="btn btn-primary">
+                    <i class="ph ph-pencil-simple"></i> Modifier
+                </a>
+                <a href="{% url 'dashboard:offers_delete' offer.id %}" class="btn btn-danger">
+                    <i class="ph ph-trash"></i> Supprimer
+                </a>
+                <a href="{% url 'dashboard:offers_list' %}" class="btn btn-secondary">
+                    Retour à la liste
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="svco-section">
+        <div class="svco-section-header">
+            <h2 class="svco-section-title">Détails de l’offre</h2>
+        </div>
+        <div class="svco-grid-2">
+            <div>
+                <p class="mb-0 svco-label">Service lié :</p>
+                <p class="svco-value">{{ offer.service.name|default:"-" }}</p>
+            </div>
+            <div>
+                <p class="mb-0 svco-label">Réduction :</p>
+                <p class="svco-value">-{{ offer.discount_percent }} %</p>
+            </div>
+            <div>
+                <p class="mb-0 svco-label">Date de début :</p>
+                <p class="svco-value">{{ offer.start_date|date:"d/m/Y" }}</p>
+            </div>
+            <div>
+                <p class="mb-0 svco-label">Date de fin :</p>
+                <p class="svco-value">{{ offer.end_date|date:"d/m/Y" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="svco-section">
+        <div class="svco-section-header">
+            <h2 class="svco-section-title">Description</h2>
+        </div>
+        <p class="mb-0">
+            {{ offer.description|linebreaksbr|default:"Aucune description spécifique pour cette offre." }}
+        </p>
+    </div>
+</div>
+{% endblock %}

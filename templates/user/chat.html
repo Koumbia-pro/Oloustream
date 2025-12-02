@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Chat - Oloustream{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-1">Chat avec l'équipe Oloustream</h1>
+<p class="text-muted">ID conversation (user) : {{ conversation.id }}</p>
+
+<div class="border rounded p-3 mb-3" style="height: 400px; overflow-y: auto;" id="chat-messages">
+    {% for msg in messages %}
+        <div class="mb-2 {% if msg.sender == request.user %}text-end{% endif %}">
+            <div class="small text-muted">
+                {% if msg.sender == request.user %}
+                    Vous
+                {% else %}
+                    {{ msg.sender.get_full_name|default:msg.sender.username }}
+                {% endif %}
+                • {{ msg.sent_at|date:"d/m/Y H:i" }}
+            </div>
+            <div class="d-inline-block px-2 py-1 rounded 
+                        {% if msg.sender == request.user %}
+                            bg-primary text-white
+                        {% else %}
+                            bg-light
+                        {% endif %}">
+                {{ msg.content }}
+            </div>
+        </div>
+    {% empty %}
+        <p class="text-muted">Aucun message pour le moment. Envoyez un message pour commencer la conversation.</p>
+    {% endfor %}
+</div>
+
+<form method="post" class="d-flex">
+    {% csrf_token %}
+    <input type="text" name="message" class="form-control me-2" placeholder="Écrivez votre message...">
+    <button type="submit" class="btn btn-primary">Envoyer</button>
+</form>
+
+<script>
+    (function() {
+        const conversationId = {{ conversation.id }};
+        const chatMessages = document.getElementById('chat-messages');
+
+        const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+        const chatSocket = new WebSocket(
+            wsScheme + '://' + window.location.host + '/ws/chat/' + conversationId + '/'
+        );
+
+        function appendMessage(message, fromCurrentUser) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'mb-2 ' + (fromCurrentUser ? 'text-end' : '');
+
+            const meta = document.createElement('div');
+            meta.className = 'small text-muted';
+            meta.textContent = fromCurrentUser ? 'Vous' : 'Support';
+
+            const bubble = document.createElement('div');
+            bubble.className = 'd-inline-block px-2 py-1 rounded ' +
+                (fromCurrentUser ? 'bg-primary text-white' : 'bg-light');
+            bubble.textContent = message;
+
+            wrapper.appendChild(meta);
+            wrapper.appendChild(bubble);
+            chatMessages.appendChild(wrapper);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        chatSocket.onopen = function(e) {
+            console.log('WebSocket utilisateur connecté.');
+        };
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const fromCurrentUser = (data.user_id === {{ request.user.id }});
+            appendMessage(data.message, fromCurrentUser);
+        };
+
+        chatSocket.onclose = function(e) {
+            console.log('WebSocket utilisateur fermé.', e);
+        };
+
+        // Scroll en bas au chargement
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    })();
+</script>
+{% endblock %}

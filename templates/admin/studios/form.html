@@ -1,0 +1,668 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}
+    {% if studio %}Modifier le studio {{ studio.name }} - Oloustream Admin{% else %}Nouveau studio - Oloustream Admin{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<style>
+.studio-form-wrapper {
+  margin: 0 auto 1.5rem;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.studio-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.studio-form-header h1 {
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.studio-form-header .subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.studio-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+/* Onglets (tabs) comme pour employés */
+.studio-form-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.studio-form-tab {
+  border-radius: 999px;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  color: #4b5563;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.studio-form-tab.active {
+  background: linear-gradient(135deg, #e60023, #b3001b);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(230, 0, 35, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Sections */
+.studio-section {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05);
+  margin-bottom: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.studio-section:hover {
+  border-color: #e60023;
+  box-shadow: 0 8px 20px rgba(230, 0, 35, 0.08);
+}
+
+.studio-section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.studio-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.studio-section-title span.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.studio-section-desc {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Grille des champs */
+.studio-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1.25rem;
+}
+
+.studio-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.studio-field label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #4b5563;
+  margin-bottom: 0.2rem;
+}
+
+.studio-field input,
+.studio-field select,
+.studio-field textarea {
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.85rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.studio-field textarea {
+  resize: vertical;
+}
+
+.studio-field input:focus,
+.studio-field select:focus,
+.studio-field textarea:focus {
+  border-color: #e60023;
+  box-shadow: 0 0 0 1px rgba(230, 0, 35, 0.35);
+  outline: none;
+  background: #fffafa;
+}
+
+.studio-field .help-text {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.15rem;
+}
+
+.studio-field .error-text {
+  font-size: 0.75rem;
+  color: #b91c1c;
+  margin-top: 0.15rem;
+}
+
+/* Booléens */
+.studio-boolean {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: #4b5563;
+}
+
+/* Pied de formulaire */
+.studio-form-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 992px) {
+  .studio-fields-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<div class="studio-form-wrapper">
+    <div class="studio-form-header">
+        <div>
+            <h1>
+                {% if studio %}
+                    Modifier le studio : {{ studio.name }}
+                {% else %}
+                    Créer un nouveau studio
+                {% endif %}
+            </h1>
+            <p class="subtitle">
+                Renseignez toutes les informations nécessaires pour la gestion et la réservation du studio.
+            </p>
+        </div>
+        {% if studio %}
+            <span class="studio-badge">
+                <i class="fa-solid fa-video"></i> Studio #{{ studio.id }}
+            </span>
+        {% endif %}
+    </div>
+
+    <!-- Onglets rapides pour naviguer entre les sections -->
+    <div class="studio-form-tabs">
+        <button type="button" class="studio-form-tab active" data-target="#section-base">
+            <i class="ph ph-circle-wavy-check"></i> Infos de base
+        </button>
+        <button type="button" class="studio-form-tab" data-target="#section-localisation">
+            <i class="ph ph-map-pin-line"></i> Localisation
+        </button>
+        <button type="button" class="studio-form-tab" data-target="#section-dimensions">
+            <i class="ph ph-ruler"></i> Dimensions
+        </button>
+        <button type="button" class="studio-form-tab" data-target="#section-lighting">
+            <i class="ph ph-sun"></i> Éclairage
+        </button>
+        <button type="button" class="studio-form-tab" data-target="#section-equipments">
+            <i class="ph ph-devices"></i> Équipements
+        </button>
+        <button type="button" class="studio-form-tab" data-target="#section-pricing">
+            <i class="ph ph-money"></i> Tarification
+        </button>
+        <button type="button" class="studio-form-tab" data-target="#section-availability">
+            <i class="ph ph-clock-afternoon"></i> Disponibilités
+        </button>
+        <button type="button" class="studio-form-tab" data-target="#section-capacity">
+            <i class="ph ph-users-three"></i> Capacité
+        </button>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="studio-form" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <!-- INFOS DE BASE -->
+        <section class="studio-section" id="section-base">
+            <div class="studio-section-header">
+                <h2 class="studio-section-title">
+                    <span class="icon"><i class="fa-solid fa-circle-info"></i></span>
+                    Informations de base
+                </h2>
+                <p class="studio-section-desc">
+                    Nom, code interne, type de studio, statut global et description.
+                </p>
+            </div>
+
+            <div class="studio-fields-grid">
+                <div class="studio-field">
+                    <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <div class="error-text">{{ form.name.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.code.id_for_label }}">{{ form.code.label }}</label>
+                    {{ form.code }}
+                    {% if form.code.errors %}
+                        <div class="error-text">{{ form.code.errors|striptags }}</div>
+                    {% endif %}
+                    <div class="help-text">{{ form.code.help_text }}</div>
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.studio_type.id_for_label }}">{{ form.studio_type.label }}</label>
+                    {{ form.studio_type }}
+                    {% if form.studio_type.errors %}
+                        <div class="error-text">{{ form.studio_type.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                        <div class="error-text">{{ form.status.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.is_active.id_for_label }}">Actif</label>
+                    <label class="studio-boolean">
+                        {{ form.is_active }} <span>{{ form.is_active.help_text }}</span>
+                    </label>
+                    {% if form.is_active.errors %}
+                        <div class="error-text">{{ form.is_active.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="studio-field mt-3">
+                <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div class="error-text">{{ form.description.errors|striptags }}</div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- LOCALISATION -->
+        <section class="studio-section" id="section-localisation">
+            <div class="studio-section-header">
+                <h2 class="studio-section-title">
+                    <span class="icon"><i class="fa-solid fa-location-dot"></i></span>
+                    Localisation
+                </h2>
+                <p class="studio-section-desc">
+                    Adresse complète, ville et pays du studio.
+                </p>
+            </div>
+
+            <div class="studio-fields-grid">
+                <div class="studio-field">
+                    <label for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
+                    {{ form.address }}
+                    {% if form.address.errors %}
+                        <div class="error-text">{{ form.address.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
+                    {{ form.city }}
+                    {% if form.city.errors %}
+                        <div class="error-text">{{ form.city.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.country.id_for_label }}">{{ form.country.label }}</label>
+                    {{ form.country }}
+                    {% if form.country.errors %}
+                        <div class="error-text">{{ form.country.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="studio-field">
+                    <label for="{{ form.image.id_for_label }}">{{ form.image.label }}</label>
+                    {{ form.image }}
+                    {% if form.image.errors %}
+                        <div class="error-text">{{ form.image.errors|striptags }}</div>
+                    {% endif %}
+                    <div class="help-text">
+                        Image principale du studio (facultative).
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DIMENSIONS -->
+        <section class="studio-section" id="section-dimensions">
+            <div class="studio-section-header">
+                <h2 class="studio-section-title">
+                    <span class="icon"><i class="fa-solid fa-ruler-combined"></i></span>
+                    Dimensions
+                </h2>
+                <p class="studio-section-desc">
+                    Longueur, largeur, hauteur et superficie du studio.
+                </p>
+            </div>
+
+            <div class="studio-fields-grid">
+                <div class="studio-field">
+                    <label for="{{ form.length_m.id_for_label }}">{{ form.length_m.label }}</label>
+                    {{ form.length_m }}
+                    {% if form.length_m.errors %}
+                        <div class="error-text">{{ form.length_m.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.width_m.id_for_label }}">{{ form.width_m.label }}</label>
+                    {{ form.width_m }}
+                    {% if form.width_m.errors %}
+                        <div class="error-text">{{ form.width_m.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.height_m.id_for_label }}">{{ form.height_m.label }}</label>
+                    {{ form.height_m }}
+                    {% if form.height_m.errors %}
+                        <div class="error-text">{{ form.height_m.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.area_m2.id_for_label }}">{{ form.area_m2.label }}</label>
+                    {{ form.area_m2 }}
+                    {% if form.area_m2.errors %}
+                        <div class="error-text">{{ form.area_m2.errors|striptags }}</div>
+                    {% endif %}
+                    <div class="help-text">{{ form.area_m2.help_text }}</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ÉCLAIRAGE -->
+        <section class="studio-section" id="section-lighting">
+            <div class="studio-section-header">
+                <h2 class="studio-section-title">
+                    <span class="icon"><i class="fa-solid fa-lightbulb"></i></span>
+                    Éclairage du studio
+                </h2>
+                <p class="studio-section-desc">
+                    Éclairage intégré et type de lumières (LED, projecteurs, softbox…).
+                </p>
+            </div>
+
+            <div class="studio-fields-grid">
+                <div class="studio-field">
+                    <label for="{{ form.lighting_included.id_for_label }}">{{ form.lighting_included.label }}</label>
+                    <label class="studio-boolean">
+                        {{ form.lighting_included }} <span>{{ form.lighting_included.help_text }}</span>
+                    </label>
+                    {% if form.lighting_included.errors %}
+                        <div class="error-text">{{ form.lighting_included.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.lighting_type.id_for_label }}">{{ form.lighting_type.label }}</label>
+                    {{ form.lighting_type }}
+                    {% if form.lighting_type.errors %}
+                        <div class="error-text">{{ form.lighting_type.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- ÉQUIPEMENTS INCLUS -->
+        <section class="studio-section" id="section-equipments">
+            <div class="studio-section-header">
+                <h2 class="studio-section-title">
+                    <span class="icon"><i class="fa-solid fa-boxes-stacked"></i></span>
+                    Équipements inclus
+                </h2>
+                <p class="studio-section-desc">
+                    Liste des équipements disponibles par défaut dans ce studio.
+                </p>
+            </div>
+
+            <div class="studio-fields-grid">
+                <div class="studio-field">
+                    <label for="{{ form.equip_cameras.id_for_label }}">{{ form.equip_cameras.label }}</label>
+                    {{ form.equip_cameras }}
+                    {% if form.equip_cameras.errors %}
+                        <div class="error-text">{{ form.equip_cameras.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.equip_microphones.id_for_label }}">{{ form.equip_microphones.label }}</label>
+                    {{ form.equip_microphones }}
+                    {% if form.equip_microphones.errors %}
+                        <div class="error-text">{{ form.equip_microphones.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.equip_lights.id_for_label }}">{{ form.equip_lights.label }}</label>
+                    {{ form.equip_lights }}
+                    {% if form.equip_lights.errors %}
+                        <div class="error-text">{{ form.equip_lights.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.equip_screens.id_for_label }}">{{ form.equip_screens.label }}</label>
+                    {{ form.equip_screens }}
+                    {% if form.equip_screens.errors %}
+                        <div class="error-text">{{ form.equip_screens.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.equip_control_room.id_for_label }}">{{ form.equip_control_room.label }}</label>
+                    {{ form.equip_control_room }}
+                    {% if form.equip_control_room.errors %}
+                        <div class="error-text">{{ form.equip_control_room.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.equip_accessories.id_for_label }}">{{ form.equip_accessories.label }}</label>
+                    {{ form.equip_accessories }}
+                    {% if form.equip_accessories.errors %}
+                        <div class="error-text">{{ form.equip_accessories.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- TARIFICATION -->
+        <section class="studio-section" id="section-pricing">
+            <div class="studio-section-header">
+                <h2 class="studio-section-title">
+                    <span class="icon"><i class="fa-solid fa-money-bill-wave"></i></span>
+                    Tarification
+                </h2>
+                <p class="studio-section-desc">
+                    Prix par heure, demi‑journée, journée, options et promotions.
+                </p>
+            </div>
+
+            <div class="studio-fields-grid">
+                <div class="studio-field">
+                    <label for="{{ form.price_per_hour.id_for_label }}">{{ form.price_per_hour.label }}</label>
+                    {{ form.price_per_hour }}
+                    {% if form.price_per_hour.errors %}
+                        <div class="error-text">{{ form.price_per_hour.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.price_half_day.id_for_label }}">{{ form.price_half_day.label }}</label>
+                    {{ form.price_half_day }}
+                    {% if form.price_half_day.errors %}
+                        <div class="error-text">{{ form.price_half_day.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.price_day.id_for_label }}">{{ form.price_day.label }}</label>
+                    {{ form.price_day }}
+                    {% if form.price_day.errors %}
+                        <div class="error-text">{{ form.price_day.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.discount_percent.id_for_label }}">{{ form.discount_percent.label }}</label>
+                    {{ form.discount_percent }}
+                    {% if form.discount_percent.errors %}
+                        <div class="error-text">{{ form.discount_percent.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.extra_options.id_for_label }}">{{ form.extra_options.label }}</label>
+                    {{ form.extra_options }}
+                    {% if form.extra_options.errors %}
+                        <div class="error-text">{{ form.extra_options.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- DISPONIBILITÉS -->
+        <section class="studio-section" id="section-availability">
+            <div class="studio-section-header">
+                <h2 class="studio-section-title">
+                    <span class="icon"><i class="fa-solid fa-clock"></i></span>
+                    Disponibilités
+                </h2>
+                <p class="studio-section-desc">
+                    Heures et jours d'ouverture, dates d'indisponibilité.
+                </p>
+            </div>
+
+            <div class="studio-fields-grid">
+                <div class="studio-field">
+                    <label for="{{ form.opening_hours.id_for_label }}">{{ form.opening_hours.label }}</label>
+                    {{ form.opening_hours }}
+                    {% if form.opening_hours.errors %}
+                        <div class="error-text">{{ form.opening_hours.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.opening_days.id_for_label }}">{{ form.opening_days.label }}</label>
+                    {{ form.opening_days }}
+                    {% if form.opening_days.errors %}
+                        <div class="error-text">{{ form.opening_days.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.unavailable_dates.id_for_label }}">{{ form.unavailable_dates.label }}</label>
+                    {{ form.unavailable_dates }}
+                    {% if form.unavailable_dates.errors %}
+                        <div class="error-text">{{ form.unavailable_dates.errors|striptags }}</div>
+                    {% endif %}
+                    <div class="help-text">{{ form.unavailable_dates.help_text }}</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CAPACITÉ -->
+        <section class="studio-section" id="section-capacity">
+            <div class="studio-section-header">
+                <h2 class="studio-section-title">
+                    <span class="icon"><i class="fa-solid fa-users"></i></span>
+                    Capacité & équipe
+                </h2>
+                <p class="studio-section-desc">
+                    Capacité maximale et nombre de techniciens requis.
+                </p>
+            </div>
+
+            <div class="studio-fields-grid">
+                <div class="studio-field">
+                    <label for="{{ form.capacity.id_for_label }}">{{ form.capacity.label }}</label>
+                    {{ form.capacity }}
+                    {% if form.capacity.errors %}
+                        <div class="error-text">{{ form.capacity.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="studio-field">
+                    <label for="{{ form.technicians_required.id_for_label }}">{{ form.technicians_required.label }}</label>
+                    {{ form.technicians_required }}
+                    {% if form.technicians_required.errors %}
+                        <div class="error-text">{{ form.technicians_required.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <div class="studio-form-footer">
+            <a href="{% url 'dashboard:studios_list' %}" class="btn btn-secondary">
+                Annuler
+            </a>
+            <button type="submit" class="btn btn-primary">
+                {% if studio %}Enregistrer{% else %}Créer le studio{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des onglets (tabs) studio
+    const tabs = document.querySelectorAll('.studio-form-tab');
+    const sections = document.querySelectorAll('.studio-section');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = document.querySelector(tab.dataset.target);
+            if (!target) return;
+
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            // Scroll doux vers la section, avec offset pour le header
+            const y = target.getBoundingClientRect().top + window.scrollY - 80;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+        });
+    });
+
+    // Met en surbrillance la section contenant le champ focus
+    sections.forEach(section => {
+        section.addEventListener('focusin', () => {
+            sections.forEach(s => s.classList.remove('active'));
+            section.classList.add('active');
+        });
+    });
+});
+</script>
+
+{% endblock %}

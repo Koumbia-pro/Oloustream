@@ -1,0 +1,254 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Réservations - Oloustream Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Réservations</h1>
+    <div class="d-flex gap-2">
+        <a href="{% url 'dashboard:reservations_export_excel' %}{% if base_querystring %}?{{ base_querystring }}{% endif %}"
+           class="btn btn-success btn-sm">
+            <i class="ph ph-download-simple"></i> Export Excel
+        </a>
+    </div>
+</div>
+
+<!-- Statistiques -->
+<div class="row g-3 mb-3">
+    <div class="col-md-2 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-2">
+                <p class="text-muted mb-1">Total</p>
+                <h5 class="mb-0">{{ total_count }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-2">
+                <p class="text-muted mb-1">En attente</p>
+                <h5 class="mb-0 text-warning">{{ pending_count }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-2">
+                <p class="text-muted mb-1">Confirmées</p>
+                <h5 class="mb-0 text-success">{{ confirmed_count }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-2">
+                <p class="text-muted mb-1">Terminées</p>
+                <h5 class="mb-0 text-primary">{{ completed_count }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-2">
+                <p class="text-muted mb-1">Annulées / refusées</p>
+                <h6 class="mb-0 text-danger">{{ cancelled_count|add:rejected_count }}</h6>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-2">
+                <p class="text-muted mb-1">À venir / passées</p>
+                <h6 class="mb-0">{{ upcoming_count }} / {{ past_count }}</h6>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recherche & filtres -->
+<form method="get" class="row g-3 mb-3 align-items-end">
+    <div class="col-md-4">
+        <label class="form-label" for="id_q">Recherche</label>
+        <input type="text" name="q" id="id_q" class="form-control"
+               placeholder="Client, email, service, studio, commentaire..."
+               value="{{ q }}">
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label" for="id_status">Statut</label>
+        <select name="status" id="id_status" class="form-select">
+            <option value="">Tous</option>
+            {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label" for="id_studio">Studio</label>
+        <select name="studio" id="id_studio" class="form-select">
+            <option value="">Tous</option>
+            {% for s in studios %}
+                <option value="{{ s.id }}" {% if selected_studio|add:'' == s.id|add:'' %}selected{% endif %}>
+                    {{ s.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label" for="id_service">Service</label>
+        <select name="service" id="id_service" class="form-select">
+            <option value="">Tous</option>
+            {% for s in services %}
+                <option value="{{ s.id }}" {% if selected_service|add:'' == s.id|add:'' %}selected{% endif %}>
+                    {{ s.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Période</label>
+        <div class="d-flex gap-1">
+            <input type="date" name="date_from" class="form-control form-control-sm" value="{{ date_from }}">
+            <input type="date" name="date_to" class="form-control form-control-sm" value="{{ date_to }}">
+        </div>
+    </div>
+
+    <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="ph ph-magnifying-glass"></i> Filtrer
+        </button>
+        <a href="{% url 'dashboard:reservations_list' %}" class="btn btn-outline-secondary">
+            Réinitialiser
+        </a>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Client</th>
+                    <th scope="col">Service</th>
+                    <th scope="col">Studio</th>
+                    <th scope="col">Début</th>
+                    <th scope="col">Fin</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col">Technicien</th>
+                    <th scope="col">Équipements</th>
+                    <th scope="col" class="text-end">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for r in page_obj %}
+                    <tr>
+                        <td>{{ r.id }}</td>
+                        <td>
+                            {{ r.user.get_full_name|default:r.user.username }}<br>
+                            <small class="text-muted">{{ r.user.email }}</small>
+                        </td>
+                        <td>{{ r.service.name|default:"-" }}</td>
+                        <td>{{ r.studio.name|default:"-" }}</td>
+                        <td>{{ r.start_datetime|date:"d/m/Y H:i" }}</td>
+                        <td>{{ r.end_datetime|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            {{ r.get_status_display }}
+                        </td>
+                        <td>
+                            {% if r.assigned_technician %}
+                                {{ r.assigned_technician.get_full_name|default:r.assigned_technician.username }}
+                            {% else %}
+                                <span class="text-muted">Non assigné</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ r.equipments.count }}</td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="{% url 'dashboard:reservations_detail' r.id %}"
+                                class="btn btn-outline-secondary" title="Détails">
+                                    <i class="ph ph-eye"></i>
+                                </a>
+
+                                {% if r.status != 'CANCELLED' and r.status != 'REJECTED' %}
+                                    <a href="{% url 'dashboard:reservations_quick_cancel' r.id %}"
+                                    class="btn btn-outline-danger"
+                                    title="Annuler la réservation"
+                                    onclick="return confirm('Confirmer l\'annulation de la réservation #{{ r.id }} ?');">
+                                        <i class="ph ph-x-circle"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="10" class="text-center text-muted py-4">
+                            Aucune réservation ne correspond à la recherche.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+        <div class="card-footer bg-white">
+            <nav aria-label="Pagination réservations">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page=1{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                « Première
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.previous_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                ‹ Précédente
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="?page={{ num }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                    {{ num }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.next_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                Suivante ›
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ page_obj.paginator.num_pages }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                Dernière »
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

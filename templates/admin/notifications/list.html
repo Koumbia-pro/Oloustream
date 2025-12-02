@@ -1,0 +1,94 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Notifications - Oloustream{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Notifications</h1>
+    <div>
+        <a href="{% url 'notifications:mark_all_read' %}" class="btn btn-outline-secondary btn-sm">
+            Tout marquer comme lu
+        </a>
+    </div>
+</div>
+
+<form method="get" class="mb-3">
+    <div class="d-flex align-items-center gap-2">
+        <label for="id_status" class="form-label mb-0">Filtre :</label>
+        <select name="status" id="id_status" class="form-select form-select-sm" style="width:auto;">
+            <option value="">Toutes</option>
+            <option value="unread" {% if filter_status == "unread" %}selected{% endif %}>Non lues</option>
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm">Appliquer</button>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <ul class="list-group list-group-flush">
+            {% for n in page_obj %}
+                <li class="list-group-item d-flex justify-content-between align-items-start {% if not n.is_read %}bg-light{% endif %}">
+                    <div class="me-3">
+                        <div class="fw-semibold">
+                            {{ n.title }}
+                            {% if not n.is_read %}
+                                <span class="badge bg-danger ms-1">Nouveau</span>
+                            {% endif %}
+                        </div>
+                        <div class="small text-muted">
+                            {{ n.created_at|date:"d/m/Y H:i" }} • {{ n.get_notification_type_display }}
+                        </div>
+                        <div class="mt-1">
+                            {{ n.message|linebreaksbr }}
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <a href="{% url 'notifications:mark_read' n.id %}" class="btn btn-sm btn-outline-primary">
+                            Voir / Marquer comme lue
+                        </a>
+                    </div>
+                </li>
+            {% empty %}
+                <li class="list-group-item text-center text-muted py-4">
+                    Aucune notification à afficher.
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+        <div class="card-footer bg-white">
+            <nav aria-label="Pagination notifications">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if filter_status %}&status={{ filter_status }}{% endif %}">« Première</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if filter_status %}&status={{ filter_status }}{% endif %}">‹ Précédente</a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if filter_status %}&status={{ filter_status }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if filter_status %}&status={{ filter_status }}{% endif %}">Suivante ›</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if filter_status %}&status={{ filter_status }}{% endif %}">Dernière »</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

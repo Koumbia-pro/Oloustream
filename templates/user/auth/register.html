@@ -1,0 +1,552 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Inscription - Oloustream{% endblock %}
+
+{% block content %}
+
+<style>
+    :root {
+        --olou-primary: #E60023;
+        --olou-primary-dark: #c1001c;
+        --olou-dark-bg: #050816;
+        --olou-dark-card: #0b1120;
+        --text-muted: #9ca3af;
+    }
+
+    /* Bloc principal dans le container Bootstrap */
+    .signup-page {
+        min-height: calc(100vh - 100px);
+        display: flex;
+        border-radius: 1.5rem;
+        overflow: hidden;
+        box-shadow: 0 22px 55px rgba(15,23,42,0.7);
+        background: #020617;
+        margin-top: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .signup-left,
+    .signup-right {
+        flex: 1;
+        position: relative;
+    }
+
+    /* Colonne gauche : image/slider centrée */
+    .signup-left {
+        background: radial-gradient(circle at top left, #fb7185 0, #e11d48 40%, #9f1239 100%);
+        display: none;
+    }
+
+    @media (min-width: 992px) {
+        .signup-left {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    .signup-left-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .signup-slide {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.8s ease;
+    }
+
+    .signup-slide.is-active {
+        opacity: 1;
+    }
+
+    .signup-slide img {
+        max-width: 80%;
+        max-height: 80%;
+        object-fit: contain;
+        filter: drop-shadow(0 18px 40px rgba(15,23,42,0.55));
+        border-radius: 1.2rem;
+    }
+
+    .signup-left-caption {
+        position: absolute;
+        left: 8%;
+        bottom: 10%;
+        color: #f9fafb;
+    }
+
+    .signup-left-caption h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.4rem;
+    }
+
+    .signup-left-caption p {
+        font-size: 0.92rem;
+        max-width: 360px;
+    }
+
+    /* Colonne droite : formulaire sombre */
+    .signup-right {
+        background: #020617;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem 1.5rem;
+    }
+
+    .signup-card {
+        width: 100%;
+        max-width: 420px;
+        color: #f9fafb;
+    }
+
+    .signup-logo {
+        text-align: center;
+        margin-bottom: 1.4rem;
+    }
+
+    .signup-logo img {
+        height: 42px;
+        border-radius: 0.4rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .signup-logo span {
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+    }
+
+    .signup-title {
+        text-align: center;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 1.1rem;
+    }
+
+    /* Bouton Google (visuel) */
+    .google-btn {
+        border-radius: 999px;
+        border: 1px solid #374151;
+        background: #111827;
+        color: #e5e7eb;
+        padding: 0.5rem 0.9rem;
+        width: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    .google-btn img {
+        height: 18px;
+        width: 18px;
+    }
+
+    .signup-separator {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin: 1.2rem 0 1rem;
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+
+    .signup-separator-line {
+        height: 1px;
+        flex: 1;
+        background: #1f2937;
+    }
+
+    /* Formulaire : styles généraux sur les inputs */
+    .signup-form input[type="text"],
+    .signup-form input[type="email"],
+    .signup-form input[type="password"],
+    .signup-form input[type="file"] {
+        width: 100%;
+        border-radius: 999px;
+        border: 1px solid #1f2937;
+        background: #020617;
+        padding: 0.65rem 2.7rem 0.65rem 1rem;
+        color: #e5e7eb;
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .signup-form input::placeholder {
+        color: #6b7280;
+    }
+
+    .signup-form input[type="text"]:focus,
+    .signup-form input[type="email"]:focus,
+    .signup-form input[type="password"]:focus {
+        border-color: rgba(230,0,35,0.85);
+        box-shadow: 0 0 0 1px rgba(230,0,35,0.6);
+        background: #020617;
+    }
+
+    .signup-form .field-group {
+        margin-bottom: 0.75rem;
+    }
+
+    /* On garde les labels dans le HTML mais on les cache visuellement
+       (on les utilise pour remplir les placeholders via JS) */
+    .signup-form label {
+        position: absolute;
+        left: -9999px;
+        top: -9999px;
+        height: 1px;
+        width: 1px;
+        overflow: hidden;
+    }
+
+    .field-wrapper {
+        position: relative;
+    }
+
+    .field-icon {
+        position: absolute;
+        right: 0.9rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6b7280;
+        font-size: 0.85rem;
+    }
+
+    .password-toggle-btn {
+        position: absolute;
+        right: 0.9rem;
+        top: 50%;
+        transform: translateY(-50%);
+        border: none;
+        background: transparent;
+        color: #6b7280;
+        font-size: 0.85rem;
+        cursor: pointer;
+    }
+
+    .field-error {
+        color: #f97373;
+        font-size: 0.78rem;
+        margin-top: 0.15rem;
+    }
+
+    /* Checkbox Terms */
+    .terms-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin: 0.9rem 0 1.2rem;
+        font-size: 0.82rem;
+        color: #d1d5db;
+    }
+
+    .terms-row input[type="checkbox"] {
+        margin-top: 0.2rem;
+        width: 14px;
+        height: 14px;
+        border-radius: 0.25rem;
+        border: 1px solid #4b5563;
+        background: #020617;
+    }
+
+    /* On rend le label des termes visible même si on cache les autres labels */
+    .terms-row label {
+        position: static;
+        left: auto;
+        top: auto;
+        width: auto;
+        height: auto;
+        overflow: visible;
+        display: inline;
+        font-size: 0.82rem;
+        color: #d1d5db;
+    }
+
+    .terms-row a {
+        color: #f97373;
+        text-decoration: none;
+    }
+
+    .terms-row a:hover {
+        text-decoration: underline;
+    }
+
+    /* Bouton register */
+    .signup-submit-btn {
+        width: 100%;
+        border-radius: 999px;
+        border: none;
+        padding: 0.7rem 1rem;
+        background: #4b5563;
+        color: #f9fafb;
+        font-weight: 500;
+        font-size: 0.96rem;
+        transition: background 0.15s ease, transform 0.05s ease;
+    }
+
+    .signup-submit-btn:hover {
+        background: #6b7280;
+        transform: translateY(-1px);
+    }
+
+    .signup-footer {
+        text-align: center;
+        margin-top: 1.1rem;
+        font-size: 0.85rem;
+        color: #9ca3af;
+    }
+
+    .signup-footer a {
+        color: #e5e7eb;
+        text-decoration: none;
+    }
+
+    .signup-footer a:hover {
+        text-decoration: underline;
+    }
+
+    /* Bouton de chat flottant */
+    .chat-fab {
+        position: fixed;
+        right: 1.5rem;
+        bottom: 1.5rem;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: var(--olou-primary);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 14px 32px rgba(148,27,60,0.8);
+        text-decoration: none;
+        z-index: 1500;
+    }
+
+    .chat-fab:hover {
+        background: var(--olou-primary-dark);
+        color: #fff;
+    }
+
+    .chat-fab i {
+        font-size: 1.2rem;
+    }
+
+    @media (max-width: 991.98px) {
+        .signup-page {
+            border-radius: 1rem;
+        }
+    }
+</style>
+
+<div class="signup-page">
+    <!-- Colonne gauche : image / slider centrée -->
+    <div class="signup-left">
+        <div class="signup-left-inner">
+            <div class="signup-slide is-active">
+                <img src="{% static 'img/signup_slide1.png' %}" alt="Oloustream studio">
+            </div>
+            <div class="signup-slide">
+                <img src="{% static 'img/signup_slide2.png' %}" alt="Oloustream live">
+            </div>
+            <div class="signup-slide">
+                <img src="{% static 'img/signup_slide3.png' %}" alt="Oloustream matériel">
+            </div>
+            <div class="signup-slide">
+                <img src="{% static 'img/signup_slide4.png' %}" alt="Oloustream matériel">
+            </div>
+            <div class="signup-slide">
+                <img src="{% static 'img/signup_slide5.webp' %}" alt="Oloustream matériel">
+            </div>
+
+            <div class="signup-left-caption">
+                <h2>Hosted Live Pages</h2>
+                <p>
+                    Studio, livestream, matériel et formations réunis sur une seule plateforme
+                    professionnelle pensée pour vos projets vidéo.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Colonne droite : formulaire -->
+    <div class="signup-right">
+        <div class="signup-card">
+            <div class="signup-logo">
+                <img src="{% static 'img/logo.jpg' %}" alt="Oloustream">
+                <div><span>Oloustream</span></div>
+            </div>
+
+            <h1 class="signup-title">Créer un nouveau compte</h1>
+
+            <!-- Bouton Google (visuel) -->
+            <button class="google-btn" type="button" disabled>
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="">
+                <span>Continuer avec Google (bientôt)</span>
+            </button>
+
+            <div class="signup-separator">
+                <div class="signup-separator-line"></div>
+                <span>ou inscrivez-vous avec votre email</span>
+                <div class="signup-separator-line"></div>
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data" class="signup-form" novalidate>
+                {% csrf_token %}
+
+                {% for field in form %}
+                    {% if field.is_hidden %}
+                        {{ field }}
+                    {% else %}
+                        <div class="field-group">
+
+                            {# Label caché (utilisé pour le placeholder) #}
+                            {{ field.label_tag }}
+
+                            {% if field.name == "password" or field.name == "password1" or field.name == "password2" %}
+                                <div class="field-wrapper">
+                                    {{ field }}
+                                    <button type="button"
+                                            class="password-toggle-btn"
+                                            data-toggle="password"
+                                            data-target="#{{ field.id_for_label }}">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </button>
+                                </div>
+
+                            {% elif field.name == "email" %}
+                                <div class="field-wrapper">
+                                    {{ field }}
+                                    <span class="field-icon">
+                                        <i class="fa-regular fa-envelope"></i>
+                                    </span>
+                                </div>
+
+                            {% elif field.name == "username" or field.name == "first_name" or field.name == "last_name" %}
+                                <div class="field-wrapper">
+                                    {{ field }}
+                                    <span class="field-icon">
+                                        <i class="fa-regular fa-user"></i>
+                                    </span>
+                                </div>
+
+                            {% else %}
+                                <div class="field-wrapper">
+                                    {{ field }}
+                                </div>
+                            {% endif %}
+
+                            {% if field.errors %}
+                                <div class="field-error">
+                                    {{ field.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Terms & Privacy, bien visibles -->
+                <div class="terms-row">
+                    <input type="checkbox" id="id_accept_terms" name="accept_terms" required>
+                    <label for="id_accept_terms">
+                        J'accepte les <a href="#">Conditions Générales d'Utilisation</a> et la
+                        <a href="#">Politique de confidentialité</a>.
+                    </label>
+                </div>
+
+                <button type="submit" class="signup-submit-btn">
+                    S'inscrire
+                </button>
+            </form>
+
+            <div class="signup-footer">
+                Vous avez déjà un compte ?
+                <a href="{% url 'accounts:login' %}">Connexion</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bouton de chat flottant -->
+<a href="{% url 'messaging:user_chat' %}" class="chat-fab" title="Chat">
+    <i class="fa-solid fa-comments"></i>
+</a>
+
+<script>
+    // Slider simple pour la colonne de gauche
+    document.addEventListener("DOMContentLoaded", function () {
+        const slides = document.querySelectorAll(".signup-slide");
+        if (slides.length > 1) {
+            let index = 0;
+            setInterval(() => {
+                slides[index].classList.remove("is-active");
+                index = (index + 1) % slides.length;
+                slides[index].classList.add("is-active");
+            }, 5000);
+        }
+
+        // Copier le texte du label dans le placeholder de l'input
+        const groups = document.querySelectorAll(".signup-form .field-group");
+        groups.forEach(function (group) {
+            const label = group.querySelector("label");
+            const input = group.querySelector("input[type='text'], input[type='email'], input[type='password']");
+            if (label && input) {
+                const text = label.textContent.trim();
+                if (text) {
+                    input.placeholder = text;
+                }
+            }
+        });
+    });
+
+    // Afficher / masquer les mots de passe
+    document.addEventListener("click", function (e) {
+        const btn = e.target.closest("[data-toggle='password']");
+        if (!btn) return;
+
+        const selector = btn.getAttribute("data-target");
+        const input = document.querySelector(selector);
+        if (!input) return;
+
+        const icon = btn.querySelector("i");
+
+        if (input.type === "password") {
+            input.type = "text";
+            if (icon) {
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            }
+        } else {
+            input.type = "password";
+            if (icon) {
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+    });
+</script>
+
+{% endblock %}

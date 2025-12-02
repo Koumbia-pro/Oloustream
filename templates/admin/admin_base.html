@@ -1,0 +1,845 @@
+{% load static %}
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Admin - Oloustream{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --primary-dark: #3a56d4;
+            --primary-light: #4895ef;
+            --secondary-color: #7209b7;
+            --accent-color: #f72585;
+            --white: #ffffff;
+            --gray-50: #f8f9fa;
+            --gray-100: #f1f3f5;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-400: #ced4da;
+            --gray-500: #adb5bd;
+            --gray-600: #6c757d;
+            --gray-700: #495057;
+            --gray-800: #343a40;
+            --gray-900: #212529;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--white);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ==================== SIDEBAR STYLE ==================== */
+        #sidebar {
+            width: 256px;
+            min-height: 100vh;
+            background: var(--white);
+            border-right: 1px solid var(--gray-200);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-image {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid var(--primary-color);
+        }
+
+        .logo-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .logo-details .title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .logo-details .name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin: 0;
+        }
+
+        .sidebar-nav {
+            padding: 1rem;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section .title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+            padding: 0 0.75rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.25rem;
+            position: relative;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            color: var(--gray-700);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .nav-link:hover {
+            background: var(--gray-100);
+            color: var(--gray-900);
+            border-color: var(--gray-200);
+            transform: translateX(2px);
+        }
+
+        .nav-item.active .nav-link {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: var(--white);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-icon {
+            font-size: 1.25rem;
+            width: 24px;
+            text-align: center;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-text {
+            flex: 1;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .nav-arrow {
+            font-size: 0.875rem;
+            transition: transform 0.3s ease;
+            color: var(--gray-500);
+        }
+
+        .nav-item.active .nav-arrow {
+            transform: rotate(180deg);
+            color: var(--white);
+        }
+
+        /* Sous-menus */
+        .sub-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: var(--gray-50);
+            border-radius: 8px;
+            margin: 0.5rem 0;
+        }
+
+        .nav-item.active .sub-menu {
+            max-height: 500px;
+        }
+
+        .sub-menu .nav-link {
+            padding: 0.5rem 1rem 0.5rem 2.5rem;
+            font-size: 0.8rem;
+            border-left: 2px solid transparent;
+            position: relative;
+        }
+
+        .sub-menu .nav-link:hover {
+            background: var(--white);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+
+        .sub-menu .nav-link::before {
+            content: "";
+            position: absolute;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 4px;
+            background: var(--gray-400);
+            border-radius: 50%;
+        }
+
+        .sub-menu .nav-link:hover::before {
+            background: var(--primary-color);
+        }
+
+        /* ==================== HEADER STYLE ==================== */
+        #header {
+            position: fixed;
+            top: 0;
+            left: 256px;
+            width: calc(100% - 256px);
+            height: 70px;
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            z-index: 999;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-custom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+            height: 100%;
+            width: 100%;
+        }
+
+        .nav-home {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-home a {
+            text-decoration: none;
+            color: var(--gray-600);
+            font-weight: 500;
+            transition: all 0.15s ease;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            position: relative;
+        }
+
+        .nav-home a:hover {
+            color: var(--primary-color);
+            background: var(--gray-100);
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            background: var(--gray-100);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+            flex: 0 1 400px;
+            margin: 0 auto;
+        }
+
+        .search-container:focus-within {
+            background: var(--white);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .search-icon {
+            font-size: 1.125rem;
+            color: var(--gray-500);
+            margin-right: 0.5rem;
+        }
+
+        .search-input {
+            border: none;
+            background: none;
+            outline: none;
+            font-size: 0.875rem;
+            color: var(--gray-800);
+            width: 100%;
+        }
+
+        .nav-messages {
+            display: flex;
+            list-style: none;
+            gap: 0.75rem;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-messages li {
+            position: relative;
+        }
+
+        .nav-messages a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--gray-100);
+            border-radius: 50%;
+            text-decoration: none;
+            color: var(--gray-600);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-messages a:hover {
+            background: var(--primary-color);
+            color: var(--white);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            color: var(--white);
+            font-size: 0.7rem;
+            font-weight: 700;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--white);
+            animation: pulse 2s infinite;
+        }
+
+        .message-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--white);
+            animation: pulse 2s infinite;
+        }
+
+        .badge-message {
+            background: var(--danger-color);
+        }
+
+        .badge-notification {
+            background: var(--warning-color);
+            color: var(--gray-900);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .badge-message {
+            background: var(--danger-color);
+        }
+
+        .badge-notification {
+            background: var(--warning-color);
+            color: var(--gray-900);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .user-profile-btn {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--gray-800);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 0.75rem;
+            border-radius: 20px;
+            gap: 0.75rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        .user-profile-btn:hover {
+            background: var(--gray-100);
+            color: var(--primary-color);
+        }
+
+        .user-image {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--gray-300);
+            transition: all 0.3s ease;
+        }
+
+        .user-profile-btn:hover .user-image {
+            border-color: var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        .user-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            min-width: 200px;
+            z-index: 1001;
+            display: none;
+        }
+
+        .profile-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: var(--gray-700);
+            display: block;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 0.25rem;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary-color);
+        }
+
+        .dropdown-divider {
+            border-top: 1px solid var(--gray-200);
+            margin: 0.5rem 0;
+        }
+
+        /* ==================== MAIN CONTENT ==================== */
+        #main-content {
+            margin-top: 70px;
+            margin-left: 256px;
+            width: calc(100% - 256px);
+            min-height: calc(100vh - 70px);
+            background: var(--white);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        /* ==================== BOUTON TOGGLE MOBILE ==================== */
+        .sidebar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray-600);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 1024px) {
+            #sidebar {
+                transform: translateX(-100%);
+            }
+            
+            #sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            #header {
+                left: 0;
+                width: 100%;
+            }
+            
+            #main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar-custom {
+                flex-wrap: wrap;
+                padding: 0 1rem;
+            }
+            
+            .search-container {
+                flex: 1 1 100%;
+                order: 3;
+                margin: 0.5rem 0 0 0;
+            }
+            
+            .user-name {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-home {
+                gap: 0.5rem;
+            }
+            
+            .nav-home a {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.875rem;
+            }
+            
+            .nav-messages {
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <nav id="sidebar" class="d-flex flex-column">
+        <div class="sidebar-header">
+            <div class="logo-image">
+                <img src="{% static 'img/logo.jpg' %}" alt="Oloustream">
+            </div>
+            <div class="logo-details">
+                <div class="title">Oloustream</div>
+                <div class="name">Admin</div>
+            </div>
+        </div>
+
+        <div class="sidebar-nav">
+            <!-- Section Main -->
+            <div class="nav-section">
+                <div class="title">Main</div>
+                <ul class="nav-menu">
+                    <li class="nav-item active">
+                        <a href="{% url 'dashboard:index' %}" class="nav-link">
+                            <i class="nav-icon ph-bold ph-house-simple"></i>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard:employees_list' %}" class="nav-link">
+                            <i class="nav-icon ph-bold ph-user"></i>
+                            <span class="nav-text">Employés</span>                  
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard:equipments_list' %}" class="nav-link">
+                            <i class="nav-icon ph ph-device-mobile"></i>
+                            <span class="nav-text">Équipements</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard:reservations_list' %}" class="nav-link">
+                            <i class="nav-icon ph ph-calendar-check"></i>
+                            <span class="nav-text">Réservations</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard:services_list' %}" class="nav-link">
+                            <i class="nav-icon ph ph-gear-six"></i>
+                            <span class="nav-text">Services</span>
+                        </a>
+                    </li>
+                     <li class="nav-item">
+                        <a href="{% url 'dashboard:studios_list' %}" class="nav-link">
+                            <i class="nav-icon ph ph-headphones"></i>
+                            <span class="nav-text">Studio</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard:offers_list' %}" class="nav-link">
+                            <i class="nav-icon ph ph-tag"></i>
+                            <span class="nav-text">Offres</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard:trainings_list' %}" class="nav-link">
+                            <i class="nav-icon ph ph-book"></i>
+                            <span class="nav-text">Formations</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard:partners_list' %}" class="nav-link">
+                            <i class="nav-icon ph ph-handshake"></i>
+                            <span class="nav-text">Partenaires</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon ph ph-credit-card"></i>
+                            <span class="nav-text">Paiements</span>
+                        </a>
+                    </li>
+                   <li class="nav-item">
+                        <a href="{% url 'messaging:admin_conversations_list' %}" class="nav-link position-relative">
+                            <i class="nav-icon ph ph-envelope"></i>
+                            <span class="nav-text">Messages</span>
+                            <span class="message-badge badge-message">{{ unread_messages_count|default:0 }}</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="{% url 'notifications:list' %}">
+                            <i class="nav-icon ph ph-bell"></i>
+                            <span class="nav-text">Notifications</span>
+                            <span class="message-badge badge-notification">{{ unread_notifications_count|default:0 }}</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Section Settings -->
+            <div class="nav-section">
+                <div class="title">Settings</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon ph-bold ph-gear"></i>
+                            <span class="nav-text">Paramètres</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Section Account -->
+            <div class="nav-section">
+                <div class="title">Account</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon ph-bold ph-info"></i>
+                            <span class="nav-text">Aide</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'accounts:logout' %}" class="nav-link">
+                            <i class="nav-icon ph-bold ph-sign-out"></i>
+                            <span class="nav-text">Déconnexion</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HEADER -->
+    <header id="header">
+        <div class="navbar-custom">
+            <!-- Bouton toggle pour mobile -->
+            <button class="sidebar-toggle" onclick="toggleMobileSidebar()">
+                <i class="ph ph-list"></i>
+            </button>
+
+            <div class="nav-home">
+                <a href="#">Accueil</a>
+                <a href="#">Contact</a>
+            </div>
+
+            <div class="search-container">
+                <i class="search-icon ph ph-magnifying-glass"></i>
+                <input type="search" class="search-input" placeholder="Recherche">
+            </div>
+
+            <ul class="nav-messages">
+                <li class="{% if request.resolver_match.namespace == 'messaging' %}active{% endif %}">
+                    <a href="{% url 'messaging:admin_conversations_list' %}" class="position-relative">
+                        <i class="icon ph ph-envelope"></i>
+                        {% if unread_messages_count %}
+                            <span class="message-badge badge-message">
+                                {% if unread_messages_count > 9 %}9+{% else %}{{ unread_messages_count }}{% endif %}
+                            </span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'notifications:list' %}">
+                        <i class="ph ph-bell"></i>
+                        <span class="message-badge badge-notification">{{ unread_notifications_count|default:0 }}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="fullscreen-toggle">
+                        <i class="ph ph-arrows-out-simple"></i>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="user-profile">
+                <button class="user-profile-btn" onclick="toggleProfileDropdown()">
+                    <img src="{% static 'img/user.jpg' %}" alt="User" class="user-image">
+                    <span class="user-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+                    <i class="ph ph-caret-down"></i>
+                </button>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <a href="{% url 'accounts:profile' %}" class="dropdown-item">
+                        <i class="ph ph-user me-2"></i>Mon profil
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{% url 'accounts:logout' %}" class="dropdown-item">
+                        <i class="ph ph-sign-out me-2"></i>Déconnexion
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main id="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- JavaScript Personnalisé -->
+    <script>
+        // Gestion du mode plein écran
+        document.getElementById('fullscreen-toggle')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        });
+
+        // Mise à jour de l'icône plein écran
+        document.addEventListener('fullscreenchange', function() {
+            const icon = document.querySelector('#fullscreen-toggle i');
+            if (icon) {
+                if (document.fullscreenElement) {
+                    icon.classList.replace('ph-arrows-out-simple', 'ph-arrows-in-simple');
+                } else {
+                    icon.classList.replace('ph-arrows-in-simple', 'ph-arrows-out-simple');
+                }
+            }
+        });
+
+        // Responsive sidebar pour mobile
+        function toggleMobileSidebar() {
+            document.getElementById('sidebar').classList.toggle('mobile-open');
+        }
+
+        // Gestion des menus déroulants dans la sidebar
+        document.querySelectorAll('.nav-item').forEach(item => {
+            const link = item.querySelector('.nav-link');
+            const subMenu = item.querySelector('.sub-menu');
+            
+            if (link && subMenu) {
+                link.addEventListener('click', function(e) {
+                    if (window.innerWidth > 1024) { // Seulement sur desktop
+                        e.preventDefault();
+                        const isActive = item.classList.contains('active');
+                        
+                        // Fermer les autres menus
+                        document.querySelectorAll('.nav-item.active').forEach(activeItem => {
+                            if (activeItem !== item) {
+                                activeItem.classList.remove('active');
+                            }
+                        });
+                        
+                        // Ouvrir/fermer le menu actuel
+                        item.classList.toggle('active', !isActive);
+                    }
+                });
+            }
+        });
+
+        // Gestion du dropdown du profil
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Fermer le dropdown en cliquant à l'extérieur
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('profileDropdown');
+            const profileBtn = document.querySelector('.user-profile-btn');
+            
+            if (dropdown && profileBtn && !profileBtn.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+            
+            // Fermer la sidebar en cliquant à l'extérieur (mobile)
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.querySelector('.sidebar-toggle');
+            
+            if (window.innerWidth <= 1024 && sidebar && !sidebar.contains(e.target) && 
+                !toggleBtn.contains(e.target)) {
+                sidebar.classList.remove('mobile-open');
+            }
+        });
+
+        // Adapter le layout au redimensionnement
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth > 1024) {
+                sidebar.classList.remove('mobile-open');
+            }
+        });
+    </script>
+</body>
+</html>

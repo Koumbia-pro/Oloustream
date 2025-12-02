@@ -1,0 +1,635 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Équipement - Oloustream Admin{% endblock %}
+
+{% block content %}
+
+<style>
+/* =========================================================
+   FORMULAIRE ÉQUIPEMENT – STYLE ULTRA PRO
+   ========================================================= */
+
+.equipment-form-wrapper {
+  margin: 0 auto;
+  animation: eq-fadeInUp 0.4s ease-out;
+}
+
+.equipment-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.equipment-form-header h1 {
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.equipment-form-header .subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.eq-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+/* Tabs sections */
+.eq-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.eq-tab {
+  border-radius: 999px;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  color: #4b5563;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.eq-tab.active {
+  background: linear-gradient(135deg, #e60023, #b3001b);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(230, 0, 35, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Sections */
+.eq-section {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+  margin-bottom: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+.eq-section.active {
+  border-color: #e60023;
+  box-shadow: 0 8px 20px rgba(230, 0, 35, 0.12);
+  transform: translateY(-1px);
+}
+
+.eq-section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.eq-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.eq-section-title span.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.eq-section-desc {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Grille de champs */
+.eq-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1.25rem;
+}
+
+.eq-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.eq-field label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #4b5563;
+  margin-bottom: 0.2rem;
+}
+
+.eq-field input,
+.eq-field select,
+.eq-field textarea {
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.85rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.eq-field input:focus,
+.eq-field select:focus,
+.eq-field textarea:focus {
+  border-color: #e60023;
+  box-shadow: 0 0 0 1px rgba(230, 0, 35, 0.35);
+  outline: none;
+  background: #fffafa;
+}
+
+.eq-field .help-text {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.15rem;
+}
+
+.eq-field .error-text {
+  font-size: 0.75rem;
+  color: #b91c1c;
+  margin-top: 0.15rem;
+}
+
+/* Toggle dispo location */
+.eq-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: #4b5563;
+}
+
+.eq-toggle input {
+  width: 18px;
+  height: 18px;
+}
+
+/* Prévisualisation image */
+.eq-photo-preview {
+  width: 120px;
+  height: 90px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  object-fit: cover;
+  background: #f9fafb;
+}
+
+/* Footer */
+.eq-form-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .eq-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes eq-fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
+
+<div class="equipment-form-wrapper">
+    <div class="equipment-form-header">
+        <div>
+            <h1>
+                {% if equipment %}
+                    Modifier l'équipement : {{ equipment.name }}
+                {% else %}
+                    Ajouter un nouvel équipement
+                {% endif %}
+            </h1>
+            <p class="subtitle">
+                Gérez toutes les informations techniques, contractuelles et de maintenance de l’équipement.
+            </p>
+        </div>
+        {% if equipment %}
+            <span class="eq-badge">
+                <i class="ph ph-device-mobile"></i>
+                Équipement #{{ equipment.id }}
+                {% if equipment.age_years is not None %}
+                    • {{ equipment.age_years }} an{% if equipment.age_years > 1 %}s{% endif %}
+                {% endif %}
+            </span>
+        {% endif %}
+    </div>
+
+    <!-- Onglets de navigation -->
+    <div class="eq-tabs">
+        <button type="button" class="eq-tab active" data-target="#eq-section-base">
+            <i class="ph ph-info"></i> Infos de base
+        </button>
+        <button type="button" class="eq-tab" data-target="#eq-section-achat">
+            <i class="ph ph-shopping-cart"></i> Achat
+        </button>
+        <button type="button" class="eq-tab" data-target="#eq-section-etat">
+            <i class="ph ph-traffic-cone"></i> État & disponibilité
+        </button>
+        <button type="button" class="eq-tab" data-target="#eq-section-specs">
+            <i class="ph ph-sliders"></i> Spécifications
+        </button>
+        <button type="button" class="eq-tab" data-target="#eq-section-maintenance">
+            <i class="ph ph-wrench"></i> Maintenance
+        </button>
+        <button type="button" class="eq-tab" data-target="#eq-section-docs">
+            <i class="ph ph-folder-open"></i> Documents & images
+        </button>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <!-- SECTION BASE -->
+        <section class="eq-section active" id="eq-section-base">
+            <div class="eq-section-header">
+                <h2 class="eq-section-title">
+                    <span class="icon"><i class="ph ph-device-mobile"></i></span>
+                    Informations de base
+                </h2>
+                <p class="eq-section-desc">
+                    Nom, marque, modèle, catégorie et numéro de série de l’équipement.
+                </p>
+            </div>
+
+            <div class="eq-grid-2">
+                {% if form.name %}
+                <div class="eq-field">
+                    <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <div class="error-text">{{ form.name.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.category %}
+                <div class="eq-field">
+                    <label for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
+                    {{ form.category }}
+                    {% if form.category.errors %}
+                        <div class="error-text">{{ form.category.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.brand %}
+                <div class="eq-field">
+                    <label for="{{ form.brand.id_for_label }}">{{ form.brand.label }}</label>
+                    {{ form.brand }}
+                    {% if form.brand.errors %}
+                        <div class="error-text">{{ form.brand.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.model %}
+                <div class="eq-field">
+                    <label for="{{ form.model.id_for_label }}">{{ form.model.label }}</label>
+                    {{ form.model }}
+                    {% if form.model.errors %}
+                        <div class="error-text">{{ form.model.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.serial_number %}
+                <div class="eq-field">
+                    <label for="{{ form.serial_number.id_for_label }}">{{ form.serial_number.label }}</label>
+                    {{ form.serial_number }}
+                    {% if form.serial_number.errors %}
+                        <div class="error-text">{{ form.serial_number.errors|striptags }}</div>
+                    {% endif %}
+                    <div class="help-text">Doit être unique pour chaque équipement.</div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- SECTION ACHAT -->
+        <section class="eq-section" id="eq-section-achat">
+            <div class="eq-section-header">
+                <h2 class="eq-section-title">
+                    <span class="icon"><i class="ph ph-shopping-cart"></i></span>
+                    Informations d’achat
+                </h2>
+                <p class="eq-section-desc">
+                    Date et prix d’achat. L’âge de l’équipement est calculé automatiquement.
+                </p>
+            </div>
+
+            <div class="eq-grid-2">
+                {% if form.purchase_date %}
+                <div class="eq-field">
+                    <label for="{{ form.purchase_date.id_for_label }}">{{ form.purchase_date.label }}</label>
+                    {{ form.purchase_date }}
+                    {% if form.purchase_date.errors %}
+                        <div class="error-text">{{ form.purchase_date.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.purchase_price %}
+                <div class="eq-field">
+                    <label for="{{ form.purchase_price.id_for_label }}">{{ form.purchase_price.label }}</label>
+                    {{ form.purchase_price }}
+                    {% if form.purchase_price.errors %}
+                        <div class="error-text">{{ form.purchase_price.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if equipment %}
+                <div class="eq-field">
+                    <label>Âge de l’équipement</label>
+                    <input type="text" class="form-control" value="{% if equipment.age_years is not None %}{{ equipment.age_years }} an{% if equipment.age_years > 1 %}s{% endif %}{% else %}-{% endif %}" readonly>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- SECTION ÉTAT & DISPONIBILITÉ -->
+        <section class="eq-section" id="eq-section-etat">
+            <div class="eq-section-header">
+                <h2 class="eq-section-title">
+                    <span class="icon"><i class="ph ph-traffic-cone"></i></span>
+                    État & disponibilité
+                </h2>
+                <p class="eq-section-desc">
+                    Statut de l’équipement, disponibilité à la location, utilisateur actuel et emplacement.
+                </p>
+            </div>
+
+            <div class="eq-grid-2">
+                {% if form.status %}
+                <div class="eq-field">
+                    <label for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                        <div class="error-text">{{ form.status.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.location %}
+                <div class="eq-field">
+                    <label for="{{ form.location.id_for_label }}">{{ form.location.label }}</label>
+                    {{ form.location }}
+                    {% if form.location.errors %}
+                        <div class="error-text">{{ form.location.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.current_user %}
+                <div class="eq-field">
+                    <label for="{{ form.current_user.id_for_label }}">{{ form.current_user.label }}</label>
+                    {{ form.current_user }}
+                    {% if form.current_user.errors %}
+                        <div class="error-text">{{ form.current_user.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.is_available_for_rent %}
+                <div class="eq-field">
+                    <label>{{ form.is_available_for_rent.label }}</label>
+                    <label class="eq-toggle">
+                        {{ form.is_available_for_rent }}
+                        <span>Disponible à la location</span>
+                    </label>
+                    {% if form.is_available_for_rent.errors %}
+                        <div class="error-text">{{ form.is_available_for_rent.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- SECTION SPÉCIFICATIONS -->
+        <section class="eq-section" id="eq-section-specs">
+            <div class="eq-section-header">
+                <h2 class="eq-section-title">
+                    <span class="icon"><i class="ph ph-sliders"></i></span>
+                    Spécifications techniques
+                </h2>
+                <p class="eq-section-desc">
+                    Détails techniques, accessoires inclus et notes importantes.
+                </p>
+            </div>
+
+            <div class="eq-grid-2">
+                {% if form.technical_specs %}
+                <div class="eq-field">
+                    <label for="{{ form.technical_specs.id_for_label }}">{{ form.technical_specs.label }}</label>
+                    {{ form.technical_specs }}
+                    {% if form.technical_specs.errors %}
+                        <div class="error-text">{{ form.technical_specs.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.accessories_included %}
+                <div class="eq-field">
+                    <label for="{{ form.accessories_included.id_for_label }}">{{ form.accessories_included.label }}</label>
+                    {{ form.accessories_included }}
+                    {% if form.accessories_included.errors %}
+                        <div class="error-text">{{ form.accessories_included.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.important_notes %}
+                <div class="eq-field">
+                    <label for="{{ form.important_notes.id_for_label }}">{{ form.important_notes.label }}</label>
+                    {{ form.important_notes }}
+                    {% if form.important_notes.errors %}
+                        <div class="error-text">{{ form.important_notes.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- SECTION MAINTENANCE -->
+        <section class="eq-section" id="eq-section-maintenance">
+            <div class="eq-section-header">
+                <h2 class="eq-section-title">
+                    <span class="icon"><i class="ph ph-wrench"></i></span>
+                    Maintenance
+                </h2>
+                <p class="eq-section-desc">
+                    Suivi des dates de maintenance et des notes techniques.
+                </p>
+            </div>
+
+            <div class="eq-grid-2">
+                {% if form.last_maintenance_date %}
+                <div class="eq-field">
+                    <label for="{{ form.last_maintenance_date.id_for_label }}">{{ form.last_maintenance_date.label }}</label>
+                    {{ form.last_maintenance_date }}
+                    {% if form.last_maintenance_date.errors %}
+                        <div class="error-text">{{ form.last_maintenance_date.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.next_maintenance_date %}
+                <div class="eq-field">
+                    <label for="{{ form.next_maintenance_date.id_for_label }}">{{ form.next_maintenance_date.label }}</label>
+                    {{ form.next_maintenance_date }}
+                    {% if form.next_maintenance_date.errors %}
+                        <div class="error-text">{{ form.next_maintenance_date.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.maintenance_notes %}
+                <div class="eq-field">
+                    <label for="{{ form.maintenance_notes.id_for_label }}">{{ form.maintenance_notes.label }}</label>
+                    {{ form.maintenance_notes }}
+                    {% if form.maintenance_notes.errors %}
+                        <div class="error-text">{{ form.maintenance_notes.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            {% if equipment %}
+                {% if equipment.maintenance_alert %}
+                    <div class="alert alert-warning mt-3">
+                        <i class="ph ph-warning"></i>
+                        Une maintenance est requise ou dépassée pour cet équipement.
+                    </div>
+                {% endif %}
+            {% endif %}
+        </section>
+
+        <!-- SECTION DOCUMENTS & IMAGES -->
+        <section class="eq-section" id="eq-section-docs">
+            <div class="eq-section-header">
+                <h2 class="eq-section-title">
+                    <span class="icon"><i class="ph ph-folder-open"></i></span>
+                    Documents & images
+                </h2>
+                <p class="eq-section-desc">
+                    Photo de l’équipement et manuel d’utilisation.
+                </p>
+            </div>
+
+            <div class="eq-grid-2">
+                {% if form.photo %}
+                <div class="eq-field">
+                    <label for="{{ form.photo.id_for_label }}">{{ form.photo.label }}</label>
+                    {{ form.photo }}
+                    {% if form.photo.errors %}
+                        <div class="error-text">{{ form.photo.errors|striptags }}</div>
+                    {% endif %}
+                    {% if equipment and equipment.photo %}
+                        <div class="mt-2">
+                            <span class="help-text d-block mb-1">Prévisualisation actuelle :</span>
+                            <img src="{{ equipment.photo.url }}" alt="Photo équipement" class="eq-photo-preview">
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.manual %}
+                <div class="eq-field">
+                    <label for="{{ form.manual.id_for_label }}">{{ form.manual.label }}</label>
+                    {{ form.manual }}
+                    {% if form.manual.errors %}
+                        <div class="error-text">{{ form.manual.errors|striptags }}</div>
+                    {% endif %}
+                    {% if equipment and equipment.manual %}
+                        <div class="mt-2">
+                            <a href="{{ equipment.manual.url }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                <i class="ph ph-file-pdf"></i> Voir le manuel
+                            </a>
+                        </div>
+                    {% endif %}
+                    <div class="help-text">PDF de préférence. Optionnel.</div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <div class="eq-form-footer">
+            <a href="{% url 'dashboard:equipments_list' %}" class="btn btn-secondary">Annuler</a>
+            <button type="submit" class="btn btn-primary">
+                {% if equipment %}Mettre à jour{% else %}Créer l’équipement{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabs = document.querySelectorAll('.eq-tab');
+    const sections = document.querySelectorAll('.eq-section');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = document.querySelector(tab.dataset.target);
+            if (!target) return;
+
+            tabs.forEach(t => t.classList.remove('active'));
+            sections.forEach(s => s.classList.remove('active'));
+
+            tab.classList.add('active');
+            target.classList.add('active');
+
+            const y = target.getBoundingClientRect().top + window.scrollY - 80;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+        });
+    });
+
+    sections.forEach(section => {
+        section.addEventListener('focusin', () => {
+            sections.forEach(s => s.classList.remove('active'));
+            section.classList.add('active');
+        });
+    });
+});
+</script>
+
+{% endblock %}

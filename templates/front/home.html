@@ -1,0 +1,1178 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Accueil - Oloustream{% endblock %}
+
+{% block content %}
+
+<style>
+    :root {
+        --olou-primary: #E60023;
+        --olou-primary-dark: #c1001c;
+        --olou-bg-dark: #020617;
+        --olou-bg-soft: #0b1120;
+        --text-muted: #6b7280;
+    }
+
+    /* HERO / VIDEO YOUTUBE DE FOND ---------------------------------------- */
+
+    /* Wrapper pour faire sortir le hero du container et le passer en pleine largeur */
+    .hero-full-width {
+        position: relative;
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+    }
+
+    /* HERO pleine hauteur avec vidéo en fond */
+    .home-hero {
+        position: relative;
+        margin: 0;
+        min-height: calc(100vh - 70px); /* 70px ≈ hauteur navbar : ajuste si besoin */
+        overflow: hidden;
+        border-radius: 0 0 2rem 2rem;
+        box-shadow: 0 25px 50px rgba(15, 23, 42, 0.85);
+    }
+
+    /* Vidéo de fond */
+    .home-hero-video {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .home-hero-video video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Overlay sombre + contenu centré */
+    .home-hero-overlay {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        display: flex;
+        align-items: center;      /* centre vertical */
+        justify-content: center;  /* centre horizontal */
+        padding: 3rem 1.5rem 3rem;
+        color: #f9fafb;
+        background: radial-gradient(circle at center, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.8) 60%);
+    }
+
+    .home-hero-inner {
+        text-align: center;
+        max-width: 900px;
+    }
+
+    /* Titre multi-lignes */
+    .hero-main-title {
+        font-size: clamp(2.2rem, 3.6vw, 2.8rem);
+        font-weight: 800;
+        line-height: 1.25;
+        margin-bottom: 0.9rem;
+    }
+
+    .hero-main-title-line {
+        display: block;
+    }
+
+    .hero-main-title-line.highlight {
+        background: linear-gradient(90deg, #fb7185, #f97316, #facc15);
+        -webkit-background-clip: text;
+        color: transparent;
+    }
+
+    /* Sous-titre */
+    .hero-subtitle {
+        font-size: 0.98rem;
+        max-width: 560px;
+        margin: 0.4rem auto 1.6rem;
+        color: #e5e7eb;
+    }
+
+    /* Boutons CTA */
+    .hero-ctas {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-bottom: 1.6rem;
+    }
+
+    .hero-cta {
+        border-radius: 999px;
+        padding: 0.65rem 1.4rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        border: 1px solid transparent;
+    }
+
+    .hero-cta-primary {
+        background-color: var(--olou-primary);
+        border-color: var(--olou-primary);
+        color: #f9fafb;
+    }
+
+    .hero-cta-primary:hover {
+        background-color: var(--olou-primary-dark);
+        border-color: var(--olou-primary-dark);
+    }
+
+    .hero-cta-outline {
+        background: transparent;
+        border-color: rgba(248, 250, 252, 0.3);
+        color: #f9fafb;
+    }
+
+    .hero-cta-outline:hover {
+        background: rgba(15, 23, 42, 0.7);
+    }
+
+    /* Logo central optionnel */
+    .hero-logo {
+        margin-bottom: 1.2rem;
+    }
+    .hero-logo img {
+        max-height: 90px;
+        width: auto;
+        object-fit: contain;
+    }
+
+    /* Statistiques */
+    .hero-stats-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.9rem;
+    }
+
+    .hero-stat-card {
+        min-width: 130px;
+        background: rgba(15, 23, 42, 0.9);
+        border-radius: 1rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid rgba(55,65,81,0.8);
+        box-shadow: 0 10px 25px rgba(15,23,42,0.6);
+    }
+
+    .hero-stat-value {
+        font-size: 1.35rem;
+        font-weight: 700;
+    }
+
+    .hero-stat-label {
+        font-size: 0.8rem;
+        color: #d1d5db;
+    }
+
+    /* Scroll hint */
+    .hero-scroll-hint {
+        margin-top: 1.8rem;
+        font-size: 0.8rem;
+        color: #9ca3af;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.2rem;
+    }
+
+    .hero-scroll-hint i {
+        font-size: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .home-hero-overlay {
+            padding: 2.5rem 1.2rem 2.6rem;
+        }
+    }
+
+    /* SECTION STUDIOS -------------------------------------------------------- */
+
+    .home-studios-section {
+        margin: 3rem 0;
+        text-align: center;
+    }
+
+    .home-studios-heading {
+        margin-bottom: 2rem;
+    }
+
+    .home-studios-title {
+        font-size: 1.9rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #4f46e5;  /* bleu type maquette */
+        letter-spacing: 0.06em;
+    }
+
+    .home-studios-subtitle {
+        font-size: 0.98rem;
+        color: #4b5563;
+        max-width: 720px;
+        margin: 0.75rem auto 0;
+        line-height: 1.7;
+    }
+
+    /* Cartes de studios */
+
+    .home-studios-grid {
+        margin-top: 2rem;
+    }
+
+    .home-studio-card {
+        border-radius: 1.3rem;
+        overflow: hidden;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 16px 35px rgba(15,23,42,0.18);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .home-studio-card-media {
+        height: 200px;
+        overflow: hidden;
+        background: #020617;
+    }
+
+    .home-studio-card-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .home-studio-card-body {
+        padding: 1.1rem 1.2rem 1.3rem;
+        background: #f9fafb;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .home-studio-card-title {
+        font-size: 1rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 0.3rem;
+        color: #4f46e5;
+    }
+
+    .home-studio-card-desc {
+        font-size: 0.86rem;
+        color: #4b5563;
+        margin-bottom: 0.9rem;
+        flex: 1;
+    }
+
+    .btn-studio-reserve {
+        border-radius: 999px;
+        border: none;
+        padding: 0.5rem 1.1rem;
+        font-size: 0.84rem;
+        font-weight: 600;
+        background: #facc15; /* jaune comme sur la maquette */
+        color: #111827;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .btn-studio-reserve i {
+        font-size: 0.85rem;
+    }
+
+    .btn-studio-reserve:hover {
+        background: #eab308;
+        color: #111827;
+    }
+        /* SECTION RAPIDE : TYPES DE RÉSERVATION ------------------------------- */
+
+    .home-quick-actions {
+        margin-bottom: 3rem;
+    }
+
+    .home-section-title {
+        font-size: 1.35rem;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+    }
+
+    .home-section-subtitle {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin-bottom: 1.4rem;
+    }
+
+    .quick-card {
+    border-radius: 1.1rem;
+    background: #ffffff;
+    box-shadow: 0 14px 30px rgba(15,23,42,0.12);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.quick-card-media {
+    position: relative;
+    height: 160px;
+    overflow: hidden;
+}
+
+.quick-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.quick-card-media-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0f172a, #020617);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    color: #e5e7eb;
+}
+
+.quick-card-body {
+    padding: 1rem 1.1rem 1rem;
+}
+
+.quick-card h3 {
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+}
+
+.quick-card p {
+    font-size: 0.86rem;
+    color: #6b7280;
+    margin-bottom: 0.75rem;
+}
+
+.quick-card small {
+    font-size: 0.8rem;
+    color: #9ca3af;
+}
+
+    /* SERVICES ------------------------------------------------------------ */
+
+    .home-services {
+        margin-bottom: 3rem;
+    }
+
+    .service-card {
+        border-radius: 1.2rem;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        padding: 1.1rem 1.2rem;
+        height: 100%;
+        box-shadow: 0 10px 30px rgba(15,23,42,0.08);
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .service-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.15rem;
+    }
+
+    .service-card-category {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #9ca3af;
+        margin-bottom: 0.2rem;
+    }
+
+    .service-card-desc {
+        font-size: 0.86rem;
+        color: #6b7280;
+        flex-grow: 1;
+    }
+
+    .service-card-footer {
+        margin-top: 0.6rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.85rem;
+    }
+
+    .service-chip {
+        background: #f3f4f6;
+        border-radius: 999px;
+        padding: 0.1rem 0.6rem;
+        font-size: 0.78rem;
+        color: #4b5563;
+    }
+
+    /* PORTFOLIO ----------------------------------------------------------- */
+
+    .home-portfolio {
+        margin-bottom: 3rem;
+    }
+
+    .project-card {
+        border-radius: 1.2rem;
+        overflow: hidden;
+        background: #020617;
+        color: #e5e7eb;
+        position: relative;
+        box-shadow: 0 18px 40px rgba(15,23,42,0.55);
+    }
+
+    .project-thumb {
+        position: relative;
+        height: 0;
+        padding-bottom: 56.25%; /* 16/9 */
+        overflow: hidden;
+    }
+
+    .project-thumb iframe,
+    .project-thumb img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        object-fit: cover;
+    }
+
+    .project-overlay {
+        padding: 1rem 1.2rem;
+        background: linear-gradient(to top, rgba(15,23,42,0.95), rgba(15,23,42,0.7));
+    }
+
+    .project-title {
+        font-size: 0.98rem;
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+    }
+
+    .project-meta {
+        font-size: 0.8rem;
+        color: #9ca3af;
+    }
+
+    /* TÉMOIGNAGES --------------------------------------------------------- */
+
+    .home-testimonials {
+        margin-bottom: 3rem;
+    }
+
+    .testimonial-card {
+        border-radius: 1.2rem;
+        padding: 1.2rem 1.25rem;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 28px rgba(15,23,42,0.08);
+        position: relative;
+    }
+
+    .testimonial-quote {
+        font-size: 0.9rem;
+        color: #4b5563;
+        margin-bottom: 0.6rem;
+    }
+
+    .testimonial-author {
+        font-size: 0.86rem;
+        font-weight: 600;
+    }
+
+    .testimonial-role {
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+
+    /* PARTENAIRES --------------------------------------------------------- */
+
+    .home-partners {
+        margin-bottom: 3rem;
+    }
+
+    .partner-strip {
+        border-radius: 1.5rem;
+        padding: 1rem 1.2rem;
+        background: #0f172a;
+        border: 1px solid rgba(148,163,184,0.4);
+        color: #e5e7eb;
+    }
+
+    .partner-logo {
+        max-height: 40px;
+        max-width: 120px;
+        object-fit: contain;
+        filter: grayscale(0.1);
+        opacity: 0.9;
+        transition: filter 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+    }
+
+    .partner-logo:hover {
+        filter: grayscale(0);
+        opacity: 1;
+        transform: translateY(-2px);
+    }
+
+    /* DEVIS --------------------------------------------------------------- */
+
+    .home-quote {
+        margin-bottom: 3rem;
+    }
+
+    .quote-card {
+        border-radius: 1.5rem;
+        padding: 1.5rem 1.7rem;
+        background: linear-gradient(135deg, #020617, #111827);
+        border: 1px solid rgba(148,163,184,0.4);
+        color: #e5e7eb;
+        box-shadow: 0 20px 50px rgba(15,23,42,0.65);
+    }
+
+    .quote-card label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-bottom: 0.15rem;
+    }
+
+    .quote-card input,
+    .quote-card select,
+    .quote-card textarea {
+        border-radius: 0.7rem;
+        font-size: 0.88rem;
+        border: 1px solid #4b5563;
+        background: rgba(15,23,42,0.9);
+        color: #e5e7eb;
+    }
+
+    .quote-card input:focus,
+    .quote-card select:focus,
+    .quote-card textarea:focus {
+        outline: none;
+        border-color: rgba(230,0,35,0.8);
+        box-shadow: 0 0 0 1px rgba(230,0,35,0.5);
+    }
+
+    .quote-card small {
+        font-size: 0.78rem;
+        color: #9ca3af;
+    }
+
+    .btn-quote {
+        background-color: var(--olou-primary);
+        border-color: var(--olou-primary);
+        border-radius: 999px;
+        padding: 0.6rem 1.2rem;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .btn-quote:hover {
+        background-color: var(--olou-primary-dark);
+        border-color: var(--olou-primary-dark);
+    }
+
+    /* DIVERS -------------------------------------------------------------- */
+
+    .home-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .home-section-link {
+        font-size: 0.85rem;
+        color: var(--olou-primary);
+        text-decoration: none;
+    }
+
+    .home-section-link:hover {
+        text-decoration: underline;
+        color: var(--olou-primary-dark);
+    }
+
+    @media (max-width: 768px) {
+        .home-hero-overlay {
+            padding: 1.8rem 1.4rem;
+        }
+    }
+</style>
+
+{# -------------------- HERO AVEC VIDÉO YOUTUBE & CTA --------------------- #}
+<div class="hero-full-width">
+<section class="home-hero mb-5">
+    <!-- Vidéo de fond -->
+    <div class="home-hero-video">
+        <video autoplay muted loop playsinline>
+            <source src="{{ hero_video_url }}" type="video/mp4">
+            Votre navigateur ne supporte pas la vidéo HTML5.
+        </video>
+    </div>
+
+    <!-- Overlay + contenu -->
+    <div class="home-hero-overlay">
+        <div class="home-hero-inner">
+            <h1 class="hero-main-title">
+                <span class="hero-main-title-line">Vos événements,</span>
+                <span class="hero-main-title-line">votre image,</span>
+                <span class="hero-main-title-line highlight">notre passion</span>
+            </h1>
+
+            <p class="hero-subtitle">
+                Leader du live streaming événementiel au Burkina Faso.<br>
+                Nous transformons vos projets en expériences vidéo mémorables.
+            </p>
+
+            <div class="hero-ctas">
+                <button class="hero-cta hero-cta-primary" data-scroll-to="#devis">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    Demander un devis
+                </button>
+                <button class="hero-cta hero-cta-outline" data-scroll-to="#services">
+                    <i class="fa-solid fa-photo-film"></i>
+                    Découvrir nos services
+                </button>
+                <button class="hero-cta hero-cta-outline" data-scroll-to="#rappel">
+                    <i class="fa-solid fa-phone"></i>
+                    Être rappelé
+                </button>
+            </div>
+
+            <div class="hero-stats-row">
+                <div class="hero-stat-card">
+                    <div class="hero-stat-value"
+                         data-target="{{ projects_count|default:836 }}">
+                        836
+                    </div>
+                    <div class="hero-stat-label">
+                        Projets réalisés
+                    </div>
+                </div>
+                <div class="hero-stat-card">
+                    <div class="hero-stat-value"
+                         data-target="{{ streaming_views|default:29 }}"
+                         data-suffix="M+"
+                         data-format="compact">
+                        29
+                    </div>
+                    <div class="hero-stat-label">
+                        Vues en streaming
+                    </div>
+                </div>
+                <div class="hero-stat-card">
+                    <div class="hero-stat-value"
+                         data-target="{{ countries_count|default:7 }}">
+                        7
+                    </div>
+                    <div class="hero-stat-label">
+                        Pays couverts
+                    </div>
+                </div>
+                <div class="hero-stat-card">
+                    <div class="hero-stat-value"
+                         data-target="{{ partners_count|default:30 }}"
+                         data-suffix="+">
+                        30+
+                    </div>
+                    <div class="hero-stat-label">
+                        Partenaires
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-scroll-hint">
+                <span>Scroll pour découvrir</span>
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+        </div>
+    </div>
+</section>
+</div>
+{# -------------------- RÉSERVATIONS RAPIDES ------------------------------ #}
+{% comment %} <section id="reservations" class="home-quick-actions">
+    <div class="home-section-header">
+        <div>
+            <h2 class="home-section-title">Réservez en quelques clics</h2>
+            <p class="home-section-subtitle">
+                Studio, matériel, formation : choisissez le service qui correspond à votre besoin.
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- Studio -->
+        <div class="col-md-4">
+            <div class="quick-card">
+                <div class="quick-card-media">
+                    {% if studio_image_url %}
+                        <img src="{{ studio_image_url }}" alt="Studio Oloustream">
+                    {% else %}
+                        <div class="quick-card-media-placeholder">
+                            Studio Oloustream
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="quick-card-body">
+                    <h3>Studio & livestream</h3>
+                    <p>Réservez un studio équipé pour vos émissions, conférences, podcasts ou captations en direct.</p>
+                    <small>Accompagnement technique inclus.</small>
+                    <div class="mt-2">
+                        <a href="{% url 'studio:user_reservations_list' %}" class="btn btn-quick">
+                            Réserver un studio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Matériel -->
+        <div class="col-md-4">
+            <div class="quick-card">
+                <div class="quick-card-media">
+                    {% if material_image_url %}
+                        <img src="{{ material_image_url }}" alt="Location de matériel">
+                    {% else %}
+                        <div class="quick-card-media-placeholder">
+                            Matériel professionnel
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="quick-card-body">
+                    <h3>Matériel & équipement</h3>
+                    <p>Louez caméras, micros, éclairages, régies et accessoires pour vos tournages externes.</p>
+                    <small>Parc régulièrement maintenu et vérifié.</small>
+                    <div class="mt-2">
+                        <a href="{% url 'services_app:user_offers_list' %}" class="btn btn-quick">
+                            Voir les offres de location
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formations -->
+        <div class="col-md-4">
+            <div class="quick-card">
+                <div class="quick-card-media">
+                    {% if training_image_url %}
+                        <img src="{{ training_image_url }}" alt="Formations Oloustream">
+                    {% else %}
+                        <div class="quick-card-media-placeholder">
+                            Formations & ateliers
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="quick-card-body">
+                    <h3>Formations & accompagnement</h3>
+                    <p>Inscrivez-vous à nos formations en audiovisuel, streaming, montage et communication digitale.</p>
+                    <small>Sessions en petits groupes et coaching personnalisé.</small>
+                    <div class="mt-2">
+                        <a href="{% url 'services_app:user_trainings_list' %}" class="btn btn-quick">
+                            Voir les formations
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section> {% endcomment %}
+
+{# -------------------- NOS STUDIOS --------------------------------------- #}
+<section id="studios" class="home-studios-section">
+    <div class="home-studios-heading">
+        <h2 class="home-studios-title">
+            DES STUDIOS HAUT DE GAMME<br>
+            POUR TOUT LE MONDE
+        </h2>
+        <p class="home-studios-subtitle">
+            Chez Oloustream, nous accompagnons tous les créateurs&nbsp;: artistes, podcasteurs,
+            entreprises, institutions. Que vous prépariez un concert filmé, une émission en live
+            ou un podcast intimiste, nos studios sont pensés pour vous offrir une expérience
+            professionnelle, clé en main.
+        </p>
+    </div>
+
+    <div class="home-studios-grid">
+        <div class="row g-3">
+            {% if studios %}
+                {% for studio in studios %}
+                    <div class="col-md-4">
+                        <div class="home-studio-card">
+                            <div class="home-studio-card-media">
+                                {% if studio.image %}
+                                    <img src="{{ studio.image.url }}" alt="{{ studio.name }}">
+                                {% else %}
+                                    <div class="quick-card-media-placeholder">
+                                        Studio Oloustream
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="home-studio-card-body">
+                                <div class="home-studio-card-title">
+                                    {{ studio.name }}
+                                </div>
+                                <div class="home-studio-card-desc">
+                                    {{ studio.description|default:"Studio professionnel équipé pour vos tournages, podcasts et livestreams."|truncatechars:200 }}
+                                </div>
+                                <a href="{% url 'studio:user_studio_reserve' studio.pk %}"
+                                   class="btn btn-studio-reserve">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                    Réserver un studio
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">
+                    Les studios seront bientôt disponibles.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{# -------------------- SERVICES (dynamiques) ----------------------------- #}
+<section id="services" class="home-services">
+    <div class="home-section-header">
+        <div>
+            <h2 class="home-section-title">Nos services audiovisuels</h2>
+            <p class="home-section-subtitle">
+                De la captation en live à la postproduction, nous vous accompagnons sur toute la chaîne de valeur.
+            </p>
+        </div>
+        <div>
+            <a href="{% url 'services_app:user_offers_list' %}" class="home-section-link">
+                Voir toutes les offres
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        {% if services %}
+            {% for service in services %}
+                <div class="col-md-4">
+                    <div class="service-card">
+                        {% if service.category %}
+                            <div class="service-card-category">
+                                {{ service.category.name }}
+                            </div>
+                        {% endif %}
+                        <div class="service-card-title">
+                            {{ service.name }}
+                        </div>
+                        <div class="service-card-desc">
+                            {{ service.short_description|default:service.description|truncatechars:130 }}
+                        </div>
+                        <div class="service-card-footer">
+                            {% if service.base_price %}
+                                <span class="service-chip">
+                                    À partir de {{ service.base_price }}&nbsp;FCFA
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">Les services seront bientôt disponibles.</p>
+        {% endif %}
+    </div>
+</section>
+
+{# -------------------- PORTFOLIO / RÉALISATIONS -------------------------- #}
+<section class="home-portfolio">
+    <div class="home-section-header">
+        <div>
+            <h2 class="home-section-title">Quelques réalisations</h2>
+            <p class="home-section-subtitle">
+                Événements en direct, conférences hybrides, podcasts, captations multicaméra…
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        {% if projects %}
+            {% for project in projects %}
+                <div class="col-md-4">
+                    <div class="project-card">
+                        <div class="project-thumb">
+                            {% if project.youtube_id %}
+                                <iframe src="https://www.youtube.com/embed/{{ project.youtube_id }}"
+                                        title="{{ project.title }}"
+                                        allowfullscreen>
+                                </iframe>
+                            {% elif project.thumbnail %}
+                                <img src="{{ project.thumbnail.url }}" alt="{{ project.title }}">
+                            {% else %}
+                                <div style="background:#111827;width:100%;height:100%;"></div>
+                            {% endif %}
+                        </div>
+                        <div class="project-overlay">
+                            <div class="project-title">
+                                {{ project.title }}
+                            </div>
+                            <div class="project-meta">
+                                {{ project.client_name }} · {{ project.category|default:"Production live" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            {# Placeholder si tu n'as pas encore de modèle Portfolio #}
+            <div class="col-md-4">
+                <div class="project-card">
+                    <div class="project-thumb">
+                        <iframe
+                            src="https://www.youtube.com/embed/{{ hero_video_id|default:'dQw4w9WgXcQ' }}"
+                            title="Showreel Oloustream"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="project-overlay">
+                        <div class="project-title">
+                            Showreel Oloustream
+                        </div>
+                        <div class="project-meta">
+                            Extrait de nos captations et livestreams récents.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{# -------------------- TÉMOIGNAGES (statique pour l’instant) ------------- #}
+<section class="home-testimonials">
+    <div class="home-section-header">
+        <div>
+            <h2 class="home-section-title">Ils nous font confiance</h2>
+            <p class="home-section-subtitle">
+                Marques, institutions et créateurs accompagnés par Oloustream.
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="testimonial-card">
+                <div class="testimonial-quote">
+                    “Grâce à Oloustream, nous avons professionnalisé nos conférences en ligne
+                    avec une qualité d’image et de son digne des plus grandes chaînes.”
+                </div>
+                <div class="testimonial-author">Responsable communication</div>
+                <div class="testimonial-role">Entreprise événementielle à Ouagadougou</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="testimonial-card">
+                <div class="testimonial-quote">
+                    “L’équipe technique est à l’écoute, réactive, et force de proposition
+                    pour mettre en valeur nos événements en direct.”
+                </div>
+                <div class="testimonial-author">Chargé de projet digital</div>
+                <div class="testimonial-role">Institution publique</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="testimonial-card">
+                <div class="testimonial-quote">
+                    “Un vrai partenaire, pas seulement un prestataire. De la préparation au rendu final,
+                    tout est maîtrisé.”
+                </div>
+                <div class="testimonial-author">Créateur de contenu</div>
+                <div class="testimonial-role">Chaîne YouTube locale</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# -------------------- PARTENAIRES (dynamiques) -------------------------- #}
+<section class="home-partners">
+    <div class="partner-strip">
+        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+            <div>
+                <strong>Partenaires & clients</strong>
+                <div style="font-size:0.8rem;color:#9ca3af;">
+                    Ils nous font confiance pour leurs productions et livestreams.
+                </div>
+            </div>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-4 mt-2">
+            {% if partners %}
+                {% for partner in partners %}
+                    <div>
+                        {% if partner.logo %}
+                            <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" class="partner-logo">
+                        {% else %}
+                            <span style="font-size:0.85rem;">{{ partner.name }}</span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <span style="font-size:0.85rem;color:#9ca3af;">
+                    Bientôt disponibles : nos partenaires institutionnels et privés.
+                </span>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{# -------------------- FORMULAIRE DE DEVIS -------------------------------- #}
+<section id="devis" class="home-quote">
+    <div class="quote-card">
+        <div class="row g-3 align-items-start">
+            <div class="col-md-5">
+                <h2 class="home-section-title text-white mb-1">Demander un devis</h2>
+                <p class="home-section-subtitle text-light mb-3">
+                    Expliquez-nous votre projet : nous reviendrons vers vous avec une proposition
+                    adaptée (technique, budget, calendrier).
+                </p>
+                <small>
+                    Les champs marqués d’une astérisque (*) sont obligatoires.
+                </small>
+            </div>
+            <div class="col-md-7">
+                <form method="post" action="#devis">
+                    {% csrf_token %}
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label for="id_full_name">Nom complet *</label>
+                            <input type="text" id="id_full_name" name="full_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_email_quote">Email *</label>
+                            <input type="email" id="id_email_quote" name="email" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label for="id_phone">Téléphone</label>
+                            <input type="text" id="id_phone" name="phone" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_event_type">Type de projet *</label>
+                            <select id="id_event_type" name="event_type" class="form-select" required>
+                                <option value="">Sélectionner…</option>
+                                <option>Livestream événementiel</option>
+                                <option>Captation vidéo</option>
+                                <option>Podcast / émission</option>
+                                <option>Formation</option>
+                                <option>Location studio</option>
+                                <option>Location matériel</option>
+                                <option>Autre</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label for="id_date">Date prévue</label>
+                            <input type="date" id="id_date" name="date" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_budget">Budget estimatif (FCFA)</label>
+                            <input type="number" id="id_budget" name="budget" class="form-control" min="0" step="10000">
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label for="id_needs">Besoins techniques *</label>
+                        <textarea id="id_needs" name="needs" rows="3" class="form-control" required
+                                  placeholder="Ex : 2 caméras, diffusion Facebook/YouTube, micro HF, régie, etc."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_message">Message complémentaire</label>
+                        <textarea id="id_message" name="message" rows="2" class="form-control"
+                                  placeholder="Précisez le lieu, le nombre de participants, la langue, etc."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-quote">
+                        Envoyer ma demande
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    function formatNumber(value, format) {
+        if (format === "compact") {
+            // Exemple simple : 50 000 -> "50k"
+            if (value >= 1000) {
+                const k = value / 1000;
+                return k.toFixed(k >= 10 ? 0 : 1).replace('.', ',') + "k";
+            }
+        }
+        // Format français standard : 50 000
+        return value.toLocaleString("fr-FR");
+    }
+
+    function animateCounters() {
+        const counters = document.querySelectorAll(".hero-stat-value[data-target]");
+        counters.forEach(counter => {
+            const target = parseInt(counter.dataset.target || "0", 10);
+            if (!target || isNaN(target)) return;
+
+            const suffix = counter.dataset.suffix || "";
+            const format = counter.dataset.format || null;
+            const duration = 1500; // en ms
+            const startTime = performance.now();
+
+            function update(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = Math.floor(progress * target);
+
+                counter.textContent = formatNumber(current, format) + suffix;
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            requestAnimationFrame(update);
+        });
+    }
+
+    // Lancer l'animation quand le HERO est visible (IntersectionObserver)
+    document.addEventListener("DOMContentLoaded", function () {
+        const hero = document.querySelector(".home-hero");
+        if (!hero) {
+            animateCounters();
+            return;
+        }
+
+        if ("IntersectionObserver" in window) {
+            let done = false;
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (!done && entry.isIntersecting && entry.intersectionRatio > 0.4) {
+                        done = true;
+                        animateCounters();
+                        observer.disconnect();
+                    }
+                });
+            }, { threshold: 0.4 });
+
+            observer.observe(hero);
+        } else {
+            // fallback vieux navigateurs
+            animateCounters();
+        }
+    });
+</script>
+
+{% endblock %}
