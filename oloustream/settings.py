@@ -17,8 +17,22 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-_rse34uk8&e&ludzr!^qbfw62r-i7m^taq*8&dlr7jhl!bzxlg'
+
+# En prod tu mettras DEBUG = False
 DEBUG = True
-ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "oloustream.com",
+    "www.oloustream.com",
+]
+
+# (optionnel mais recommandé quand tu passeras en HTTPS/DEBUG=False)
+CSRF_TRUSTED_ORIGINS = [
+    "https://oloustream.com",
+    "https://www.oloustream.com",
+]
 
 INSTALLED_APPS = [
     # Django...
@@ -46,7 +60,8 @@ INSTALLED_APPS = [
     'apps.content',
     'apps.core',
 ]
-# IMPORTANT : on déclare le modèle User personnalisé (que l’on crée juste après)
+
+# IMPORTANT : on déclare le modèle User personnalisé
 AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
@@ -72,7 +87,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'apps.core.context_processors.site_settings',  # on créera ce fichier tout de suite
+                'apps.core.context_processors.site_settings',
             ],
         },
     },
@@ -81,12 +96,40 @@ TEMPLATES = [
 WSGI_APPLICATION = 'oloustream.wsgi.application'
 ASGI_APPLICATION = 'oloustream.asgi.application'
 
+# =========================
+# BASE DE DONNÉES
+# =========================
+
+# Par défaut : SQLite (pour le développement/local)
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+# En production (sur o2switch) : MySQL, avec variables d'environnement
+# à définir dans l'Application Python :
+#   DJANGO_ENV = production
+#   DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
+if os.environ.get("DJANGO_ENV") == "production":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": os.environ.get("DB_NAME"),
+            "USER": os.environ.get("DB_USER"),
+            "PASSWORD": os.environ.get("DB_PASSWORD"),
+            "HOST": os.environ.get("DB_HOST", "localhost"),
+            "PORT": os.environ.get("DB_PORT", "3306"),
+            "OPTIONS": {
+                "charset": "utf8mb4",
+            },
+        }
+    }
+
+# =========================
+# MOTS DE PASSE
+# =========================
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -104,13 +147,25 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# =========================
+# INTERNATIONALISATION
+# =========================
+
 LANGUAGE_CODE = 'fr-fr'
 TIME_ZONE = 'Africa/Ouagadougou'
 USE_I18N = True
 USE_TZ = True
 
+# =========================
+# STATIQUES & MEDIAS
+# =========================
+
 STATIC_URL = '/static/'
+
+# Dossier(s) de fichiers statiques pendant le dev
 STATICFILES_DIRS = [BASE_DIR / "static"]
+
+# Dossier de sortie pour collectstatic (en prod)
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = '/media/'
@@ -118,7 +173,10 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# DRF
+# =========================
+# DJANGO REST FRAMEWORK
+# =========================
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -134,23 +192,37 @@ REST_FRAMEWORK = {
     ),
 }
 
+# =========================
 # JWT
+# =========================
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
 
-# Email (dev : console)
+# =========================
+# EMAIL
+# =========================
+
+# En dev : affichage des emails dans la console
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'no-reply@oloustream.com'
 
-# Channels
+# =========================
+# CHANNELS
+# =========================
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
-        # En production : channels_redis
+        # En production tu pourras mettre channels_redis ici
     },
 }
+
+# =========================
+# AUTH / REDIRECTIONS
+# =========================
 
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'core:home'
