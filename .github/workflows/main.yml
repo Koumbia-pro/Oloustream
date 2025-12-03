@@ -1,0 +1,115 @@
+name: CI/CD Oloustream
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # Job 1: Tests
+  test:
+    name: Tests Django
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Configurer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+      
+      - name: Installer les dépendances
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Lancer les tests
+        env:
+          DJANGO_SECRET_KEY: 'test-secret-key-for-ci'
+          DJANGO_DEBUG: 'True'
+          DB_NAME: ':memory:'
+        run: |
+          python manage.py test --verbosity=2
+  
+  # Job 2: Déploiement (seulement si tests passent + branche main)
+  deploy:
+    name: Déployer sur O2Switch
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Déployer via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 21
+          local-dir: ./
+          server-dir: /oloustream/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/venv/**
+            **/env/**
+            **/__pycache__/**
+            **/*.pyc
+            **/db.sqlite3
+            **/.env
+            **/staticfiles/**
+            **/media/**
+            **/.github/**
+            **/logs/*.log
+            **/*.md
+            **/tests/**
+      
+      - name: Commandes post-déploiement
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 22
+          script: |
+            echo "=== Activation environnement virtuel ==="
+            source ~/virtualenv/oloustream/3.11/bin/activate
+            
+            echo "=== Déplacement vers le projet ==="
+            cd ~/oloustream
+            
+            echo "=== Installation des dépendances ==="
+            pip install -r requirements.txt --quiet
+            
+            echo "=== Migrations ==="
+            python manage.py migrate --noinput
+            
+            echo "=== Collecte fichiers statiques ==="
+            python manage.py collectstatic --noinput --clear
+            
+            echo "=== Redémarrage application ==="
+            touch tmp/restart.txt
+            
+            echo "=== Déploiement terminé ==="
+      
+      - name: Notification succès
+        if: success()
+        run: echo "✅ Déploiement réussi !"
+      
+      - name: Notification échec
+        if: failure()
+        run: echo "❌ Déploiement échoué !"

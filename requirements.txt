@@ -10,3 +10,5 @@ python-dotenv==1.0.1
 channels==4.0.0
 daphne==4.1.2
 openpyxl==3.1.2
+mysqlclient==2.2.7
+whitenoise==6.11.0
