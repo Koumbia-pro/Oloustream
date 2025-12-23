@@ -1,0 +1,906 @@
+{% load static %}
+<footer class="footer" id="contact">
+    <style>
+        .footer {
+            background: linear-gradient(180deg, #000000 0%, var(--dark) 100%);
+            color: var(--white);
+            padding: 80px 0 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(230, 0, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .footer__main {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 60px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* COMPANY INFO */
+        .footer__brand {
+            margin-bottom: 25px;
+        }
+
+        .footer__logo {
+            height: 60px;
+            width: auto;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border: 3px solid transparent;
+            box-shadow: 0 10px 30px rgba(230, 0, 0, 0.4);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .footer__logo:hover {
+            transform: rotate(5deg) scale(1.1);
+            border-color: var(--red);
+            box-shadow: 0 20px 50px rgba(230, 0, 0, 0.6);
+        }
+
+        .footer__tagline {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--red);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .footer__description {
+            color: var(--gray-400);
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        /* STATISTICS */
+        .footer__stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+        }
+
+        .footer__stat {
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .footer__stat:hover {
+            transform: translateY(-5px);
+        }
+
+        .footer__stat strong {
+            display: block;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--white), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .footer__stat span {
+            font-size: 0.85rem;
+            color: var(--gray-400);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .footer__stat i {
+            font-size: 1.3rem;
+            color: var(--red);
+        }
+
+        /* SECTION TITLES */
+        .footer__title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(230, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .footer__title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--red), var(--gold));
+        }
+
+        /* LINKS */
+        .footer__links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer__link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            color: var(--gray-400);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            padding-left: 10px;
+        }
+
+        .footer__link i {
+            width: 20px;
+            color: var(--red);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .footer__link:hover {
+            color: var(--white);
+            background: rgba(230, 0, 0, 0.05);
+            padding-left: 15px;
+            transform: translateX(5px);
+        }
+
+        .footer__link:hover i {
+            color: var(--gold);
+            transform: scale(1.1);
+        }
+
+        /* CONTACT */
+        .footer__contact {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .contact-item {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .contact-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(230, 0, 0, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--red);
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .contact-item:hover .contact-icon {
+            background: var(--red);
+            color: white;
+            transform: rotate(10deg) scale(1.1);
+            box-shadow: 0 10px 20px rgba(230, 0, 0, 0.3);
+        }
+
+        .contact-link {
+            color: var(--gray-400);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: block;
+            line-height: 1.5;
+        }
+
+        .contact-link:hover {
+            color: var(--red);
+            transform: translateX(3px);
+        }
+
+        .contact-address {
+            color: var(--gray-400);
+            font-style: normal;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* SOCIAL LINKS */
+        .footer__social {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .social-link {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .social-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--social-color, var(--red));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .social-link i {
+            position: relative;
+            z-index: 2;
+            transition: transform 0.3s ease;
+        }
+
+        .social-link:hover::before {
+            opacity: 1;
+        }
+
+        .social-link:hover i {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        .social-link:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .social-link--youtube { --social-color: #FF0000; }
+        .social-link--facebook { --social-color: #1877F2; }
+        .social-link--instagram { 
+            background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+            border: none;
+        }
+        .social-link--linkedin { --social-color: #0077B5; }
+        .social-link--whatsapp { --social-color: #25D366; }
+
+        /* NEWSLETTER */
+        .footer__newsletter {
+            background: linear-gradient(90deg, rgba(230, 0, 0, 0.1), rgba(245, 158, 11, 0.05));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 40px;
+            margin: 60px 0;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        .footer__newsletter::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 30s linear infinite;
+        }
+
+        .newsletter__content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+            position: relative;
+            z-index: 3;
+        }
+
+        .newsletter__text {
+            color: var(--white);
+        }
+
+        .newsletter__title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .newsletter__title i {
+            color: var(--gold);
+            font-size: 1.5rem;
+        }
+
+        .newsletter__description {
+            color: var(--gray-300);
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .newsletter__form {
+            position: relative;
+        }
+
+        .newsletter__input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .newsletter__input {
+            flex: 1;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            color: var(--white);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .newsletter__input:focus {
+            outline: none;
+            border-color: var(--red);
+            box-shadow: 0 0 30px rgba(230, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .newsletter__input::placeholder {
+            color: var(--gray-500);
+        }
+
+        .newsletter__btn {
+            padding: 15px 30px;
+            background: linear-gradient(90deg, var(--red), var(--red-dark));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .newsletter__btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(230, 0, 0, 0.4);
+        }
+
+        .newsletter__disclaimer {
+            font-size: 0.85rem;
+            color: var(--gray-500);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .newsletter__disclaimer i {
+            color: #10B981;
+        }
+
+        /* BOTTOM FOOTER */
+        .footer__bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            flex-wrap: wrap;
+            gap: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .footer__copyright {
+            color: var(--gray-500);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer__copyright i {
+            color: var(--red);
+        }
+
+        .footer__legal {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .footer__legal-link {
+            color: var(--gray-400);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer__legal-link:hover {
+            color: var(--red);
+            transform: translateY(-2px);
+        }
+
+        .footer__legal-link i {
+            font-size: 0.8rem;
+        }
+
+        .footer__badges {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: var(--gold);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            animation: badgeFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes badgeFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .badge:hover {
+            background: rgba(245, 158, 11, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(245, 158, 11, 0.1);
+        }
+
+        .badge i {
+            font-size: 0.9rem;
+        }
+
+        /* WHATSAPP BUTTON */
+        .floating-whatsapp {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            box-shadow: 0 15px 40px rgba(37, 211, 102, 0.4);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            animation: whatsappPulse 2s infinite;
+        }
+
+        @keyframes whatsappPulse {
+            0%, 100% { box-shadow: 0 15px 40px rgba(37, 211, 102, 0.4); }
+            50% { box-shadow: 0 20px 50px rgba(37, 211, 102, 0.6); }
+        }
+
+        .floating-whatsapp:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 25px 60px rgba(37, 211, 102, 0.6);
+        }
+
+        .whatsapp-icon {
+            font-size: 1.5rem;
+        }
+
+        .whatsapp-text {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 992px) {
+            .newsletter__content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .footer__main {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .footer__bottom {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            
+            .footer__legal {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .footer {
+                padding: 60px 0 25px;
+            }
+            
+            .footer__main {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            
+            .footer__stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .floating-whatsapp {
+                bottom: 20px;
+                right: 20px;
+                padding: 12px 20px;
+            }
+            
+            .floating-whatsapp .whatsapp-text {
+                display: none;
+            }
+            
+            .floating-whatsapp .whatsapp-icon {
+                font-size: 1.8rem;
+            }
+            
+            .footer__newsletter {
+                padding: 30px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .newsletter__input-group {
+                flex-direction: column;
+            }
+            
+            .newsletter__btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .footer__stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer__social {
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <div class="container">
+        <!-- Main Footer Content -->
+        <div class="footer__main">
+            <!-- Company Info -->
+            <div class="footer__section">
+                <div class="footer__brand">
+                    <img src="{% static 'img/logo.jpg' %}" 
+                         alt="Oloustream" 
+                         class="footer__logo">
+                    <p class="footer__tagline">
+                        <i class="fas fa-video"></i> Creative Audio-Video Experiences
+                    </p>
+                </div>
+                <p class="footer__description">
+                    Leader du live streaming événementiel au Burkina Faso. 
+                    Nous transformons vos idées en expériences audiovisuelles mémorables.
+                </p>
+                <div class="footer__stats">
+                    <div class="footer__stat">
+                        <strong data-count="836">836+</strong>
+                        <span><i class="fas fa-project-diagram"></i> Projets</span>
+                    </div>
+                    <div class="footer__stat">
+                        <strong data-count="29" data-suffix="M+">29M+</strong>
+                        <span><i class="fas fa-eye"></i> Vues</span>
+                    </div>
+                    <div class="footer__stat">
+                        <strong data-count="7">7</strong>
+                        <span><i class="fas fa-globe-africa"></i> Pays</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Services Links -->
+            <div class="footer__section">
+                <h4 class="footer__title">Nos Services</h4>
+                <ul class="footer__links">
+                    <li><a href="/services/live-streaming" class="footer__link">
+                        <i class="fas fa-satellite-dish"></i> Live Streaming
+                    </a></li>
+                    <li><a href="/services/production" class="footer__link">
+                        <i class="fas fa-film"></i> Production Vidéo
+                    </a></li>
+                    <li><a href="/services/studio" class="footer__link">
+                        <i class="fas fa-podcast"></i> Studio Podcast
+                    </a></li>
+                    <li><a href="/services/materiel" class="footer__link">
+                        <i class="fas fa-tools"></i> Matériel Pro
+                    </a></li>
+                    <li><a href="/services/formations" class="footer__link">
+                        <i class="fas fa-graduation-cap"></i> Formations
+                    </a></li>
+                    <li><a href="/services/vod" class="footer__link">
+                        <i class="fas fa-mobile-alt"></i> Plateforme VOD
+                    </a></li>
+                </ul>
+            </div>
+
+            <!-- Sectors Links -->
+            <div class="footer__section">
+                <h4 class="footer__title">Secteurs</h4>
+                <ul class="footer__links">
+                    <li><a href="/secteurs/institutions" class="footer__link">
+                        <i class="fas fa-landmark"></i> Institutions & ONG
+                    </a></li>
+                    <li><a href="/secteurs/entreprises" class="footer__link">
+                        <i class="fas fa-briefcase"></i> Entreprises
+                    </a></li>
+                    <li><a href="/secteurs/personnalites" class="footer__link">
+                        <i class="fas fa-user-tie"></i> Personnalités
+                    </a></li>
+                    <li><a href="/secteurs/culture" class="footer__link">
+                        <i class="fas fa-music"></i> Événements Culturels
+                    </a></li>
+                    <li><a href="/secteurs/mariages" class="footer__link">
+                        <i class="fas fa-ring"></i> Mariages
+                    </a></li>
+                </ul>
+            </div>
+
+            <!-- Contact & Social -->
+            <div class="footer__section">
+                <h4 class="footer__title">Contact</h4>
+                <div class="footer__contact">
+                    <div class="contact-item">
+                        <span class="contact-icon"><i class="fas fa-phone"></i></span>
+                        <div>
+                            <a href="tel:+22664093196" class="contact-link">+226 64 09 31 96</a><br>
+                            <a href="tel:+22625655395" class="contact-link">+226 25 65 53 95</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-icon"><i class="fas fa-envelope"></i></span>
+                        <a href="mailto:info@oloustream.com" class="contact-link">info@oloustream.com</a>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-icon"><i class="fas fa-map-marker-alt"></i></span>
+                        <address class="contact-address">
+                            Secteur 15, Ouaga 2000<br>
+                            Parcelle 10, Lot 01<br>
+                            Ouagadougou, Burkina Faso
+                        </address>
+                    </div>
+                </div>
+
+                <!-- Social Links -->
+                <div class="footer__social">
+                    <a href="https://www.youtube.com/@Oloustream" 
+                       class="social-link social-link--youtube"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       aria-label="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="https://www.facebook.com/oloustream" 
+                       class="social-link social-link--facebook"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       aria-label="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.instagram.com/oloustream" 
+                       class="social-link social-link--instagram"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       aria-label="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/company/oloustream" 
+                       class="social-link social-link--linkedin"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       aria-label="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://wa.me/22664093196" 
+                       class="social-link social-link--whatsapp"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       aria-label="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Newsletter Section -->
+        <div class="footer__newsletter">
+            <div class="newsletter__content">
+                <div class="newsletter__text">
+                    <h4 class="newsletter__title">
+                        <i class="fas fa-rocket"></i> Restez informé
+                    </h4>
+                    <p class="newsletter__description">
+                        Recevez nos conseils experts et nos offres exclusives sur la production audiovisuelle et le live streaming en Afrique.
+                    </p>
+                </div>
+                <form class="newsletter__form" id="newsletterForm">
+                    <div class="newsletter__input-group">
+                        <input type="email" 
+                               name="email" 
+                               placeholder="Votre email professionnel" 
+                               required
+                               class="newsletter__input">
+                        <button type="submit" class="newsletter__btn">
+                            <i class="fas fa-paper-plane"></i> S'abonner
+                        </button>
+                    </div>
+                    <p class="newsletter__disclaimer">
+                        <i class="fas fa-lock"></i> Sans spam. Désabonnez-vous à tout moment.
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Bottom Footer -->
+        <div class="footer__bottom">
+            <div class="footer__copyright">
+                <p><i class="far fa-copyright"></i> {% now "Y" %} Oloustream S.A.S. Tous droits réservés.</p>
+            </div>
+            
+            <div class="footer__legal">
+                <a href="/privacy" class="footer__legal-link">
+                    <i class="fas fa-shield-alt"></i> Politique de confidentialité
+                </a>
+                <a href="/terms" class="footer__legal-link">
+                    <i class="fas fa-file-contract"></i> Conditions d'utilisation
+                </a>
+                <a href="/cookies" class="footer__legal-link">
+                    <i class="fas fa-cookie"></i> Cookies
+                </a>
+            </div>
+            
+            <div class="footer__badges">
+                <span class="badge">
+                    <i class="fas fa-trophy"></i> Meilleure Agence Digitale 2024
+                </span>
+                <span class="badge">
+                    <i class="fas fa-check-circle"></i> Entreprise Certifiée
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/22664093196" 
+       class="floating-whatsapp"
+       target="_blank"
+       rel="noopener noreferrer"
+       aria-label="Contact WhatsApp Oloustream">
+        <span class="whatsapp-icon"><i class="fab fa-whatsapp"></i></span>
+        <span class="whatsapp-text">Discuter avec nous</span>
+    </a>
+
+    <script>
+        // Animate footer statistics
+        document.addEventListener('DOMContentLoaded', function() {
+            const stats = document.querySelectorAll('.footer__stat strong');
+            
+            stats.forEach(stat => {
+                const target = parseInt(stat.getAttribute('data-count')) || 0;
+                const suffix = stat.getAttribute('data-suffix') || '';
+                
+                if (target > 0) {
+                    let count = 0;
+                    const increment = target / 50;
+                    const timer = setInterval(() => {
+                        count += increment;
+                        if (count >= target) {
+                            count = target;
+                            clearInterval(timer);
+                        }
+                        
+                        let displayValue = Math.floor(count);
+                        if (suffix.includes('M+')) {
+                            displayValue = (displayValue / 1000000).toFixed(1);
+                            if (displayValue.endsWith('.0')) {
+                                displayValue = displayValue.slice(0, -2);
+                            }
+                            displayValue += suffix;
+                        } else {
+                            displayValue += suffix;
+                        }
+                        
+                        stat.textContent = displayValue;
+                    }, 40);
+                }
+            });
+            
+            // Newsletter form
+            const newsletterForm = document.getElementById('newsletterForm');
+            if (newsletterForm) {
+                newsletterForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const button = this.querySelector('button[type="submit"]');
+                    const originalText = button.innerHTML;
+                    
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Abonnement...';
+                    button.disabled = true;
+                    
+                    setTimeout(() => {
+                        button.innerHTML = '<i class="fas fa-check"></i> Abonné !';
+                        button.style.background = 'linear-gradient(90deg, #10B981, #059669)';
+                        
+                        setTimeout(() => {
+                            button.innerHTML = originalText;
+                            button.disabled = false;
+                            button.style.background = '';
+                            this.reset();
+                        }, 3000);
+                        
+                        alert('Merci pour votre abonnement ! Vous recevrez bientôt nos meilleurs conseils.');
+                    }, 1500);
+                });
+            }
+        });
+    </script>
+</footer>
