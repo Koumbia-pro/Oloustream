@@ -1,0 +1,72 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Recrutement - Offres{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h3 class="mb-1">Recrutement</h3>
+      <div class="text-muted">Offres de stage / emploi</div>
+    </div>
+    <a href="{% url 'services_app:admin_jobs_create' %}" class="btn btn-primary">
+      <i class="ph ph-plus-circle me-1"></i> Nouvelle offre
+    </a>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Titre</th>
+              <th>Type</th>
+              <th>Statut</th>
+              <th>Contrat</th>
+              <th>Niveau</th>
+              <th class="text-center">Candidatures</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for o in offers %}
+              <tr>
+                <td class="fw-semibold">{{ o.title }}</td>
+                <td>
+                  <span class="badge {% if o.offer_type == 'INTERNSHIP' %}bg-info text-dark{% else %}bg-primary{% endif %}">
+                    {{ o.get_offer_type_display }}
+                  </span>
+                </td>
+                <td>
+                  {% if o.status == "DRAFT" %}<span class="badge bg-secondary">Brouillon</span>{% endif %}
+                  {% if o.status == "PUBLISHED" %}<span class="badge bg-success">Publié</span>{% endif %}
+                  {% if o.status == "CLOSED" %}<span class="badge bg-danger">Fermé</span>{% endif %}
+                </td>
+                <td class="text-muted">{{ o.get_contract_type_display|default:"—" }}</td>
+                <td class="text-muted">{{ o.get_level_display|default:"—" }}</td>
+                <td class="text-center"><span class="badge bg-dark">{{ o.applications.count }}</span></td>
+                <td class="text-end">
+                    <a href="{% url 'services_app:admin_jobs_detail' o.pk %}" class="btn btn-sm btn-outline-dark">
+                        <i class="ph ph-eye me-1"></i> Détails
+                    </a>
+                    <a href="{% url 'services_app:admin_jobs_delete' o.pk %}" class="btn btn-sm btn-outline-danger">
+                        <i class="ph ph-trash me-1"></i>
+                    </a>
+                    <a href="{% url 'services_app:admin_jobs_applications' o.pk %}" class="btn btn-sm btn-outline-dark">
+                        <i class="ph ph-users me-1"></i> Candidatures
+                    </a>
+                    <a href="{% url 'services_app:admin_jobs_edit' o.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="ph ph-pencil-simple me-1"></i> Modifier
+                    </a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="7" class="text-center text-muted py-4">Aucune offre.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

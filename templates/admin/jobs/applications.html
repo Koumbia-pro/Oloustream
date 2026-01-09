@@ -1,0 +1,73 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Candidatures - {{ offer.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h3 class="mb-1">Candidatures</h3>
+      <div class="text-muted">{{ offer.title }}</div>
+    </div>
+    <a href="{% url 'services_app:admin_jobs_list' %}" class="btn btn-outline-secondary">
+      <i class="ph ph-arrow-left me-1"></i> Retour
+    </a>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Candidat</th>
+              <th>Contact</th>
+              <th>CV</th>
+              <th>Statut</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in applications %}
+              <tr>
+                <td class="fw-semibold">{{ a.full_name }}</td>
+                <td class="text-muted">
+                  {{ a.email }}<br>{{ a.phone|default:"" }}
+                </td>
+                <td>
+                  {% if a.cv %}
+                    <a href="{{ a.cv.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                      <i class="ph ph-file-pdf me-1"></i> CV
+                    </a>
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if a.status == "PENDING" %}<span class="badge bg-warning text-dark">En attente</span>{% endif %}
+                  {% if a.status == "ACCEPTED" %}<span class="badge bg-success">Accepté</span>{% endif %}
+                  {% if a.status == "REJECTED" %}<span class="badge bg-danger">Refusé</span>{% endif %}
+                </td>
+                <td class="text-end">
+                  <a href="{% url 'services_app:admin_job_application_update' a.pk %}"
+                     class="btn btn-sm btn-outline-dark">
+                    <i class="ph ph-pencil-simple me-1"></i> Statut
+                  </a>
+                </td>
+              </tr>
+              {% if a.cover_letter %}
+                <tr>
+                  <td colspan="5" class="bg-light">
+                    <div class="small text-muted">{{ a.cover_letter|linebreaksbr }}</div>
+                  </td>
+                </tr>
+              {% endif %}
+            {% empty %}
+              <tr><td colspan="5" class="text-center text-muted py-4">Aucune candidature.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

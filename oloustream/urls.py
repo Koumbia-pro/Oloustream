@@ -61,6 +61,7 @@ urlpatterns = [
 
     # Notifications
     path('notifications/', include('apps.notifications.urls', namespace='notifications')),
+
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% block title %}Offres - Oloustream{% endblock %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+.about-page {
+    --bg-main: #05060a;
+    --bg-section: #090b14;
+    --bg-section-alt: #101322;
+    --accent: #e63946;
+    --accent-soft: rgba(230, 57, 70, 0.18);
+    --accent-soft-2: rgba(230, 57, 70, 0.06);
+    --text-main: #f9fafb;
+    --text-muted: #9ca3af;
+    --border-subtle: rgba(148, 163, 184, 0.28);
+    --shadow-soft: 0 28px 60px rgba(0, 0, 0, 0.7);
+    --radius-xl: 22px;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --transition-fast: 0.18s ease-out;
+    --max-width: 1140px;
+
+    background: radial-gradient(circle at top left, #1f2937 0, #05060a 42%, #020308 100%);
+    color: var(--text-main);
+    padding: 4.2rem 1.4rem 5rem;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    min-height: 100vh;
+}
+
+/* Container */
+.about-page .container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    background: var(--bg-section);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-soft);
+    padding: 2.5rem 2rem;
+    border: 1.5px solid var(--border-subtle);
+}
+
+/* Titre principal */
+.about-page h2 {
+    font-weight: 800;
+    font-size: 2.2rem;
+    letter-spacing: -1px;
+    color: var(--text-main);
+    margin-bottom: 1.5rem;
+}
+
+/* Formulaire de recherche */
+.about-page form.row {
+    background: var(--bg-section-alt);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.2rem;
+    box-shadow: 0 2px 8px 0 rgba(30, 41, 59, 0.10);
+    border: 1px solid var(--border-subtle);
+}
+
+.about-page .form-control, 
+.about-page .form-select {
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--border-subtle);
+    font-size: 1rem;
+    background: var(--bg-main);
+    color: var(--text-main);
+    transition: border var(--transition-fast);
+}
+
+.about-page .form-control:focus, 
+.about-page .form-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-soft);
+    background: var(--bg-section-alt);
+    color: var(--text-main);
+}
+
+.about-page .btn-dark {
+    background: linear-gradient(90deg, var(--accent) 0%, #b91c1c 100%);
+    border: none;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-radius: var(--radius-md);
+    transition: background var(--transition-fast), box-shadow var(--transition-fast);
+    box-shadow: 0 2px 8px 0 var(--accent-soft);
+    color: #fff;
+}
+
+.about-page .btn-dark:hover {
+    background: linear-gradient(90deg, #b91c1c 0%, var(--accent) 100%);
+    box-shadow: 0 4px 16px 0 var(--accent-soft);
+    color: #fff;
+}
+
+/* Cartes d'offres */
+.about-page .card {
+    border: 1.5px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 24px 0 rgba(0,0,0,0.18);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    background: var(--bg-section-alt);
+    overflow: hidden;
+}
+
+.about-page .card:hover {
+    transform: translateY(-4px) scale(1.012);
+    box-shadow: 0 8px 32px 0 var(--accent-soft);
+    border-color: var(--accent);
+}
+
+.about-page .card-img-top {
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+    object-fit: cover;
+    height: 200px;
+    background: #181c2a;
+}
+
+.about-page .card-body {
+    padding: 1.3rem 1.2rem 1.1rem 1.2rem;
+}
+
+.about-page .card h5 {
+    font-weight: 700;
+    font-size: 1.18rem;
+    color: var(--text-main);
+    margin-bottom: 0.2rem;
+}
+
+.about-page .badge {
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.45em 1.1em;
+    border-radius: var(--radius-md);
+    letter-spacing: 0.5px;
+    box-shadow: 0 1px 4px 0 var(--accent-soft-2);
+    background: var(--accent-soft-2);
+    color: var(--accent);
+    border: 1px solid var(--accent-soft);
+}
+
+.about-page .bg-info {
+    background: var(--accent-soft) !important;
+    color: var(--accent) !important;
+    border: 1px solid var(--accent) !important;
+}
+
+.about-page .bg-primary {
+    background: var(--accent) !important;
+    color: #fff !important;
+    border: 1px solid var(--accent) !important;
+}
+
+.about-page .text-muted {
+    color: var(--text-muted) !important;
+}
+
+.about-page .card p {
+    font-size: 1.01rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.about-page .btn-outline-dark {
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    transition: background var(--transition-fast), color var(--transition-fast);
+    background: transparent;
+}
+
+.about-page .btn-outline-dark:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+.about-page .text-center.text-muted {
+    font-size: 1.2rem;
+    color: var(--text-muted) !important;
+    background: var(--bg-section-alt);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .about-page .container {
+        padding: 1.2rem 0.5rem;
+    }
+    .about-page .card-body {
+        padding: 1rem 0.7rem 0.9rem 0.7rem;
+    }
+    .about-page h2 {
+        font-size: 1.4rem;
+    }
+}
+</style>
+
+<div class="about-page">
+  <div class="container py-4">
+    <h2 class="mb-2">Offres (Stage / Emploi)</h2>
+
+    <form class="row g-2 mb-3" method="get">
+      <div class="col-md-4">
+        <input name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Rechercher...">
+      </div>
+      <div class="col-md-3">
+        <select name="type" class="form-select">
+          <option value="">Tous</option>
+          <option value="INTERNSHIP" {% if request.GET.type == "INTERNSHIP" %}selected{% endif %}>Stage</option>
+          <option value="JOB" {% if request.GET.type == "JOB" %}selected{% endif %}>Emploi</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-dark w-100">Filtrer</button>
+      </div>
+    </form>
+
+    <div class="row g-3">
+      {% for o in offers %}
+        <div class="col-md-6">
+          <div class="card h-100">
+            {% if o.poster %}
+              <img src="{{ o.poster.url }}" class="card-img-top" style="object-fit:cover;height:200px" alt="{{ o.title }}">
+            {% endif %}
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <h5 class="mb-1">{{ o.title }}</h5>
+                <span class="badge {% if o.offer_type == 'INTERNSHIP' %}bg-info text-dark{% else %}bg-primary{% endif %}">
+                  {{ o.get_offer_type_display }}
+                </span>
+              </div>
+
+              <div class="text-muted small mb-2">
+                {% if o.location %}{{ o.location }}{% endif %}
+                {% if o.contract_type %} • {{ o.get_contract_type_display }}{% endif %}
+                {% if o.level %} • {{ o.get_level_display }}{% endif %}
+              </div>
+
+              <p class="mb-2">{{ o.summary|default:o.description|truncatechars:140 }}</p>
+
+              <a href="{% url 'services_app:user_jobs_detail' o.slug %}" class="btn btn-outline-dark btn-sm">
+                Voir détails
+              </a>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12 text-center text-muted py-5">Aucune offre disponible.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -49,6 +49,7 @@ class PartnershipTypeChoices(models.TextChoices):
     OTHER = 'OTHER', 'Autre'
 
 
+
 class TrainingCategory(models.Model):
     name = models.CharField("Nom de la catégorie de formation", max_length=150)
     description = models.TextField("Description", blank=True)
@@ -298,3 +299,164 @@ class OfferApplication(models.Model):
 
     def __str__(self):
         return f"{self.user} -> {self.offer} ({self.status})"
+    
+
+
+from django.db import models
+from django.conf import settings
+from django.utils import timezone
+from django.utils.text import slugify
+
+User = settings.AUTH_USER_MODEL
+
+
+class JobOfferTypeChoices(models.TextChoices):
+    INTERNSHIP = "INTERNSHIP", "Stage"
+    JOB = "JOB", "Emploi"
+
+
+class JobOfferStatusChoices(models.TextChoices):
+    DRAFT = "DRAFT", "Brouillon"
+    PUBLISHED = "PUBLISHED", "Publié"
+    CLOSED = "CLOSED", "Fermé"
+
+
+class ContractTypeChoices(models.TextChoices):
+    CDI = "CDI", "CDI"
+    CDD = "CDD", "CDD"
+    FREELANCE = "FREELANCE", "Freelance"
+    STAGE = "STAGE", "Stage"
+
+
+class EducationLevelChoices(models.TextChoices):
+    BAC = "BAC", "BAC"
+    BAC_1 = "BAC+1", "BAC+1"
+    BAC_2 = "BAC+2", "BAC+2"
+    BAC_3 = "BAC+3", "BAC+3"
+    BAC_4 = "BAC+4", "BAC+4"
+    BAC_5 = "BAC+5", "BAC+5"
+
+
+class JobOffer(models.Model):
+    status = models.CharField(
+        "Statut",
+        max_length=20,
+        choices=JobOfferStatusChoices.choices,
+        default=JobOfferStatusChoices.DRAFT,
+    )
+    offer_type = models.CharField(
+        "Type d'offre",
+        max_length=20,
+        choices=JobOfferTypeChoices.choices,
+        default=JobOfferTypeChoices.JOB,
+    )
+
+    title = models.CharField("Titre", max_length=200)
+    slug = models.SlugField(unique=True, blank=True)
+
+    department = models.CharField("Département / Pôle", max_length=120, blank=True)
+    location = models.CharField("Lieu", max_length=120, blank=True)
+
+    contract_type = models.CharField(
+        "Type de contrat",
+        max_length=20,
+        choices=ContractTypeChoices.choices,
+        blank=True,
+        default="",
+    )
+    level = models.CharField(
+        "Niveau minimum",
+        max_length=20,
+        choices=EducationLevelChoices.choices,
+        blank=True,
+        default="",
+    )
+
+    summary = models.CharField("Résumé", max_length=255, blank=True)
+    description = models.TextField("Description complète")
+
+    responsibilities = models.TextField("Missions", blank=True)
+    requirements = models.TextField("Profil recherché", blank=True)
+    benefits = models.TextField("Avantages", blank=True)
+
+    deadline = models.DateField("Date limite", blank=True, null=True)
+
+    poster = models.ImageField("Affiche / visuel", upload_to="job_offers/posters/", blank=True, null=True)
+
+    created_at = models.DateTimeField("Créé le", auto_now_add=True)
+    updated_at = models.DateTimeField("Mis à jour le", auto_now=True)
+
+    class Meta:
+        verbose_name = "Offre (Recrutement)"
+        verbose_name_plural = "Offres (Recrutement)"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.get_offer_type_display()} - {self.title}"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base = slugify(self.title)[:50] or "offre"
+            slug = base
+            i = 2
+            while JobOffer.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base}-{i}"
+                i += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+    @property
+    def is_open(self) -> bool:
+        if self.status != JobOfferStatusChoices.PUBLISHED:
+            return False
+        if self.deadline and self.deadline < timezone.localdate():
+            return False
+        return True
+
+
+class JobApplicationStatusChoices(models.TextChoices):
+    PENDING = "PENDING", "En attente"
+    ACCEPTED = "ACCEPTED", "Accepté"
+    REJECTED = "REJECTED", "Refusé"
+
+
+class JobApplication(models.Model):
+    offer = models.ForeignKey(
+        JobOffer,
+        on_delete=models.CASCADE,
+        related_name="applications",
+        verbose_name="Offre",
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="job_applications",
+        verbose_name="Utilisateur",
+    )
+
+    full_name = models.CharField("Nom complet", max_length=150)
+    email = models.EmailField("Email")
+    phone = models.CharField("Téléphone", max_length=50, blank=True)
+
+    cv = models.FileField("CV (PDF)", upload_to="job_applications/cv/")
+    cover_letter = models.TextField("Message / lettre", blank=True)
+    portfolio_url = models.URLField("Portfolio / LinkedIn", blank=True)
+
+    status = models.CharField(
+        "Statut",
+        max_length=20,
+        choices=JobApplicationStatusChoices.choices,
+        default=JobApplicationStatusChoices.PENDING,
+    )
+    internal_note = models.TextField("Note interne", blank=True)
+
+    created_at = models.DateTimeField("Candidature le", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Candidature (Recrutement)"
+        verbose_name_plural = "Candidatures (Recrutement)"
+        ordering = ["-created_at"]
+        unique_together = ("offer", "user")
+
+    def __str__(self):
+        return f"{self.full_name} -> {self.offer.title}"

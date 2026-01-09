@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.conf import settings
 from apps.services_app.models import Service, Partner, Training
 from apps.studio.models import Studio   # <--- AJOUT
+from django.views.generic import TemplateView
 
 def home_view(request):
     services = (
@@ -49,3 +50,11 @@ def home_view(request):
         "studios": studios,   # <--- IMPORTANT
     }
     return render(request, "front/home.html", context)
+
+
+
+class AboutView(TemplateView):
+    template_name = "user/about.html"
+
+class RealisationsView(TemplateView):
+    template_name = "user/realisations.html"

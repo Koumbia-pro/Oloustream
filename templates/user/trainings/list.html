@@ -2,6 +2,172 @@
 
 {% block title %}Formations - Oloustream{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Styles professionnels pour la page des formations
+       (même style que la page des offres) */
+    
+    /* Style général pour les cartes */
+    .card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .card-title {
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        line-height: 1.4;
+    }
+    
+    .card-text {
+        color: #5a6c7d;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+        min-height: 70px;
+    }
+    
+    /* Amélioration des détails */
+    .card-body p {
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: #546e7a;
+    }
+    
+    .card-body p strong {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+    
+    /* Style amélioré pour le badge */
+    .badge.bg-success {
+        background-color: #27ae60 !important;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    /* Style amélioré pour les boutons */
+    .btn-primary.btn-sm {
+        background-color: #3498db;
+        border: none;
+        color: white;
+        font-weight: 500;
+        padding: 0.5rem 1.5rem;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+    
+    .btn-primary.btn-sm:hover {
+        background-color: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+    }
+    
+    .btn-outline-primary.btn-sm {
+        background-color: transparent;
+        border: 1px solid #3498db;
+        color: #3498db;
+        font-weight: 500;
+        padding: 0.5rem 1.5rem;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+    
+    .btn-outline-primary.btn-sm:hover {
+        background-color: #3498db;
+        color: white;
+        border-color: #3498db;
+    }
+    
+    /* Style pour le titre principal */
+    h1.h3.mb-3 {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1.8rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eaeaea;
+        margin-bottom: 2rem !important;
+    }
+    
+    /* Style pour le message vide */
+    p.text-muted {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #7f8c8d;
+        font-style: italic;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin: 2rem auto;
+        max-width: 600px;
+        font-size: 1.1rem;
+    }
+    
+    /* Animation pour les cartes */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .col-md-4 {
+        animation: fadeInUp 0.5s ease forwards;
+        opacity: 0;
+    }
+    
+    .col-md-4:nth-child(1) { animation-delay: 0.1s; }
+    .col-md-4:nth-child(2) { animation-delay: 0.2s; }
+    .col-md-4:nth-child(3) { animation-delay: 0.3s; }
+    .col-md-4:nth-child(4) { animation-delay: 0.4s; }
+    .col-md-4:nth-child(5) { animation-delay: 0.5s; }
+    .col-md-4:nth-child(6) { animation-delay: 0.6s; }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .card {
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+        }
+        
+        .card-body p {
+            font-size: 0.85rem;
+        }
+        
+        .btn-primary.btn-sm, 
+        .btn-outline-primary.btn-sm {
+            padding: 0.4rem 1.2rem;
+            font-size: 0.85rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <h1 class="h3 mb-3">Formations</h1>
 

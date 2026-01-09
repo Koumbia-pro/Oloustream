@@ -1,0 +1,693 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+/* =========================
+   PAGE À PROPOS – OLOUSTREAM
+   Design sombre, premium, responsive
+   ========================= */
+
+.about-page {
+    --bg-main: #05060a;
+    --bg-section: #090b14;
+    --bg-section-alt: #101322;
+    --accent: #e63946;
+    --accent-soft: rgba(230, 57, 70, 0.18);
+    --accent-soft-2: rgba(230, 57, 70, 0.06);
+    --text-main: #f9fafb;
+    --text-muted: #9ca3af;
+    --border-subtle: rgba(148, 163, 184, 0.28);
+    --shadow-soft: 0 28px 60px rgba(0, 0, 0, 0.7);
+    --radius-xl: 22px;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --transition-fast: 0.18s ease-out;
+    --max-width: 1140px;
+
+    background: radial-gradient(circle at top left, #1f2937 0, #05060a 42%, #020308 100%);
+    color: var(--text-main);
+    padding: 4.2rem 1.4rem 5rem;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.about-page * {
+    box-sizing: border-box;
+}
+
+.about-page .container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+}
+
+.about-page section {
+    margin-bottom: 3rem;
+}
+
+/* ---------- TITRES & TEXTES ---------- */
+.about-page h1,
+.about-page h2,
+.about-page h3 {
+    letter-spacing: 0.04em;
+}
+
+.about-page h1 {
+    font-size: 2.6rem;
+    font-weight: 700;
+}
+
+.about-page h2 {
+    font-size: 1.45rem;
+    font-weight: 600;
+}
+
+.about-page h3 {
+    font-size: 1.08rem;
+    font-weight: 600;
+}
+
+.about-page p,
+.about-page li {
+    line-height: 1.7;
+    font-size: 0.98rem;
+}
+
+.about-page p {
+    color: var(--text-muted);
+}
+
+/* =========================
+   HERO
+   ========================= */
+.about-hero {
+    position: relative;
+    border-radius: var(--radius-xl);
+    background: radial-gradient(circle at 0% 0%, rgba(230, 57, 70, 0.2), transparent 60%),
+                radial-gradient(circle at 100% 0%, rgba(147, 197, 253, 0.2), transparent 60%),
+                linear-gradient(135deg, #020617, #020617 40%, #030712 100%);
+    border: 1px solid rgba(248, 250, 252, 0.08);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+    padding: 2.8rem 2.4rem;
+}
+
+.about-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.3), transparent 60%),
+        radial-gradient(circle at 80% 0%, rgba(236, 72, 153, 0.25), transparent 60%);
+    opacity: 0.3;
+    mix-blend-mode: screen;
+    pointer-events: none;
+}
+
+.about-hero-inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2.3fr);
+    gap: 2.3rem;
+    align-items: center;
+}
+
+.about-hero-main .subtitle {
+    font-size: 1.02rem;
+    color: #e5e7eb;
+    max-width: 720px;
+    margin: 0.8rem 0 1.4rem;
+}
+
+.about-hero-main p {
+    max-width: 720px;
+}
+
+/* Hero side card */
+.about-hero-side {
+    background: rgba(15, 23, 42, 0.88);
+    border-radius: 20px;
+    padding: 1.6rem 1.4rem;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    backdrop-filter: blur(18px);
+}
+
+.about-hero-side h3 {
+    margin-bottom: 0.4rem;
+}
+
+.hero-side-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(248, 250, 252, 0.1);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 0.6rem;
+}
+
+.hero-side-pill span {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #22c55e;
+    box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.25);
+}
+
+.about-hero-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.7rem;
+}
+
+.hero-metric {
+    border-radius: 16px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(75, 85, 99, 0.7);
+    padding: 0.7rem 0.8rem;
+}
+
+.hero-metric .number {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.hero-metric .label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Badges sous le texte */
+.about-hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 1.7rem;
+}
+
+.about-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 0.95rem;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    background: rgba(15, 23, 42, 0.88);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+.about-badge strong {
+    color: var(--accent);
+    font-size: 0.85rem;
+}
+
+/* =========================
+   POSITIONNEMENT
+   ========================= */
+.about-positioning {
+    background: var(--bg-section);
+    border-radius: var(--radius-lg);
+    padding: 2rem 2rem 2.2rem;
+    border: 1px solid var(--border-subtle);
+}
+
+.about-positioning h2 {
+    margin-bottom: 0.8rem;
+}
+
+.about-positioning p + p {
+    margin-top: 0.8rem;
+}
+
+.about-positioning h3 {
+    margin-top: 1.7rem;
+    margin-bottom: 0.4rem;
+    color: #e5e7eb;
+}
+
+.about-positioning strong {
+    color: var(--accent);
+}
+
+/* =========================
+   EXPERTISES
+   ========================= */
+.about-expertises-header {
+    margin-bottom: 1.5rem;
+}
+
+.about-expertises-header p {
+    max-width: 640px;
+}
+
+.expertise-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+.expertise-card {
+    position: relative;
+    background: var(--bg-section-alt);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    padding: 1.4rem 1.3rem 1.5rem;
+    overflow: hidden;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background 0.2s;
+}
+
+.expertise-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(230, 57, 70, 0.21), transparent 55%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-fast);
+}
+
+.expertise-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
+    border-color: var(--accent-soft);
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.98));
+}
+
+.expertise-card:hover::before {
+    opacity: 1;
+}
+
+.expertise-card h3 {
+    margin-bottom: 0.5rem;
+    color: #e5e7eb;
+}
+
+.expertise-card ul {
+    margin: 0;
+    padding-left: 1.1rem;
+}
+
+.expertise-card li {
+    margin-bottom: 0.35rem;
+    font-size: 0.95rem;
+}
+
+/* =========================
+   IMPACT
+   ========================= */
+.about-impact {
+    background: var(--bg-section);
+    border-radius: var(--radius-lg);
+    padding: 2rem 2rem 2.3rem;
+    border: 1px solid var(--border-subtle);
+}
+
+.about-impact h2 {
+    margin-bottom: 1.6rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1.2rem;
+}
+
+.stat {
+    background: rgba(15, 23, 42, 0.9);
+    border-radius: 18px;
+    padding: 1rem 0.9rem;
+    border: 1px solid rgba(31, 41, 55, 0.9);
+}
+
+.stat .number {
+    display: block;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 0.15rem;
+}
+
+.stat .label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* =========================
+   CLIENTS
+   ========================= */
+.about-clients {
+    background: var(--bg-section-alt);
+    border-radius: var(--radius-lg);
+    padding: 2rem 2rem 2.2rem;
+    border: 1px solid var(--border-subtle);
+}
+
+.about-clients h2 {
+    margin-bottom: 0.8rem;
+}
+
+/* =========================
+   POURQUOI NOUS CHOISIR
+   ========================= */
+.about-why {
+    background: linear-gradient(135deg, var(--accent-soft), #020617);
+    border-radius: var(--radius-lg);
+    padding: 2rem 2rem 2.3rem;
+    border: 1px solid rgba(230, 57, 70, 0.4);
+    box-shadow: var(--shadow-soft);
+}
+
+.about-why h2 {
+    margin-bottom: 0.8rem;
+}
+
+.about-why ul {
+    margin: 0;
+    padding-left: 1.1rem;
+}
+
+.about-why li {
+    margin-bottom: 0.4rem;
+    font-size: 0.96rem;
+}
+
+/* =========================
+   CONTACT
+   ========================= */
+.about-contact {
+    border-top: 1px solid rgba(148, 163, 184, 0.35);
+    padding-top: 1.5rem;
+}
+
+.about-contact h2 {
+    margin-bottom: 0.6rem;
+    font-size: 1.15rem;
+}
+
+.about-contact p {
+    font-size: 0.94rem;
+}
+
+.about-contact a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.about-contact a:hover {
+    border-color: var(--accent);
+    color: #f97373;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+@media (max-width: 1024px) {
+    .about-page {
+        padding: 3.5rem 1.2rem 4.2rem;
+    }
+
+    .about-hero-inner {
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.1fr);
+        gap: 1.8rem;
+    }
+
+    .expertise-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .about-hero {
+        padding: 2.3rem 1.6rem;
+    }
+
+    .about-hero-inner {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .about-hero-side {
+        order: -1;
+    }
+
+    .about-page h1 {
+        font-size: 2.1rem;
+    }
+
+    .expertise-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .about-positioning,
+    .about-impact,
+    .about-clients,
+    .about-why {
+        padding-inline: 1.5rem;
+    }
+}
+
+@media (max-width: 520px) {
+    .about-page {
+        padding-inline: 1rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+</style>
+
+<main class="about-page">
+
+    <!-- HERO -->
+    <section class="about-hero">
+        <div class="container">
+            <div class="about-hero-inner">
+                <div class="about-hero-main">
+                    <h1>Qui sommes-nous&nbsp;?</h1>
+                    <p class="subtitle">
+                        Oloustream S.A.S est une entreprise burkinabè fondée en 2019, spécialisée dans la production audiovisuelle,
+                        le live streaming événementiel, les podcasts de marque natifs et les solutions digitales innovantes.
+                    </p>
+                    <p>
+                        Nous accompagnons les institutions, ONG, marques et porteurs de projets dans la conception, la réalisation
+                        et la diffusion de contenus à fort impact, grâce à une expertise éprouvée, une technologie de pointe
+                        et une équipe passionnée.
+                    </p>
+
+                    <div class="about-hero-badges">
+                        <span class="about-badge">
+                            <strong>Leader</strong> du live streaming au Burkina Faso
+                        </span>
+                        <span class="about-badge">
+                            Creative Audio-Video Experiences
+                        </span>
+                        <span class="about-badge">
+                            +800 projets audiovisuels réalisés
+                        </span>
+                    </div>
+                </div>
+
+                <aside class="about-hero-side">
+                    <div class="hero-side-pill">
+                        <span></span>
+                        Live, vidéo &amp; innovation en Afrique de l’Ouest
+                    </div>
+                    <h3>Oloustream en chiffres</h3>
+                    <p>
+                        Une équipe jeune, agile et engagée qui accompagne les événements, marques et institutions
+                        dans toute la région.
+                    </p>
+                    <div class="about-hero-metrics">
+                        <div class="hero-metric">
+                            <div class="number">+29M</div>
+                            <div class="label">vues en streaming</div>
+                        </div>
+                        <div class="hero-metric">
+                            <div class="number">7</div>
+                            <div class="label">pays couverts</div>
+                        </div>
+                        <div class="hero-metric">
+                            <div class="number">4</div>
+                            <div class="label">distinctions majeures</div>
+                        </div>
+                        <div class="hero-metric">
+                            <div class="number">+30</div>
+                            <div class="label">partenaires clés</div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <!-- POSITIONNEMENT -->
+    <section class="about-positioning">
+        <div class="container">
+            <h2>Notre positionnement</h2>
+            <p>
+                Leader du live streaming événementiel au Burkina Faso, Oloustream s’impose comme le partenaire
+                incontournable pour transformer vos événements en expériences digitales engageantes, accessibles
+                et mémorables.
+            </p>
+            <p>
+                Nous allons plus loin avec le <strong>Podcast de Marque Natif</strong> : un accompagnement de A à Z pour créer,
+                produire et diffuser votre podcast de marque, afin de donner une voix unique à votre entreprise
+                et renforcer votre lien avec vos communautés.
+            </p>
+
+            <h3>Notre promesse</h3>
+            <p>
+                <strong>Oloustream – Creative Audio-Video Experiences</strong> : un partenaire agile, flexible et créatif
+                qui transforme vos idées en images, sons et histoires puissantes.
+            </p>
+        </div>
+    </section>
+
+    <!-- EXPERTISES -->
+    <section class="about-expertises">
+        <div class="container">
+            <div class="about-expertises-header">
+                <h2>Nos expertises clés</h2>
+                <p>
+                    Une offre 360° intégrée couvrant l’ensemble de la chaîne de valeur audiovisuelle&nbsp;:
+                    captation, régie, diffusion, création de contenus, solutions digitales et transfert de compétences.
+                </p>
+            </div>
+
+            <div class="expertise-grid">
+                <article class="expertise-card">
+                    <h3>Production audiovisuelle &amp; postproduction</h3>
+                    <ul>
+                        <li>Captation vidéo multicaméra &amp; drone</li>
+                        <li>Tournage &amp; montage professionnel</li>
+                        <li>Motion design &amp; traitement d'image</li>
+                        <li>Installation de plateau TV &amp; régie web TV</li>
+                    </ul>
+                </article>
+
+                <article class="expertise-card">
+                    <h3>Live streaming multiplateforme</h3>
+                    <ul>
+                        <li>Diffusion en direct sur Facebook, YouTube, Zoom, Instagram, TikTok, LinkedIn…</li>
+                        <li>Retransmission via écrans géants, visioconférence &amp; TV locales</li>
+                        <li>Gestion technique de la bande passante et de la qualité de diffusion</li>
+                    </ul>
+                </article>
+
+                <article class="expertise-card">
+                    <h3>Régie mobile &amp; équipements événementiels</h3>
+                    <ul>
+                        <li>Location de régie vidéo mobile</li>
+                        <li>Location d’écrans LED, matériel son &amp; lumière</li>
+                        <li>Vidéosurveillance événementielle</li>
+                    </ul>
+                </article>
+
+                <article class="expertise-card">
+                    <h3>Solutions digitales &amp; plateforme VOD</h3>
+                    <ul>
+                        <li>Plateforme de streaming événementiel avec billetterie intégrée</li>
+                        <li>Sites web, applications mobiles et outils interactifs sur mesure</li>
+                        <li>Business Wifi &amp; gestion des inscriptions en ligne</li>
+                    </ul>
+                </article>
+
+                <article class="expertise-card">
+                    <h3>Formation &amp; inclusion des jeunes</h3>
+                    <ul>
+                        <li>Formations certifiantes aux métiers de l’audiovisuel</li>
+                        <li>Mojojournalisme, montage, cadrage, voix-off, infographie…</li>
+                        <li>+37 jeunes déjà insérés professionnellement via Oloustream</li>
+                    </ul>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- IMPACT -->
+    <section class="about-impact">
+        <div class="container">
+            <h2>Notre impact (2019–2024)</h2>
+            <div class="stats-grid">
+                <div class="stat">
+                    <span class="number">836</span>
+                    <span class="label">projets audiovisuels réalisés</span>
+                </div>
+                <div class="stat">
+                    <span class="number">+29M</span>
+                    <span class="label">vues en streaming</span>
+                </div>
+                <div class="stat">
+                    <span class="number">7</span>
+                    <span class="label">pays couverts en Afrique de l’Ouest et Centrale</span>
+                </div>
+                <div class="stat">
+                    <span class="number">+30</span>
+                    <span class="label">partenaires institutionnels &amp; stratégiques</span>
+                </div>
+                <div class="stat">
+                    <span class="number">4</span>
+                    <span class="label">distinctions dont Meilleure Agence Digitale du Faso (2024)</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CLIENTS -->
+    <section class="about-clients">
+        <div class="container">
+            <h2>Ils nous font confiance</h2>
+            <p>
+                Orange Burkina Faso, Canal+ Burkina, UNICEF, PNUD, ARCEP, Maison de l’Entreprise, CFAO Mobility Burkina,
+                WaterAid, Ministère de la Transition Numérique, SAMAO, SUNU Group, WASCAL/AGRA, Havas Media,
+                la Chambre de Commerce et d’Industrie du Burkina (CCI-BF), BCEAO, CILSS, Goethe Institut,
+                la Banque Mondiale…
+            </p>
+        </div>
+    </section>
+
+    <!-- POURQUOI NOUS CHOISIR -->
+    <section class="about-why">
+        <div class="container">
+            <h2>Pourquoi nous choisir&nbsp;?</h2>
+            <ul>
+                <li>Une offre 360° intégrée : captation, postproduction, diffusion, sécurité, formation.</li>
+                <li>Une vision claire et engagée : connecter, protéger et inspirer l’Afrique.</li>
+                <li>Une équipe jeune, qualifiée et passionnée.</li>
+                <li>Un modèle en croissance, récompensé et exportable.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="about-contact">
+        <div class="container">
+            <h2>Contact</h2>
+            <p>
+                Oloustream S.A.S<br>
+                Secteur 15 (Trame d’accueil Ouaga 2000), Parcelle 10, Lot 01, Section 477 DT Zone C<br>
+                Téléphone : +226 25 65 53 95 / +226 64 09 31 96<br>
+                Email : <a href="mailto:info@oloustream.com">info@oloustream.com</a>
+            </p>
+        </div>
+    </section>
+
+</main>
+{% endblock %}

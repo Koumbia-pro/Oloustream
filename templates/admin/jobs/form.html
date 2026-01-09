@@ -1,0 +1,137 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Recrutement - {% if offer %}Modifier{% else %}Créer{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h3 class="mb-1">{% if offer %}Modifier{% else %}Créer{% endif %} une offre</h3>
+      <div class="text-muted">Contrat et Niveau sont des listes déroulantes.</div>
+    </div>
+    <a href="{% url 'services_app:admin_jobs_list' %}" class="btn btn-outline-secondary">
+      <i class="ph ph-arrow-left me-1"></i> Retour
+    </a>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="row g-3">
+    {% csrf_token %}
+
+    <div class="col-12 col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3">Informations principales</h5>
+          <div class="row g-3">
+
+            <div class="col-12">
+              <label class="form-label">Titre</label>
+              {{ form.title }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Type</label>
+              {{ form.offer_type }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Statut</label>
+              {{ form.status }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Lieu</label>
+              {{ form.location }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Date limite</label>
+              {{ form.deadline }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Département / Pôle</label>
+              {{ form.department }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Contrat</label>
+              {{ form.contract_type }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Niveau</label>
+              {{ form.level }}
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Résumé</label>
+              {{ form.summary }}
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              {{ form.description }}
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mt-3">
+        <div class="card-body">
+          <h5 class="mb-3">Détails</h5>
+
+          <div class="mb-3">
+            <label class="form-label">Missions</label>
+            {{ form.responsibilities }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Profil recherché</label>
+            {{ form.requirements }}
+          </div>
+
+          <div class="mb-0">
+            <label class="form-label">Avantages</label>
+            {{ form.benefits }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3">Affiche</h5>
+
+          {% if offer and offer.poster %}
+            <img src="{{ offer.poster.url }}" class="img-fluid rounded border mb-2" alt="{{ offer.title }}">
+            <div class="text-muted small mb-2">Affiche actuelle</div>
+          {% endif %}
+
+          <label class="form-label">Choisir une image</label>
+          {{ form.poster }}
+
+          <div class="text-muted small mt-2">Formats conseillés: JPG/PNG.</div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mt-3">
+        <div class="card-body">
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="ph ph-check-circle me-1"></i> Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  (function() {
+    document.querySelectorAll("select").forEach(el => el.classList.add("form-select"));
+    document.querySelectorAll("textarea").forEach(el => el.classList.add("form-control"));
+    document.querySelectorAll('input:not([type="file"])').forEach(el => el.classList.add("form-control"));
+    document.querySelectorAll('input[type="file"]').forEach(el => el.classList.add("form-control"));
+  })();
+</script>
+{% endblock %}

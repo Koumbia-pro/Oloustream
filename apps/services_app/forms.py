@@ -145,3 +145,56 @@ class OfferApplicationForm(forms.ModelForm):
         widgets = {
             'message': forms.Textarea(attrs={'rows': 4}),
         }
+
+
+from django import forms
+from .models import (
+    JobOffer, JobApplication,
+    ContractTypeChoices, EducationLevelChoices,
+    JobApplicationStatusChoices
+)
+
+
+class JobOfferForm(forms.ModelForm):
+    class Meta:
+        model = JobOffer
+        fields = (
+            "status", "offer_type",
+            "title", "department", "location",
+            "contract_type", "level",
+            "poster",
+            "summary", "description",
+            "responsibilities", "requirements", "benefits",
+            "deadline",
+        )
+        widgets = {
+            "deadline": forms.DateInput(attrs={"type": "date"}),
+            "description": forms.Textarea(attrs={"rows": 6}),
+            "responsibilities": forms.Textarea(attrs={"rows": 4}),
+            "requirements": forms.Textarea(attrs={"rows": 4}),
+            "benefits": forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+class JobApplicationForm(forms.ModelForm):
+    class Meta:
+        model = JobApplication
+        fields = ("full_name", "email", "phone", "portfolio_url", "cv", "cover_letter")
+        widgets = {"cover_letter": forms.Textarea(attrs={"rows": 5})}
+
+    def clean_cv(self):
+        f = self.cleaned_data.get("cv")
+        if not f:
+            return f
+        if not f.name.lower().endswith(".pdf"):
+            raise forms.ValidationError("Le CV doit être un fichier PDF.")
+        if f.size > 5 * 1024 * 1024:
+            raise forms.ValidationError("Le CV ne doit pas dépasser 5MB.")
+        return f
+
+
+class JobApplicationStatusForm(forms.ModelForm):
+    class Meta:
+        model = JobApplication
+        fields = ("status", "internal_note")
+        widgets = {"internal_note": forms.Textarea(attrs={"rows": 3})}
