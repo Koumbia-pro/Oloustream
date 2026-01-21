@@ -32,6 +32,7 @@ urlpatterns = [
     path("jobs/", user_jobs_list_view, name="user_jobs_list"),
     path("jobs/<slug:slug>/", user_jobs_detail_view, name="user_jobs_detail"),
     path("jobs/<slug:slug>/apply/", user_jobs_apply_view, name="user_jobs_apply"),
+    
 
     # Jobs (admin)
     path("admin/jobs/", admin_jobs_list_view, name="admin_jobs_list"),

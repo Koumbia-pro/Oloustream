@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+    <h2>Mise à jour de votre réservation #{{ reservation_id }}</h2>
+
+    <p>Bonjour {{ user_name }},</p>
+
+    <p>
+      Le statut de votre réservation a été mis à jour :
+      <strong>{{ old_status }}</strong> → <strong>{{ new_status }}</strong>
+    </p>
+
+    <p>
+      <strong>Créneau :</strong><br>
+      Du {{ start|date:"d/m/Y H:i" }} au {{ end|date:"d/m/Y H:i" }}
+    </p>
+
+    {% if studio_name %}
+      <p><strong>Studio :</strong> {{ studio_name }}</p>
+    {% endif %}
+
+    {% if admin_note %}
+      <p><strong>Message de l’équipe :</strong><br>{{ admin_note|linebreaksbr }}</p>
+    {% endif %}
+
+    <p>
+      Vous pouvez suivre vos réservations depuis votre espace :
+      <a href="{{ user_reservations_url }}">Mes réservations</a>
+    </p>
+
+    <hr>
+    <p style="font-size: 13px; color: #555;">
+      Oloustream – Creative Audio-Video Experiences<br>
+      📞 +226 64 09 31 96 · ✉️ info@oloustream.com
+    </p>
+  </body>
+</html>

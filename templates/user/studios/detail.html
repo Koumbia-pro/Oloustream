@@ -1,3 +1,4 @@
+{# templates/user/studios/detail.html #}
 {% extends "base.html" %}
 {% load static %}
 
@@ -6,291 +7,879 @@
 {% block content %}
 
 <style>
-    :root {
-        --studio-primary: #4f46e5;
-        --studio-primary-dark: #4338ca;
-        --studio-yellow: #facc15;
-        --studio-yellow-dark: #eab308;
-    }
+:root {
+    --red: #E60000;
+    --red-dark: #CC0000;
+    --gold: #F59E0B;
+    --black: #000000;
+    --dark: #020617;
+    --gray-200: #E5E7EB;
+    --gray-400: #9CA3AF;
+    --white: #FFFFFF;
+    
+    /* Dérivées pour l'UI */
+    --red-soft: rgba(230, 0, 0, 0.08);
+    --red-glow: rgba(230, 0, 0, 0.35);
+    --gold-soft: rgba(245, 158, 11, 0.12);
+    --gold-glow: rgba(245, 158, 11, 0.4);
+    --surface: #f9fafb;
+    --surface-elevated: #ffffff;
+    --border: #e5e7eb;
+    --border-strong: #d1d5db;
+    --text-primary: #111827;
+    --text-secondary: #374151;
+    --text-muted: #6b7280;
+    --text-soft: #9ca3af;
+    
+    /* Espacements */
+    --radius-sm: 0.5rem;
+    --radius-md: 0.875rem;
+    --radius-lg: 1.25rem;
+    --radius-xl: 1.5rem;
+    --radius-pill: 9999px;
+    
+    /* Ombres */
+    --shadow-xs: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.2);
+    
+    /* Transitions */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-medium: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-    .studio-detail-page {
-        margin-bottom: 2.5rem;
-    }
+/* ==================== LAYOUT PRINCIPAL ==================== */
+.studio-detail-page {
+    margin-bottom: 3rem;
+    animation: fadeIn 400ms ease-out;
+}
 
-    .studio-detail-header {
-        margin-bottom: 1.5rem;
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
     }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
+/* ==================== HEADER ==================== */
+.studio-detail-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border);
+    position: relative;
+}
+
+.studio-detail-header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--red), var(--gold));
+    border-radius: 2px;
+}
+
+.studio-detail-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+.studio-detail-header .subtitle {
+    font-size: 1rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.studio-detail-header .subtitle::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--red);
+    border-radius: 50%;
+    margin-right: 0.25rem;
+}
+
+/* ==================== IMAGE HERO ==================== */
+.studio-detail-hero {
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    background: var(--dark);
+    transition: transform var(--transition-medium),
+                box-shadow var(--transition-medium);
+}
+
+.studio-detail-hero:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+}
+
+.studio-detail-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.3) 100%
+    );
+    z-index: 1;
+    opacity: 0;
+    transition: opacity var(--transition-medium);
+}
+
+.studio-detail-hero:hover::before {
+    opacity: 1;
+}
+
+.studio-detail-hero img {
+    width: 100%;
+    height: auto;
+    min-height: 320px;
+    max-height: 480px;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--transition-slow);
+}
+
+.studio-detail-hero:hover img {
+    transform: scale(1.03);
+}
+
+/* ==================== CARTES ==================== */
+.studio-detail-card {
+    background: var(--surface-elevated);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    padding: 1.75rem 2rem;
+    margin-bottom: 1.5rem;
+    transition: all var(--transition-medium);
+    position: relative;
+    overflow: hidden;
+}
+
+.studio-detail-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--red), var(--gold));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--transition-medium);
+}
+
+.studio-detail-card:hover::before {
+    transform: scaleX(1);
+}
+
+.studio-detail-card:hover {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+/* ==================== LABELS & VALUES ==================== */
+.studio-detail-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    letter-spacing: 0.08em;
+    margin-bottom: 0.375rem;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.studio-detail-label::before {
+    content: '';
+    width: 3px;
+    height: 12px;
+    background: var(--red);
+    border-radius: 2px;
+}
+
+.studio-detail-value {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+/* ==================== PRIX ==================== */
+.studio-price-big {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--red);
+    line-height: 1.2;
+    display: flex;
+    align-items: baseline;
+    gap: 0.375rem;
+}
+
+.studio-price-big small {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: lowercase;
+}
+
+/* ==================== TAGS ==================== */
+.studio-tags {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.studio-tag {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.375rem 0.875rem;
+    border-radius: var(--radius-pill);
+    background: var(--red-soft);
+    color: var(--red-dark);
+    border: 1px solid rgba(230, 0, 0, 0.15);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all var(--transition-fast);
+}
+
+.studio-tag:hover {
+    background: rgba(230, 0, 0, 0.15);
+    border-color: var(--red);
+    transform: translateY(-1px);
+}
+
+.studio-tag::before {
+    content: '●';
+    color: var(--red);
+    font-size: 0.5rem;
+}
+
+/* ==================== SECTIONS ==================== */
+.studio-detail-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border);
+    position: relative;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.studio-detail-section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background: var(--red);
+}
+
+.studio-detail-text {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.75;
+}
+
+.studio-detail-text strong {
+    color: var(--text-primary);
+    font-weight: 700;
+    display: block;
+    margin-top: 1rem;
+    margin-bottom: 0.375rem;
+}
+
+.studio-detail-text strong:first-child {
+    margin-top: 0;
+}
+
+/* ==================== PANEL LATÉRAL ==================== */
+.side-panel {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--gold);
+    padding: 2rem 1.75rem;
+    box-shadow: 0 12px 32px var(--gold-glow);
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-medium);
+}
+
+.side-panel::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+        circle at center,
+        rgba(245, 158, 11, 0.1) 0%,
+        transparent 60%
+    );
+    pointer-events: none;
+}
+
+.side-panel:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px var(--gold-glow);
+}
+
+.side-panel h3 {
+    font-size: 1.375rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    position: relative;
+    z-index: 1;
+}
+
+.side-panel h3::before {
+    content: '🎯';
+    margin-right: 0.5rem;
+}
+
+.side-panel p {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* ==================== BOUTONS ==================== */
+.btn-side-primary {
+    border-radius: var(--radius-pill);
+    background: linear-gradient(135deg, var(--gold) 0%, #f59e0b 100%);
+    border: 2px solid var(--gold);
+    color: var(--black);
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 0.875rem 1.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    box-shadow: 0 8px 20px var(--gold-glow);
+    transition: all var(--transition-medium);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.btn-side-primary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width var(--transition-medium),
+                height var(--transition-medium);
+}
+
+.btn-side-primary:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-side-primary:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border-color: #f59e0b;
+    color: var(--black);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px var(--gold-glow);
+}
+
+.btn-side-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px var(--gold-glow);
+}
+
+.btn-side-primary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--white),
+                0 0 0 5px var(--gold);
+}
+
+/* Bouton primaire dans les cartes */
+.studio-detail-card .btn-primary {
+    border-radius: var(--radius-pill);
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+    border: 2px solid var(--red);
+    color: var(--white);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    padding: 0.75rem 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    box-shadow: 0 8px 20px var(--red-glow);
+    transition: all var(--transition-medium);
+    position: relative;
+    overflow: hidden;
+}
+
+.studio-detail-card .btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width var(--transition-medium),
+                height var(--transition-medium);
+}
+
+.studio-detail-card .btn-primary:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.studio-detail-card .btn-primary:hover {
+    background: linear-gradient(135deg, #ff0000 0%, var(--red-dark) 100%);
+    border-color: var(--red-dark);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px var(--red-glow);
+}
+
+.studio-detail-card .btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px var(--red-glow);
+}
+
+.studio-detail-card .btn-primary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--white),
+                0 0 0 5px var(--red);
+}
+
+/* ==================== PANEL SMALL TEXT ==================== */
+.side-panel-small {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(245, 158, 11, 0.3);
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.side-panel-small a {
+    color: var(--red);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--transition-fast);
+}
+
+.side-panel-small a:hover {
+    border-bottom-color: var(--red);
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 991px) {
     .studio-detail-header h1 {
-        font-size: 1.6rem;
-        font-weight: 700;
-        margin-bottom: 0.2rem;
+        font-size: 1.75rem;
     }
-
-    .studio-detail-header .subtitle {
-        font-size: 0.9rem;
-        color: #6b7280;
-    }
-
-    .studio-detail-hero {
-        border-radius: 1.2rem;
-        overflow: hidden;
-        margin-bottom: 1.5rem;
-    }
-
+    
     .studio-detail-hero img {
-        width: 100%;
-        max-height: 320px;
-        object-fit: cover;
-        display: block;
+        max-height: 380px;
     }
-
-    .studio-detail-card {
-        background: #ffffff;
-        border-radius: 1.2rem;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 8px 24px rgba(15,23,42,0.12);
-        padding: 1.2rem 1.4rem;
-        margin-bottom: 1rem;
-    }
-
-    .studio-detail-label {
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        color: #9ca3af;
-        letter-spacing: 0.05em;
-    }
-
-    .studio-detail-value {
-        font-size: 0.95rem;
-        color: #111827;
-    }
-
-    .studio-tags {
-        margin-top: 0.6rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.4rem;
-    }
-
-    .studio-tag {
-        font-size: 0.76rem;
-        padding: 0.15rem 0.55rem;
-        border-radius: 999px;
-        background: #eef2ff;
-        color: #4338ca;
-    }
-
-    .studio-price-big {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: #111827;
-    }
-
-    .studio-price-big small {
-        font-size: 0.82rem;
-        color: #6b7280;
-    }
-
-    .studio-detail-section-title {
-        font-size: 1.05rem;
-        font-weight: 600;
-        margin-bottom: 0.4rem;
-    }
-
-    .studio-detail-text {
-        font-size: 0.9rem;
-        color: #4b5563;
-        line-height: 1.7;
-    }
-
+    
     .side-panel {
-        background: #fefce8;
-        border-radius: 1.2rem;
-        border: 1px solid #facc15;
-        padding: 1.1rem 1.3rem;
-        box-shadow: 0 8px 24px rgba(202, 138, 4, 0.25);
+        margin-top: 1.5rem;
     }
+}
 
+@media (max-width: 768px) {
+    .studio-detail-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .studio-detail-header .subtitle {
+        font-size: 0.875rem;
+    }
+    
+    .studio-detail-hero img {
+        min-height: 240px;
+        max-height: 300px;
+    }
+    
+    .studio-detail-card {
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .studio-price-big {
+        font-size: 1.5rem;
+    }
+    
+    .side-panel {
+        padding: 1.5rem 1.25rem;
+    }
+    
     .side-panel h3 {
-        font-size: 1.05rem;
-        font-weight: 700;
-        margin-bottom: 0.6rem;
+        font-size: 1.25rem;
     }
+}
 
-    .side-panel p {
-        font-size: 0.9rem;
-        color: #4b5563;
-        margin-bottom: 0.8rem;
+@media (max-width: 576px) {
+    .studio-detail-header h1 {
+        font-size: 1.25rem;
     }
+    
+    .studio-detail-section-title {
+        font-size: 1.125rem;
+    }
+    
+    .studio-detail-text {
+        font-size: 0.875rem;
+    }
+    
+    .studio-tags {
+        gap: 0.375rem;
+    }
+    
+    .studio-tag {
+        font-size: 0.6875rem;
+        padding: 0.25rem 0.625rem;
+    }
+}
 
-    .btn-side-primary {
-        border-radius: 999px;
-        background: var(--studio-yellow);
-        border-color: var(--studio-yellow);
-        color: #111827;
-        font-weight: 600;
-        padding: 0.55rem 1.1rem;
-        font-size: 0.9rem;
+/* ==================== ACCESSIBILITÉ ==================== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
+}
 
-    .btn-side-primary:hover {
-        background: var(--studio-yellow-dark);
-        border-color: var(--studio-yellow-dark);
-        color: #111827;
-    }
+/* Focus visible amélioré */
+*:focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 3px;
+}
 
-    .side-panel-small {
-        font-size: 0.8rem;
-        color: #6b7280;
-    }
+/* ==================== UTILITAIRES ==================== */
+.w-100 {
+    width: 100% !important;
+}
 
-    .side-panel-small a {
-        color: #4f46e5;
-        text-decoration: none;
+.mb-2 {
+    margin-bottom: 0.5rem !important;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+.mt-3 {
+    margin-top: 1rem !important;
+}
+
+.g-3 {
+    gap: 1rem;
+}
+
+/* ==================== AMÉLIORATIONS VISUELLES ==================== */
+
+/* Animation d'apparition pour les cartes */
+.studio-detail-card {
+    animation: slideUp 400ms ease-out backwards;
+}
+
+.studio-detail-card:nth-child(1) { animation-delay: 100ms; }
+.studio-detail-card:nth-child(2) { animation-delay: 200ms; }
+.studio-detail-card:nth-child(3) { animation-delay: 300ms; }
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
     }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Icônes dans les valeurs */
+.studio-detail-value::before {
+    content: attr(data-icon);
+    margin-right: 0.5rem;
+    font-size: 1.25em;
+}
+
+/* Amélioration des listes à puces dans le texte */
+.studio-detail-text ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.studio-detail-text li {
+    padding-left: 1.5rem;
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.studio-detail-text li::before {
+    content: '▸';
+    color: var(--red);
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+}
+
+/* Badge pour panel authentifié vs non-authentifié */
+.side-panel.is-authenticated {
+    border-color: #10b981;
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+}
+
+.side-panel.is-authenticated::before {
+    background: radial-gradient(
+        circle at center,
+        rgba(16, 185, 129, 0.1) 0%,
+        transparent 60%
+    );
+}
 </style>
 
-<div class="studio-detail-page">
-    <div class="studio-detail-header">
-        <h1>{{ studio.name }}</h1>
-        <p class="subtitle">
-            {{ studio.get_studio_type_display }} ·
-            {% if studio.city or studio.country %}
-                {{ studio.city|default:"" }}{% if studio.city and studio.country %}, {% endif %}{{ studio.country|default:"" }}
-            {% else %}
-                Localisation à préciser
-            {% endif %}
-        </p>
-    </div>
-
-    <!-- Image principale -->
-    <div class="studio-detail-hero">
-        {% if studio.image %}
-            <img src="{{ studio.image.url }}" alt="{{ studio.name }}">
-        {% else %}
-            <img src="{% static 'img/default_studio.jpg' %}" alt="{{ studio.name }}">
-        {% endif %}
-    </div>
-
-    <div class="row g-3">
-        <!-- Colonne gauche : infos studio -->
-        <div class="col-lg-8">
-            <div class="studio-detail-card mb-3">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <div class="studio-detail-label">Superficie</div>
-                        <div class="studio-detail-value">
-                            {% if studio.area_m2 %}
-                                {{ studio.area_m2 }} m²
-                            {% else %}
-                                —
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="studio-detail-label">Capacité</div>
-                        <div class="studio-detail-value">
-                            {% if studio.capacity %}
-                                {{ studio.capacity }} personne(s)
-                            {% else %}
-                                —
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="studio-detail-label">Tarif</div>
-                        <div class="studio-detail-value studio-price-big">
-                            {% if studio.price_per_hour %}
-                                {{ studio.price_per_hour }} FCFA
-                                <small>/ heure</small>
-                            {% else %}
-                                <small>Sur devis</small>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="studio-tags">
-                    <span class="studio-tag">{{ studio.get_studio_type_display }}</span>
-                    {% if studio.lighting_included %}<span class="studio-tag">Éclairage intégré</span>{% endif %}
-                    {% if studio.price_half_day %}<span class="studio-tag">Demi-journée</span>{% endif %}
-                    {% if studio.price_day %}<span class="studio-tag">Journée complète</span>{% endif %}
-                </div>
-
-                <div class="mt-3">
-                    <a href="{% url 'studio:user_studio_reserve' studio.pk %}"
-                       class="btn btn-primary btn-sm">
-                        Réserver ce studio
-                    </a>
-                </div>
-            </div>
-
-            <div class="studio-detail-card">
-                <h2 class="studio-detail-section-title">À propos de ce studio</h2>
-                <div class="studio-detail-text">
-                    {{ studio.description|default:"Aucune description détaillée n'a encore été fournie pour ce studio."|linebreaksbr }}
-                </div>
-            </div>
-
-            <div class="studio-detail-card">
-                <h2 class="studio-detail-section-title">Équipements & éclairage</h2>
-                <div class="studio-detail-text">
-                    <strong>Éclairage :</strong><br>
-                    {% if studio.lighting_included %}
-                        Éclairage intégré.<br>
-                    {% else %}
-                        Pas d'éclairage intégré indiqué.<br>
-                    {% endif %}
-                    {{ studio.lighting_type|default:"" | linebreaksbr }}
-
-                    <br><strong>Caméras :</strong><br>
-                    {{ studio.equip_cameras|default:"—"|linebreaksbr }}
-
-                    <br><strong>Micros :</strong><br>
-                    {{ studio.equip_microphones|default:"—"|linebreaksbr }}
-
-                    <br><strong>Lumières :</strong><br>
-                    {{ studio.equip_lights|default:"—"|linebreaksbr }}
-
-                    <br><strong>Écrans :</strong><br>
-                    {{ studio.equip_screens|default:"—"|linebreaksbr }}
-
-                    <br><strong>Régie :</strong><br>
-                    {{ studio.equip_control_room|default:"—"|linebreaksbr }}
-
-                    <br><strong>Accessoires :</strong><br>
-                    {{ studio.equip_accessories|default:"—"|linebreaksbr }}
-                </div>
-            </div>
-
-            <div class="studio-detail-card">
-                <h2 class="studio-detail-section-title">Disponibilités</h2>
-                <div class="studio-detail-text">
-                    <strong>Heures d'ouverture :</strong>
-                    {{ studio.opening_hours|default:"Non renseigné" }}<br>
-                    <strong>Jours d'ouverture :</strong>
-                    {{ studio.opening_days|default:"Non renseigné" }}<br>
-                    <strong>Dates indisponibles :</strong><br>
-                    {{ studio.unavailable_dates|default:"Non renseigné"|linebreaksbr }}
-                </div>
-            </div>
+<div class="container py-4">
+    <div class="studio-detail-page">
+        <div class="studio-detail-header">
+            <h1>{{ studio.name }}</h1>
+            <p class="subtitle">
+                {{ studio.get_studio_type_display }}
+                {% if studio.city or studio.country %}
+                    · {{ studio.city|default:"" }}{% if studio.city and studio.country %}, {% endif %}{{ studio.country|default:"" }}
+                {% else %}
+                    · Localisation à préciser
+                {% endif %}
+            </p>
         </div>
 
-        <!-- Colonne droite : panneau “Pas encore membre ?” -->
-        <div class="col-lg-4">
-            <div class="side-panel mb-3">
-                <h3>Pas encore membre ?</h3>
-                <p>
-                    Inscrivez-vous pour pouvoir réserver ce studio,
-                    gérer vos projets et suivre vos réservations en toute simplicité.
-                </p>
-                <a href="{% url 'accounts:register' %}" class="btn btn-side-primary w-100 mb-2">
-                    Je m'inscris
-                </a>
-                <div class="side-panel-small">
-                    Déjà un compte ?
-                    <a href="{% url 'accounts:login' %}">Je me connecte</a>
+        <!-- Image principale -->
+        <div class="studio-detail-hero">
+            {% if studio.image %}
+                <img src="{{ studio.image.url }}" alt="{{ studio.name }}" loading="lazy">
+            {% else %}
+                <img src="{% static 'img/image_1.jpg' %}" alt="{{ studio.name }}" loading="lazy">
+            {% endif %}
+        </div>
+
+        <div class="row g-3">
+            <!-- Colonne gauche : infos studio -->
+            <div class="col-lg-8">
+                <div class="studio-detail-card">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="studio-detail-label">
+                                <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                                    <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2z"/>
+                                </svg>
+                                Superficie
+                            </div>
+                            <div class="studio-detail-value">
+                                {% if studio.area_m2 %}
+                                    {{ studio.area_m2 }} m²
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="studio-detail-label">
+                                <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                                    <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                                </svg>
+                                Capacité
+                            </div>
+                            <div class="studio-detail-value">
+                                {% if studio.capacity %}
+                                    {{ studio.capacity }} pers.
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="studio-detail-label">
+                                <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                                    <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2.5 1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-2zm0 3a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zm0 2a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm3 0a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm3 0a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm3 0a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1z"/>
+                                </svg>
+                                Tarif
+                            </div>
+                            <div class="studio-detail-value studio-price-big">
+                                {% if studio.price_per_hour %}
+                                    {{ studio.price_per_hour }} FCFA
+                                    <small>/ heure</small>
+                                {% else %}
+                                    <small>Sur devis</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="studio-tags">
+                        <span class="studio-tag">{{ studio.get_studio_type_display }}</span>
+                        {% if studio.lighting_included %}
+                            <span class="studio-tag">Éclairage intégré</span>
+                        {% endif %}
+                        {% if studio.price_half_day %}
+                            <span class="studio-tag">Demi-journée</span>
+                        {% endif %}
+                        {% if studio.price_day %}
+                            <span class="studio-tag">Journée complète</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-3">
+                        <a href="{% url 'studio:user_studio_project_reservation' studio_pk=studio.pk %}"
+                           class="btn btn-primary"
+                           aria-label="Parler de mon projet et réserver {{ studio.name }}">
+                            🎙️ Parler de mon projet & réserver ce studio
+                        </a>
+                    </div>
+                </div>
+
+                <div class="studio-detail-card">
+                    <h2 class="studio-detail-section-title">À propos de ce studio</h2>
+                    <div class="studio-detail-text">
+                        {{ studio.description|default:"Aucune description détaillée n'a encore été fournie pour ce studio."|linebreaksbr }}
+                    </div>
+                </div>
+
+                <div class="studio-detail-card">
+                    <h2 class="studio-detail-section-title">Équipements & éclairage</h2>
+                    <div class="studio-detail-text">
+                        <strong>🔦 Éclairage</strong>
+                        {% if studio.lighting_included %}
+                            Éclairage intégré.<br>
+                        {% else %}
+                            Pas d'éclairage intégré indiqué.<br>
+                        {% endif %}
+                        {{ studio.lighting_type|default:"Non renseigné"|linebreaksbr }}
+
+                        <strong>📹 Caméras</strong>
+                        {{ studio.equip_cameras|default:"Non renseigné"|linebreaksbr }}
+
+                        <strong>🎤 Microphones</strong>
+                        {{ studio.equip_microphones|default:"Non renseigné"|linebreaksbr }}
+
+                        <strong>💡 Lumières</strong>
+                        {{ studio.equip_lights|default:"Non renseigné"|linebreaksbr }}
+
+                        <strong>🖥️ Écrans</strong>
+                        {{ studio.equip_screens|default:"Non renseigné"|linebreaksbr }}
+
+                        <strong>🎛️ Régie</strong>
+                        {{ studio.equip_control_room|default:"Non renseigné"|linebreaksbr }}
+
+                        <strong>🎨 Accessoires</strong>
+                        {{ studio.equip_accessories|default:"Non renseigné"|linebreaksbr }}
+                    </div>
+                </div>
+
+                <div class="studio-detail-card">
+                    <h2 class="studio-detail-section-title">Disponibilités</h2>
+                    <div class="studio-detail-text">
+                        <strong>🕐 Heures d'ouverture</strong>
+                        {{ studio.opening_hours|default:"Non renseigné" }}
+
+                        <strong>📅 Jours d'ouverture</strong>
+                        {{ studio.opening_days|default:"Non renseigné" }}
+
+                        <strong>🚫 Dates indisponibles</strong>
+                        {{ studio.unavailable_dates|default:"Aucune date indisponible"|linebreaksbr }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne droite : panneau "actions" -->
+            <div class="col-lg-4">
+                <div class="side-panel {% if user.is_authenticated %}is-authenticated{% endif %} mb-3">
+                    {% if user.is_authenticated %}
+                        <h3>Votre projet</h3>
+                        <p>
+                            Vous êtes connecté. Dites-nous ce que vous voulez créer,
+                            nous vous accompagnons pour réserver ce studio et construire
+                            votre projet podcast ou vidéo.
+                        </p>
+
+                        <a href="{% url 'studio:user_studio_project_reservation' studio_pk=studio.pk %}"
+                           class="btn btn-side-primary w-100 mb-2"
+                           aria-label="Envoyer ma demande et être accompagné">
+                            🎙️ Envoyer ma demande & être accompagné
+                        </a>
+
+                        <div class="side-panel-small">
+                            Vous retrouverez toutes vos demandes dans
+                            <a href="{% url 'studio:user_reservations_list' %}">Mes réservations</a>.
+                        </div>
+                    {% else %}
+                        <h3>Pas encore membre ?</h3>
+                        <p>
+                            Inscrivez-vous pour pouvoir réserver ce studio,
+                            gérer vos projets et suivre vos réservations en toute simplicité.
+                        </p>
+                        <a href="{% url 'accounts:register' %}" 
+                           class="btn btn-side-primary w-100 mb-2"
+                           aria-label="Créer un compte">
+                            ✨ Je m'inscris
+                        </a>
+                        <div class="side-panel-small">
+                            Déjà un compte ?
+                            <a href="{% url 'accounts:login' %}?next={% url 'studio:user_studio_project_reservation' studio_pk=studio.pk %}">
+                                Je me connecte
+                            </a>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

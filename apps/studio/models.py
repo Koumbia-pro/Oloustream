@@ -3,7 +3,15 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 # from django.core.exceptions import ValidationError
-from .choices import EquipmentStatus, ReservationStatus, StudioTypeChoices, StudioStatusChoices
+from .choices import (
+    EquipmentStatus,
+    ReservationStatus,
+    StudioTypeChoices,
+    StudioStatusChoices,
+    ProjectFormatChoices,
+    PreferredPeriodChoices,
+    DeliveryDeadlineChoices,
+)
 
 
 
@@ -335,17 +343,267 @@ class EquipmentUsageHistory(models.Model):
         return f"{self.equipment} - {self.start_datetime}"
 
 
+# class Reservation(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reservations')
+#     studio = models.ForeignKey(Studio, on_delete=models.SET_NULL, null=True, blank=True)
+#     equipments = models.ManyToManyField(Equipment, blank=True, related_name='reservations')
+#     service = models.ForeignKey(
+#         'services_app.Service',  # model Service de l’app services_app
+#         on_delete=models.SET_NULL,
+#         null=True,
+#         blank=True,
+#         related_name='reservations',
+#     )
+#     start_datetime = models.DateTimeField("Début")
+#     end_datetime = models.DateTimeField("Fin")
+#     status = models.CharField(
+#         "Statut",
+#         max_length=20,
+#         choices=ReservationStatus.choices,
+#         default=ReservationStatus.PENDING,
+#     )
+#     admin_comment = models.TextField("Commentaire admin", blank=True)
+#     created_at = models.DateTimeField("Créée le", auto_now_add=True)
+#     assigned_technician = models.ForeignKey(
+#         User,
+#         on_delete=models.SET_NULL,
+#         null=True,
+#         blank=True,
+#         related_name='assigned_reservations',
+#         verbose_name="Technicien assigné",
+#     )
+
+#     class Meta:
+#         verbose_name = "Réservation"
+#         verbose_name_plural = "Réservations"
+#         ordering = ['-created_at']
+
+#     def is_past(self):
+#         return self.end_datetime < timezone.now()
+
+#     def __str__(self):
+#         return f"Réservation #{self.id} - {self.user} - {self.start_datetime:%d/%m/%Y}"
+
+
+#============================================================== pour le nouveau reservation =======================================================
 class Reservation(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reservations')
-    studio = models.ForeignKey(Studio, on_delete=models.SET_NULL, null=True, blank=True)
-    equipments = models.ManyToManyField(Equipment, blank=True, related_name='reservations')
+    # --- LIENS INTERNES / TECHNIQUES ---
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='reservations',
+        verbose_name="Utilisateur"
+    )
+    studio = models.ForeignKey(
+        Studio,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Studio"
+    )
+    equipments = models.ManyToManyField(
+        Equipment,
+        blank=True,
+        related_name='reservations',
+        verbose_name="Équipements"
+    )
     service = models.ForeignKey(
-        'services_app.Service',  # model Service de l’app services_app
+        'services_app.Service',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='reservations',
+        verbose_name="Service associé",
     )
+
+    # 🧩 1. VOS INFORMATIONS (snapshot pour la demande)
+    contact_full_name = models.CharField(
+        "Nom & Prénom",
+        max_length=150,
+        blank=True,
+        help_text="Nom de la personne à contacter pour ce projet."
+    )
+    contact_company = models.CharField(
+        "Nom de la structure / marque",
+        max_length=150,
+        blank=True
+    )
+    contact_phone = models.CharField(
+        "Téléphone",
+        max_length=50,
+        blank=True
+    )
+    contact_email = models.EmailField(
+        "Email",
+        blank=True
+    )
+    contact_city = models.CharField(
+        "Ville",
+        max_length=100,
+        blank=True
+    )
+    contact_country = models.CharField(
+        "Pays",
+        max_length=100,
+        blank=True
+    )
+
+    # 🎬 2. VOTRE PROJET VIDÉO
+    project_summary = models.TextField(
+        "Résumé du projet vidéo",
+        blank=True,
+        help_text="Objectif, cible, type de contenu…"
+    )
+    project_references = models.TextField(
+        "Exemples / références qui vous inspirent",
+        blank=True,
+        help_text="Liens YouTube, Instagram, émissions, podcasts, etc."
+    )
+
+    # 🎙️ 3. FORMAT & CONFIGURATION DU PLATEAU
+    format_type = models.CharField(
+        "Type de format",
+        max_length=20,
+        choices=ProjectFormatChoices.choices,
+        blank=True
+    )
+    participants_count = models.PositiveIntegerField(
+        "Nombre total d'intervenants sur le plateau",
+        blank=True,
+        null=True
+    )
+    participants_details = models.CharField(
+        "Détails sur les intervenants",
+        max_length=255,
+        blank=True,
+        help_text="À préciser si plus de 4 intervenants ou configuration spéciale."
+    )
+
+    # ⏱️ 4. DURÉE & VOLUME DE PRODUCTION
+    episode_duration_minutes = models.PositiveIntegerField(
+        "Durée moyenne par épisode (en minutes)",
+        blank=True,
+        null=True,
+        help_text="Exemples : 3, 7, 13, 26…"
+    )
+    episodes_count = models.PositiveIntegerField(
+        "Nombre d'épisodes à tourner",
+        blank=True,
+        null=True
+    )
+    episodes_notes = models.CharField(
+        "Précisions sur le nombre d'épisodes",
+        max_length=255,
+        blank=True,
+        help_text="À utiliser si '2 à 5', '6 à 10' ou 'plus'."
+    )
+
+    # 📅 5. PÉRIODE D’ENREGISTREMENT SOUHAITÉE
+    preferred_period = models.CharField(
+        "Période préférée",
+        max_length=20,
+        choices=PreferredPeriodChoices.choices,
+        blank=True
+    )
+    preferred_date_1 = models.DateTimeField(
+        "1ère date souhaitée",
+        blank=True,
+        null=True
+    )
+    preferred_date_2 = models.DateTimeField(
+        "2ᵉ date souhaitée",
+        blank=True,
+        null=True
+    )
+    scheduling_notes = models.TextField(
+        "Notes sur la planification",
+        blank=True,
+        help_text="Contraintes d'horaires, plage horaire idéale, etc."
+    )
+
+    # 🎥 6. TYPE D’ACCOMPAGNEMENT SOUHAITÉ
+    rental_studio_only = models.BooleanField(
+        "Location du studio uniquement",
+        default=False
+    )
+    option_custom_set = models.BooleanField(
+        "Studio + décor personnalisé",
+        default=False
+    )
+    option_make_up = models.BooleanField(
+        "Studio + décor + maquilleuse professionnelle",
+        default=False
+    )
+    option_technical_team = models.BooleanField(
+        "Équipe technique (cadrage, son, lumière)",
+        default=False
+    )
+    option_video_editing = models.BooleanField(
+        "Besoin de montage vidéo",
+        default=False
+    )
+    option_express_delivery = models.BooleanField(
+        "Livraison express souhaitée",
+        default=False
+    )
+    support_other_details = models.TextField(
+        "Précisions complémentaires sur l'accompagnement",
+        blank=True
+    )
+
+    # ⏳ 7. DÉLAIS & ATTENTES
+    delivery_deadline = models.CharField(
+        "Délai de livraison souhaité",
+        max_length=20,
+        choices=DeliveryDeadlineChoices.choices,
+        blank=True
+    )
+    specific_constraints = models.TextField(
+        "Contraintes particulières",
+        blank=True,
+        help_text="Lancement, événement, diffusion à date précise, etc."
+    )
+
+    # 💰 8. BUDGET INDICATIF
+    budget_known = models.BooleanField(
+        "Le client a une idée de son budget",
+        default=False
+    )
+    budget_min = models.DecimalField(
+        "Budget minimum (FCFA)",
+        max_digits=12,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+    budget_max = models.DecimalField(
+        "Budget maximum (FCFA)",
+        max_digits=12,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+    budget_notes = models.TextField(
+        "Commentaires sur le budget",
+        blank=True,
+        help_text="Par ex. 'Je souhaite être conseillé'."
+    )
+
+    # 🤝 9. BESOIN D’ÉCHANGER AVANT ?
+    contact_pref_call = models.BooleanField(
+        "Souhaite être rappelé par un conseiller technique",
+        default=False
+    )
+    contact_pref_meeting = models.BooleanField(
+        "Souhaite prendre rendez-vous pour en discuter",
+        default=False
+    )
+    contact_pref_email_quote = models.BooleanField(
+        "Préfère recevoir un devis détaillé par email",
+        default=False
+    )
+
+    # --- SUIVI INTERNE / PLANNING CONFIRMÉ ---
     start_datetime = models.DateTimeField("Début")
     end_datetime = models.DateTimeField("Fin")
     status = models.CharField(
@@ -355,6 +613,10 @@ class Reservation(models.Model):
         default=ReservationStatus.PENDING,
     )
     admin_comment = models.TextField("Commentaire admin", blank=True)
+    client_additional_message = models.TextField(
+        "Message complémentaire du client",
+        blank=True
+    )
     created_at = models.DateTimeField("Créée le", auto_now_add=True)
     assigned_technician = models.ForeignKey(
         User,
@@ -377,6 +639,46 @@ class Reservation(models.Model):
         return f"Réservation #{self.id} - {self.user} - {self.start_datetime:%d/%m/%Y}"
  
     
+# class ReservationStatusHistory(models.Model):
+#     """
+#     Historique des changements de statut d'une réservation.
+#     """
+#     reservation = models.ForeignKey(
+#         Reservation,
+#         on_delete=models.CASCADE,
+#         related_name='status_history',
+#         verbose_name="Réservation",
+#     )
+#     old_status = models.CharField(
+#         "Ancien statut",
+#         max_length=20,
+#         choices=ReservationStatus.choices,
+#     )
+#     new_status = models.CharField(
+#         "Nouveau statut",
+#         max_length=20,
+#         choices=ReservationStatus.choices,
+#     )
+#     changed_by = models.ForeignKey(
+#         settings.AUTH_USER_MODEL,
+#         on_delete=models.SET_NULL,
+#         null=True,
+#         blank=True,
+#         related_name='reservation_status_changes',
+#         verbose_name="Modifié par",
+#     )
+#     changed_at = models.DateTimeField("Modifié le", auto_now_add=True)
+#     note = models.TextField("Note / commentaire", blank=True)
+
+#     class Meta:
+#         verbose_name = "Historique de statut de réservation"
+#         verbose_name_plural = "Historiques de statut de réservation"
+#         ordering = ['-changed_at']
+
+#     def __str__(self):
+#         return f"Réservation #{self.reservation_id} : {self.old_status} -> {self.new_status}"
+
+
 class ReservationStatusHistory(models.Model):
     """
     Historique des changements de statut d'une réservation.

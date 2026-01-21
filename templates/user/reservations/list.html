@@ -3,43 +3,308 @@
 {% block title %}Mes réservations - Oloustream{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3">Mes réservations</h1>
-    <a href="{% url 'studio:user_reservations_create' %}" class="btn btn-primary btn-sm">
-        + Nouvelle réservation
-    </a>
+
+<style>
+    :root {
+        --res-primary: #4f46e5;
+        --res-primary-soft: #eef2ff;
+        --res-primary-dark: #4338ca;
+        --res-success: #22c55e;
+        --res-warning: #f59e0b;
+        --res-danger: #ef4444;
+        --res-muted: #6b7280;
+        --res-border: #e5e7eb;
+        --res-bg: #f9fafb;
+    }
+
+    .reservations-page {
+        margin-bottom: 2.5rem;
+    }
+
+    .reservations-header {
+        margin-bottom: 1.2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .reservations-header-title h1 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 0.2rem;
+    }
+
+    .reservations-header-title small {
+        font-size: 0.85rem;
+        color: var(--res-muted);
+    }
+
+    .reservations-header-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .btn-res-primary {
+        border-radius: 999px;
+        background: var(--res-primary);
+        border: 1px solid var(--res-primary);
+        color: #ffffff;
+        font-weight: 600;
+        padding: 0.45rem 1rem;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        text-decoration: none;
+    }
+
+    .btn-res-primary:hover {
+        background: var(--res-primary-dark);
+        border-color: var(--res-primary-dark);
+        color: #ffffff;
+    }
+
+    .btn-res-secondary {
+        border-radius: 999px;
+        background: #ffffff;
+        border: 1px solid var(--res-border);
+        color: #111827;
+        font-weight: 500;
+        padding: 0.45rem 0.9rem;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        text-decoration: none;
+    }
+
+    .btn-res-secondary:hover {
+        background: #f3f4f6;
+        color: #111827;
+    }
+
+    .reservations-card {
+        background: #ffffff;
+        border-radius: 1rem;
+        border: 1px solid var(--res-border);
+        box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+        padding: 0.8rem 1rem;
+    }
+
+    .reservations-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+    }
+
+    .reservations-table thead {
+        background: #f9fafb;
+    }
+
+    .reservations-table th,
+    .reservations-table td {
+        padding: 0.6rem 0.5rem;
+        border-bottom: 1px solid var(--res-border);
+        white-space: nowrap;
+    }
+
+    .reservations-table th {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #9ca3af;
+        font-weight: 600;
+    }
+
+    .reservations-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .reservations-table tbody tr:hover {
+        background: #f9fafb;
+    }
+
+    .reservations-table .res-id {
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .reservations-table .res-studio {
+        max-width: 160px;
+        white-space: normal;
+    }
+
+    .reservations-table .res-project-summary {
+        max-width: 260px;
+        white-space: normal;
+        font-size: 0.85rem;
+        color: #374151;
+    }
+
+    .res-text-muted {
+        color: var(--res-muted);
+        font-size: 0.8rem;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.15rem 0.65rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+    }
+
+    .status-pill--pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-pill--confirmed {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-pill--cancelled {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status-pill--default {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    @media (max-width: 768px) {
+        .reservations-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .reservations-header-actions {
+            justify-content: flex-start;
+        }
+
+        .reservations-card {
+            padding: 0.6rem 0.4rem;
+        }
+
+        .reservations-table {
+            font-size: 0.8rem;
+        }
+
+        .reservations-table .res-project-summary {
+            max-width: 180px;
+        }
+    }
+</style>
+
+<div class="reservations-page">
+    <div class="reservations-header">
+        <div class="reservations-header-title">
+            <h1>Mes réservations & projets</h1>
+            <small>
+                Retrouvez ici vos réservations de studios/équipements et vos demandes de projet.
+            </small>
+        </div>
+
+        <div class="reservations-header-actions">
+            <a href="{% url 'studio:user_project_reservation_create' %}"
+               class="btn-res-primary">
+                🎙️ Nouvelle demande de projet
+            </a>
+
+            <a href="{% url 'studio:user_reservations_create' %}"
+               class="btn-res-secondary">
+                + Réservation simple
+            </a>
+        </div>
+    </div>
+
+    <div class="reservations-card">
+        <div class="table-responsive">
+            <table class="reservations-table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Créé le</th>
+                    <th>Studio</th>
+                    <th>Service</th>
+                    <th>Début</th>
+                    <th>Fin</th>
+                    <th>Statut</th>
+                    <th>Résumé projet</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for r in reservations %}
+                    <tr>
+                        <td class="res-id">#{{ r.id }}</td>
+                        <td>{{ r.created_at|date:"d/m/Y H:i" }}</td>
+                        <td class="res-studio">
+                            {% if r.studio %}
+                                {{ r.studio.name }}
+                            {% else %}
+                                <span class="res-text-muted">–</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if r.service %}
+                                {{ r.service }}
+                            {% else %}
+                                <span class="res-text-muted">–</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ r.start_datetime|date:"d/m/Y H:i" }}</td>
+                        <td>{{ r.end_datetime|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            {# on adapte le style en fonction du status "brut" #}
+                            {% with r.status as raw_status %}
+                                {% if raw_status == "PENDING" %}
+                                    <span class="status-pill status-pill--pending">
+                                        {{ r.get_status_display }}
+                                    </span>
+                                {% elif raw_status == "CONFIRMED" or raw_status == "APPROVED" %}
+                                    <span class="status-pill status-pill--confirmed">
+                                        {{ r.get_status_display }}
+                                    </span>
+                                {% elif raw_status == "CANCELLED" %}
+                                    <span class="status-pill status-pill--cancelled">
+                                        {{ r.get_status_display }}
+                                    </span>
+                                {% else %}
+                                    <span class="status-pill status-pill--default">
+                                        {{ r.get_status_display }}
+                                    </span>
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td class="res-project-summary">
+                            {% if r.project_summary %}
+                                {{ r.project_summary|truncatechars:80 }}
+                            {% else %}
+                                <span class="res-text-muted">Aucun résumé renseigné</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">
+                            <span class="res-text-muted">
+                                Vous n'avez pas encore de réservation ni de demande de projet.
+                            </span>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<div class="table-responsive">
-    <table class="table table-striped table-sm align-middle">
-        <thead>
-        <tr>
-            <th>#</th>
-            <th>Studio</th>
-            <th>Service</th>
-            <th>Début</th>
-            <th>Fin</th>
-            <th>Statut</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for r in reservations %}
-            <tr>
-                <td>{{ r.id }}</td>
-                <td>{{ r.studio|default:"-" }}</td>
-                <td>{{ r.service|default:"-" }}</td>
-                <td>{{ r.start_datetime|date:"d/m/Y H:i" }}</td>
-                <td>{{ r.end_datetime|date:"d/m/Y H:i" }}</td>
-                <td>{{ r.get_status_display }}</td>
-            </tr>
-        {% empty %}
-            <tr>
-                <td colspan="6" class="text-center text-muted">
-                    Vous n'avez pas encore de réservation.
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-</div>
 {% endblock %}

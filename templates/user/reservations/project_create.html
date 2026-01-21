@@ -1,0 +1,630 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Réserver le studio podcast Oloustream{% endblock %}
+
+{% block content %}
+
+<style>
+/* ✅ Bootstrap Icons */
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+
+/* ✅ Fallback variables (si pas définies dans base.html) */
+:root{
+  --text-main: var(--text-main, #f1f5f9);
+  --text-light: var(--text-light, rgba(241,245,249,.72));
+  --radius-lg: var(--radius-lg, 18px);
+  --transition-smooth: var(--transition-smooth, .18s ease-in-out);
+}
+
+/* ✅ Container + typo (réduit la “grosse police”) */
+section.container{
+  max-width: 1020px;
+  font-size: .95rem;                 /* 👈 réduit globalement */
+  line-height: 1.45;
+}
+section.container h1{
+  font-size: 1.65rem;                /* 👈 plus propre */
+  font-weight: 900;
+  letter-spacing: -.02em;
+  margin-bottom: .25rem;
+}
+section.container .lead{
+  font-size: 1rem;
+  color: var(--text-light);
+}
+
+/* ✅ Cartes (studio + sections) */
+.card{
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(148,163,184,.18);
+  background: rgba(255,255,255,.02);
+  box-shadow: 0 18px 50px rgba(0,0,0,.35);
+}
+.card .card-body{ padding: 1rem; }
+.card .card-title{ font-weight: 900; margin-bottom: .35rem; }
+.card .card-text{ margin-bottom: .35rem; }
+
+/* ✅ Alert plus “soft” */
+.alert{
+  border-radius: 16px;
+  border: 1px solid rgba(148,163,184,.18);
+  background: rgba(56,189,248,.08);
+  color: var(--text-main);
+}
+
+/* ✅ Form spacing */
+section.container form{ margin-top: 1rem; }
+section.container form .row{ row-gap: .75rem; }
+
+/* ✅ Labels + helptext + erreurs */
+label{
+  display: block;
+  font-size: .86rem;
+  font-weight: 700;
+  color: var(--text-light);
+  margin-bottom: .35rem;
+}
+.helptext{
+  display:block;
+  margin-top: .35rem;
+  font-size: .82rem;
+  color: rgba(241,245,249,.62);
+}
+.errorlist{
+  list-style: none;
+  padding-left: 0;
+  margin: .4rem 0 0 0;
+  font-size: .85rem;
+  font-weight: 700;
+  color: rgba(220,53,69,.95);
+}
+.errorlist li{ margin: .15rem 0; }
+
+/* ✅ Champs (même si Django n’ajoute pas form-control) */
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+select, textarea{
+  width: 100%;
+  font-size: .95rem;                 /* 👈 réduit */
+  padding: .62rem .8rem;
+  border-radius: 14px;
+  border: 1px solid rgba(148,163,184,.22);
+  background: rgba(255,255,255,.02);
+  color: var(--text-main);
+  outline: none;
+  transition: var(--transition-smooth);
+}
+textarea{ min-height: 110px; }
+input:focus, select:focus, textarea:focus{
+  border-color: rgba(99,102,241,.55);
+  box-shadow: 0 0 0 .18rem rgba(99,102,241,.18);
+}
+::placeholder{ color: rgba(241,245,249,.45); }
+
+/* ✅ Checkboxes/radios lisibles même sans wrapper Bootstrap */
+input[type="checkbox"], input[type="radio"]{
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-top: .15rem;
+  accent-color: #6366f1;
+}
+.col-md-4.mb-2{
+  display:flex;
+  align-items:flex-start;
+  gap:.55rem;
+}
+.col-md-4.mb-2 label{
+  margin: 0;
+  font-weight: 700;
+  color: var(--text-main);
+  font-size: .92rem;
+}
+
+/* ✅ Required étoile */
+label.is-required::after{
+  content:" *";
+  color: rgba(220,53,69,.95);
+  font-weight: 900;
+}
+
+/* ✅ Inputs invalid */
+.is-invalid{
+  border-color: rgba(220,53,69,.9)!important;
+  box-shadow: 0 0 0 .18rem rgba(220,53,69,.18)!important;
+}
+
+/* ✅ Sections transformées (h2 => header pro) */
+.form-section{
+  border: 1px solid rgba(148,163,184,.18);
+  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+  border-radius: var(--radius-lg);
+  padding: .95rem .95rem .85rem;
+  box-shadow: 0 18px 55px rgba(0,0,0,.38);
+  margin-top: .95rem;
+}
+.form-section .section-content{
+  margin-top: .85rem;
+  padding-top: .85rem;
+  border-top: 1px dashed rgba(148,163,184,.20);
+}
+.form-section.is-collapsed .section-content{ display:none; }
+
+/* Header clickable */
+.section-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 1rem;
+  cursor:pointer;
+  user-select:none;
+
+  margin: 0;                         /* 👈 enlève l’énorme marge du H2 */
+  font-size: 1.02rem;                /* 👈 plus petit que H2 par défaut */
+  font-weight: 900;
+  letter-spacing: -.01em;
+}
+.section-title .title-left{
+  display:flex;
+  align-items:center;
+  gap:.7rem;
+  min-width: 0;
+}
+.section-title .title-left .sec-icon{
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display:grid;
+  place-items:center;
+  background: rgba(99,102,241,.12);
+  border: 1px solid rgba(99,102,241,.22);
+  box-shadow: 0 12px 30px rgba(0,0,0,.30);
+  flex: 0 0 auto;
+}
+.section-title .title-left .sec-icon i{
+  font-size: 1rem;
+  color: var(--text-main);
+}
+.section-title .title-left .sec-text{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.section-title .title-right{
+  display:flex;
+  align-items:center;
+  gap:.55rem;
+  flex: 0 0 auto;
+}
+.section-title .step-badge{
+  font-weight: 900;
+  font-size: .75rem;
+  padding: .28rem .55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148,163,184,.22);
+  background: rgba(255,255,255,.02);
+  color: var(--text-light);
+}
+.section-title .chev{
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(148,163,184,.20);
+  background: rgba(255,255,255,.02);
+  display:grid;
+  place-items:center;
+  transition: var(--transition-smooth);
+  color: var(--text-light);
+}
+.form-section.is-collapsed .section-title .chev{
+  transform: rotate(-90deg);
+  opacity: .85;
+}
+
+/* ✅ Bouton submit plus “premium” et moins gros */
+.btn-primary.btn-lg{
+  font-size: 1rem;
+  padding: .72rem 1rem;
+  border-radius: 16px;
+}
+.btn-primary{
+  display:inline-flex;
+  align-items:center;
+  gap:.7rem;
+}
+.btn-primary .btn-ico{
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display:grid;
+  place-items:center;
+  background: rgba(0,0,0,.16);
+  border: 1px solid rgba(255,255,255,.14);
+}
+.btn-primary .btn-ico i{ font-size: 1.05rem; }
+</style>
+
+<section class="container py-5">
+
+  {% if studio %}
+    <div class="mb-4">
+      <a href="{% url 'studio:user_studio_detail' studio.pk %}" class="btn btn-sm btn-outline-secondary mb-2">
+        ← Retour au détail du studio
+      </a>
+      <h1 class="mb-1">Réserver {{ studio.name }}</h1>
+      <p class="text-muted">
+        {% if studio.city or studio.country %}
+          {{ studio.city|default:"" }}{% if studio.city and studio.country %}, {% endif %}{{ studio.country|default:"" }}
+        {% else %}
+          Localisation à préciser
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-lg-4">
+        <div class="card">
+          {% if studio.image %}
+            <img src="{{ studio.image.url }}" class="card-img-top" alt="{{ studio.name }}">
+          {% else %}
+            <img src="{% static 'img/default_studio.jpg' %}" class="card-img-top" alt="{{ studio.name }}">
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ studio.name }}</h5>
+            <p class="card-text text-muted mb-2">
+              {{ studio.address|default:"" }}{% if studio.address and studio.city %}, {% endif %}{{ studio.city|default:"" }}
+            </p>
+            <p class="small mb-2">
+              <strong>Type :</strong> {{ studio.get_studio_type_display }}<br>
+              <strong>Superficie :</strong> {% if studio.area_m2 %}{{ studio.area_m2 }} m²{% else %}—{% endif %}<br>
+              <strong>Capacité :</strong> {% if studio.capacity %}{{ studio.capacity }} pers.{% else %}—{% endif %}
+            </p>
+            <p class="mb-0">
+              {% if studio.price_per_hour %}
+                <strong>{{ studio.price_per_hour }} FCFA</strong> <span class="text-muted">/ heure</span>
+              {% else %}
+                <span class="text-muted">Tarif sur devis</span>
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-8 d-flex align-items-center">
+        <div class="alert alert-info w-100 mb-0">
+          Votre demande sera examinée par notre équipe. Vous recevrez une confirmation par email et/ou via votre espace utilisateur.
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <h1 class="mb-2">🎙️ Réserver le studio podcast Oloustream</h1>
+    <p class="lead">Dites-nous ce que vous voulez créer, nous vous aidons à le produire.</p>
+  {% endif %}
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    {# important : envoyé même si hidden #}
+    {{ form.studio }}
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    <h2 class="mt-4 mb-2">🧩 1. Vos informations</h2>
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        {{ form.contact_full_name.label_tag }} {{ form.contact_full_name }}
+        {{ form.contact_full_name.errors }}
+      </div>
+      <div class="col-md-6 mb-3">
+        {{ form.contact_company.label_tag }} {{ form.contact_company }}
+        {{ form.contact_company.errors }}
+      </div>
+      <div class="col-md-4 mb-3">
+        {{ form.contact_phone.label_tag }} {{ form.contact_phone }}
+        {{ form.contact_phone.errors }}
+      </div>
+      <div class="col-md-4 mb-3">
+        {{ form.contact_email.label_tag }} {{ form.contact_email }}
+        {{ form.contact_email.errors }}
+      </div>
+      <div class="col-md-2 mb-3">
+        {{ form.contact_city.label_tag }} {{ form.contact_city }}
+        {{ form.contact_city.errors }}
+      </div>
+      <div class="col-md-2 mb-3">
+        {{ form.contact_country.label_tag }} {{ form.contact_country }}
+        {{ form.contact_country.errors }}
+      </div>
+    </div>
+
+    <h2 class="mt-4 mb-2">🎬 2. Votre projet vidéo</h2>
+    <div class="mb-3">
+      {{ form.project_summary.label_tag }} {{ form.project_summary }}
+      {{ form.project_summary.errors }}
+    </div>
+    <div class="mb-3">
+      {{ form.project_references.label_tag }} {{ form.project_references }}
+      {{ form.project_references.errors }}
+    </div>
+
+    <h2 class="mt-4 mb-2">🎙️ 3. Format & configuration du plateau</h2>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        {{ form.format_type.label_tag }} {{ form.format_type }}
+        {{ form.format_type.errors }}
+      </div>
+      <div class="col-md-4 mb-3">
+        {{ form.participants_count.label_tag }} {{ form.participants_count }}
+        {{ form.participants_count.errors }}
+      </div>
+      <div class="col-md-4 mb-3">
+        {{ form.participants_details.label_tag }} {{ form.participants_details }}
+        {{ form.participants_details.errors }}
+      </div>
+    </div>
+
+    <h2 class="mt-4 mb-2">⏱️ 4. Durée & volume de production</h2>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        {{ form.episode_duration_minutes.label_tag }} {{ form.episode_duration_minutes }}
+        {{ form.episode_duration_minutes.errors }}
+      </div>
+      <div class="col-md-4 mb-3">
+        {{ form.episodes_count.label_tag }} {{ form.episodes_count }}
+        {{ form.episodes_count.errors }}
+      </div>
+      <div class="col-md-4 mb-3">
+        {{ form.episodes_notes.label_tag }} {{ form.episodes_notes }}
+        {{ form.episodes_notes.errors }}
+      </div>
+    </div>
+
+    <h2 class="mt-4 mb-2">📅 5. Période d’enregistrement souhaitée</h2>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        {{ form.preferred_period.label_tag }} {{ form.preferred_period }}
+        {{ form.preferred_period.errors }}
+      </div>
+      <div class="col-md-4 mb-3">
+        {{ form.preferred_date_1.label_tag }} {{ form.preferred_date_1 }}
+        {{ form.preferred_date_1.errors }}
+      </div>
+      <div class="col-md-4 mb-3">
+        {{ form.preferred_date_2.label_tag }} {{ form.preferred_date_2 }}
+        {{ form.preferred_date_2.errors }}
+      </div>
+    </div>
+    <div class="mb-3">
+      {{ form.scheduling_notes.label_tag }} {{ form.scheduling_notes }}
+      {{ form.scheduling_notes.errors }}
+    </div>
+
+    <h2 class="mt-4 mb-2">🎥 6. Type d’accompagnement souhaité</h2>
+    <div class="row">
+      <div class="col-md-4 mb-2">{{ form.rental_studio_only }} {{ form.rental_studio_only.label_tag }}</div>
+      <div class="col-md-4 mb-2">{{ form.option_custom_set }} {{ form.option_custom_set.label_tag }}</div>
+      <div class="col-md-4 mb-2">{{ form.option_make_up }} {{ form.option_make_up.label_tag }}</div>
+      <div class="col-md-4 mb-2">{{ form.option_technical_team }} {{ form.option_technical_team.label_tag }}</div>
+      <div class="col-md-4 mb-2">{{ form.option_video_editing }} {{ form.option_video_editing.label_tag }}</div>
+      <div class="col-md-4 mb-2">{{ form.option_express_delivery }} {{ form.option_express_delivery.label_tag }}</div>
+    </div>
+    <div class="mb-3">
+      {{ form.support_other_details.label_tag }} {{ form.support_other_details }}
+      {{ form.support_other_details.errors }}
+    </div>
+
+    <h2 class="mt-4 mb-2">⏳ 7. Délais & attentes</h2>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        {{ form.delivery_deadline.label_tag }} {{ form.delivery_deadline }}
+        {{ form.delivery_deadline.errors }}
+      </div>
+    </div>
+    <div class="mb-3">
+      {{ form.specific_constraints.label_tag }} {{ form.specific_constraints }}
+      {{ form.specific_constraints.errors }}
+    </div>
+
+    <h2 class="mt-4 mb-2">💰 8. Budget indicatif</h2>
+    <div class="row">
+      <div class="col-md-4 mb-2">{{ form.budget_known }} {{ form.budget_known.label_tag }}</div>
+      <div class="col-md-4 mb-3">
+        {{ form.budget_min.label_tag }} {{ form.budget_min }}
+        {{ form.budget_min.errors }}
+      </div>
+      <div class="col-md-4 mb-3">
+        {{ form.budget_max.label_tag }} {{ form.budget_max }}
+        {{ form.budget_max.errors }}
+      </div>
+    </div>
+    <div class="mb-3">
+      {{ form.budget_notes.label_tag }} {{ form.budget_notes }}
+      {{ form.budget_notes.errors }}
+    </div>
+
+    <h2 class="mt-4 mb-2">🤝 9. Besoin d’échanger avant ?</h2>
+    <div class="row">
+      <div class="col-md-4 mb-2">{{ form.contact_pref_call }} {{ form.contact_pref_call.label_tag }}</div>
+      <div class="col-md-4 mb-2">{{ form.contact_pref_meeting }} {{ form.contact_pref_meeting.label_tag }}</div>
+      <div class="col-md-4 mb-2">{{ form.contact_pref_email_quote }} {{ form.contact_pref_email_quote.label_tag }}</div>
+    </div>
+
+    <h2 class="mt-4 mb-2">Créneau souhaité (obligatoire)</h2>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        {{ form.reservation_date.label_tag }} {{ form.reservation_date }}
+        {{ form.reservation_date.errors }}
+      </div>
+      <div class="col-md-4 mb-3">
+        {{ form.start_time.label_tag }} {{ form.start_time }}
+        {{ form.start_time.errors }}
+      </div>
+      <div class="col-md-4 mb-3">
+        {{ form.end_time.label_tag }} {{ form.end_time }}
+        {{ form.end_time.errors }}
+      </div>
+    </div>
+
+    <h2 class="mt-4 mb-2">Message de clôture</h2>
+    <div class="mb-3">
+      {{ form.client_additional_message.label_tag }} {{ form.client_additional_message }}
+      {{ form.client_additional_message.errors }}
+    </div>
+
+    <div class="mt-4">
+      <button type="submit" class="btn btn-primary btn-lg">
+        👉 Envoyer ma demande & être accompagné
+      </button>
+    </div>
+  </form>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('section.container form');
+  if (!form) return;
+
+  // ✅ 0) Rendre les champs “propres” même si le Form Django n’a pas form-control
+  form.querySelectorAll('input, select, textarea').forEach((el) => {
+    const t = (el.getAttribute('type') || '').toLowerCase();
+    if (t === 'hidden') return;
+
+    // text/select/textarea
+    if (t !== 'checkbox' && t !== 'radio') {
+      // évite de casser des classes existantes
+      el.classList.add('form-control');
+      // petit bonus : si tu veux encore plus petit, décommente :
+      // el.classList.add('form-control-sm');
+    } else {
+      // checkbox/radio
+      el.classList.add('form-check-input');
+    }
+  });
+
+  form.querySelectorAll('label').forEach((lab) => {
+    lab.classList.add('form-label');
+  });
+
+  // --- Utils
+  const stripEmojiPrefix = (s) => {
+    if (!s) return s;
+    return s
+      .replace(/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F1E6}-\u{1F1FF}\u{FE0F}\u{200D}\s]+/gu, '')
+      .trim();
+  };
+
+  const iconForTitle = (t) => {
+    const x = t.toLowerCase();
+    if (x.includes('vos informations')) return 'bi-person-lines-fill';
+    if (x.includes('projet')) return 'bi-camera-reels';
+    if (x.includes('format') || x.includes('plateau')) return 'bi-mic';
+    if (x.includes('durée') || x.includes('volume')) return 'bi-clock-history';
+    if (x.includes('période') || x.includes('enregistrement')) return 'bi-calendar-event';
+    if (x.includes('accompagnement')) return 'bi-gear';
+    if (x.includes('délais') || x.includes('attentes')) return 'bi-hourglass-split';
+    if (x.includes('budget')) return 'bi-cash-coin';
+    if (x.includes('échanger') || x.includes('avant')) return 'bi-chat-dots';
+    if (x.includes('créneau')) return 'bi-calendar2-check';
+    if (x.includes('clôture') || x.includes('message')) return 'bi-send';
+    return 'bi-dot';
+  };
+
+  // --- 1) Remplacer emoji dans h1 (page sans studio)
+  const h1 = document.querySelector('section.container h1');
+  if (h1) {
+    const raw = h1.textContent.trim();
+    const clean = stripEmojiPrefix(raw);
+    if (clean !== raw) {
+      h1.innerHTML = `
+        <span style="display:inline-flex;align-items:center;gap:.65rem;">
+          <i class="bi bi-mic-fill" style="color:var(--text-main);"></i>
+          <span>${clean}</span>
+        </span>
+      `;
+    }
+  }
+
+  // --- 2) Transformer chaque section H2 en “carte” repliable + icône
+  const h2s = Array.from(form.querySelectorAll('h2'));
+  h2s.forEach((h2, idx) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'form-section';
+
+    const content = document.createElement('div');
+    content.className = 'section-content';
+
+    h2.parentNode.insertBefore(wrapper, h2);
+    wrapper.appendChild(h2);
+
+    let next = wrapper.nextSibling;
+    while (next && !(next.nodeType === 1 && next.tagName === 'H2')) {
+      const current = next;
+      next = next.nextSibling;
+      if (current.nodeType === 3 && !current.textContent.trim()) continue;
+      content.appendChild(current);
+    }
+    wrapper.appendChild(content);
+
+    const rawTitle = h2.textContent.trim();
+    const cleanTitle = stripEmojiPrefix(rawTitle);
+    const bi = iconForTitle(cleanTitle);
+
+    h2.classList.add('section-title');
+    h2.setAttribute('role', 'button');
+    h2.setAttribute('tabindex', '0');
+    h2.setAttribute('aria-expanded', 'true');
+
+    h2.innerHTML = `
+      <span class="title-left">
+        <span class="sec-icon"><i class="bi ${bi}"></i></span>
+        <span class="sec-text">${cleanTitle}</span>
+      </span>
+      <span class="title-right">
+        <span class="step-badge">Étape ${idx + 1}</span>
+        <span class="chev"><i class="bi bi-chevron-down"></i></span>
+      </span>
+    `;
+
+    const toggle = () => {
+      const collapsed = wrapper.classList.toggle('is-collapsed');
+      h2.setAttribute('aria-expanded', String(!collapsed));
+    };
+
+    h2.addEventListener('click', toggle);
+    h2.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggle();
+      }
+    });
+  });
+
+  // --- 3) Ouvrir automatiquement la section qui contient une erreur Django
+  const firstError = form.querySelector('.errorlist, .alert-danger');
+  if (firstError) {
+    const sec = firstError.closest('.form-section');
+    if (sec) sec.classList.remove('is-collapsed');
+    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // --- 4) Ajouter * aux champs required
+  form.querySelectorAll('input, select, textarea').forEach((el) => {
+    if (!el.required || !el.id) return;
+    const label = form.querySelector(`label[for="${CSS.escape(el.id)}"]`);
+    if (label) label.classList.add('is-required');
+  });
+
+  // --- 5) Remplacer l’emoji du bouton (👉) par une vraie icône
+  const submitBtn = form.querySelector('button[type="submit"].btn-primary');
+  if (submitBtn) {
+    const txt = submitBtn.textContent.trim();
+    const clean = stripEmojiPrefix(txt).replace(/^👉\s*/,'').trim();
+    submitBtn.innerHTML = `<span class="btn-ico"><i class="bi bi-send-fill"></i></span><span>${clean}</span>`;
+  }
+});
+</script>
+{% endblock %}

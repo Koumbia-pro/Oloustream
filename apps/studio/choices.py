@@ -29,3 +29,20 @@ class StudioStatusChoices(models.TextChoices):
     AVAILABLE = "AVAILABLE", "Disponible"
     UNAVAILABLE = "UNAVAILABLE", "Indisponible"
     MAINTENANCE = "MAINTENANCE", "En maintenance"
+
+#============================================== pour le nouveau rversation=================================================
+class ProjectFormatChoices(models.TextChoices):
+    MONOLOGUE = 'MONOLOGUE', 'Monologue (1 intervenant)'
+    INTERVIEW = 'INTERVIEW', 'Entretien / interview'
+    TALK_SHOW = 'TALK_SHOW', 'Talk-show / débat'
+    OTHER = 'OTHER', 'Autre'
+
+class PreferredPeriodChoices(models.TextChoices):
+    WEEKDAY = 'WEEKDAY', 'En semaine'
+    WEEKEND = 'WEEKEND', 'Week-end'
+    FLEXIBLE = 'FLEXIBLE', 'À définir / flexible'
+
+class DeliveryDeadlineChoices(models.TextChoices):
+    STANDARD = 'STANDARD', 'Standard'
+    URGENT = 'URGENT', 'Urgent'
+    TO_DISCUSS = 'TO_DISCUSS', 'À discuter'

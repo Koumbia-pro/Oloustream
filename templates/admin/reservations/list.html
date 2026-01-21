@@ -14,54 +14,29 @@
 
 <!-- Statistiques -->
 <div class="row g-3 mb-3">
-    <div class="col-md-2 col-6">
-        <div class="card shadow-sm border-0">
-            <div class="card-body py-2">
-                <p class="text-muted mb-1">Total</p>
-                <h5 class="mb-0">{{ total_count }}</h5>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-2 col-6">
-        <div class="card shadow-sm border-0">
-            <div class="card-body py-2">
-                <p class="text-muted mb-1">En attente</p>
-                <h5 class="mb-0 text-warning">{{ pending_count }}</h5>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-2 col-6">
-        <div class="card shadow-sm border-0">
-            <div class="card-body py-2">
-                <p class="text-muted mb-1">Confirmées</p>
-                <h5 class="mb-0 text-success">{{ confirmed_count }}</h5>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-2 col-6">
-        <div class="card shadow-sm border-0">
-            <div class="card-body py-2">
-                <p class="text-muted mb-1">Terminées</p>
-                <h5 class="mb-0 text-primary">{{ completed_count }}</h5>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-2 col-6">
-        <div class="card shadow-sm border-0">
-            <div class="card-body py-2">
-                <p class="text-muted mb-1">Annulées / refusées</p>
-                <h6 class="mb-0 text-danger">{{ cancelled_count|add:rejected_count }}</h6>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-2 col-6">
-        <div class="card shadow-sm border-0">
-            <div class="card-body py-2">
-                <p class="text-muted mb-1">À venir / passées</p>
-                <h6 class="mb-0">{{ upcoming_count }} / {{ past_count }}</h6>
-            </div>
-        </div>
-    </div>
+    <div class="col-md-2 col-6"><div class="card shadow-sm border-0"><div class="card-body py-2">
+        <p class="text-muted mb-1">Total</p><h5 class="mb-0">{{ total_count }}</h5>
+    </div></div></div>
+
+    <div class="col-md-2 col-6"><div class="card shadow-sm border-0"><div class="card-body py-2">
+        <p class="text-muted mb-1">En attente</p><h5 class="mb-0 text-warning">{{ pending_count }}</h5>
+    </div></div></div>
+
+    <div class="col-md-2 col-6"><div class="card shadow-sm border-0"><div class="card-body py-2">
+        <p class="text-muted mb-1">Confirmées</p><h5 class="mb-0 text-success">{{ confirmed_count }}</h5>
+    </div></div></div>
+
+    <div class="col-md-2 col-6"><div class="card shadow-sm border-0"><div class="card-body py-2">
+        <p class="text-muted mb-1">Terminées</p><h5 class="mb-0 text-primary">{{ completed_count }}</h5>
+    </div></div></div>
+
+    <div class="col-md-2 col-6"><div class="card shadow-sm border-0"><div class="card-body py-2">
+        <p class="text-muted mb-1">Annulées / refusées</p><h6 class="mb-0 text-danger">{{ cancelled_count|add:rejected_count }}</h6>
+    </div></div></div>
+
+    <div class="col-md-2 col-6"><div class="card shadow-sm border-0"><div class="card-body py-2">
+        <p class="text-muted mb-1">À venir / passées</p><h6 class="mb-0">{{ upcoming_count }} / {{ past_count }}</h6>
+    </div></div></div>
 </div>
 
 <!-- Recherche & filtres -->
@@ -133,33 +108,51 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                 <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Client</th>
-                    <th scope="col">Service</th>
-                    <th scope="col">Studio</th>
-                    <th scope="col">Début</th>
-                    <th scope="col">Fin</th>
-                    <th scope="col">Statut</th>
-                    <th scope="col">Technicien</th>
-                    <th scope="col">Équipements</th>
-                    <th scope="col" class="text-end">Actions</th>
+                    <th>ID</th>
+                    <th>Client</th>
+                    <th>Service</th>
+                    <th>Studio</th>
+                    <th>Début</th>
+                    <th>Fin</th>
+                    <th>Statut</th>
+                    <th>Technicien</th>
+                    <th>Équipements</th>
+                    <th class="text-end">Actions</th>
                 </tr>
                 </thead>
+
                 <tbody>
                 {% for r in page_obj %}
                     <tr>
-                        <td>{{ r.id }}</td>
+                        <td class="fw-semibold">#{{ r.id }}</td>
+
                         <td>
                             {{ r.user.get_full_name|default:r.user.username }}<br>
                             <small class="text-muted">{{ r.user.email }}</small>
                         </td>
-                        <td>{{ r.service.name|default:"-" }}</td>
-                        <td>{{ r.studio.name|default:"-" }}</td>
+
+                        <td>{% if r.service %}{{ r.service.name }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
+                        <td>{% if r.studio %}{{ r.studio.name }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
+
                         <td>{{ r.start_datetime|date:"d/m/Y H:i" }}</td>
                         <td>{{ r.end_datetime|date:"d/m/Y H:i" }}</td>
+
                         <td>
-                            {{ r.get_status_display }}
+                            {% if r.status == 'PENDING' %}
+                                <span class="badge text-bg-warning">En attente</span>
+                            {% elif r.status == 'CONFIRMED' %}
+                                <span class="badge text-bg-success">Confirmée</span>
+                            {% elif r.status == 'COMPLETED' %}
+                                <span class="badge text-bg-primary">Terminée</span>
+                            {% elif r.status == 'CANCELLED' %}
+                                <span class="badge text-bg-danger">Annulée</span>
+                            {% elif r.status == 'REJECTED' %}
+                                <span class="badge text-bg-danger">Refusée</span>
+                            {% else %}
+                                <span class="badge text-bg-secondary">{{ r.get_status_display }}</span>
+                            {% endif %}
                         </td>
+
                         <td>
                             {% if r.assigned_technician %}
                                 {{ r.assigned_technician.get_full_name|default:r.assigned_technician.username }}
@@ -167,21 +160,71 @@
                                 <span class="text-muted">Non assigné</span>
                             {% endif %}
                         </td>
-                        <td>{{ r.equipments.count }}</td>
+
+                        <td>
+                            <div class="fw-semibold">{{ r.equipments.count }}</div>
+                            {% if r.equipments.count > 0 %}
+                                <small class="text-muted">
+                                    {% for e in r.equipments.all|slice:":2" %}
+                                        {{ e.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                    {% if r.equipments.count > 2 %}…{% endif %}
+                                </small>
+                            {% else %}
+                                <small class="text-muted">Aucun</small>
+                            {% endif %}
+                        </td>
+
                         <td class="text-end">
                             <div class="btn-group btn-group-sm" role="group">
                                 <a href="{% url 'dashboard:reservations_detail' r.id %}"
-                                class="btn btn-outline-secondary" title="Détails">
+                                   class="btn btn-outline-secondary" title="Détails">
                                     <i class="ph ph-eye"></i>
                                 </a>
 
-                                {% if r.status != 'CANCELLED' and r.status != 'REJECTED' %}
-                                    <a href="{% url 'dashboard:reservations_quick_cancel' r.id %}"
-                                    class="btn btn-outline-danger"
-                                    title="Annuler la réservation"
-                                    onclick="return confirm('Confirmer l\'annulation de la réservation #{{ r.id }} ?');">
-                                        <i class="ph ph-x-circle"></i>
-                                    </a>
+                                {# ✅ Actions rapides POST #}
+                                {% if r.status == 'PENDING' %}
+                                    <form method="post" action="{% url 'dashboard:reservations_set_status' r.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                        <input type="hidden" name="status" value="CONFIRMED">
+                                        <button class="btn btn-outline-success" title="Confirmer">
+                                            <i class="ph ph-check-circle"></i>
+                                        </button>
+                                    </form>
+
+                                    <form method="post" action="{% url 'dashboard:reservations_set_status' r.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                        <input type="hidden" name="status" value="REJECTED">
+                                        <button class="btn btn-outline-danger" title="Refuser"
+                                                onclick="return confirm('Refuser la réservation #{{ r.id }} ?');">
+                                            <i class="ph ph-x-circle"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
+
+                                {% if r.status == 'CONFIRMED' %}
+                                    <form method="post" action="{% url 'dashboard:reservations_set_status' r.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                        <input type="hidden" name="status" value="COMPLETED">
+                                        <button class="btn btn-outline-primary" title="Terminer">
+                                            <i class="ph ph-flag-checkered"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
+
+                                {% if r.status != 'CANCELLED' and r.status != 'REJECTED' and r.status != 'COMPLETED' %}
+                                    <form method="post" action="{% url 'dashboard:reservations_set_status' r.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                        <input type="hidden" name="status" value="CANCELLED">
+                                        <button class="btn btn-outline-danger" title="Annuler"
+                                                onclick="return confirm('Annuler la réservation #{{ r.id }} ?');">
+                                            <i class="ph ph-trash"></i>
+                                        </button>
+                                    </form>
                                 {% endif %}
                             </div>
                         </td>
@@ -194,6 +237,7 @@
                     </tr>
                 {% endfor %}
                 </tbody>
+
             </table>
         </div>
     </div>
@@ -202,16 +246,15 @@
         <div class="card-footer bg-white">
             <nav aria-label="Pagination réservations">
                 <ul class="pagination justify-content-center mb-0">
+
                     {% if page_obj.has_previous %}
                         <li class="page-item">
-                            <a class="page-link"
-                               href="?page=1{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                            <a class="page-link" href="?page=1{% if base_querystring %}&{{ base_querystring }}{% endif %}">
                                 « Première
                             </a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link"
-                               href="?page={{ page_obj.previous_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
                                 ‹ Précédente
                             </a>
                         </li>
@@ -219,13 +262,10 @@
 
                     {% for num in page_obj.paginator.page_range %}
                         {% if num == page_obj.number %}
-                            <li class="page-item active" aria-current="page">
-                                <span class="page-link">{{ num }}</span>
-                            </li>
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
                         {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
                             <li class="page-item">
-                                <a class="page-link"
-                                   href="?page={{ num }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                <a class="page-link" href="?page={{ num }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
                                     {{ num }}
                                 </a>
                             </li>
@@ -234,14 +274,12 @@
 
                     {% if page_obj.has_next %}
                         <li class="page-item">
-                            <a class="page-link"
-                               href="?page={{ page_obj.next_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
                                 Suivante ›
                             </a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link"
-                               href="?page={{ page_obj.paginator.num_pages }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
                                 Dernière »
                             </a>
                         </li>

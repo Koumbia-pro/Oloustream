@@ -140,3 +140,6 @@ class ReservationStatusHistoryAdmin(admin.ModelAdmin):
     list_filter = ("old_status", "new_status")
     search_fields = ("reservation__id", "changed_by__username")
     date_hierarchy = "changed_at"
+
+
+

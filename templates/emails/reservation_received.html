@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+    <h2>Votre demande de réservation a bien été reçue ✅</h2>
+
+    <p>Bonjour {{ user_name }},</p>
+
+    <p>
+      Merci d’avoir contacté <strong>Oloustream</strong>.
+      Nous avons bien reçu votre demande de réservation <strong>#{{ reservation_id }}</strong>.
+    </p>
+
+    <p>
+      <strong>Créneau demandé :</strong><br>
+      Du {{ start|date:"d/m/Y H:i" }} au {{ end|date:"d/m/Y H:i" }}
+    </p>
+
+    {% if studio_name %}
+      <p><strong>Studio :</strong> {{ studio_name }}</p>
+    {% endif %}
+
+    <p>
+      Statut actuel : <strong>{{ status_label }}</strong><br>
+      Notre équipe va examiner votre demande et vous recontactera si nécessaire.
+    </p>
+
+    <hr>
+    <p style="font-size: 13px; color: #555;">
+      Oloustream – Creative Audio-Video Experiences<br>
+      📞 +226 64 09 31 96 · ✉️ info@oloustream.com
+    </p>
+  </body>
+</html>

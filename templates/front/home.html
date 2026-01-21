@@ -4,1340 +4,1489 @@
 
 {% block extra_css %}
 <style>
-    /* HERO SECTION IMMERSIVE */
-    .hero-full-width {
-        width: 100vw;
-        margin-left: calc(50% - 50vw);
-        margin-right: calc(50% - 50vw);
-    }
-
-    .home-hero {
-        position: relative;
-        min-height: 100vh;
-        margin: 0;
-        overflow: hidden;
-        border-radius: 0 0 40px 40px;
-        box-shadow: 0 30px 80px rgba(15, 23, 42, 0.9);
-        background: linear-gradient(135deg, #000, var(--dark));
-    }
-
-    /* VIDEO BACKGROUND WITH EFFECT */
-    .home-hero-video {
-        position: absolute;
-        inset: 0;
-        z-index: 1;
-        pointer-events: none;
-    }
-
-    .home-hero-video video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        filter: brightness(0.35) contrast(1.2);
-        animation: videoZoom 25s infinite alternate ease-in-out;
-    }
-
-    @keyframes videoZoom {
-        0% {
-            transform: scale(1);
-        }
-        100% {
-            transform: scale(1.1);
-        }
-    }
-
-    /* GRADIENT OVERLAY */
-    .home-hero-overlay {
-        position: relative;
-        z-index: 2;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 3rem 1.5rem;
-        color: var(--white);
-        background: radial-gradient(
-            circle at center,
-            rgba(230, 0, 0, 0.15) 0%,
-            rgba(0, 0, 0, 0.8) 70%
-        );
-    }
-
-    .home-hero-inner {
-        text-align: center;
-        max-width: 900px;
-        animation: fadeInUp 1s ease-out 0.3s both;
-    }
-
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* MAIN TITLE WITH GLOW EFFECT */
-    .hero-main-title {
-        font-family: 'Montserrat', sans-serif;
-        font-size: clamp(2.8rem, 4.5vw, 4rem);
-        font-weight: 900;
-        line-height: 1.15;
-        margin-bottom: 1.2rem;
-        text-transform: uppercase;
-        text-shadow: 0 0 40px rgba(255, 255, 255, 0.2);
-    }
-
-    .hero-main-title-line {
-        display: block;
-        opacity: 0;
-        transform: translateY(20px);
-        animation: lineReveal 0.8s forwards;
-    }
-
-    .hero-main-title-line:nth-child(1) {
-        animation-delay: 0.5s;
-    }
-
-    .hero-main-title-line:nth-child(2) {
-        animation-delay: 0.7s;
-    }
-
-    .hero-main-title-line:nth-child(3) {
-        animation-delay: 0.9s;
-    }
-
-    @keyframes lineReveal {
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .hero-main-title-line.highlight {
-        background: linear-gradient(90deg, var(--red), var(--gold));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        position: relative;
-        display: inline-block;
-    }
-
-    .hero-main-title-line.highlight::after {
-        content: '';
-        position: absolute;
-        bottom: -8px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 200px;
-        height: 4px;
-        background: linear-gradient(90deg, var(--red), var(--gold));
-        border-radius: 4px;
-        box-shadow: 0 0 20px rgba(230, 0, 0, 0.5);
-    }
-
-    /* SUBTITLE */
-    .hero-subtitle {
-        font-size: 1.1rem;
-        max-width: 600px;
-        margin: 0 auto 2.5rem;
-        color: var(--gray-200);
-        line-height: 1.6;
-        opacity: 0;
-        animation: fadeInUp 1s ease-out 1.1s both;
-    }
-
-    /* CTA BUTTONS WITH 3D EFFECT */
-    .hero-ctas {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 1rem;
-        margin-bottom: 2.5rem;
-        opacity: 0;
-        animation: fadeInUp 1s ease-out 1.3s both;
-    }
-
-    .hero-cta {
-        border-radius: 50px;
-        padding: 16px 32px;
-        font-size: 1rem;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        border: none;
-        cursor: pointer;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-        text-decoration: none;
-    }
-
-    .hero-cta-primary {
-        background: linear-gradient(145deg, var(--red), var(--red-dark));
-        color: var(--white);
-        box-shadow: 0 10px 30px rgba(230, 0, 0, 0.4);
-    }
-
-    .hero-cta-primary:hover {
-        transform: translateY(-5px) scale(1.05);
-        box-shadow: 0 20px 40px rgba(230, 0, 0, 0.6);
-    }
-
-    .hero-cta-primary:active {
-        transform: translateY(-2px);
-    }
-
-    .hero-cta-outline {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border: 2px solid rgba(255, 255, 255, 0.2);
-        color: var(--white);
-    }
-
-    .hero-cta-outline:hover {
-        background: rgba(255, 255, 255, 0.2);
-        border-color: var(--red);
-        transform: translateY(-3px);
-        box-shadow: 0 15px 30px rgba(230, 0, 0, 0.3);
-    }
-
-    /* STATISTICS CARDS */
-    .hero-stats-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 1.5rem;
-        max-width: 800px;
-        margin: 0 auto;
-        opacity: 0;
-        animation: fadeInUp 1s ease-out 1.5s both;
-    }
-
-    .hero-stat-card {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        padding: 25px 20px;
-        text-align: center;
-        transition: all 0.4s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .hero-stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 5px;
-        background: linear-gradient(90deg, var(--red), var(--gold));
-    }
-
-    .hero-stat-card:hover {
-        transform: translateY(-10px);
-        border-color: var(--red);
-        box-shadow: 0 20px 40px rgba(230, 0, 0, 0.2);
-    }
-
-    .hero-stat-value {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 2.5rem;
-        font-weight: 800;
-        background: linear-gradient(90deg, var(--white), var(--gold));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 5px;
-        display: block;
-    }
-
-    .hero-stat-label {
-        font-size: 0.85rem;
-        color: var(--gray-400);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    /* SCROLL HINT */
-    .hero-scroll-hint {
-        margin-top: 3rem;
-        font-size: 0.9rem;
-        color: var(--gray-400);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 5px;
-        opacity: 0;
-        animation: fadeInUp 1s ease-out 1.7s both;
-    }
-
-    .hero-scroll-hint i {
-        font-size: 1.2rem;
-        animation: bounce 2s infinite;
-    }
-
-    @keyframes bounce {
-        0%, 20%, 50%, 80%, 100% {
-            transform: translateY(0);
-        }
-        40% {
-            transform: translateY(-10px);
-        }
-        60% {
-            transform: translateY(-5px);
-        }
-    }
-
-    /* STUDIOS SECTION */
-    .home-studios-section {
-        padding: 100px 0;
-        background: linear-gradient(180deg, var(--dark) 0%, #0b1120 100%);
-        position: relative;
-    }
-
-    .home-studios-heading {
-        text-align: center;
-        margin-bottom: 3rem;
-    }
-
-    .home-studios-title {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 2.5rem;
-        font-weight: 900;
-        text-transform: uppercase;
-        color: var(--white);
-        margin-bottom: 1rem;
-        position: relative;
-        display: inline-block;
-    }
-
-    .home-studios-title::after {
-        content: '';
-        position: absolute;
-        bottom: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 100px;
-        height: 4px;
-        background: linear-gradient(90deg, var(--red), var(--gold));
-        border-radius: 4px;
-    }
-
-    .home-studios-subtitle {
-        font-size: 1.1rem;
-        color: var(--gray-400);
-        max-width: 700px;
-        margin: 0 auto;
-        line-height: 1.6;
-    }
-
-    /* STUDIO CARDS */
-    .home-studios-grid {
-        margin-top: 3rem;
-    }
-
-    .home-studio-card {
-        background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.8));
-        border-radius: 25px;
-        overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        height: 100%;
-        position: relative;
-    }
-
-    .home-studio-card::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(45deg, transparent 40%, rgba(230, 0, 0, 0.1) 100%);
-        opacity: 0;
-        transition: opacity 0.4s ease;
-    }
-
-    .home-studio-card:hover {
-        transform: translateY(-15px) scale(1.02);
-        border-color: var(--red);
-        box-shadow: 0 30px 60px rgba(230, 0, 0, 0.3);
-    }
-
-    .home-studio-card:hover::before {
-        opacity: 1;
-    }
-
-    .home-studio-card-media {
-        height: 220px;
-        overflow: hidden;
-        position: relative;
-    }
-
-    .home-studio-card-media img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.6s ease;
-    }
-
-    .home-studio-card:hover .home-studio-card-media img {
-        transform: scale(1.1);
-    }
-
-    .home-studio-card-body {
-        padding: 25px;
-        background: transparent;
-    }
-
-    .home-studio-card-title {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: var(--white);
-        margin-bottom: 10px;
-    }
-
-    .home-studio-card-desc {
-        color: var(--gray-400);
-        margin-bottom: 20px;
-        line-height: 1.5;
-    }
-
-    .btn-studio-reserve {
-        background: linear-gradient(90deg, var(--gold), #FFD700);
-        color: #000;
-        font-weight: 700;
-        border-radius: 50px;
-        padding: 12px 25px;
-        border: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        width: 100%;
-        justify-content: center;
-    }
-
-    .btn-studio-reserve:hover {
-        transform: translateX(5px);
-        box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4);
-    }
-
-    /* SERVICES SECTION */
-    .home-services {
-        padding: 100px 0;
-        background: var(--dark);
-    }
-
-    .home-section-header {
-        text-align: center;
-        margin-bottom: 3rem;
-    }
-
-    .home-section-title {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: var(--white);
-        margin-bottom: 1rem;
-        position: relative;
-        display: inline-block;
-    }
-
-    .home-section-title::after {
-        content: '';
-        position: absolute;
-        bottom: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80px;
-        height: 4px;
-        background: var(--red);
-        border-radius: 4px;
-    }
-
-    .home-section-subtitle {
-        font-size: 1.1rem;
-        color: var(--gray-400);
-        max-width: 700px;
-        margin: 0 auto;
-    }
-
-    /* SERVICE CARDS */
-    .service-card {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        padding: 30px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: all 0.4s ease;
-        height: 100%;
-    }
-
-    .service-card:hover {
-        transform: translateY(-10px);
-        border-color: var(--red);
-        box-shadow: 0 25px 50px rgba(230, 0, 0, 0.2);
-    }
-
-    .service-card-category {
-        display: inline-block;
-        background: rgba(230, 0, 0, 0.15);
-        color: var(--red);
-        padding: 5px 15px;
-        border-radius: 50px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        margin-bottom: 15px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .service-card-title {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: var(--white);
-        margin-bottom: 15px;
-    }
-
-    .service-card-desc {
-        color: var(--gray-400);
-        margin-bottom: 20px;
-        line-height: 1.5;
-    }
-
-    .service-chip {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 8px 16px;
-        border-radius: 50px;
-        font-size: 0.9rem;
-        color: var(--gold);
-        font-weight: 600;
-    }
-
-    /* PORTFOLIO SECTION */
-    .home-portfolio {
-        padding: 100px 0;
-        background: linear-gradient(180deg, #0b1120 0%, var(--dark) 100%);
-    }
-
-    .project-card {
-        background: linear-gradient(145deg, rgba(15, 23, 42, 0.8), rgba(2, 6, 23, 0.8));
-        border-radius: 25px;
-        overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: all 0.4s ease;
-        position: relative;
-    }
-
-    .project-card:hover {
-        transform: scale(1.05);
-        border-color: var(--red);
-        box-shadow: 0 30px 60px rgba(230, 0, 0, 0.3);
-    }
-
-    .project-thumb {
-        position: relative;
-        height: 0;
-        padding-bottom: 56.25%;
-        overflow: hidden;
-    }
-
-    .project-thumb iframe,
-    .project-thumb img {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        border: 0;
-        object-fit: cover;
-    }
-
-    .project-overlay {
-        padding: 20px;
-        background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        transform: translateY(100%);
-        transition: transform 0.4s ease;
-    }
-
-    .project-card:hover .project-overlay {
-        transform: translateY(0);
-    }
-
-    .project-title {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--white);
-        margin-bottom: 5px;
-    }
-
-    .project-meta {
-        font-size: 0.85rem;
-        color: var(--gray-400);
-    }
-
-    /* TESTIMONIALS */
-    .home-testimonials {
-        padding: 100px 0;
-        background: var(--dark);
-    }
-
-    .testimonial-card {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(10px);
-        border-radius: 25px;
-        padding: 30px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: all 0.3s ease;
-        height: 100%;
-    }
-
-    .testimonial-card:hover {
-        border-color: var(--red);
-        box-shadow: 0 20px 40px rgba(230, 0, 0, 0.2);
-    }
-
-    .testimonial-quote {
-        font-size: 1rem;
-        color: var(--gray-200);
-        margin-bottom: 20px;
-        line-height: 1.6;
-        font-style: italic;
-    }
-
-    .testimonial-author {
-        font-family: 'Montserrat', sans-serif;
-        font-weight: 700;
-        color: var(--white);
-    }
-
-    .testimonial-role {
-        font-size: 0.9rem;
-        color: var(--gray-400);
-    }
-
-    /* PARTNERS */
-    .home-partners {
-        padding: 80px 0;
-        background: linear-gradient(180deg, var(--dark) 0%, #000 100%);
-    }
-
-    .partner-strip {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(10px);
-        border-radius: 25px;
-        padding: 30px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .partner-logo {
-        max-height: 50px;
-        max-width: 150px;
-        object-fit: contain;
-        filter: grayscale(100%) brightness(0.8);
-        opacity: 0.7;
-        transition: all 0.3s ease;
-    }
-
-    .partner-logo:hover {
-        filter: grayscale(0%) brightness(1);
-        opacity: 1;
-        transform: scale(1.1);
-    }
-
-    /* QUOTE FORM */
-    .home-quote {
-        padding: 100px 0;
-        background: linear-gradient(135deg, var(--dark) 0%, #000 100%);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .home-quote::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -50%;
-        width: 100%;
-        height: 100%;
-        background: radial-gradient(circle, rgba(230, 0, 0, 0.1) 0%, transparent 70%);
-        animation: rotate 30s linear infinite;
-    }
-
-    @keyframes rotate {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    .quote-card {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(20px);
-        border-radius: 30px;
-        padding: 40px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
-        position: relative;
-        z-index: 2;
-    }
-
-    .quote-card label {
-        font-weight: 600;
-        color: var(--white);
-        margin-bottom: 8px;
-        display: block;
-    }
-
-    .quote-card input,
-    .quote-card select,
-    .quote-card textarea {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 15px;
-        color: var(--white);
-        padding: 12px 15px;
-        width: 100%;
-        transition: all 0.3s ease;
-    }
-
-    .quote-card input:focus,
-    .quote-card select:focus,
-    .quote-card textarea:focus {
-        outline: none;
-        border-color: var(--red);
-        box-shadow: 0 0 20px rgba(230, 0, 0, 0.3);
-        background: rgba(255, 255, 255, 0.08);
-    }
-
-    .btn-quote {
-        background: linear-gradient(90deg, var(--red), var(--red-dark));
-        color: var(--white);
-        border: none;
-        border-radius: 50px;
-        padding: 15px 40px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .btn-quote:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 15px 30px rgba(230, 0, 0, 0.4);
-    }
-
-    .btn-quote::after {
-        content: '→';
-        position: absolute;
-        right: -20px;
-        opacity: 0;
-        transition: all 0.3s ease;
-    }
-
-    .btn-quote:hover::after {
-        right: 20px;
-        opacity: 1;
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 768px) {
-        .hero-ctas {
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .hero-cta {
-            width: 100%;
-            max-width: 300px;
-            justify-content: center;
-        }
-        
-        .hero-stats-row {
-            grid-template-columns: repeat(2, 1fr);
-        }
-        
-        .home-studios-title,
-        .home-section-title {
-            font-size: 2rem;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .hero-stats-row {
-            grid-template-columns: 1fr;
-        }
-        
-        .hero-stat-card {
-            padding: 20px 15px;
-        }
-        
-        .quote-card {
-            padding: 25px;
-        }
-    }
+  /* =========================
+     PERF: réduire animations si demandé
+     ========================= */
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+    html { scroll-behavior: auto !important; }
+  }
+
+  /* HERO SECTION IMMERSIVE */
+  .hero-full-width {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+  }
+
+  .home-hero {
+    position: relative;
+    min-height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 0 0 40px 40px;
+    box-shadow: 0 30px 80px rgba(15, 23, 42, 0.9);
+    background: linear-gradient(135deg, #000, var(--dark));
+  }
+
+  .home-hero-video {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .home-hero-video video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.35) contrast(1.2);
+    transform: translateZ(0);
+    will-change: transform;
+    animation: videoZoom 25s infinite alternate ease-in-out;
+  }
+
+  @keyframes videoZoom {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.08); }
+  }
+
+  .home-hero-overlay {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    color: var(--white);
+    background: radial-gradient(circle at center,
+      rgba(230, 0, 0, 0.15) 0%,
+      rgba(0, 0, 0, 0.8) 70%
+    );
+  }
+
+  .home-hero-inner {
+    text-align: center;
+    max-width: 900px;
+    animation: fadeInUp 0.9s ease-out 0.2s both;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-main-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(2.8rem, 4.5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 1.2rem;
+    text-transform: uppercase;
+    text-shadow: 0 0 40px rgba(255, 255, 255, 0.2);
+  }
+
+  .hero-main-title-line {
+    display: block;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: lineReveal 0.7s forwards;
+  }
+  .hero-main-title-line:nth-child(1) { animation-delay: 0.45s; }
+  .hero-main-title-line:nth-child(2) { animation-delay: 0.65s; }
+  .hero-main-title-line:nth-child(3) { animation-delay: 0.85s; }
+
+  @keyframes lineReveal { to { opacity: 1; transform: translateY(0); } }
+
+  .hero-main-title-line.highlight {
+    background: linear-gradient(90deg, var(--red), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    display: inline-block;
+  }
+
+  .hero-main-title-line.highlight::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--red), var(--gold));
+    border-radius: 4px;
+    box-shadow: 0 0 20px rgba(230, 0, 0, 0.5);
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto 2.5rem;
+    color: var(--gray-200);
+    line-height: 1.6;
+    opacity: 0;
+    animation: fadeInUp 0.9s ease-out 1.0s both;
+  }
+
+  .hero-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeInUp 0.9s ease-out 1.15s both;
+  }
+
+  .hero-cta {
+    border-radius: 50px;
+    padding: 16px 32px;
+    font-size: 1rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+    will-change: transform;
+  }
+
+  .hero-cta-primary {
+    background: linear-gradient(145deg, var(--red), var(--red-dark));
+    color: var(--white);
+    box-shadow: 0 10px 30px rgba(230, 0, 0, 0.4);
+  }
+
+  .hero-cta-primary:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 20px 40px rgba(230, 0, 0, 0.55);
+  }
+
+  .hero-cta-outline {
+    background: rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: var(--white);
+  }
+
+  .hero-cta-outline:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--red);
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(230, 0, 0, 0.3);
+  }
+
+  .hero-stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+    opacity: 0;
+    animation: fadeInUp 0.9s ease-out 1.3s both;
+  }
+
+  .hero-stat-card {
+    background: rgba(255, 255, 255, 0.05);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 25px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    will-change: transform;
+    contain: layout paint style;
+  }
+
+  .hero-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, var(--red), var(--gold));
+  }
+
+  .hero-stat-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--red);
+    box-shadow: 0 20px 40px rgba(230, 0, 0, 0.2);
+  }
+
+  .hero-stat-value {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--white), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 5px;
+    display: block;
+  }
+
+  .hero-stat-label {
+    font-size: 0.85rem;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .hero-scroll-hint {
+    margin-top: 3rem;
+    font-size: 0.9rem;
+    color: var(--gray-400);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    opacity: 0;
+    animation: fadeInUp 0.9s ease-out 1.45s both;
+  }
+
+  .hero-scroll-hint i {
+    font-size: 1.2rem;
+    animation: bounce 2s infinite;
+  }
+
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-9px); }
+    60% { transform: translateY(-5px); }
+  }
+
+  /* STUDIOS SECTION */
+  .home-studios-section {
+    padding: 100px 0;
+    background: linear-gradient(180deg, var(--dark) 0%, #0b1120 100%);
+    position: relative;
+  }
+
+  .home-studios-heading { text-align: center; margin-bottom: 3rem; }
+
+  .home-studios-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 1rem;
+    position: relative;
+    display: inline-block;
+  }
+
+  .home-studios-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--red), var(--gold));
+    border-radius: 4px;
+  }
+
+  .home-studios-subtitle {
+    font-size: 1.1rem;
+    color: var(--gray-400);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .home-studio-card {
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.8));
+    border-radius: 25px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    height: 100%;
+    position: relative;
+
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    will-change: transform;
+    contain: layout paint style;
+  }
+
+  .home-studio-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, transparent 40%, rgba(230, 0, 0, 0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+  }
+
+  .home-studio-card:hover {
+    transform: translateY(-10px) scale(1.01);
+    border-color: var(--red);
+    box-shadow: 0 30px 60px rgba(230, 0, 0, 0.3);
+  }
+
+  .home-studio-card:hover::before { opacity: 1; }
+
+  .home-studio-card-media {
+    height: 220px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .home-studio-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+    will-change: transform;
+  }
+
+  .home-studio-card:hover .home-studio-card-media img { transform: scale(1.08); }
+
+  .home-studio-card-body { padding: 25px; background: transparent; }
+
+  .home-studio-card-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 10px;
+  }
+
+  .home-studio-card-desc {
+    color: var(--gray-400);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .btn-studio-reserve {
+    background: linear-gradient(90deg, var(--gold), #FFD700);
+    color: #000;
+    font-weight: 700;
+    border-radius: 50px;
+    padding: 12px 25px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    width: 100%;
+    justify-content: center;
+
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    will-change: transform;
+  }
+
+  .btn-studio-reserve:hover {
+    transform: translateX(4px);
+    box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4);
+  }
+
+  /* SERVICES */
+  .home-services { padding: 100px 0; background: var(--dark); }
+
+  .home-section-header { text-align: center; margin-bottom: 3rem; }
+
+  .home-section-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--white);
+    margin-bottom: 1rem;
+    position: relative;
+    display: inline-block;
+  }
+
+  .home-section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: var(--red);
+    border-radius: 4px;
+  }
+
+  .home-section-subtitle {
+    font-size: 1.1rem;
+    color: var(--gray-400);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .service-card {
+    background: rgba(255, 255, 255, 0.03);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    height: 100%;
+
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    will-change: transform;
+    contain: layout paint style;
+  }
+
+  .service-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--red);
+    box-shadow: 0 25px 50px rgba(230, 0, 0, 0.2);
+  }
+
+  .service-card-category {
+    display: inline-block;
+    background: rgba(230, 0, 0, 0.15);
+    color: var(--red);
+    padding: 5px 15px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .service-card-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 15px;
+  }
+
+  .service-card-desc {
+    color: var(--gray-400);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .service-chip {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  /* =========================
+     PORTFOLIO (MIS À JOUR - 3 vidéos YouTube)
+     - vignette + play
+     - iframe chargé au clic
+     ========================= */
+  .home-portfolio {
+    padding: 100px 0;
+    background: linear-gradient(180deg, #0b1120 0%, var(--dark) 100%);
+  }
+
+  .portfolio-card{
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.78), rgba(2, 6, 23, 0.85));
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 24px;
+    overflow: hidden;
+    height: 100%;
+    position: relative;
+    box-shadow: 0 20px 55px rgba(0,0,0,0.35);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    contain: layout paint style;
+  }
+
+  .portfolio-card:hover{
+    transform: translateY(-8px);
+    border-color: rgba(230,0,0,0.35);
+    box-shadow: 0 30px 75px rgba(0,0,0,0.55);
+  }
+
+  .portfolio-media{
+    position: relative;
+    aspect-ratio: 16/9;
+    background: #000;
+    overflow: hidden;
+  }
+
+  .portfolio-thumb{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: scale(1.02);
+    transition: transform .35s ease;
+    filter: brightness(.85) contrast(1.1);
+  }
+
+  .portfolio-card:hover .portfolio-thumb{ transform: scale(1.06); }
+
+  /* IMPORTANT: overlay derrière le bouton */
+  .portfolio-media::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background: linear-gradient(to top, rgba(0,0,0,0.82), rgba(0,0,0,0.06));
+    pointer-events:none;
+    z-index: 1;
+  }
+
+  .portfolio-badges{
+    position:absolute;
+    top: 12px;
+    left: 12px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    z-index: 2;
+  }
+
+  .badge-pill{
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .4px;
+    border: 1px solid rgba(255,255,255,0.14);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    background: rgba(0,0,0,0.35);
+    color: var(--white);
+  }
+
+  .badge-red{ background: rgba(230,0,0,0.20); border-color: rgba(230,0,0,0.35); }
+  .badge-gold{ background: rgba(245,158,11,0.18); border-color: rgba(245,158,11,0.35); }
+
+  .portfolio-body{
+    padding: 18px 18px 20px;
+  }
+
+  .portfolio-title{
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+    color: var(--white);
+  }
+
+  .portfolio-desc{
+    margin: 0 0 12px;
+    color: var(--gray-400);
+    line-height: 1.5;
+    font-size: .95rem;
+  }
+
+  .portfolio-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    color: rgba(229,231,235,0.82);
+    font-size: .85rem;
+  }
+
+  .yt-play{
+    position:absolute;
+    inset:0;
+    margin:auto;
+    width: 64px;
+    height: 64px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(0,0,0,0.45);
+    color: var(--white);
+    display:grid;
+    place-items:center;
+    z-index: 3; /* au-dessus de l’overlay */
+    transition: transform .2s ease, background-color .2s ease, border-color .2s ease;
+  }
+
+  .yt-play i{ font-size: 1.2rem; margin-left: 2px; }
+
+  .portfolio-card:hover .yt-play{
+    transform: scale(1.06);
+    border-color: rgba(245,158,11,0.35);
+    background: rgba(0,0,0,0.55);
+  }
+
+  .yt-lite.is-playing .yt-play{ display:none; }
+
+  .yt-lite iframe{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    border:0;
+    z-index: 2;
+  }
+
+  /* TESTIMONIALS */
+  .home-testimonials { padding: 100px 0; background: var(--dark); }
+
+  .testimonial-card {
+    background: rgba(255, 255, 255, 0.03);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    padding: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    height: 100%;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    contain: layout paint style;
+  }
+
+  .testimonial-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--red);
+    box-shadow: 0 20px 40px rgba(230, 0, 0, 0.2);
+  }
+
+  .testimonial-quote {
+    font-size: 1rem;
+    color: var(--gray-200);
+    margin-bottom: 20px;
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  .testimonial-author {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    color: var(--white);
+  }
+
+  .testimonial-role { font-size: 0.9rem; color: var(--gray-400); }
+
+/* =========================
+   PARTNERS (PRO)
+   ========================= */
+.home-partners{
+  padding: 90px 0;
+  background: linear-gradient(180deg, var(--dark) 0%, #000 100%);
+}
+
+.partners-wrap{
+  border-radius: 28px;
+  padding: 28px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background:
+    radial-gradient(900px 260px at 15% 0%, rgba(230,0,0,0.16), transparent 55%),
+    radial-gradient(900px 260px at 85% 0%, rgba(245,158,11,0.12), transparent 55%),
+    rgba(255,255,255,0.03);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+  position: relative;
+  overflow: hidden;
+}
+
+.partners-wrap::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius: 30px;
+  background: linear-gradient(135deg, rgba(230,0,0,0.35), rgba(245,158,11,0.25), transparent 60%);
+  opacity: .25;
+  pointer-events:none;
+}
+
+.partners-head{
+  position: relative;
+  z-index: 2;
+  display:flex;
+  align-items:flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.partners-title{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;
+  color: var(--white);
+  font-size: 2rem;
+  margin: 0 0 6px 0;
+}
+
+.partners-subtitle{
+  margin: 0;
+  color: var(--gray-400);
+  max-width: 680px;
+  line-height: 1.6;
+}
+
+.partners-cta{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  text-decoration:none;
+  font-weight: 800;
+  color: var(--white);
+  border: 1px solid rgba(255,255,255,0.14);
+  background: linear-gradient(135deg, rgba(230,0,0,0.20), rgba(245,158,11,0.10));
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  white-space: nowrap;
+}
+.partners-cta:hover{
+  transform: translateY(-2px);
+  border-color: rgba(245,158,11,0.35);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+}
+
+/* Grid logos */
+.partners-grid{
+  position: relative;
+  z-index: 2;
+  display:grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.partner-card{
+  height: 88px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.25);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 14px;
+  text-decoration:none;
+
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+  contain: layout paint style;
+}
+
+.partner-card img{
+  max-height: 54px;
+  max-width: 150px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  filter: grayscale(100%) brightness(0.95);
+  opacity: .85;
+  transition: filter .2s ease, opacity .2s ease, transform .2s ease;
+}
+
+.partner-card:hover{
+  transform: translateY(-3px);
+  border-color: rgba(230,0,0,0.25);
+  background: rgba(255,255,255,0.04);
+  box-shadow: 0 16px 35px rgba(0,0,0,0.40);
+}
+
+.partner-card:hover img{
+  filter: grayscale(0%) brightness(1);
+  opacity: 1;
+  transform: scale(1.04);
+}
+
+.partners-note{
+  position: relative;
+  z-index: 2;
+  margin-top: 16px;
+  color: rgba(229,231,235,0.85);
+  font-size: .95rem;
+}
+
+/* Responsive */
+@media (max-width: 992px){
+  .partners-grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 576px){
+  .partners-wrap{ padding: 18px; }
+  .partners-title{ font-size: 1.6rem; }
+  .partners-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .partner-card{ height: 80px; }
+  .partner-card img{ max-height: 44px; }
+}
+  /* QUOTE */
+  .home-quote {
+    padding: 100px 0;
+    background: linear-gradient(135deg, var(--dark) 0%, #000 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .home-quote::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(230, 0, 0, 0.1) 0%, transparent 70%);
+    animation: rotate 30s linear infinite;
+    will-change: transform;
+  }
+
+  @keyframes rotate { to { transform: rotate(360deg); } }
+
+  .quote-card {
+    background: rgba(255, 255, 255, 0.03);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border-radius: 30px;
+    padding: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
+    position: relative;
+    z-index: 2;
+    contain: layout paint style;
+  }
+
+  .quote-card label {
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .quote-card input,
+  .quote-card select,
+  .quote-card textarea {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    color: var(--white);
+    padding: 12px 15px;
+    width: 100%;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  }
+
+  .quote-card input:focus,
+  .quote-card select:focus,
+  .quote-card textarea:focus {
+    outline: none;
+    border-color: var(--red);
+    box-shadow: 0 0 20px rgba(230, 0, 0, 0.3);
+    background: rgba(255,  255, 255, 0.08);
+  }
+
+  .btn-quote {
+    background: linear-gradient(90deg, var(--red), var(--red-dark));
+    color: var(--white);
+    border: none;
+    border-radius: 50px;
+    padding: 15px 40px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-quote:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(230, 0, 0, 0.4);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .hero-ctas { flex-direction: column; align-items: center; }
+    .hero-cta { width: 100%; max-width: 320px; justify-content: center; }
+    .hero-stats-row { grid-template-columns: repeat(2, 1fr); }
+    .home-studios-title, .home-section-title { font-size: 2rem; }
+  }
+
+  @media (max-width: 576px) {
+    .hero-stats-row { grid-template-columns: 1fr; }
+    .hero-stat-card { padding: 20px 15px; }
+    .quote-card { padding: 25px; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
 <div class="hero-full-width">
-    <section class="home-hero mb-5" id="hero">
-        <!-- Video Background -->
-        <div class="home-hero-video">
-            <video autoplay muted loop playsinline>
-                <source src="{{ hero_video_url|default:'https://assets.mixkit.co/videos/preview/mixkit-audio-visual-equipment-in-a-television-studio-43336-large.mp4' }}" type="video/mp4">
-                Votre navigateur ne supporte pas la vidéo HTML5.
-            </video>
+  <section class="home-hero mb-5" id="hero">
+    <div class="home-hero-video">
+      <video autoplay muted loop playsinline preload="metadata">
+        <source src="{{ hero_video_url|default:'https://assets.mixkit.co/videos/preview/mixkit-audio-visual-equipment-in-a-television-studio-43336-large.mp4' }}" type="video/mp4">
+        Votre navigateur ne supporte pas la vidéo HTML5.
+      </video>
+    </div>
+
+    <div class="home-hero-overlay">
+      <div class="home-hero-inner">
+        <h1 class="hero-main-title">
+          <span class="hero-main-title-line">Vos événements,</span>
+          <span class="hero-main-title-line">votre image,</span>
+          <span class="hero-main-title-line highlight">notre passion</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          Leader du live streaming événementiel au Burkina Faso.<br>
+          Nous transformons vos projets en expériences vidéo mémorables.
+        </p>
+
+        <div class="hero-ctas">
+          <button class="hero-cta hero-cta-primary" type="button" data-target="devis">
+            <i class="fa-solid fa-paper-plane"></i>
+            Demander un devis
+          </button>
+          <button class="hero-cta hero-cta-outline" type="button" data-target="services">
+            <i class="fa-solid fa-photo-film"></i>
+            Découvrir nos services
+          </button>
         </div>
 
-        <!-- Content Overlay -->
-        <div class="home-hero-overlay">
-            <div class="home-hero-inner">
-                <h1 class="hero-main-title">
-                    <span class="hero-main-title-line">Vos événements,</span>
-                    <span class="hero-main-title-line">votre image,</span>
-                    <span class="hero-main-title-line highlight">notre passion</span>
-                </h1>
-
-                <p class="hero-subtitle">
-                    Leader du live streaming événementiel au Burkina Faso.<br>
-                    Nous transformons vos projets en expériences vidéo mémorables.
-                </p>
-
-                <div class="hero-ctas">
-                    <button class="hero-cta hero-cta-primary" onclick="document.getElementById('devis').scrollIntoView({behavior: 'smooth'})">
-                        <i class="fa-solid fa-paper-plane"></i>
-                        Demander un devis
-                    </button>
-                    <button class="hero-cta hero-cta-outline" onclick="document.getElementById('services').scrollIntoView({behavior: 'smooth'})">
-                        <i class="fa-solid fa-photo-film"></i>
-                        Découvrir nos services
-                    </button>
-                </div>
-
-                <div class="hero-stats-row">
-                    <div class="hero-stat-card">
-                        <div class="hero-stat-value" data-target="836">836</div>
-                        <div class="hero-stat-label">Projets réalisés</div>
-                    </div>
-                    <div class="hero-stat-card">
-                        <div class="hero-stat-value" data-target="29" data-suffix="M+">29M+</div>
-                        <div class="hero-stat-label">Vues en streaming</div>
-                    </div>
-                    <div class="hero-stat-card">
-                        <div class="hero-stat-value" data-target="7">7</div>
-                        <div class="hero-stat-label">Pays couverts</div>
-                    </div>
-                    <div class="hero-stat-card">
-                        <div class="hero-stat-value" data-target="30" data-suffix="+">30+</div>
-                        <div class="hero-stat-label">Partenaires</div>
-                    </div>
-                </div>
-
-                <div class="hero-scroll-hint">
-                    <span>Scroll pour découvrir</span>
-                    <i class="fa-solid fa-chevron-down"></i>
-                </div>
-            </div>
+        <div class="hero-stats-row">
+          <div class="hero-stat-card">
+            <div class="hero-stat-value" data-target="836">0</div>
+            <div class="hero-stat-label">Projets réalisés</div>
+          </div>
+          <div class="hero-stat-card">
+            <div class="hero-stat-value" data-target="29" data-suffix="K+">0</div>
+            <div class="hero-stat-label">Vues en streaming</div>
+          </div>
+          <div class="hero-stat-card">
+            <div class="hero-stat-value" data-target="7">0</div>
+            <div class="hero-stat-label">Pays couverts</div>
+          </div>
+          <div class="hero-stat-card">
+            <div class="hero-stat-value" data-target="30" data-suffix="+">0</div>
+            <div class="hero-stat-label">Partenaires</div>
+          </div>
         </div>
-    </section>
+
+        <div class="hero-scroll-hint">
+          <span>Scroll pour découvrir</span>
+          <i class="fa-solid fa-chevron-down"></i>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
 
 <!-- Studios Section -->
 <section id="studios" class="home-studios-section">
-    <div class="container">
-        <div class="home-studios-heading">
-            <h2 class="home-studios-title">
-                DES STUDIOS HAUT DE GAMME<br>
-                POUR TOUT LE MONDE
-            </h2>
-            <p class="home-studios-subtitle">
-                Chez Oloustream, nous accompagnons tous les créateurs&nbsp;: artistes, podcasteurs,
-                entreprises, institutions. Que vous prépariez un concert filmé, une émission en live
-                ou un podcast intimiste, nos studios sont pensés pour vous offrir une expérience
-                professionnelle, clé en main.
-            </p>
-        </div>
-
-        <div class="home-studios-grid">
-            <div class="row g-4">
-                {% if studios %}
-                    {% for studio in studios %}
-                        <div class="col-md-4">
-                            <div class="home-studio-card">
-                                <div class="home-studio-card-media">
-                                    {% if studio.image %}
-                                        <img src="{{ studio.image.url }}" alt="{{ studio.name }}">
-                                    {% else %}
-                                        <div style="background: linear-gradient(135deg, #1e293b, #0f172a); height: 100%; display: flex; align-items: center; justify-content: center; color: var(--gray-400);">
-                                            <i class="fa-solid fa-video fa-3x"></i>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                                <div class="home-studio-card-body">
-                                    <div class="home-studio-card-title">
-                                        {{ studio.name }}
-                                    </div>
-                                    <div class="home-studio-card-desc">
-                                        {{ studio.description|default:"Studio professionnel équipé pour vos tournages, podcasts et livestreams."|truncatechars:150 }}
-                                    </div>
-                                    <a href="{% url 'studio:user_studio_reserve' studio.pk %}"
-                                       class="btn btn-studio-reserve">
-                                        <i class="fa-solid fa-arrow-right"></i>
-                                        Réserver ce studio
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="col-12 text-center">
-                        <div class="service-card">
-                            <i class="fa-solid fa-video-slash fa-3x mb-3" style="color: var(--gray-400);"></i>
-                            <h3 class="home-studio-card-title">Nos studios arrivent bientôt</h3>
-                            <p class="home-studio-card-desc">
-                                Nous préparons actuellement des studios haut de gamme équipés des dernières technologies.
-                            </p>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+  <div class="container">
+    <div class="home-studios-heading">
+      <h2 class="home-studios-title">
+        DES STUDIOS HAUT DE GAMME<br>
+        POUR TOUT LE MONDE
+      </h2>
+      <p class="home-studios-subtitle">
+        Chez Oloustream, nous accompagnons tous les créateurs&nbsp;: artistes, podcasteurs,
+        entreprises, institutions. Que vous prépariez un concert filmé, une émission en live
+        ou un podcast intimiste, nos studios sont pensés pour vous offrir une expérience
+        professionnelle, clé en main.
+      </p>
     </div>
+
+    <div class="home-studios-grid">
+      <div class="row g-4">
+        {% if studios %}
+          {% for studio in studios %}
+            <div class="col-md-4">
+              <div class="home-studio-card">
+                <div class="home-studio-card-media">
+                  {% if studio.image %}
+                    <img src="{{ studio.image.url }}" alt="{{ studio.name }}" loading="lazy" decoding="async">
+                  {% else %}
+                    <div style="background: linear-gradient(135deg, #1e293b, #0f172a); height: 100%; display: flex; align-items: center; justify-content: center; color: var(--gray-400);">
+                      <i class="fa-solid fa-video fa-3x"></i>
+                    </div>
+                  {% endif %}
+                </div>
+
+                <div class="home-studio-card-body">
+                  <div class="home-studio-card-title">{{ studio.name }}</div>
+                  <div class="home-studio-card-desc">
+                    {{ studio.description|default:"Studio professionnel équipé pour vos tournages, podcasts et livestreams."|truncatechars:150 }}
+                  </div>
+                  <a href="{% url 'studio:user_studio_reserve' studio.pk %}" class="btn btn-studio-reserve">
+                    <i class="fa-solid fa-arrow-right"></i>
+                    Réserver ce studio
+                  </a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="col-12 text-center">
+            <div class="service-card">
+              <i class="fa-solid fa-video-slash fa-3x mb-3" style="color: var(--gray-400);"></i>
+              <h3 class="home-studio-card-title">Nos studios arrivent bientôt</h3>
+              <p class="home-studio-card-desc">
+                Nous préparons actuellement des studios haut de gamme équipés des dernières technologies.
+              </p>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- Services Section -->
 <section id="services" class="home-services">
-    <div class="container">
-        <div class="home-section-header">
-            <h2 class="home-section-title">Nos services audiovisuels</h2>
-            <p class="home-section-subtitle">
-                De la captation en live à la postproduction, nous vous accompagnons sur toute la chaîne de valeur.
-            </p>
-        </div>
-
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="service-card">
-                    <div class="service-card-category">Live Streaming</div>
-                    <div class="service-card-title">Diffusion Multiplateforme</div>
-                    <div class="service-card-desc">
-                        Diffusion en direct sur Facebook, YouTube, Zoom, Instagram, LinkedIn et plateformes privées.
-                    </div>
-                    <div class="service-chip">À partir de 500 000 FCFA</div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="service-card">
-                    <div class="service-card-category">Production</div>
-                    <div class="service-card-title">Vidéo Professionnelle</div>
-                    <div class="service-card-desc">
-                        Tournage multicaméra, montage, motion design, étalonnage et livraison de contenus premium.
-                    </div>
-                    <div class="service-chip">À partir de 250 000 FCFA</div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="service-card">
-                    <div class="service-card-category">Studio</div>
-                    <div class="service-card-title">Podcast & Enregistrement</div>
-                    <div class="service-card-desc">
-                        Studio clé en main avec fond vert, éclairage professionnel et équipement audio haute qualité.
-                    </div>
-                    <div class="service-chip">À partir de 150 000 FCFA</div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="service-card">
-                    <div class="service-card-category">Location</div>
-                    <div class="service-card-title">Matériel Professionnel</div>
-                    <div class="service-card-desc">
-                        Location de caméras, micros, éclairages, régies vidéo et écrans LED avec technicien.
-                    </div>
-                    <div class="service-chip">À partir de 50 000 FCFA/jour</div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="service-card">
-                    <div class="service-card-category">Formation</div>
-                    <div class="service-card-title">Expertise Audiovisuelle</div>
-                    <div class="service-card-desc">
-                        Formations certifiantes en cadrage, montage, live streaming et production de contenu.
-                    </div>
-                    <div class="service-chip">À partir de 75 000 FCFA</div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="service-card">
-                    <div class="service-card-category">Digital</div>
-                    <div class="service-card-title">Solutions Événementielles</div>
-                    <div class="service-card-desc">
-                        Plateforme VOD, billetterie en ligne, applications mobiles et sites web événementiels.
-                    </div>
-                    <div class="service-chip">Sur devis</div>
-                </div>
-            </div>
-        </div>
+  <div class="container">
+    <div class="home-section-header">
+      <h2 class="home-section-title">Nos services audiovisuels</h2>
+      <p class="home-section-subtitle">
+        De la captation en live à la postproduction, nous vous accompagnons sur toute la chaîne de valeur.
+      </p>
     </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="service-card">
+          <div class="service-card-category">Live Streaming</div>
+          <div class="service-card-title">Diffusion Multiplateforme</div>
+          <div class="service-card-desc">
+            Diffusion en direct sur Facebook, YouTube, Zoom, Instagram, LinkedIn et plateformes privées.
+          </div>
+          <div class="service-chip">À partir de 500 000 FCFA</div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="service-card">
+          <div class="service-card-category">Production</div>
+          <div class="service-card-title">Vidéo Professionnelle</div>
+          <div class="service-card-desc">
+            Tournage multicaméra, montage, motion design, étalonnage et livraison de contenus premium.
+          </div>
+          <div class="service-chip">À partir de 250 000 FCFA</div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="service-card">
+          <div class="service-card-category">Studio</div>
+          <div class="service-card-title">Podcast & Enregistrement</div>
+          <div class="service-card-desc">
+            Studio clé en main avec fond vert, éclairage professionnel et équipement audio haute qualité.
+          </div>
+          <div class="service-chip">À partir de 150 000 FCFA</div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="service-card">
+          <div class="service-card-category">Location</div>
+          <div class="service-card-title">Matériel Professionnel</div>
+          <div class="service-card-desc">
+            Location de caméras, micros, éclairages, régies vidéo et écrans LED avec technicien.
+          </div>
+          <div class="service-chip">À partir de 50 000 FCFA/jour</div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="service-card">
+          <div class="service-card-category">Formation</div>
+          <div class="service-card-title">Expertise Audiovisuelle</div>
+          <div class="service-card-desc">
+            Formations certifiantes en cadrage, montage, live streaming et production de contenu.
+          </div>
+          <div class="service-chip">À partir de 75 000 FCFA</div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="service-card">
+          <div class="service-card-category">Digital</div>
+          <div class="service-card-title">Solutions Événementielles</div>
+          <div class="service-card-desc">
+            Plateforme VOD, billetterie en ligne, applications mobiles et sites web événementiels.
+          </div>
+          <div class="service-chip">Sur devis</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
-
-<!-- Portfolio Section -->
+<!-- Portfolio Section (3 vidéos YouTube) -->
 <section class="home-portfolio" id="portfolio">
-    <div class="container">
-        <div class="home-section-header">
-            <h2 class="home-section-title">Quelques réalisations</h2>
-            <p class="home-section-subtitle">
-                Événements en direct, conférences hybrides, podcasts, captations multicaméra…
-            </p>
-        </div>
-
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="project-card">
-                    <div class="project-thumb">
-                        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
-                                title="Showreel Oloustream"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowfullscreen>
-                        </iframe>
-                    </div>
-                    <div class="project-overlay">
-                        <div class="project-title">Showreel Oloustream 2024</div>
-                        <div class="project-meta">Compilation de nos meilleures productions</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="project-card">
-                    <div class="project-thumb">
-                        <div style="background: linear-gradient(135deg, var(--red), var(--gold)); height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem;">
-                            <i class="fa-solid fa-video fa-3x"></i>
-                        </div>
-                    </div>
-                    <div class="project-overlay">
-                        <div class="project-title">Conférence Internationale</div>
-                        <div class="project-meta">Live streaming multicaméras • Client: Entreprise</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="project-card">
-                    <div class="project-thumb">
-                        <div style="background: linear-gradient(135deg, #1e293b, #0f172a); height: 100%; display: flex; align-items: center; justify-content: center; color: var(--gray-400); font-size: 1.2rem;">
-                            <i class="fa-solid fa-podcast fa-3x"></i>
-                        </div>
-                    </div>
-                    <div class="project-overlay">
-                        <div class="project-title">Podcast Corporate</div>
-                        <div class="project-meta">Production audio/vidéo • Client: Institution</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="container">
+    <div class="home-section-header">
+      <h2 class="home-section-title">Quelques réalisations</h2>
+      <p class="home-section-subtitle">
+        Retrouvez quelques productions et captations récentes signées Oloustream.
+      </p>
     </div>
+
+    <div class="row g-4">
+      <!-- Video 1 -->
+      <div class="col-md-4">
+        <article class="portfolio-card">
+          <div class="portfolio-media yt-lite" data-youtube-id="UzgzuAyIudM">
+            <img class="portfolio-thumb"
+                 src="https://i.ytimg.com/vi/UzgzuAyIudM/hqdefault.jpg"
+                 alt="Réalisation Oloustream - Vidéo 1"
+                 loading="lazy" decoding="async">
+            <button class="yt-play" type="button" aria-label="Lire la vidéo">
+              <i class="fa-solid fa-play"></i>
+            </button>
+            <div class="portfolio-badges">
+              <span class="badge-pill badge-red"><i class="fa-brands fa-youtube me-1"></i>YouTube</span>
+              <span class="badge-pill badge-gold">Live</span>
+            </div>
+          </div>
+          <div class="portfolio-body">
+            <h3 class="portfolio-title">Réalisation #1</h3>
+            <p class="portfolio-desc">Captation & diffusion — Oloustream</p>
+            <div class="portfolio-meta">
+              <span><i class="fa-solid fa-video me-1"></i>Multicam</span>
+              <span>•</span>
+              <span><i class="fa-solid fa-signal me-1"></i>Streaming</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Video 2 -->
+      <div class="col-md-4">
+        <article class="portfolio-card">
+          <div class="portfolio-media yt-lite" data-youtube-id="k6hIpItwEgs">
+            <img class="portfolio-thumb"
+                 src="https://i.ytimg.com/vi/k6hIpItwEgs/hqdefault.jpg"
+                 alt="Réalisation Oloustream - Vidéo 2"
+                 loading="lazy" decoding="async">
+            <button class="yt-play" type="button" aria-label="Lire la vidéo">
+              <i class="fa-solid fa-play"></i>
+            </button>
+            <div class="portfolio-badges">
+              <span class="badge-pill badge-red"><i class="fa-brands fa-youtube me-1"></i>YouTube</span>
+              <span class="badge-pill badge-gold">Production</span>
+            </div>
+          </div>
+          <div class="portfolio-body">
+            <h3 class="portfolio-title">Réalisation #2</h3>
+            <p class="portfolio-desc">Production & postproduction — Oloustream</p>
+            <div class="portfolio-meta">
+              <span><i class="fa-solid fa-clapperboard me-1"></i>Tournage</span>
+              <span>•</span>
+              <span><i class="fa-solid fa-wand-magic-sparkles me-1"></i>Montage</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Video 3 -->
+      <div class="col-md-4">
+        <article class="portfolio-card">
+          <div class="portfolio-media yt-lite" data-youtube-id="p-_6oKCw_n4">
+            <img class="portfolio-thumb"
+                 src="https://i.ytimg.com/vi/p-_6oKCw_n4/hqdefault.jpg"
+                 alt="Réalisation Oloustream - Vidéo 3"
+                 loading="lazy" decoding="async">
+            <button class="yt-play" type="button" aria-label="Lire la vidéo">
+              <i class="fa-solid fa-play"></i>
+            </button>
+            <div class="portfolio-badges">
+              <span class="badge-pill badge-red"><i class="fa-brands fa-youtube me-1"></i>YouTube</span>
+              <span class="badge-pill badge-gold">Événement</span>
+            </div>
+          </div>
+          <div class="portfolio-body">
+            <h3 class="portfolio-title">Réalisation #3</h3>
+            <p class="portfolio-desc">Événement & live — Oloustream</p>
+            <div class="portfolio-meta">
+              <span><i class="fa-solid fa-microphone me-1"></i>Audio</span>
+              <span>•</span>
+              <span><i class="fa-solid fa-camera me-1"></i>Caméras</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- Testimonials Section -->
 <section class="home-testimonials">
-    <div class="container">
-        <div class="home-section-header">
-            <h2 class="home-section-title">Ils nous font confiance</h2>
-            <p class="home-section-subtitle">
-                Marques, institutions et créateurs accompagnés par Oloustream.
-            </p>
-        </div>
-
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="testimonial-card">
-                    <div class="testimonial-quote">
-                        "Grâce à Oloustream, nous avons professionnalisé nos conférences en ligne
-                        avec une qualité d'image et de son digne des plus grandes chaînes."
-                    </div>
-                    <div class="testimonial-author">Responsable communication</div>
-                    <div class="testimonial-role">Entreprise événementielle à Ouagadougou</div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="testimonial-card">
-                    <div class="testimonial-quote">
-                        "L'équipe technique est à l'écoute, réactive, et force de proposition
-                        pour mettre en valeur nos événements en direct."
-                    </div>
-                    <div class="testimonial-author">Chargé de projet digital</div>
-                    <div class="testimonial-role">Institution publique</div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="testimonial-card">
-                    <div class="testimonial-quote">
-                        "Un vrai partenaire, pas seulement un prestataire. De la préparation au rendu final,
-                        tout est maîtrisé."
-                    </div>
-                    <div class="testimonial-author">Créateur de contenu</div>
-                    <div class="testimonial-role">Chaîne YouTube locale</div>
-                </div>
-            </div>
-        </div>
+  <div class="container">
+    <div class="home-section-header">
+      <h2 class="home-section-title">Ils nous font confiance</h2>
+      <p class="home-section-subtitle">
+        Marques, institutions et créateurs accompagnés par Oloustream.
+      </p>
     </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="testimonial-card">
+          <div class="testimonial-quote">
+            "Grâce à Oloustream, nous avons professionnalisé nos conférences en ligne
+            avec une qualité d'image et de son digne des plus grandes chaînes."
+          </div>
+          <div class="testimonial-author">Responsable communication</div>
+          <div class="testimonial-role">Entreprise événementielle à Ouagadougou</div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="testimonial-card">
+          <div class="testimonial-quote">
+            "L'équipe technique est à l'écoute, réactive, et force de proposition
+            pour mettre en valeur nos événements en direct."
+          </div>
+          <div class="testimonial-author">Chargé de projet digital</div>
+          <div class="testimonial-role">Institution publique</div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="testimonial-card">
+          <div class="testimonial-quote">
+            "Un vrai partenaire, pas seulement un prestataire. De la préparation au rendu final,
+            tout est maîtrisé."
+          </div>
+          <div class="testimonial-author">Créateur de contenu</div>
+          <div class="testimonial-role">Chaîne YouTube locale</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- Partners Section -->
-<section class="home-partners">
-    <div class="container">
-        <div class="partner-strip">
-            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-                <div>
-                    <h3 style="font-family: 'Montserrat', sans-serif; font-weight: 700; color: var(--white);">
-                        Ils nous font confiance
-                    </h3>
-                    <div style="font-size: 0.95rem; color: var(--gray-400);">
-                        Marques, institutions et partenaires qui nous font confiance pour leurs productions.
-                    </div>
-                </div>
-            </div>
-            
-            <div class="d-flex flex-wrap align-items-center justify-content-center gap-5 mt-3">
-                <div style="font-weight: 700; color: var(--white); font-size: 1.1rem;">ORANGE</div>
-                <div style="font-weight: 700; color: var(--white); font-size: 1.1rem;">UNICEF</div>
-                <div style="font-weight: 700; color: var(--white); font-size: 1.1rem;">CANAL+</div>
-                <div style="font-weight: 700; color: var(--white); font-size: 1.1rem;">PNUD</div>
-                <div style="font-weight: 700; color: var(--white); font-size: 1.1rem;">ARCEP</div>
-            </div>
+<!-- Partners Section (AMÉLIORÉE) -->
+<section class="home-partners" id="partners">
+  <div class="container">
+    <div class="partners-wrap">
+      <div class="partners-head">
+        <div>
+          <h2 class="partners-title">Ils nous font confiance</h2>
+          <p class="partners-subtitle">
+            Marques, institutions et partenaires qui nous confient leurs productions et diffusions.
+          </p>
         </div>
-    </div>
-</section>
 
+        <a href="#devis" class="partners-cta">
+          <i class="fa-solid fa-handshake me-2"></i>
+          Devenir partenaire
+        </a>
+      </div>
+
+      <div class="partners-grid">
+        <!-- ORANGE -->
+        <a class="partner-card" href="#" aria-label="Orange">
+          <img src="{% static 'img/partners/orange.png' %}" alt="Orange" loading="lazy" decoding="async">
+        </a>
+
+        <!-- UNICEF -->
+        <a class="partner-card" href="#" aria-label="UNICEF">
+          <img src="{% static 'img/partners/unicef.webp' %}" alt="UNICEF" loading="lazy" decoding="async">
+        </a>
+
+        <!-- CANAL+ -->
+        <a class="partner-card" href="#" aria-label="CANAL+">
+          <img src="{% static 'img/partners/canalplus.jpg' %}" alt="CANAL+" loading="lazy" decoding="async">
+        </a>
+
+        <!-- PNUD -->
+        <a class="partner-card" href="#" aria-label="PNUD">
+          <img src="{% static 'img/partners/pnud.png' %}" alt="PNUD" loading="lazy" decoding="async">
+        </a>
+
+        <!-- ARCEP -->
+        <a class="partner-card" href="#" aria-label="ARCEP">
+          <img src="{% static 'img/partners/arcep.jpg' %}" alt="ARCEP" loading="lazy" decoding="async">
+        </a>
+      </div>
+
+      <div class="partners-note">
+        <i class="fa-solid fa-circle-check me-2" style="color: var(--gold);"></i>
+        Qualité broadcast • Équipe technique • Production clé en main
+      </div>
+    </div>
+  </div>
+</section>
 <!-- Quote Section -->
 <section id="devis" class="home-quote">
-    <div class="container">
-        <div class="quote-card">
-            <div class="row g-4 align-items-start">
-                <div class="col-lg-5">
-                    <h2 class="home-section-title text-white mb-1">Demander un devis</h2>
-                    <p class="home-section-subtitle text-light mb-3">
-                        Expliquez-nous votre projet : nous reviendrons vers vous avec une proposition
-                        adaptée (technique, budget, calendrier).
-                    </p>
-                    <div style="font-size: 0.9rem; color: var(--gray-400);">
-                        <i class="fa-solid fa-star me-1" style="color: var(--gold);"></i>
-                        Les champs marqués d'une astérisque (*) sont obligatoires.
-                    </div>
-                </div>
-                
-                <div class="col-lg-7">
-                    <form method="post" action="#devis" id="quoteForm">
-                        {% csrf_token %}
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="id_full_name">Nom complet *</label>
-                                <input type="text" id="id_full_name" name="full_name" class="form-control" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="id_email_quote">Email *</label>
-                                <input type="email" id="id_email_quote" name="email" class="form-control" required>
-                            </div>
-                        </div>
-                        
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="id_phone">Téléphone</label>
-                                <input type="text" id="id_phone" name="phone" class="form-control">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="id_event_type">Type de projet *</label>
-                                <select id="id_event_type" name="event_type" class="form-select" required>
-                                    <option value="">Sélectionner…</option>
-                                    <option>Livestream événementiel</option>
-                                    <option>Captation vidéo</option>
-                                    <option>Podcast / émission</option>
-                                    <option>Formation</option>
-                                    <option>Location studio</option>
-                                    <option>Location matériel</option>
-                                    <option>Autre</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="id_date">Date prévue</label>
-                                <input type="date" id="id_date" name="date" class="form-control">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="id_budget">Budget estimatif (FCFA)</label>
-                                <input type="number" id="id_budget" name="budget" class="form-control" min="0" step="10000">
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="id_needs">Besoins techniques *</label>
-                            <textarea id="id_needs" name="needs" rows="3" class="form-control" required
-                                      placeholder="Ex : 2 caméras, diffusion Facebook/YouTube, micro HF, régie, etc."></textarea>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label for="id_message">Message complémentaire</label>
-                            <textarea id="id_message" name="message" rows="2" class="form-control"
-                                      placeholder="Précisez le lieu, le nombre de participants, la langue, etc."></textarea>
-                        </div>
-                        
-                        <button type="submit" class="btn-quote">
-                            <i class="fa-solid fa-paper-plane"></i>
-                            Envoyer ma demande
-                        </button>
-                    </form>
-                </div>
-            </div>
+  <div class="container">
+    <div class="quote-card">
+      <div class="row g-4 align-items-start">
+        <div class="col-lg-5">
+          <h2 class="home-section-title text-white mb-1">Demander un devis</h2>
+          <p class="home-section-subtitle text-light mb-3">
+            Expliquez-nous votre projet : nous reviendrons vers vous avec une proposition
+            adaptée (technique, budget, calendrier).
+          </p>
+          <div style="font-size: 0.9rem; color: var(--gray-400);">
+            <i class="fa-solid fa-star me-1" style="color: var(--gold);"></i>
+            Les champs marqués d'une astérisque (*) sont obligatoires.
+          </div>
         </div>
-    </div>
-</section>
 
+        <div class="col-lg-7">
+          <form method="post" action="#devis" id="quoteForm">
+            {% csrf_token %}
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label for="id_full_name">Nom complet *</label>
+                <input type="text" id="id_full_name" name="full_name" class="form-control" required>
+              </div>
+              <div class="col-md-6">
+                <label for="id_email_quote">Email *</label>
+                <input type="email" id="id_email_quote" name="email" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label for="id_phone">Téléphone</label>
+                <input type="text" id="id_phone" name="phone" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label for="id_event_type">Type de projet *</label>
+                <select id="id_event_type" name="event_type" class="form-select" required>
+                  <option value="">Sélectionner…</option>
+                  <option>Livestream événementiel</option>
+                  <option>Captation vidéo</option>
+                  <option>Podcast / émission</option>
+                  <option>Formation</option>
+                  <option>Location studio</option>
+                  <option>Location matériel</option>
+                  <option>Autre</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label for="id_date">Date prévue</label>
+                <input type="date" id="id_date" name="date" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label for="id_budget">Budget estimatif (FCFA)</label>
+                <input type="number" id="id_budget" name="budget" class="form-control" min="0" step="10000">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="id_needs">Besoins techniques *</label>
+              <textarea id="id_needs" name="needs" rows="3" class="form-control" required
+                        placeholder="Ex : 2 caméras, diffusion Facebook/YouTube, micro HF, régie, etc."></textarea>
+            </div>
+
+            <div class="mb-4">
+              <label for="id_message">Message complémentaire</label>
+              <textarea id="id_message" name="message" rows="2" class="form-control"
+                        placeholder="Précisez le lieu, le nombre de participants, la langue, etc."></textarea>
+            </div>
+
+            <button type="submit" class="btn-quote" id="quoteSubmitBtn">
+              <i class="fa-solid fa-paper-plane"></i>
+              Envoyer ma demande
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Animate statistics counters
-    function animateCounter(element, start, end, duration) {
-        let startTime = null;
-        const step = (currentTime) => {
-            if (!startTime) startTime = currentTime;
-            const progress = Math.min((currentTime - startTime) / duration, 1);
-            const value = Math.floor(progress * (end - start) + start);
-            
-            const suffix = element.getAttribute('data-suffix') || '';
-            let displayValue = value;
-            
-            if (suffix && suffix.includes('M+')) {
-                displayValue = (value / 1000000).toFixed(1);
-                if (displayValue.endsWith('.0')) {
-                    displayValue = displayValue.slice(0, -2);
-                }
-                displayValue += suffix;
-            } else {
-                displayValue += suffix;
-            }
-            
-            element.textContent = displayValue;
-            
-            if (progress < 1) {
-                requestAnimationFrame(step);
-            }
-        };
-        requestAnimationFrame(step);
+  // --------- Counters (IntersectionObserver + rAF) ----------
+  function formatValue(val, suffix) {
+    if (suffix === 'M+') {
+      const m = val / 1000000;
+      const s = (Math.round(m * 10) / 10).toString();
+      return (s.endsWith('.0') ? s.slice(0, -2) : s) + 'M+';
+    }
+    return val.toLocaleString() + (suffix || '');
+  }
+
+  function animateCounter(el, to, duration) {
+    const suffixAttr = el.getAttribute('data-suffix') || '';
+    const suffix = suffixAttr.includes('M+') ? 'M+' : suffixAttr;
+
+    const start = performance.now();
+    const from = 0;
+
+    function step(now) {
+      const t = Math.min(1, (now - start) / duration);
+      const current = Math.floor(from + (to - from) * t);
+      el.textContent = formatValue(current, suffix);
+      if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Hero CTA scroll
+    document.querySelectorAll('.hero-cta[data-target]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-target');
+        const target = document.getElementById(id);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    // Stats counters on view
+    const cards = document.querySelectorAll('.hero-stat-card');
+    if ('IntersectionObserver' in window) {
+      const obs = new IntersectionObserver((entries, observer) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const valEl = entry.target.querySelector('.hero-stat-value');
+          if (valEl) {
+            const target = parseInt(valEl.getAttribute('data-target') || '0', 10) || 0;
+            if (target > 0) animateCounter(valEl, target, 1200);
+          }
+          observer.unobserve(entry.target);
+        }
+      }, { threshold: 0.35 });
+
+      cards.forEach(c => obs.observe(c));
     }
 
-    // Initialize counters when in viewport
-    const statCards = document.querySelectorAll('.hero-stat-card');
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const card = entry.target;
-                const valueElement = card.querySelector('.hero-stat-value');
-                if (valueElement) {
-                    const target = parseInt(valueElement.getAttribute('data-target')) || 0;
-                    if (target > 0) {
-                        animateCounter(valueElement, 0, target, 2000);
-                    }
-                }
-                observer.unobserve(card);
-            }
-        });
-    }, { threshold: 0.5 });
+    // Form submit loader (sans bloquer Django)
+    const form = document.getElementById('quoteForm');
+    const btn = document.getElementById('quoteSubmitBtn');
+    if (form && btn) {
+      form.addEventListener('submit', () => {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Envoi...';
+      });
+    }
 
-    statCards.forEach(card => observer.observe(card));
-
-    // Smooth scroll for buttons
-    document.querySelectorAll('.hero-cta').forEach(button => {
-        button.addEventListener('click', function() {
-            const targetId = this.getAttribute('onclick')?.match(/'([^']+)'/) || 
-                            this.getAttribute('data-target');
-            if (targetId) {
-                const targetElement = document.getElementById(targetId[1] || targetId);
-                if (targetElement) {
-                    targetElement.scrollIntoView({ 
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            }
-        });
-    });
-
-    // Form submission
-    document.getElementById('quoteForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const button = this.querySelector('button[type="submit"]');
-        const originalText = button.innerHTML;
-        const originalBg = button.style.background;
-        
-        // Show loading
-        button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Envoi en cours...';
-        button.disabled = true;
-        
-        // Simulate API call
-        setTimeout(() => {
-            // Success
-            button.innerHTML = '<i class="fa-solid fa-check"></i> Demande envoyée !';
-            button.style.background = 'linear-gradient(90deg, #10B981, #059669)';
-            
-            // Reset form
-            this.reset();
-            
-            // Reset button
-            setTimeout(() => {
-                button.innerHTML = originalText;
-                button.disabled = false;
-                button.style.background = originalBg;
-                
-                // Show success message
-                const alertDiv = document.createElement('div');
-                alertDiv.className = 'alert alert-success alert-dismissible fade show mt-3';
-                alertDiv.innerHTML = `
-                    <strong>Succès!</strong> Votre demande a été envoyée. Nous vous recontacterons sous 24h.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                `;
-                this.parentNode.insertBefore(alertDiv, this);
-            }, 3000);
-        }, 2000);
-    });
-
-    // Auto-play hero video
+    // Hero video autoplay (silencieux)
     const heroVideo = document.querySelector('.home-hero-video video');
-    if (heroVideo) {
-        heroVideo.play().catch(e => {
-            console.log('Autoplay prevented, user interaction required');
-        });
-    }
+    if (heroVideo) heroVideo.play().catch(() => {});
 
-    // Add hover effect to all cards
-    document.querySelectorAll('.home-studio-card, .service-card, .project-card, .testimonial-card').forEach(card => {
-        card.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+    // YouTube performant: charge l'iframe uniquement au clic
+    document.querySelectorAll('.yt-lite').forEach(box => {
+      const id = box.getAttribute('data-youtube-id');
+      const btnPlay = box.querySelector('.yt-play');
+      if (!id || !btnPlay) return;
+
+      btnPlay.addEventListener('click', () => {
+        const iframe = document.createElement('iframe');
+        iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+        iframe.title = 'YouTube video player';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+        iframe.allowFullscreen = true;
+
+        box.classList.add('is-playing');
+        box.appendChild(iframe);
+      });
     });
+  });
 </script>
 {% endblock %}

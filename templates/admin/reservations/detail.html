@@ -1,668 +1,500 @@
+{# templates/admin/reservations/detail.html #}
 {% extends "admin/admin_base.html" %}
-{% block title %}Détail Réservation #{{ reservation.id }} - Oloustream Admin{% endblock %}
+
+{% block title %}Réservation #{{ reservation.id }} - Admin{% endblock %}
 
 {% block content %}
 
 <style>
-/* =========================================================
-   DÉTAIL RÉSERVATION – STYLE ULTRA PRO
-   ========================================================= */
+    :root {
+        --adm-primary: #4f46e5;
+        --adm-muted: #6b7280;
+        --adm-border: #e5e7eb;
+        --adm-bg: #f9fafb;
+    }
 
-.reservation-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
-  animation: res-fadeInUp 0.4s ease-out;
-}
+    .adm-res-detail-page { margin-bottom: 2rem; }
 
-.res-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-}
+    .adm-res-detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
 
-.res-header h1 {
-  font-size: 1.6rem;
-  margin: 0;
-}
+    .adm-res-detail-header h1 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
 
-.res-header .subtitle {
-  font-size: 0.9rem;
-  color: #6b7280;
-}
+    .adm-res-detail-header small {
+        font-size: 0.85rem;
+        color: var(--adm-muted);
+    }
 
-/* Statut badge */
-.res-status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  border-radius: 999px;
-  padding: 0.3rem 0.8rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
+    .adm-res-back-link a {
+        font-size: 0.85rem;
+        text-decoration: none;
+        color: var(--adm-muted);
+    }
 
-.res-status-PENDING { background: #fef3c7; color: #92400e; }
-.res-status-CONFIRMED { background: #dcfce7; color: #166534; }
-.res-status-COMPLETED { background: #dbeafe; color: #1d4ed8; }
-.res-status-CANCELLED { background: #fee2e2; color: #b91c1c; }
-.res-status-REJECTED { background: #fee2e2; color: #b91c1c; }
+    .adm-res-back-link a:hover { text-decoration: underline; }
 
-/* Tabs */
-.res-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
+    .adm-actions-bar {
+        display: flex;
+        gap: .5rem;
+        flex-wrap: wrap;
+        margin-top: .6rem;
+    }
 
-.res-tab {
-  border-radius: 999px;
-  font-size: 0.8rem;
-  padding: 0.35rem 0.9rem;
-  border: 1px solid #e5e7eb;
-  background: #f9fafb;
-  color: #4b5563;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
-}
+    .adm-res-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr);
+        gap: 1rem;
+    }
 
-.res-tab.active {
-  background: linear-gradient(135deg, #e60023, #b3001b);
-  border-color: transparent;
-  color: #ffffff;
-  box-shadow: 0 4px 10px rgba(230, 0, 35, 0.25);
-  transform: translateY(-1px);
-}
+    @media (max-width: 992px) {
+        .adm-res-grid { grid-template-columns: 1fr; }
+    }
 
-/* Sections */
-.res-section {
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
-  margin-bottom: 1.25rem;
-  padding: 1.25rem 1.5rem;
-  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
-}
+    .adm-res-card {
+        background: #ffffff;
+        border-radius: 1rem;
+        border: 1px solid var(--adm-border);
+        box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+        padding: 0.9rem 1rem;
+        margin-bottom: 0.8rem;
+    }
 
-.res-section.active {
-  border-color: #e60023;
-  box-shadow: 0 8px 20px rgba(230, 0, 35, 0.12);
-  transform: translateY(-1px);
-}
+    .adm-card-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-bottom: 0.6rem;
+    }
 
-.res-section-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-}
+    .adm-field-label {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #9ca3af;
+        margin-bottom: 0.1rem;
+    }
 
-.res-section-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
+    .adm-field-value {
+        font-size: 0.9rem;
+        color: #111827;
+        margin-bottom: 0.55rem;
+    }
 
-.res-section-title span.icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
-  background: #fee2e2;
-  color: #b91c1c;
-  font-size: 0.9rem;
-}
+    .adm-field-value-muted {
+        color: var(--adm-muted);
+        font-size: 0.88rem;
+    }
 
-.res-section-desc {
-  font-size: 0.8rem;
-  color: #6b7280;
-}
+    .adm-tag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.15rem 0.6rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        background: #eef2ff;
+        color: #4338ca;
+        margin-right: 0.3rem;
+        margin-bottom: 0.25rem;
+    }
 
-/* Grilles */
-.res-grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.9rem 1.25rem;
-}
+    .adm-status-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.15rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+    }
 
-/* Champs de formulaire admin */
-.res-field {
-  display: flex;
-  flex-direction: column;
-}
+    .adm-status--pending { background: #fef3c7; color: #92400e; }
+    .adm-status--confirmed { background: #dcfce7; color: #166534; }
+    .adm-status--cancelled { background: #fee2e2; color: #991b1b; }
+    .adm-status--default { background: #e5e7eb; color: #374151; }
 
-.res-field label {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: #4b5563;
-  margin-bottom: 0.2rem;
-}
+    .adm-history-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.82rem;
+    }
 
-.res-field input,
-.res-field select,
-.res-field textarea {
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  padding: 0.5rem 0.7rem;
-  font-size: 0.85rem;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-}
+    .adm-history-table th,
+    .adm-history-table td {
+        padding: 0.45rem 0.4rem;
+        border-bottom: 1px solid var(--adm-border);
+        vertical-align: top;
+    }
 
-.res-field input:focus,
-.res-field select:focus,
-.res-field textarea:focus {
-  border-color: #e60023;
-  box-shadow: 0 0 0 1px rgba(230, 0, 35, 0.35);
-  outline: none;
-  background: #fffafa;
-}
+    .adm-history-table th {
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.04em;
+        color: #9ca3af;
+    }
 
-.res-field .error-text {
-  font-size: 0.75rem;
-  color: #b91c1c;
-  margin-top: 0.15rem;
-}
+    /* Form */
+    .adm-form .form-control,
+    .adm-form .form-select,
+    .adm-form select,
+    .adm-form textarea,
+    .adm-form input {
+        width: 100%;
+        border: 1px solid var(--adm-border);
+        border-radius: 0.75rem;
+        padding: 0.45rem 0.6rem;
+        font-size: 0.92rem;
+    }
 
-/* Liste équipements */
-.res-equip-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
+    .adm-form textarea { min-height: 110px; }
 
-.res-equip-list li {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-  padding: 0.25rem 0;
-  border-bottom: 1px dashed #e5e7eb;
-}
-
-/* Footer formulaire admin */
-.res-form-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-/* Responsive */
-@media (max-width: 992px) {
-  .res-grid-2 {
-    grid-template-columns: 1fr;
-  }
-}
-
-@keyframes res-fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Timeline historique des statuts */
-.res-timeline {
-  position: relative;
-  padding-left: 1.5rem;
-  margin: 0;
-  list-style: none;
-}
-
-.res-timeline::before {
-  content: "";
-  position: absolute;
-  left: 0.55rem;
-  top: 0.2rem;
-  bottom: 0.2rem;
-  width: 2px;
-  background: #e5e7eb;
-}
-
-.res-timeline-item {
-  position: relative;
-  padding-left: 1rem;
-  padding-bottom: 0.75rem;
-}
-
-.res-timeline-item:last-child {
-  padding-bottom: 0;
-}
-
-.res-timeline-dot {
-  position: absolute;
-  left: -0.05rem;
-  top: 0.15rem;
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: #e5e7eb;
-  border: 2px solid #ffffff;
-  box-shadow: 0 0 0 2px #e5e7eb;
-}
-
-.res-timeline-item-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  margin-bottom: 0.1rem;
-}
-
-.res-timeline-item-header span.status-label {
-  font-weight: 600;
-}
-
-.res-timeline-item-header span.meta {
-  font-size: 0.75rem;
-  color: #6b7280;
-}
-
-.res-timeline-note {
-  font-size: 0.8rem;
-  color: #4b5563;
-}
+    .adm-form .errorlist {
+        margin: .25rem 0 0;
+        padding-left: 1rem;
+        color: #b91c1c;
+        font-size: .85rem;
+    }
 </style>
 
-<div class="reservation-wrapper">
-    <div class="res-header">
+<div class="adm-res-detail-page">
+    <div class="adm-res-detail-header">
         <div>
+            <div class="adm-res-back-link mb-1">
+                <a href="{% url 'dashboard:reservations_list' %}">← Retour à la liste</a>
+            </div>
+
             <h1>Réservation #{{ reservation.id }}</h1>
-            <p class="subtitle">
-                Créée le {{ reservation.created_at|date:"d/m/Y H:i" }} –
-                Dernière mise à jour potentielle via ce formulaire admin.
-            </p>
-        </div>
-        <div class="text-end">
-            <div class="res-status-badge res-status-{{ reservation.status }}">
-                <i class="ph ph-calendar-check"></i>
-                {{ reservation.get_status_display }}
+
+            <small>
+                Créée le {{ reservation.created_at|date:"d/m/Y H:i" }}
+                {% if reservation.user %}
+                    · par {{ reservation.user.get_full_name|default:reservation.user.username }}
+                    ({{ reservation.user.email }})
+                {% endif %}
+            </small>
+
+            {# ✅ Actions rapides POST (CONFIRMER/REFUSER/TERMINER/ANNULER) #}
+            <div class="adm-actions-bar">
+                {% if reservation.status == "PENDING" %}
+                    <form method="post" action="{% url 'dashboard:reservations_set_status' reservation.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <input type="hidden" name="status" value="CONFIRMED">
+                        <button class="btn btn-success btn-sm" type="submit">Confirmer</button>
+                    </form>
+
+                    <form method="post" action="{% url 'dashboard:reservations_set_status' reservation.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <input type="hidden" name="status" value="REJECTED">
+                        <button class="btn btn-danger btn-sm" type="submit"
+                                onclick="return confirm('Refuser la réservation #{{ reservation.id }} ?');">
+                            Refuser
+                        </button>
+                    </form>
+                {% endif %}
+
+                {% if reservation.status == "CONFIRMED" %}
+                    <form method="post" action="{% url 'dashboard:reservations_set_status' reservation.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <input type="hidden" name="status" value="COMPLETED">
+                        <button class="btn btn-primary btn-sm" type="submit">Terminer</button>
+                    </form>
+                {% endif %}
+
+                {% if reservation.status != "CANCELLED" and reservation.status != "REJECTED" and reservation.status != "COMPLETED" %}
+                    <form method="post" action="{% url 'dashboard:reservations_set_status' reservation.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <input type="hidden" name="status" value="CANCELLED">
+                        <button class="btn btn-outline-danger btn-sm" type="submit"
+                                onclick="return confirm('Annuler la réservation #{{ reservation.id }} ?');">
+                            Annuler
+                        </button>
+                    </form>
+                {% endif %}
             </div>
-            <div class="mt-2">
-                <small class="text-muted">
-                    {% if reservation.start_datetime %}
-                        Du {{ reservation.start_datetime|date:"d/m/Y H:i" }}
-                        au {{ reservation.end_datetime|date:"d/m/Y H:i" }}
-                    {% else %}
-                        Dates non définies
+        </div>
+
+        <div>
+            {% with reservation.status as raw %}
+                {% if raw == "PENDING" %}
+                    <span class="adm-status-pill adm-status--pending">{{ reservation.get_status_display }}</span>
+                {% elif raw == "CONFIRMED" %}
+                    <span class="adm-status-pill adm-status--confirmed">{{ reservation.get_status_display }}</span>
+                {% elif raw == "CANCELLED" or raw == "REJECTED" %}
+                    <span class="adm-status-pill adm-status--cancelled">{{ reservation.get_status_display }}</span>
+                {% else %}
+                    <span class="adm-status-pill adm-status--default">{{ reservation.get_status_display }}</span>
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+
+    <div class="adm-res-grid">
+        <!-- COLONNE GAUCHE : INFOS -->
+        <div>
+            <div class="adm-res-card">
+                <div class="adm-card-title">📅 Créneau & contexte</div>
+
+                <div class="adm-field-label">Studio / Service</div>
+                <div class="adm-field-value">
+                    <strong>Studio :</strong>
+                    {% if reservation.studio %}{{ reservation.studio.name }}{% else %}<span class="adm-field-value-muted">—</span>{% endif %}
+                    <br>
+                    <strong>Service :</strong>
+                    {% if reservation.service %}{{ reservation.service.name }}{% else %}<span class="adm-field-value-muted">—</span>{% endif %}
+                </div>
+
+                <div class="adm-field-label">Créneau demandé</div>
+                <div class="adm-field-value">
+                    Du {{ reservation.start_datetime|date:"d/m/Y H:i" }}
+                    au {{ reservation.end_datetime|date:"d/m/Y H:i" }}
+                </div>
+
+                <div class="adm-field-label">Notes de planification</div>
+                <div class="adm-field-value">
+                    {{ reservation.scheduling_notes|default:"—"|linebreaksbr }}
+                </div>
+            </div>
+
+            <div class="adm-res-card">
+                <div class="adm-card-title">🧩 Informations client (snapshot)</div>
+
+                <div class="adm-field-label">Nom / structure</div>
+                <div class="adm-field-value">
+                    {{ reservation.contact_full_name|default:"—" }}
+                    {% if reservation.contact_company %}
+                        · <span class="adm-field-value-muted">{{ reservation.contact_company }}</span>
                     {% endif %}
-                </small>
+                </div>
+
+                <div class="adm-field-label">Coordonnées</div>
+                <div class="adm-field-value">
+                    {% if reservation.contact_phone %}Tél. : {{ reservation.contact_phone }}<br>{% endif %}
+                    {% if reservation.contact_email %}Email : {{ reservation.contact_email }}<br>{% endif %}
+                    {% if reservation.contact_city or reservation.contact_country %}
+                        Localisation :
+                        {{ reservation.contact_city|default:"" }}
+                        {% if reservation.contact_city and reservation.contact_country %}, {% endif %}
+                        {{ reservation.contact_country|default:"" }}
+                    {% endif %}
+                    {% if not reservation.contact_phone and not reservation.contact_email and not reservation.contact_city and not reservation.contact_country %}
+                        <span class="adm-field-value-muted">Aucune coordonnée renseignée</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="adm-res-card">
+                <div class="adm-card-title">🎬 Projet vidéo / podcast</div>
+
+                <div class="adm-field-label">Résumé du projet</div>
+                <div class="adm-field-value">
+                    {{ reservation.project_summary|default:"—"|linebreaksbr }}
+                </div>
+
+                <div class="adm-field-label">Références / inspirations</div>
+                <div class="adm-field-value">
+                    {{ reservation.project_references|default:"—"|linebreaksbr }}
+                </div>
+            </div>
+
+            <div class="adm-res-card">
+                <div class="adm-card-title">🎙️ Format & configuration</div>
+
+                <div class="adm-field-label">Type de format</div>
+                <div class="adm-field-value">
+                    {% if reservation.format_type %}
+                        {{ reservation.get_format_type_display }}
+                    {% else %}
+                        <span class="adm-field-value-muted">Non précisé</span>
+                    {% endif %}
+                </div>
+
+                <div class="adm-field-label">Intervenants</div>
+                <div class="adm-field-value">
+                    {% if reservation.participants_count %}
+                        {{ reservation.participants_count }} intervenant(s)
+                        {% if reservation.participants_details %}
+                            · <span class="adm-field-value-muted">{{ reservation.participants_details }}</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="adm-field-value-muted">Non précisé</span>
+                    {% endif %}
+                </div>
+
+                <div class="adm-field-label">Durée & volume</div>
+                <div class="adm-field-value">
+                    {% if reservation.episode_duration_minutes %}
+                        Durée moyenne : {{ reservation.episode_duration_minutes }} min<br>
+                    {% endif %}
+                    {% if reservation.episodes_count %}
+                        Nombre d'épisodes : {{ reservation.episodes_count }}<br>
+                    {% endif %}
+                    {% if reservation.episodes_notes %}
+                        <span class="adm-field-value-muted">{{ reservation.episodes_notes }}</span>
+                    {% endif %}
+                    {% if not reservation.episode_duration_minutes and not reservation.episodes_count and not reservation.episodes_notes %}
+                        <span class="adm-field-value-muted">Non précisé</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="adm-res-card">
+                <div class="adm-card-title">💰 Budget & préférences de contact</div>
+
+                <div class="adm-field-label">Budget indicatif</div>
+                <div class="adm-field-value">
+                    {% if reservation.budget_known %}
+                        Budget connu :
+                        {% if reservation.budget_min %}min {{ reservation.budget_min }} FCFA{% endif %}
+                        {% if reservation.budget_max %} · max {{ reservation.budget_max }} FCFA{% endif %}
+                        {% if not reservation.budget_min and not reservation.budget_max %}
+                            <span class="adm-field-value-muted">(fourchette non précisée)</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="adm-field-value-muted">Le client souhaite être conseillé</span>
+                    {% endif %}
+                </div>
+
+                <div class="adm-field-label">Préférences</div>
+                <div class="adm-field-value">
+                    {% if reservation.contact_pref_call %}<span class="adm-tag">Être rappelé</span>{% endif %}
+                    {% if reservation.contact_pref_meeting %}<span class="adm-tag">RDV</span>{% endif %}
+                    {% if reservation.contact_pref_email_quote %}<span class="adm-tag">Devis email</span>{% endif %}
+                    {% if not reservation.contact_pref_call and not reservation.contact_pref_meeting and not reservation.contact_pref_email_quote %}
+                        <span class="adm-field-value-muted">Aucune préférence</span>
+                    {% endif %}
+                </div>
+
+                <div class="adm-field-label">Message client</div>
+                <div class="adm-field-value">
+                    {{ reservation.client_additional_message|default:"—"|linebreaksbr }}
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Onglets -->
-    <div class="res-tabs">
-        <button type="button" class="res-tab active" data-target="#res-section-synthese">
-            <i class="ph ph-chart-bar"></i> Synthèse
-        </button>
-        <button type="button" class="res-tab" data-target="#res-section-client">
-            <i class="ph ph-user-circle"></i> Client
-        </button>
-        <button type="button" class="res-tab" data-target="#res-section-planning">
-            <i class="ph ph-clock"></i> Planning & Ressources
-        </button>
-        <button type="button" class="res-tab" data-target="#res-section-admin">
-            <i class="ph ph-clipboard-text"></i> Administration
-        </button>
-        <button type="button" class="res-tab" data-target="#res-section-history">
-            <i class="ph ph-timer"></i> Historique des statuts
-        </button>
-    </div>
+        <!-- COLONNE DROITE : ACTIONS + ÉQUIPEMENTS + HISTORIQUE -->
+        <div>
+            <div class="adm-res-card">
+                <div class="adm-card-title">✅ Édition (admin)</div>
 
-    <div class="row">
-        <!-- COLONNE GAUCHE : SYNTHÈSE / CLIENT / PLANNING -->
-        <div class="col-lg-7 mb-4">
-            <!-- Synthèse -->
-            <section class="res-section active" id="res-section-synthese">
-                <div class="res-section-header">
-                    <h2 class="res-section-title">
-                        <span class="icon"><i class="ph ph-chart-bar"></i></span>
-                        Synthèse de la réservation
-                    </h2>
-                    <p class="res-section-desc">
-                        Aperçu global : client, service, studio et état de la réservation.
-                    </p>
-                </div>
+                <form method="post" class="adm-form" novalidate>
+                    {% csrf_token %}
 
-                <div class="res-grid-2">
-                    <div>
-                        <p class="mb-1"><strong>Client :</strong><br>
-                            {{ reservation.user.get_full_name|default:reservation.user.username }}
-                        </p>
-                        <p class="mb-1"><strong>Email :</strong><br>
-                            {{ reservation.user.email|default:"-" }}
-                        </p>
-                        <p class="mb-1"><strong>Téléphone :</strong><br>
-                            {{ reservation.user.phone|default:"-" }}
-                        </p>
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <div class="mb-2">
+                        <div class="adm-field-label">Statut</div>
+                        {{ form.status }}
+                        {{ form.status.errors }}
                     </div>
-                    <div>
-                        <p class="mb-1"><strong>Service :</strong><br>
-                            {{ reservation.service.name|default:"-" }}
-                        </p>
-                        <p class="mb-1"><strong>Studio :</strong><br>
-                            {{ reservation.studio.name|default:"-" }}
-                        </p>
-                        <p class="mb-1"><strong>Technicien assigné :</strong><br>
-                            {% if reservation.assigned_technician %}
-                                {{ reservation.assigned_technician.get_full_name|default:reservation.assigned_technician.username }}
-                            {% else %}
-                                <span class="text-muted">Non assigné</span>
-                            {% endif %}
-                        </p>
-                    </div>
-                </div>
 
-                <hr class="my-3">
-
-                <div class="res-grid-2">
-                    <div>
-                        <p class="mb-1"><strong>Date de début :</strong><br>
-                            {{ reservation.start_datetime|date:"d/m/Y H:i"|default:"-" }}
-                        </p>
-                        <p class="mb-1"><strong>Date de fin :</strong><br>
-                            {{ reservation.end_datetime|date:"d/m/Y H:i"|default:"-" }}
-                        </p>
-                        <p class="mb-1"><strong>Statut :</strong><br>
-                            {{ reservation.get_status_display }}
-                        </p>
+                    <div class="mb-2">
+                        <div class="adm-field-label">Début</div>
+                        {{ form.start_datetime }}
+                        {{ form.start_datetime.errors }}
                     </div>
-                    <div>
-                        <p class="mb-1"><strong>Équipements réservés ({{ reservation.equipments.count }}) :</strong></p>
-                        {% if reservation.equipments.all %}
-                            <ul class="res-equip-list">
-                                {% for eq in reservation.equipments.all %}
-                                    <li>
-                                        <span>{{ eq.name }}{% if eq.brand or eq.model %} – {{ eq.brand|default:"" }} {{ eq.model|default:"" }}{% endif %}</span>
-                                        <span class="text-muted">{{ eq.category.name|default:"-" }}</span>
-                                    </li>
-                                {% empty %}
-                                    <li><span class="text-muted">Aucun équipement lié.</span></li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p class="text-muted">Aucun équipement lié.</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </section>
 
-            <!-- Client -->
-            <section class="res-section" id="res-section-client">
-                <div class="res-section-header">
-                    <h2 class="res-section-title">
-                        <span class="icon"><i class="ph ph-user-circle"></i></span>
-                        Informations client
-                    </h2>
-                    <p class="res-section-desc">
-                        Données de contact et profil du client à l’origine de la réservation.
-                    </p>
-                </div>
-
-                <div class="res-grid-2">
-                    <div>
-                        <p class="mb-1"><strong>Nom complet :</strong><br>
-                            {{ reservation.user.get_full_name|default:reservation.user.username }}
-                        </p>
-                        <p class="mb-1"><strong>Nom d'utilisateur :</strong><br>
-                            {{ reservation.user.username }}
-                        </p>
-                        <p class="mb-1"><strong>Email :</strong><br>
-                            {{ reservation.user.email|default:"-" }}
-                        </p>
+                    <div class="mb-2">
+                        <div class="adm-field-label">Fin</div>
+                        {{ form.end_datetime }}
+                        {{ form.end_datetime.errors }}
                     </div>
-                    <div>
-                        <p class="mb-1"><strong>Téléphone :</strong><br>
-                            {{ reservation.user.phone|default:"-" }}
-                        </p>
-                        <p class="mb-1"><strong>Rôle :</strong><br>
-                            {{ reservation.user.get_role_display|default:"-" }}
-                        </p>
-                        <p class="mb-1"><strong>Employé :</strong><br>
-                            {% if reservation.user.is_employee %}
-                                Oui
-                            {% else %}
-                                Non
-                            {% endif %}
-                        </p>
-                    </div>
-                </div>
-            </section>
 
-            <!-- Planning & ressources -->
-            <section class="res-section" id="res-section-planning">
-                <div class="res-section-header">
-                    <h2 class="res-section-title">
-                        <span class="icon"><i class="ph ph-clock"></i></span>
-                        Planning & ressources
-                    </h2>
-                    <p class="res-section-desc">
-                        Informations temporelles et ressources utilisées pour cette réservation.
-                    </p>
-                </div>
-
-                <div class="res-grid-2">
-                    <div>
-                        <p class="mb-1"><strong>Date de début :</strong><br>
-                            {{ reservation.start_datetime|date:"d/m/Y H:i"|default:"-" }}
-                        </p>
-                        <p class="mb-1"><strong>Date de fin :</strong><br>
-                            {{ reservation.end_datetime|date:"d/m/Y H:i"|default:"-" }}
-                        </p>
-                        <p class="mb-1"><strong>Durée (approx) :</strong><br>
-                            {% if reservation.start_datetime and reservation.end_datetime %}
-                                {{ reservation.end_datetime|timeuntil:reservation.start_datetime }}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </p>
+                    <div class="mb-2">
+                        <div class="adm-field-label">Technicien assigné</div>
+                        {{ form.assigned_technician }}
+                        {{ form.assigned_technician.errors }}
                     </div>
-                    <div>
-                        <p class="mb-1"><strong>Studio :</strong><br>
-                            {{ reservation.studio.name|default:"-" }}
-                        </p>
-                        <p class="mb-1"><strong>Service :</strong><br>
-                            {{ reservation.service.name|default:"-" }}
-                        </p>
-                        <p class="mb-1"><strong>Technicien assigné :</strong><br>
-                            {% if reservation.assigned_technician %}
-                                {{ reservation.assigned_technician.get_full_name|default:reservation.assigned_technician.username }}
-                            {% else %}
-                                <span class="text-muted">Non assigné</span>
-                            {% endif %}
-                        </p>
-                    </div>
-                </div>
-            </section>
-                        <!-- Historique des statuts -->
-            <section class="res-section" id="res-section-history">
-                <div class="res-section-header">
-                    <h2 class="res-section-title">
-                        <span class="icon"><i class="ph ph-timer"></i></span>
-                        Historique des statuts
-                    </h2>
-                    <p class="res-section-desc">
-                        Suivi chronologique des changements de statut de la réservation.
-                    </p>
-                </div>
 
-                {% if status_history %}
-                    <ul class="res-timeline">
-                        {% for h in status_history %}
-                            <li class="res-timeline-item">
-                                <span class="res-timeline-dot"></span>
-                                <div class="res-timeline-item-header">
-                                    <span class="status-label">
-                                        {{ h.get_old_status_display }} → {{ h.get_new_status_display }}
+                    <div class="mb-2">
+                        <div class="adm-field-label">Commentaire admin (interne)</div>
+                        {{ form.admin_comment }}
+                        {{ form.admin_comment.errors }}
+                    </div>
+
+                    <button class="btn btn-primary w-100" type="submit">
+                        Enregistrer les modifications
+                    </button>
+                </form>
+            </div>
+
+            <div class="adm-res-card">
+                <div class="adm-card-title">🎛️ Équipements réservés</div>
+
+                {% if reservation.equipments.count > 0 %}
+                    <ul style="margin:0;padding-left:1.1rem;">
+                        {% for e in reservation.equipments.all %}
+                            <li style="margin-bottom:.25rem;">
+                                <strong>{{ e.name }}</strong>
+                                {% if e.category %}
+                                    <span class="adm-field-value-muted">({{ e.category.name }})</span>
+                                {% endif %}
+                                {% if e.brand or e.model %}
+                                    <span class="adm-field-value-muted">
+                                        — {{ e.brand|default:"" }} {{ e.model|default:"" }}
                                     </span>
-                                    <span class="meta">
-                                        • {{ h.changed_at|date:"d/m/Y H:i" }}
-                                        {% if h.changed_by %}
-                                            • par {{ h.changed_by.get_full_name|default:h.changed_by.username }}
-                                        {% endif %}
-                                    </span>
-                                </div>
-                                {% if h.note %}
-                                    <div class="res-timeline-note">
-                                        {{ h.note|linebreaksbr }}
-                                    </div>
                                 {% endif %}
                             </li>
                         {% endfor %}
                     </ul>
                 {% else %}
-                    <p class="text-muted mb-0">Aucun historique de changement de statut enregistré pour cette réservation.</p>
+                    <div class="adm-field-value-muted">Aucun équipement</div>
                 {% endif %}
-            </section>
-        </div>
+            </div>
 
-        <!-- COLONNE DROITE : FORMULAIRE ADMIN -->
-        <div class="col-lg-5 mb-4">
-            <section class="res-section active" id="res-section-admin">
-                <div class="res-section-header">
-                    <h2 class="res-section-title">
-                        <span class="icon"><i class="ph ph-clipboard-text"></i></span>
-                        Administration de la réservation
-                    </h2>
-                    <p class="res-section-desc">
-                        Modifier le statut, les dates, le studio, le service, les équipements, le technicien et les notes internes.
-                    </p>
-                </div>
+            <div class="adm-res-card">
+                <div class="adm-card-title">📜 Historique de statut</div>
 
-                <form method="post">
-                    {% csrf_token %}
-
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {{ form.non_field_errors }}
-                        </div>
-                    {% endif %}
-
-                    <div class="res-field mb-2">
-                        <label for="{{ form.user.id_for_label }}">{{ form.user.label }}</label>
-                        {{ form.user }}
-                        {% if form.user.errors %}
-                            <div class="error-text">{{ form.user.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-
-                    <div class="res-grid-2">
-                        <div class="res-field">
-                            <label for="{{ form.service.id_for_label }}">{{ form.service.label }}</label>
-                            {{ form.service }}
-                            {% if form.service.errors %}
-                                <div class="error-text">{{ form.service.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="res-field">
-                            <label for="{{ form.studio.id_for_label }}">{{ form.studio.label }}</label>
-                            {{ form.studio }}
-                            {% if form.studio.errors %}
-                                <div class="error-text">{{ form.studio.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="res-grid-2">
-                        <div class="res-field">
-                            <label for="{{ form.start_datetime.id_for_label }}">{{ form.start_datetime.label }}</label>
-                            {{ form.start_datetime }}
-                            {% if form.start_datetime.errors %}
-                                <div class="error-text">{{ form.start_datetime.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="res-field">
-                            <label for="{{ form.end_datetime.id_for_label }}">{{ form.end_datetime.label }}</label>
-                            {{ form.end_datetime }}
-                            {% if form.end_datetime.errors %}
-                                <div class="error-text">{{ form.end_datetime.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="res-field mb-2">
-                        <label for="{{ form.equipments.id_for_label }}">{{ form.equipments.label }}</label>
-                        {{ form.equipments }}
-                        {% if form.equipments.errors %}
-                            <div class="error-text">{{ form.equipments.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-
-                    <div class="res-grid-2">
-                        <div class="res-field">
-                            <label for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
-                            {{ form.status }}
-                            {% if form.status.errors %}
-                                <div class="error-text">{{ form.status.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="res-field">
-                            <label for="{{ form.assigned_technician.id_for_label }}">{{ form.assigned_technician.label }}</label>
-                            {{ form.assigned_technician }}
-                            {% if form.assigned_technician.errors %}
-                                <div class="error-text">{{ form.assigned_technician.errors|striptags }}</div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="res-field mb-2">
-                        <label for="{{ form.admin_comment.id_for_label }}">{{ form.admin_comment.label }}</label>
-                        {{ form.admin_comment }}
-                        {% if form.admin_comment.errors %}
-                            <div class="error-text">{{ form.admin_comment.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-
-                    <div class="res-form-footer">
-                        <a href="{% url 'dashboard:reservations_list' %}" class="btn btn-secondary btn-sm">
-                            Retour à la liste
-                        </a>
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            <i class="ph ph-check"></i> Enregistrer les modifications
-                        </button>
-                    </div>
-                </form>
-            </section>
+                {% if status_history %}
+                    <table class="adm-history-table">
+                        <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Ancien</th>
+                            <th>Nouveau</th>
+                            <th>Par</th>
+                            <th>Note</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for h in status_history %}
+                            <tr>
+                                <td>{{ h.changed_at|date:"d/m/Y H:i" }}</td>
+                                <td>{{ h.get_old_status_display }}</td>
+                                <td>{{ h.get_new_status_display }}</td>
+                                <td>
+                                    {% if h.changed_by %}
+                                        {{ h.changed_by.get_full_name|default:h.changed_by.username }}
+                                    {% else %}
+                                        <span class="adm-field-value-muted">Système / inconnu</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ h.note|default:"" }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="adm-field-value-muted">Aucun historique de changement de statut.</div>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const tabs = document.querySelectorAll('.res-tab');
-    const sections = document.querySelectorAll('.res-section');
-
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const target = document.querySelector(tab.dataset.target);
-            if (!target) return;
-
-            tabs.forEach(t => t.classList.remove('active'));
-            sections.forEach(s => s.classList.remove('active'));
-
-            tab.classList.add('active');
-            target.classList.add('active');
-
-            const y = target.getBoundingClientRect().top + window.scrollY - 80;
-            window.scrollTo({ top: y, behavior: 'smooth' });
-        });
-    });
-
-    sections.forEach(section => {
-        section.addEventListener('focusin', () => {
-            sections.forEach(s => s.classList.remove('active'));
-            section.classList.add('active');
-        });
-    });
-});
-</script>
 
 {% endblock %}

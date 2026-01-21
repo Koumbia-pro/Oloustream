@@ -37,7 +37,10 @@ from apps.services_app.forms import TrainingForm
 from apps.notifications.services import notify_user_reservation_status_change
 from apps.notifications.models import Notification, NotificationTypeChoices
 from apps.studio.forms import StudioForm
-
+from django.views.decorators.http import require_POST
+from django.shortcuts import redirect
+from django.contrib import messages
+from apps.notifications.emailing import send_reservation_status_changed_email
 
 
 
@@ -2205,3 +2208,81 @@ def studio_delete_view(request, studio_id):
         ).count(),
     }
     return render(request, "admin/studios/confirm_delete.html", context)
+
+
+
+#=====================================================================================================================================================================================
+# apps/dashboard/views.py (à ajouter)
+
+
+def _status_label(value: str) -> str:
+    try:
+        return ReservationStatus(value).label
+    except Exception:
+        return value
+
+
+@staff_member_required
+@require_POST
+def reservation_set_status_view(request, reservation_id):
+    """
+    Action rapide POST :
+    - CONFIRMED / REJECTED / COMPLETED / CANCELLED
+    """
+    reservation = Reservation.objects.select_related("user").get(pk=reservation_id)
+
+    new_status = request.POST.get("status", "").strip()
+    next_url = request.POST.get("next") or request.META.get("HTTP_REFERER") or "/dashboard/reservations/"
+
+    allowed = {
+        ReservationStatus.CONFIRMED,
+        ReservationStatus.REJECTED,
+        ReservationStatus.COMPLETED,
+        ReservationStatus.CANCELLED,
+    }
+
+    if new_status not in [s.value for s in allowed]:
+        messages.error(request, "Statut invalide.")
+        return redirect(next_url)
+
+    old_status = reservation.status
+
+    if old_status == new_status:
+        messages.info(request, "Aucun changement : la réservation a déjà ce statut.")
+        return redirect(next_url)
+
+    # ✅ Optionnel (recommandé) : empêcher de confirmer une réservation déjà passée
+    if new_status == ReservationStatus.CONFIRMED and reservation.end_datetime and reservation.end_datetime < timezone.now():
+        messages.error(request, "Impossible de confirmer : ce créneau est déjà passé.")
+        return redirect(next_url)
+
+    reservation.status = new_status
+    reservation.save(update_fields=["status"])
+
+    # Historique
+    log_reservation_status_change(
+        reservation=reservation,
+        old_status=old_status,
+        new_status=new_status,
+        changed_by=request.user,
+        note=f"Changement rapide de statut -> {new_status}",
+    )
+
+    # Notification client
+    notify_user_reservation_status_change(
+        reservation=reservation,
+        old_status=_status_label(old_status),
+        new_status=_status_label(new_status),
+        actor=request.user,
+    )
+
+    send_reservation_status_changed_email(
+    request=request,
+    reservation=reservation,
+    old_status_label=_status_label(old_status),
+    new_status_label=_status_label(new_status),
+    admin_note = reservation.admin_comment or ""
+    )
+
+    messages.success(request, f"Statut mis à jour : {_status_label(new_status)}")
+    return redirect(next_url)

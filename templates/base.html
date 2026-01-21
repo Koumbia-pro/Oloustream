@@ -2,7 +2,7 @@
 <!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="utf-8">
+   <meta charset="utf-8">
     <title>{% block title %}Oloustream - Creative Audio-Video Experiences{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -15,6 +15,16 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <link rel="icon" href="{% static 'img/ICONE OLOUSTREAM.png' %}">
+    <link rel="shortcut icon" href="{% static 'img/ICONE OLOUSTREAM.png' %}">
+
+    <!-- Recommandé (PNG) -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/ICONE OLOUSTREAM.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/ICONE OLOUSTREAM.png' %}">
+
+    <!-- iPhone/iPad -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/ICONE OLOUSTREAM.png' %}">
+ 
     <style>
         /* DESIGN SYSTEM */
         :root {
@@ -975,7 +985,7 @@
                         </div>
                         <a href="{% url 'studio:user_studio_list' %}" class="nav-link-underline">Studio</a>
                         <a href="{% url 'services_app:user_trainings_list' %}" class="nav-link-underline">Formations</a>
-                        <a href="{% url 'services_app:user_jobs_list' %}" class="nav-link-underline">Offres</a>
+                        <a href="{% url 'services_app:user_jobs_list' %}" class="nav-link-underline">Carrières</a>
                         <a href="{% url 'core:realisations' %}" class="nav-link-underline">Réalisations</a>
                         <a href="{% url 'core:about' %}" class="nav-link-underline">A propos</a>
                     </div>
@@ -1094,6 +1104,12 @@
                     <a href="{% url 'services_app:user_trainings_list' %}">
                         <i class="fa-solid fa-graduation-cap"></i>
                         <span>Formations</span>
+                    </a>
+                </li>
+                <li class="mobile-nav-item">
+                    <a href="{% url 'services_app:user_jobs_list' %}">
+                        <i class="fa-solid fa-briefcase"></i>
+                        <span>Carriere</span>
                     </a>
                 </li>
                 <li class="mobile-nav-item">

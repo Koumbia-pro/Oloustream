@@ -21,6 +21,7 @@ from .views import (
     reservation_detail_view,
     reservation_export_excel_view,
     reservation_quick_cancel_view,
+    reservation_set_status_view, 
     # Services
     service_list_view,
     service_create_view,
@@ -55,6 +56,7 @@ from .views import (
     studio_detail_view,
     studio_update_view,
     studio_delete_view,
+
 )
 
 app_name = "dashboard"
@@ -84,6 +86,12 @@ urlpatterns = [
     path('reservations/<int:reservation_id>/', reservation_detail_view, name='reservations_detail'),
     path('reservations/export/excel/', reservation_export_excel_view, name='reservations_export_excel'),
     path('reservations/<int:reservation_id>/cancel/', reservation_quick_cancel_view, name='reservations_quick_cancel'),
+     # ✅ Action POST unique : confirmer / refuser / terminer / annuler
+    path(
+        'reservations/<int:reservation_id>/set-status/',
+        reservation_set_status_view,
+        name='reservations_set_status',
+    ),
 
 
     # Services
