@@ -62,6 +62,8 @@ urlpatterns = [
     # Notifications
     path('notifications/', include('apps.notifications.urls', namespace='notifications')),
 
+    # Business Partners
+    path('partenaires/', include('apps.business_partners.urls')),
 ]
 
 if settings.DEBUG:

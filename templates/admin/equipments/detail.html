@@ -1,180 +1,1187 @@
 {% extends "admin/admin_base.html" %}
 {% block title %}Détails équipement - Oloustream Admin{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* ==================== VARIABLES ==================== */
+    :root {
+        --primary-400: #60a5fa;
+        --primary-500: #3b82f6;
+        --primary-600: #2563eb;
+        --primary-700: #1d4ed8;
+        --surface-100: #f4f4f5;
+        --surface-200: #e4e4e7;
+        --surface-300: #d4d4d8;
+        --surface-400: #a1a1aa;
+        --surface-500: #71717a;
+        --surface-600: #52525b;
+        --surface-700: #3f3f46;
+        --surface-800: #27272a;
+        --surface-850: #1f1f23;
+        --surface-900: #18181b;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --error-color: #ef4444;
+    }
+
+    /* ==================== WRAPPER ==================== */
+    .equipment-detail-wrapper {
+        width: 100%;
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==================== PAGE HEADER ==================== */
+    .page-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .back-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        color: #a1a1aa;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+        background: #3f3f46;
+        color: white;
+        transform: translateX(-3px);
+    }
+
+    .back-btn i {
+        font-size: 1.25rem;
+    }
+
+    .header-info h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .header-info p {
+        font-size: 0.875rem;
+        color: #71717a;
+        margin: 0;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        font-family: inherit;
+    }
+
+    .btn i {
+        font-size: 1.125rem;
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        color: white;
+    }
+
+    .btn-delete {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-delete:hover {
+        background: rgba(239, 68, 68, 0.25);
+        color: #fca5a5;
+    }
+
+    /* ==================== MAIN GRID ==================== */
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 400px 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    /* ==================== EQUIPMENT CARD ==================== */
+    .equipment-card {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 20px;
+        overflow: hidden;
+        position: sticky;
+        top: calc(70px + 1.5rem);
+    }
+
+    .equipment-photo-container {
+        position: relative;
+        width: 100%;
+        height: 220px;
+        background: linear-gradient(135deg, #27272a, #1f1f23);
+        overflow: hidden;
+    }
+
+    .equipment-photo-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .equipment-photo-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        background: linear-gradient(135deg, #27272a, #1f1f23);
+    }
+
+    .equipment-photo-placeholder i {
+        font-size: 4rem;
+        color: #3f3f46;
+    }
+
+    .equipment-photo-placeholder span {
+        font-size: 0.75rem;
+        color: #52525b;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    /* Status overlay */
+    .status-overlay {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .status-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+    }
+
+    .status-tag.available {
+        background: rgba(16, 185, 129, 0.9);
+        color: white;
+    }
+
+    .status-tag.in-use {
+        background: rgba(59, 130, 246, 0.9);
+        color: white;
+    }
+
+    .status-tag.maintenance {
+        background: rgba(245, 158, 11, 0.9);
+        color: white;
+    }
+
+    .status-tag.out-of-service {
+        background: rgba(239, 68, 68, 0.9);
+        color: white;
+    }
+
+    .status-tag.retired {
+        background: rgba(113, 113, 122, 0.9);
+        color: white;
+    }
+
+    .rental-tag {
+        background: rgba(16, 185, 129, 0.9);
+        color: white;
+    }
+
+    .rental-tag.no {
+        background: rgba(113, 113, 122, 0.8);
+    }
+
+    /* Equipment body */
+    .equipment-body {
+        padding: 1.5rem;
+    }
+
+    .equipment-name {
+        font-size: 1.375rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        margin: 0 0 0.375rem 0;
+    }
+
+    .equipment-brand {
+        font-size: 0.9375rem;
+        color: #a1a1aa;
+        margin: 0 0 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .equipment-brand i {
+        font-size: 1rem;
+        color: #71717a;
+    }
+
+    /* Quick info grid */
+    .quick-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .quick-info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .quick-info-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: #52525b;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .quick-info-value {
+        font-size: 0.9375rem;
+        font-weight: 500;
+        color: #e4e4e7;
+    }
+
+    .quick-info-value.empty {
+        color: #52525b;
+        font-style: italic;
+    }
+
+    /* Category badge */
+    .category-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        background: rgba(59, 130, 246, 0.15);
+        border: 1px solid rgba(59, 130, 246, 0.25);
+        border-radius: 8px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #60a5fa;
+    }
+
+    .category-badge i {
+        font-size: 0.875rem;
+    }
+
+    /* Serial number */
+    .serial-number {
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        background: #27272a;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.8125rem;
+    }
+
+    /* Age badge */
+    .age-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.5rem 0.875rem;
+        background: rgba(139, 92, 246, 0.15);
+        border: 1px solid rgba(139, 92, 246, 0.25);
+        border-radius: 10px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #a78bfa;
+    }
+
+    .age-badge i {
+        font-size: 1rem;
+    }
+
+    /* Maintenance alert */
+    .maintenance-alert {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.875rem 1rem;
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.25);
+        border-radius: 10px;
+        margin-top: 1rem;
+    }
+
+    .maintenance-alert i {
+        font-size: 1.25rem;
+        color: #fbbf24;
+    }
+
+    .maintenance-alert span {
+        font-size: 0.8125rem;
+        color: #fcd34d;
+        font-weight: 500;
+    }
+
+    /* ==================== INFO CARDS ==================== */
+    .info-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .info-card {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .info-card:hover {
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .info-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .info-card-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .info-card-icon.blue {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+    }
+
+    .info-card-icon.green {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+    }
+
+    .info-card-icon.orange {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+    }
+
+    .info-card-icon.purple {
+        background: rgba(139, 92, 246, 0.15);
+        color: #a78bfa;
+    }
+
+    .info-card-icon.cyan {
+        background: rgba(6, 182, 212, 0.15);
+        color: #22d3ee;
+    }
+
+    .info-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #f4f4f5;
+        margin: 0;
+    }
+
+    .info-card-body {
+        padding: 1.5rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+    }
+
+    .info-grid.two-cols {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .info-item.full-width {
+        grid-column: span 3;
+    }
+
+    .info-item.two-span {
+        grid-column: span 2;
+    }
+
+    .info-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: #52525b;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .info-label i {
+        font-size: 0.875rem;
+    }
+
+    .info-value {
+        font-size: 0.9375rem;
+        color: #e4e4e7;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+
+    .info-value.empty {
+        color: #52525b;
+        font-style: italic;
+    }
+
+    .info-value a {
+        color: #60a5fa;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .info-value a:hover {
+        color: #93c5fd;
+    }
+
+    /* Price value */
+    .price-value {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        border-radius: 8px;
+        color: #34d399;
+        font-weight: 600;
+    }
+
+    .price-value i {
+        font-size: 1rem;
+    }
+
+    /* User link */
+    .user-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        color: #e4e4e7;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .user-link:hover {
+        background: #3f3f46;
+        border-color: rgba(59, 130, 246, 0.3);
+        color: #60a5fa;
+    }
+
+    .user-link i {
+        font-size: 1rem;
+        color: #71717a;
+    }
+
+    /* Status badge in cards */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-badge.available {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-badge.in-use {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .status-badge.maintenance {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .status-badge.out-of-service {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* Timeline */
+    .maintenance-timeline {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: #27272a;
+        border-radius: 12px;
+        margin-top: 1rem;
+    }
+
+    .timeline-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        text-align: center;
+        position: relative;
+    }
+
+    .timeline-item:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: calc(50% + 25px);
+        width: calc(100% - 50px);
+        height: 2px;
+        background: #3f3f46;
+    }
+
+    .timeline-dot {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        z-index: 1;
+    }
+
+    .timeline-dot.past {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 2px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .timeline-dot.future {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 2px solid rgba(59, 130, 246, 0.4);
+    }
+
+    .timeline-dot.warning {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+        border: 2px solid rgba(245, 158, 11, 0.4);
+        animation: pulse-warning 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-warning {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+        50% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+    }
+
+    .timeline-label {
+        font-size: 0.6875rem;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .timeline-date {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #e4e4e7;
+    }
+
+    /* Specs content */
+    .specs-content {
+        background: #27272a;
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        font-size: 0.875rem;
+        color: #d4d4d8;
+        line-height: 1.6;
+        white-space: pre-wrap;
+    }
+
+    /* Document button */
+    .document-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        border-radius: 10px;
+        color: white;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .document-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        color: white;
+    }
+
+    .document-btn i {
+        font-size: 1.125rem;
+    }
+
+    /* Created date */
+    .created-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1rem;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 8px;
+        font-size: 0.8125rem;
+        color: #71717a;
+    }
+
+    .created-info i {
+        font-size: 1rem;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1200px) {
+        .detail-grid {
+            grid-template-columns: 350px 1fr;
+        }
+
+        .info-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .info-item.full-width {
+            grid-column: span 2;
+        }
+
+        .info-item.two-span {
+            grid-column: span 2;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .equipment-card {
+            position: static;
+        }
+
+        .equipment-photo-container {
+            height: 250px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-actions {
+            width: 100%;
+        }
+
+        .header-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .info-item.full-width,
+        .info-item.two-span {
+            grid-column: span 1;
+        }
+
+        .quick-info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .maintenance-timeline {
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .timeline-item:not(:last-child)::after {
+            display: none;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-left {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .back-btn {
+            align-self: flex-start;
+        }
+
+        .header-info h1 {
+            font-size: 1.25rem;
+        }
+
+        .equipment-body {
+            padding: 1rem;
+        }
+
+        .info-card-body {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="detail-dashboard-wrapper">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">Détails de l’équipement</h2>
-        <div class="btn-group btn-group-sm">
-            <a href="{% url 'dashboard:equipments_edit' equipment.id %}" class="btn btn-primary">
-                <i class="ph ph-pencil-simple"></i> Modifier
+<div class="equipment-detail-wrapper">
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div class="header-left">
+            <a href="{% url 'dashboard:equipments_list' %}" class="back-btn" title="Retour à la liste">
+                <i class="ph ph-arrow-left"></i>
             </a>
-            <a href="{% url 'dashboard:equipments_delete' equipment.id %}" class="btn btn-danger">
-                <i class="ph ph-trash"></i> Supprimer
+            <div class="header-info">
+                <h1>Détails de l'équipement</h1>
+                <p>Consultez toutes les informations de {{ equipment.name }}</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'dashboard:equipments_edit' equipment.id %}" class="btn btn-edit">
+                <i class="ph ph-pencil-simple"></i>
+                Modifier
             </a>
-            <a href="{% url 'dashboard:equipments_list' %}" class="btn btn-secondary">
-                Retour à la liste
+            <a href="{% url 'dashboard:equipments_delete' equipment.id %}" class="btn btn-delete">
+                <i class="ph ph-trash"></i>
+                Supprimer
             </a>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Bloc photo + résumé -->
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body text-center">
-                    {% if equipment.photo %}
-                        <img src="{{ equipment.photo.url }}" alt="Photo équipement"
-                             class="img-fluid rounded mb-3"
-                             style="max-height: 160px; object-fit: cover;">
+    <!-- MAIN GRID -->
+    <div class="detail-grid">
+        <!-- EQUIPMENT CARD -->
+        <aside class="equipment-card">
+            <div class="equipment-photo-container">
+                {% if equipment.photo %}
+                    <img src="{{ equipment.photo.url }}" alt="{{ equipment.name }}">
+                {% else %}
+                    <div class="equipment-photo-placeholder">
+                        <i class="ph ph-camera-slash"></i>
+                        <span>Pas de photo</span>
+                    </div>
+                {% endif %}
+                
+                <!-- Status overlay -->
+                <div class="status-overlay">
+                    <span class="status-tag {% if equipment.status == 'available' %}available{% elif equipment.status == 'in_use' %}in-use{% elif equipment.status == 'maintenance' %}maintenance{% elif equipment.status == 'out_of_service' %}out-of-service{% else %}retired{% endif %}">
+                        {% if equipment.status == 'available' %}
+                            <i class="ph ph-check-circle"></i>
+                        {% elif equipment.status == 'in_use' %}
+                            <i class="ph ph-play-circle"></i>
+                        {% elif equipment.status == 'maintenance' %}
+                            <i class="ph ph-wrench"></i>
+                        {% else %}
+                            <i class="ph ph-x-circle"></i>
+                        {% endif %}
+                        {{ equipment.get_status_display }}
+                    </span>
+                    {% if equipment.is_available_for_rent %}
+                        <span class="status-tag rental-tag">
+                            <i class="ph ph-handshake"></i>
+                            Location
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="equipment-body">
+                <h2 class="equipment-name">{{ equipment.name }}</h2>
+                
+                <p class="equipment-brand">
+                    <i class="ph ph-factory"></i>
+                    {% if equipment.brand or equipment.model %}
+                        {{ equipment.brand|default:"" }}{% if equipment.brand and equipment.model %} / {% endif %}{{ equipment.model|default:"" }}
                     {% else %}
-                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded mb-3"
-                             style="width: 100%; height: 160px; font-size: 2rem;">
-                            <i class="ph ph-device-mobile"></i>
-                        </div>
+                        Marque / modèle non renseignés
                     {% endif %}
-                    <h5 class="mb-1">{{ equipment.name }}</h5>
-                    <p class="text-muted mb-1">
-                        {% if equipment.brand or equipment.model %}
-                            {{ equipment.brand|default:"" }}{% if equipment.brand and equipment.model %} / {% endif %}{{ equipment.model|default:"" }}
-                        {% else %}
-                            <span class="text-muted">Marque / modèle non renseignés</span>
-                        {% endif %}
-                    </p>
-                    <p class="mb-1"><strong>Catégorie :</strong> {{ equipment.category.name|default:"-" }}</p>
-                    <p class="mb-1"><strong>N° série :</strong> {{ equipment.serial_number|default:"-" }}</p>
-                    <p class="mb-1">
-                        <strong>Statut :</strong> {{ equipment.get_status_display }}
-                        {% if equipment.maintenance_alert %}
-                            <span class="badge bg-warning text-dark ms-1">Maintenance requise</span>
-                        {% endif %}
-                    </p>
-                    <p class="mb-1">
-                        <strong>Disponible à la location :</strong>
-                        {% if equipment.is_available_for_rent %}
-                            <span class="badge bg-success">Oui</span>
-                        {% else %}
-                            <span class="badge bg-secondary">Non</span>
-                        {% endif %}
-                    </p>
-                    {% if equipment.age_years is not None %}
-                        <p class="mb-0">
-                            <strong>Âge :</strong>
-                            {{ equipment.age_years }} an{% if equipment.age_years > 1 %}s{% endif %}
-                        </p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+                </p>
 
-        <!-- Infos détaillées -->
-        <div class="col-md-8 mb-4">
-            <div class="card shadow-sm mb-3">
-                <div class="card-body">
-                    <h5 class="mb-3">Informations d’achat</h5>
-                    <div class="row">
-                        <div class="col-md-4 mb-2">
-                            <strong>Date d’achat :</strong><br>
-                            {{ equipment.purchase_date|date:"d/m/Y"|default:"-" }}
+                <div class="quick-info-grid">
+                    <div class="quick-info-item">
+                        <span class="quick-info-label">Catégorie</span>
+                        {% if equipment.category %}
+                            <span class="category-badge">
+                                <i class="ph ph-folder"></i>
+                                {{ equipment.category.name }}
+                            </span>
+                        {% else %}
+                            <span class="quick-info-value empty">Non définie</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="quick-info-item">
+                        <span class="quick-info-label">N° de série</span>
+                        {% if equipment.serial_number %}
+                            <span class="quick-info-value serial-number">{{ equipment.serial_number }}</span>
+                        {% else %}
+                            <span class="quick-info-value empty">Non renseigné</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="quick-info-item">
+                        <span class="quick-info-label">Emplacement</span>
+                        <span class="quick-info-value {% if not equipment.location %}empty{% endif %}">
+                            {% if equipment.location %}
+                                <i class="ph ph-map-pin" style="color: #71717a; margin-right: 0.25rem;"></i>
+                                {{ equipment.location }}
+                            {% else %}
+                                Non renseigné
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="quick-info-item">
+                        <span class="quick-info-label">Location</span>
+                        <span class="quick-info-value">
+                            {% if equipment.is_available_for_rent %}
+                                <span style="color: #34d399;">✓ Disponible</span>
+                            {% else %}
+                                <span style="color: #71717a;">✗ Non disponible</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                {% if equipment.age_years is not None %}
+                    <div class="age-badge">
+                        <i class="ph ph-clock-countdown"></i>
+                        {{ equipment.age_years }} an{% if equipment.age_years > 1 %}s{% endif %} d'utilisation
+                    </div>
+                {% endif %}
+
+                {% if equipment.maintenance_alert %}
+                    <div class="maintenance-alert">
+                        <i class="ph ph-warning"></i>
+                        <span>Maintenance requise ou dépassée</span>
+                    </div>
+                {% endif %}
+            </div>
+        </aside>
+
+        <!-- INFO SECTION -->
+        <div class="info-section">
+            <!-- Informations d'achat -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon blue">
+                        <i class="ph ph-shopping-cart"></i>
+                    </div>
+                    <h3 class="info-card-title">Informations d'achat</h3>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-calendar"></i>
+                                Date d'achat
+                            </span>
+                            <span class="info-value {% if not equipment.purchase_date %}empty{% endif %}">
+                                {{ equipment.purchase_date|date:"d F Y"|default:"Non renseignée" }}
+                            </span>
                         </div>
-                        <div class="col-md-4 mb-2">
-                            <strong>Prix d’achat :</strong><br>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-money"></i>
+                                Prix d'achat
+                            </span>
                             {% if equipment.purchase_price %}
-                                {{ equipment.purchase_price }} F CFA
+                                <span class="price-value">
+                                    <i class="ph ph-currency-circle-dollar"></i>
+                                    {{ equipment.purchase_price|floatformat:0 }} F CFA
+                                </span>
                             {% else %}
-                                -
+                                <span class="info-value empty">Non renseigné</span>
                             {% endif %}
                         </div>
-                        <div class="col-md-4 mb-2">
-                            <strong>Emplacement :</strong><br>
-                            {{ equipment.location|default:"-" }}
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-map-pin"></i>
+                                Emplacement
+                            </span>
+                            <span class="info-value {% if not equipment.location %}empty{% endif %}">
+                                {{ equipment.location|default:"Non renseigné" }}
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card shadow-sm mb-3">
-                <div class="card-body">
-                    <h5 class="mb-3">État & utilisation</h5>
-                    <div class="row">
-                        <div class="col-md-6 mb-2">
-                            <strong>Utilisateur actuel :</strong><br>
+            <!-- État & utilisation -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon green">
+                        <i class="ph ph-traffic-cone"></i>
+                    </div>
+                    <h3 class="info-card-title">État & utilisation</h3>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-grid two-cols">
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-user"></i>
+                                Utilisateur actuel
+                            </span>
                             {% if equipment.current_user %}
-                                {{ equipment.current_user.get_full_name|default:equipment.current_user.username }}
-                            {% else %}
-                                <span class="text-muted">Non assigné</span>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <strong>Statut :</strong><br>
-                            {{ equipment.get_status_display }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card shadow-sm mb-3">
-                <div class="card-body">
-                    <h5 class="mb-3">Maintenance</h5>
-                    <div class="row">
-                        <div class="col-md-4 mb-2">
-                            <strong>Dernière maintenance :</strong><br>
-                            {{ equipment.last_maintenance_date|date:"d/m/Y"|default:"-" }}
-                        </div>
-                        <div class="col-md-4 mb-2">
-                            <strong>Prochaine maintenance :</strong><br>
-                            {{ equipment.next_maintenance_date|date:"d/m/Y"|default:"-" }}
-                        </div>
-                        <div class="col-md-12 mb-2">
-                            <strong>Notes de maintenance :</strong><br>
-                            {{ equipment.maintenance_notes|default:"-" }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card shadow-sm mb-3">
-                <div class="card-body">
-                    <h5 class="mb-3">Spécifications techniques & accessoires</h5>
-                    <div class="row">
-                        <div class="col-md-6 mb-2">
-                            <strong>Spécifications :</strong><br>
-                            {{ equipment.technical_specs|linebreaksbr|default:"-" }}
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <strong>Accessoires inclus :</strong><br>
-                            {{ equipment.accessories_included|linebreaksbr|default:"-" }}
-                        </div>
-                        <div class="col-md-12 mb-2">
-                            <strong>Notes importantes :</strong><br>
-                            {{ equipment.important_notes|linebreaksbr|default:"-" }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="mb-3">Documents</h5>
-                    <div class="row">
-                        <div class="col-md-6 mb-2">
-                            <strong>Manuel d’utilisation :</strong><br>
-                            {% if equipment.manual %}
-                                <a href="{{ equipment.manual.url }}" target="_blank" class="btn btn-outline-secondary btn-sm">
-                                    <i class="ph ph-file-pdf"></i> Ouvrir le manuel
+                                <a href="#" class="user-link">
+                                    <i class="ph ph-user-circle"></i>
+                                    {{ equipment.current_user.get_full_name|default:equipment.current_user.username }}
                                 </a>
                             {% else %}
-                                <span class="text-muted">Non disponible</span>
+                                <span class="info-value empty">Non assigné</span>
                             {% endif %}
                         </div>
-                        <div class="col-md-6 mb-2">
-                            <strong>Créé le :</strong><br>
-                            {{ equipment.created_at|date:"d/m/Y H:i"|default:"-" }}
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-pulse"></i>
+                                Statut actuel
+                            </span>
+                            <span class="status-badge {% if equipment.status == 'available' %}available{% elif equipment.status == 'in_use' %}in-use{% elif equipment.status == 'maintenance' %}maintenance{% else %}out-of-service{% endif %}">
+                                {{ equipment.get_status_display }}
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Maintenance -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon orange">
+                        <i class="ph ph-wrench"></i>
+                    </div>
+                    <h3 class="info-card-title">Maintenance</h3>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-clock-counter-clockwise"></i>
+                                Dernière maintenance
+                            </span>
+                            <span class="info-value {% if not equipment.last_maintenance_date %}empty{% endif %}">
+                                {{ equipment.last_maintenance_date|date:"d/m/Y"|default:"Aucune enregistrée" }}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-clock-clockwise"></i>
+                                Prochaine maintenance
+                            </span>
+                            <span class="info-value {% if not equipment.next_maintenance_date %}empty{% endif %} {% if equipment.maintenance_alert %}style='color: #fbbf24;'{% endif %}">
+                                {{ equipment.next_maintenance_date|date:"d/m/Y"|default:"Non planifiée" }}
+                            </span>
+                        </div>
+                        <div class="info-item full-width">
+                            <span class="info-label">
+                                <i class="ph ph-note"></i>
+                                Notes de maintenance
+                            </span>
+                            {% if equipment.maintenance_notes %}
+                                <div class="specs-content">{{ equipment.maintenance_notes }}</div>
+                            {% else %}
+                                <span class="info-value empty">Aucune note</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if equipment.last_maintenance_date or equipment.next_maintenance_date %}
+                    <div class="maintenance-timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot past">
+                                <i class="ph ph-check"></i>
+                            </div>
+                            <span class="timeline-label">Dernière</span>
+                            <span class="timeline-date">
+                                {{ equipment.last_maintenance_date|date:"d/m/Y"|default:"—" }}
+                            </span>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot {% if equipment.maintenance_alert %}warning{% else %}future{% endif %}">
+                                <i class="ph {% if equipment.maintenance_alert %}ph-warning{% else %}ph-clock{% endif %}"></i>
+                            </div>
+                            <span class="timeline-label">Prochaine</span>
+                            <span class="timeline-date">
+                                {{ equipment.next_maintenance_date|date:"d/m/Y"|default:"Non planifiée" }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Spécifications techniques -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon purple">
+                        <i class="ph ph-sliders"></i>
+                    </div>
+                    <h3 class="info-card-title">Spécifications techniques & accessoires</h3>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-grid two-cols">
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-cpu"></i>
+                                Spécifications
+                            </span>
+                            {% if equipment.technical_specs %}
+                                <div class="specs-content">{{ equipment.technical_specs|linebreaksbr }}</div>
+                            {% else %}
+                                <span class="info-value empty">Non renseignées</span>
+                            {% endif %}
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-package"></i>
+                                Accessoires inclus
+                            </span>
+                            {% if equipment.accessories_included %}
+                                <div class="specs-content">{{ equipment.accessories_included|linebreaksbr }}</div>
+                            {% else %}
+                                <span class="info-value empty">Aucun</span>
+                            {% endif %}
+                        </div>
+                        <div class="info-item two-span">
+                            <span class="info-label">
+                                <i class="ph ph-warning-circle"></i>
+                                Notes importantes
+                            </span>
+                            {% if equipment.important_notes %}
+                                <div class="specs-content">{{ equipment.important_notes|linebreaksbr }}</div>
+                            {% else %}
+                                <span class="info-value empty">Aucune note</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon cyan">
+                        <i class="ph ph-folder-open"></i>
+                    </div>
+                    <h3 class="info-card-title">Documents</h3>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-grid two-cols">
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-file-pdf"></i>
+                                Manuel d'utilisation
+                            </span>
+                            {% if equipment.manual %}
+                                <a href="{{ equipment.manual.url }}" target="_blank" class="document-btn">
+                                    <i class="ph ph-file-pdf"></i>
+                                    Ouvrir le manuel
+                                </a>
+                            {% else %}
+                                <span class="info-value empty">Non disponible</span>
+                            {% endif %}
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-calendar-plus"></i>
+                                Créé le
+                            </span>
+                            <div class="created-info">
+                                <i class="ph ph-clock"></i>
+                                {{ equipment.created_at|date:"d/m/Y à H:i"|default:"Non disponible" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -1,0 +1,55 @@
+/* Personnalisation Admin Oloustream */
+
+/* En-tête */
+#header {
+    background: linear-gradient(135deg, #000 0%, #dc3545 100%);
+}
+
+#branding h1 {
+    color: white;
+    font-weight: bold;
+}
+
+/* Badges personnalisés */
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.bg-success { background-color: #28a745 !important; }
+.bg-danger { background-color: #dc3545 !important; }
+.bg-warning { background-color: #ffc107 !important; color: #212529 !important; }
+.bg-info { background-color: #17a2b8 !important; }
+.bg-primary { background-color: #007bff !important; }
+.bg-secondary { background-color: #6c757d !important; }
+
+/* Boutons d'action dans les listes */
+.button {
+    padding: 6px 12px;
+    border-radius: 4px;
+    text-decoration: none !important;
+    font-size: 13px;
+    display: inline-block;
+    margin: 2px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Tableau amélioré */
+#result_list thead th {
+    background: #f8f9fa;
+    font-weight: 600;
+}
+
+#result_list tbody tr:hover {
+    background: #f8f9fa;
+}
+
+/* Stats en couleur */
+.text-success { color: #28a745 !important; }
+.text-danger { color: #dc3545 !important; }
+.text-warning { color: #ffc107 !important; }
+.text-info { color: #17a2b8 !important; }

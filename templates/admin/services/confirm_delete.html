@@ -2,13 +2,417 @@
 
 {% block title %}Supprimer service - Oloustream Admin{% endblock %}
 
-{% block content %}
-<h1 class="h3 mb-3">Supprimer le service</h1>
-<p>Êtes-vous sûr de vouloir supprimer le service <strong>{{ service.name }}</strong> ?</p>
+{% block extra_css %}
+<style>
+    /* ==================== VARIABLES ==================== */
+    :root {
+        --primary-400: #c084fc;
+        --primary-500: #a855f7;
+        --primary-600: #9333ea;
+        --primary-700: #7c3aed;
+        --surface-100: #f4f4f5;
+        --surface-200: #e4e4e7;
+        --surface-300: #d4d4d8;
+        --surface-400: #a1a1aa;
+        --surface-500: #71717a;
+        --surface-600: #52525b;
+        --surface-700: #3f3f46;
+        --surface-800: #27272a;
+        --surface-850: #1f1f23;
+        --surface-900: #18181b;
+        --error-color: #f87171;
+        --error-dark: #dc2626;
+        --success-color: #34d399;
+    }
 
-<form method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Oui, supprimer</button>
-    <a href="{% url 'dashboard:services_list' %}" class="btn btn-secondary">Annuler</a>
-</form>
+    /* ==================== WRAPPER ==================== */
+    .delete-page-wrapper {
+        width: 100%;
+        min-height: calc(100vh - var(--header-height, 70px) - 6rem);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==================== DELETE CARD ==================== */
+    .delete-card {
+        width: 100%;
+        max-width: 520px;
+        background: var(--surface-850);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                    0 0 0 1px rgba(239, 68, 68, 0.1);
+    }
+
+    /* ==================== DANGER HEADER ==================== */
+    .delete-header {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1));
+        border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .delete-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: rgba(239, 68, 68, 0.15);
+        border: 2px solid rgba(239, 68, 68, 0.3);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: pulse-danger 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-danger {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+        }
+        50% {
+            box-shadow: 0 0 0 15px rgba(239, 68, 68, 0);
+        }
+    }
+
+    .delete-icon-wrapper i {
+        font-size: 2.5rem;
+        color: var(--error-color);
+    }
+
+    .delete-header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .delete-header p {
+        font-size: 0.9375rem;
+        color: var(--surface-400);
+        margin: 0;
+    }
+
+    /* ==================== CARD BODY ==================== */
+    .delete-body {
+        padding: 2rem;
+    }
+
+    /* Item Preview */
+    .item-preview {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        margin-bottom: 1.5rem;
+    }
+
+    .item-preview-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .item-preview-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .item-preview-name {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        margin: 0 0 0.25rem 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .item-preview-meta {
+        font-size: 0.8125rem;
+        color: var(--surface-500);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .item-preview-meta i {
+        font-size: 0.875rem;
+    }
+
+    /* Warning Box */
+    .warning-box {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+    .warning-box-icon {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        background: rgba(245, 158, 11, 0.15);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: #fbbf24;
+    }
+
+    .warning-box-content h4 {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: #fbbf24;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .warning-box-content p {
+        font-size: 0.8125rem;
+        color: var(--surface-400);
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    /* ==================== ACTIONS ==================== */
+    .delete-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1rem 1.5rem;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        font-family: inherit;
+    }
+
+    .btn i {
+        font-size: 1.25rem;
+    }
+
+    .btn-cancel {
+        background: var(--surface-800);
+        color: var(--surface-300);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-cancel:hover {
+        background: var(--surface-700);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(239, 68, 68, 0.45);
+    }
+
+    .btn-danger:active {
+        transform: translateY(0);
+    }
+
+    /* ==================== FOOTER HINT ==================== */
+    .delete-footer {
+        padding: 1rem 2rem 1.5rem;
+        text-align: center;
+    }
+
+    .footer-hint {
+        font-size: 0.75rem;
+        color: var(--surface-600);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+    }
+
+    .footer-hint i {
+        font-size: 0.875rem;
+    }
+
+    .footer-hint kbd {
+        background: var(--surface-800);
+        padding: 0.125rem 0.375rem;
+        border-radius: 4px;
+        font-size: 0.625rem;
+        color: var(--surface-400);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 576px) {
+        .delete-page-wrapper {
+            padding: 1rem;
+            align-items: flex-start;
+            padding-top: 2rem;
+        }
+
+        .delete-card {
+            border-radius: 20px;
+        }
+
+        .delete-header {
+            padding: 1.5rem;
+        }
+
+        .delete-icon-wrapper {
+            width: 64px;
+            height: 64px;
+        }
+
+        .delete-icon-wrapper i {
+            font-size: 2rem;
+        }
+
+        .delete-header h1 {
+            font-size: 1.25rem;
+        }
+
+        .delete-body {
+            padding: 1.5rem;
+        }
+
+        .delete-actions {
+            flex-direction: column;
+        }
+
+        .item-preview {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .item-preview-info {
+            width: 100%;
+        }
+
+        .item-preview-meta {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="delete-page-wrapper">
+    <div class="delete-card">
+        <!-- Danger Header -->
+        <div class="delete-header">
+            <div class="delete-icon-wrapper">
+                <i class="ph ph-trash"></i>
+            </div>
+            <h1>Supprimer ce service ?</h1>
+            <p>Cette action est irréversible</p>
+        </div>
+
+        <!-- Body -->
+        <div class="delete-body">
+            <!-- Item Preview -->
+            <div class="item-preview">
+                <div class="item-preview-icon">
+                    <i class="ph ph-star"></i>
+                </div>
+                <div class="item-preview-info">
+                    <h3 class="item-preview-name">{{ service.name }}</h3>
+                    <p class="item-preview-meta">
+                        <i class="ph ph-identification-badge"></i>
+                        ID #{{ service.id }}
+                        {% if service.category %}
+                            <span>•</span>
+                            <i class="ph ph-tag"></i>
+                            {{ service.category.name }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Warning Box -->
+            <div class="warning-box">
+                <div class="warning-box-icon">
+                    <i class="ph ph-warning"></i>
+                </div>
+                <div class="warning-box-content">
+                    <h4>Attention</h4>
+                    <p>
+                        La suppression de ce service entraînera la perte définitive de toutes ses données.
+                        Cette action ne peut pas être annulée.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <form method="post">
+                {% csrf_token %}
+                <div class="delete-actions">
+                    <a href="{% url 'dashboard:services_list' %}" class="btn btn-cancel">
+                        <i class="ph ph-x"></i>
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="ph ph-trash"></i>
+                        Oui, supprimer
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer Hint -->
+        <div class="delete-footer">
+            <span class="footer-hint">
+                <i class="ph ph-keyboard"></i>
+                Appuyez sur <kbd>Échap</kbd> pour annuler
+            </span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Escape key to cancel
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            window.location.href = "{% url 'dashboard:services_list' %}";
+        }
+    });
+});
+</script>
 {% endblock %}

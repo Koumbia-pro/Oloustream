@@ -1,40 +1,479 @@
 {% extends "admin/admin_base.html" %}
-{% block title %}Mettre à jour candidature{% endblock %}
+
+{% block title %}Mettre à jour candidature - Oloustream Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ==================== VARIABLES ==================== */
+    :root {
+        --primary-400: #c084fc;
+        --primary-500: #a855f7;
+        --primary-600: #9333ea;
+        --primary-700: #7c3aed;
+        --accent-400: #34d399;
+        --accent-500: #10b981;
+        --surface-100: #f4f4f5;
+        --surface-200: #e4e4e7;
+        --surface-300: #d4d4d8;
+        --surface-400: #a1a1aa;
+        --surface-500: #71717a;
+        --surface-600: #52525b;
+        --surface-700: #3f3f46;
+        --surface-800: #27272a;
+        --surface-850: #1f1f23;
+        --surface-900: #18181b;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --error-color: #ef4444;
+    }
+
+    /* ==================== WRAPPER ==================== */
+    .update-wrapper {
+        width: 100%;
+        max-width: 640px;
+        margin: 0 auto;
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==================== PAGE HEADER ==================== */
+    .page-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .header-left {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .header-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #a855f7, #7c3aed);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+        box-shadow: 0 8px 20px rgba(168, 85, 247, 0.3);
+        flex-shrink: 0;
+    }
+
+    .header-text h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        margin: 0 0 0.375rem 0;
+    }
+
+    .header-text p {
+        font-size: 0.875rem;
+        color: #71717a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .header-text p i {
+        font-size: 1rem;
+        color: #52525b;
+    }
+
+    .header-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .meta-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+    }
+
+    .meta-badge.candidate {
+        background: rgba(168, 85, 247, 0.15);
+        border: 1px solid rgba(168, 85, 247, 0.2);
+        color: #c084fc;
+    }
+
+    .meta-badge.offer {
+        background: rgba(16, 185, 129, 0.15);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        color: #34d399;
+    }
+
+    .meta-badge i {
+        font-size: 0.875rem;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: #d4d4d8;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+        background: #3f3f46;
+        color: white;
+        transform: translateX(-3px);
+    }
+
+    .back-btn i {
+        font-size: 1.125rem;
+    }
+
+    /* ==================== FORM CARD ==================== */
+    .form-card {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .form-card:hover {
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .form-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .form-card-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.125rem;
+        background: rgba(168, 85, 247, 0.15);
+        color: #c084fc;
+    }
+
+    .form-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #f4f4f5;
+        margin: 0;
+    }
+
+    .form-card-body {
+        padding: 1.5rem;
+    }
+
+    /* ==================== FORM FIELDS ==================== */
+    .field-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .field-group:last-of-type {
+        margin-bottom: 0;
+    }
+
+    .field-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #a1a1aa;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+
+    .field-label i {
+        font-size: 0.875rem;
+        color: #71717a;
+    }
+
+    .form-select,
+    .form-textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        color: #f4f4f5;
+        font-size: 0.875rem;
+        font-family: inherit;
+        transition: all 0.2s ease;
+    }
+
+    .form-select:hover,
+    .form-textarea:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+        background: #2a2a2e;
+    }
+
+    .form-select:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: #a855f7;
+        box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+        background: rgba(168, 85, 247, 0.03);
+    }
+
+    .form-select {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        padding-right: 2.5rem;
+    }
+
+    .form-select option {
+        background: #27272a;
+        color: #f4f4f5;
+    }
+
+    .form-textarea {
+        min-height: 120px;
+        resize: vertical;
+        line-height: 1.6;
+    }
+
+    .field-help {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        font-size: 0.6875rem;
+        color: #52525b;
+        margin-top: 0.5rem;
+    }
+
+    .field-help i {
+        font-size: 0.875rem;
+    }
+
+    /* ==================== FORM ACTIONS ==================== */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .btn-submit {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.75rem;
+        background: linear-gradient(135deg, #a855f7, #7c3aed);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+        font-family: inherit;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(168, 85, 247, 0.4);
+    }
+
+    .btn-submit:active {
+        transform: translateY(0);
+    }
+
+    .btn-submit i {
+        font-size: 1.125rem;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+        }
+
+        .back-btn {
+            align-self: flex-start;
+        }
+
+        .header-meta {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-left {
+            flex-direction: column;
+        }
+
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
+        }
+
+        .header-text h1 {
+            font-size: 1.25rem;
+        }
+
+        .form-card-body {
+            padding: 1rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-submit {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-      <h3 class="mb-1">Mettre à jour</h3>
-      <div class="text-muted">{{ application.full_name }} • {{ application.offer.title }}</div>
+<div class="update-wrapper">
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="ph-bold ph-pencil-simple"></i>
+            </div>
+            <div class="header-text">
+                <h1>Mettre à jour</h1>
+                <p>
+                    <i class="ph ph-info"></i>
+                    Modifier le statut de la candidature
+                </p>
+                <div class="header-meta">
+                    <span class="meta-badge candidate">
+                        <i class="ph ph-user"></i>
+                        {{ application.full_name }}
+                    </span>
+                    <span class="meta-badge offer">
+                        <i class="ph ph-briefcase"></i>
+                        {{ application.offer.title }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <a href="{% url 'services_app:admin_jobs_applications' application.offer_id %}" class="back-btn">
+            <i class="ph ph-arrow-left"></i>
+            Retour
+        </a>
     </div>
-    <a href="{% url 'services_app:admin_jobs_applications' application.offer_id %}" class="btn btn-outline-secondary">
-      Retour
-    </a>
-  </div>
 
-  <div class="card border-0 shadow-sm">
-    <div class="card-body">
-      <form method="post">
-        {% csrf_token %}
-        <div class="mb-3">
-          <label class="form-label">Statut</label>
-          {{ form.status }}
+    <!-- FORM CARD -->
+    <div class="form-card">
+        <div class="form-card-header">
+            <div class="form-card-icon">
+                <i class="ph ph-clipboard-text"></i>
+            </div>
+            <h3 class="form-card-title">Informations de la candidature</h3>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Note interne</label>
-          {{ form.internal_note }}
+
+        <div class="form-card-body">
+            <form method="post" id="updateForm">
+                {% csrf_token %}
+                
+                <!-- Statut -->
+                <div class="field-group">
+                    <label class="field-label">
+                        <i class="ph ph-tag"></i>
+                        Statut
+                    </label>
+                    {{ form.status }}
+                </div>
+
+                <!-- Note interne -->
+                <div class="field-group">
+                    <label class="field-label">
+                        <i class="ph ph-note"></i>
+                        Note interne
+                    </label>
+                    {{ form.internal_note }}
+                    <span class="field-help">
+                        <i class="ph ph-info"></i>
+                        Cette note n'est visible que par l'équipe
+                    </span>
+                </div>
+
+                <!-- Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <i class="ph-bold ph-check-circle"></i>
+                        Enregistrer
+                    </button>
+                </div>
+            </form>
         </div>
-        <button class="btn btn-primary">Enregistrer</button>
-      </form>
     </div>
-  </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-  (function() {
-    document.querySelectorAll("select").forEach(el => el.classList.add("form-select"));
-    document.querySelectorAll("textarea,input").forEach(el => el.classList.add("form-control"));
-  })();
+document.addEventListener('DOMContentLoaded', function() {
+    // Add classes to Django form fields
+    document.querySelectorAll('select').forEach(el => {
+        el.classList.add('form-select');
+    });
+    
+    document.querySelectorAll('textarea').forEach(el => {
+        el.classList.add('form-textarea');
+    });
+    
+    document.querySelectorAll('input:not([type="hidden"])').forEach(el => {
+        el.classList.add('form-input');
+    });
+
+    // Form submit loading state
+    const form = document.getElementById('updateForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', function() {
+        submitBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Enregistrement...';
+        submitBtn.disabled = true;
+    });
+});
 </script>
 {% endblock %}

@@ -1,72 +1,902 @@
 {% extends "admin/admin_base.html" %}
 {% block title %}Recrutement - Offres{% endblock %}
 
-{% block content %}
-<div class="container-fluid">
-  <div class="d-flex align-items-center justify-content-between mb-4">
-    <div>
-      <h3 class="mb-1">Recrutement</h3>
-      <div class="text-muted">Offres de stage / emploi</div>
-    </div>
-    <a href="{% url 'services_app:admin_jobs_create' %}" class="btn btn-primary">
-      <i class="ph ph-plus-circle me-1"></i> Nouvelle offre
-    </a>
-  </div>
+{% block extra_css %}
+<style>
+    /* ==================== VARIABLES ==================== */
+    :root {
+        --primary-400: #c084fc;
+        --primary-500: #a855f7;
+        --primary-600: #9333ea;
+        --accent-400: #34d399;
+        --accent-500: #10b981;
+        --surface-100: #f4f4f5;
+        --surface-400: #a1a1aa;
+        --surface-500: #71717a;
+        --surface-600: #52525b;
+        --surface-700: #3f3f46;
+        --surface-800: #27272a;
+        --surface-850: #1f1f23;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --error-color: #ef4444;
+        --info-color: #06b6d4;
+    }
 
-  <div class="card border-0 shadow-sm">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table align-middle">
-          <thead class="table-light">
-            <tr>
-              <th>Titre</th>
-              <th>Type</th>
-              <th>Statut</th>
-              <th>Contrat</th>
-              <th>Niveau</th>
-              <th class="text-center">Candidatures</th>
-              <th class="text-end">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for o in offers %}
-              <tr>
-                <td class="fw-semibold">{{ o.title }}</td>
-                <td>
-                  <span class="badge {% if o.offer_type == 'INTERNSHIP' %}bg-info text-dark{% else %}bg-primary{% endif %}">
-                    {{ o.get_offer_type_display }}
-                  </span>
-                </td>
-                <td>
-                  {% if o.status == "DRAFT" %}<span class="badge bg-secondary">Brouillon</span>{% endif %}
-                  {% if o.status == "PUBLISHED" %}<span class="badge bg-success">Publié</span>{% endif %}
-                  {% if o.status == "CLOSED" %}<span class="badge bg-danger">Fermé</span>{% endif %}
-                </td>
-                <td class="text-muted">{{ o.get_contract_type_display|default:"—" }}</td>
-                <td class="text-muted">{{ o.get_level_display|default:"—" }}</td>
-                <td class="text-center"><span class="badge bg-dark">{{ o.applications.count }}</span></td>
-                <td class="text-end">
-                    <a href="{% url 'services_app:admin_jobs_detail' o.pk %}" class="btn btn-sm btn-outline-dark">
-                        <i class="ph ph-eye me-1"></i> Détails
-                    </a>
-                    <a href="{% url 'services_app:admin_jobs_delete' o.pk %}" class="btn btn-sm btn-outline-danger">
-                        <i class="ph ph-trash me-1"></i>
-                    </a>
-                    <a href="{% url 'services_app:admin_jobs_applications' o.pk %}" class="btn btn-sm btn-outline-dark">
-                        <i class="ph ph-users me-1"></i> Candidatures
-                    </a>
-                    <a href="{% url 'services_app:admin_jobs_edit' o.pk %}" class="btn btn-sm btn-outline-primary">
-                        <i class="ph ph-pencil-simple me-1"></i> Modifier
-                    </a>
-                </td>
-              </tr>
-            {% empty %}
-              <tr><td colspan="7" class="text-center text-muted py-4">Aucune offre.</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+    /* ==================== WRAPPER ==================== */
+    .jobs-page {
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==================== PAGE HEADER ==================== */
+    .page-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .header-icon {
+        width: 52px;
+        height: 52px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .header-text h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .header-text p {
+        font-size: 0.875rem;
+        color: #71717a;
+        margin: 0;
+    }
+
+    .btn-create {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-create:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(16, 185, 129, 0.4);
+        color: white;
+    }
+
+    .btn-create i {
+        font-size: 1.25rem;
+    }
+
+    /* ==================== STATS ROW ==================== */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .stat-icon.total {
+        background: rgba(147, 51, 234, 0.15);
+        color: #c084fc;
+    }
+
+    .stat-icon.published {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+    }
+
+    .stat-icon.draft {
+        background: rgba(113, 113, 122, 0.15);
+        color: #a1a1aa;
+    }
+
+    .stat-icon.applications {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+    }
+
+    .stat-info h4 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        margin: 0;
+        line-height: 1;
+    }
+
+    .stat-info p {
+        font-size: 0.75rem;
+        color: #71717a;
+        margin: 0.25rem 0 0 0;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* ==================== TABLE CARD ==================== */
+    .table-card {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .table-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #e4e4e7;
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+    }
+
+    .table-title i {
+        font-size: 1.125rem;
+        color: #34d399;
+    }
+
+    .table-count {
+        background: #27272a;
+        color: #a1a1aa;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    /* ==================== TABLE ==================== */
+    .table-responsive-modern {
+        overflow-x: auto;
+    }
+
+    .table-modern {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-modern thead {
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .table-modern thead th {
+        padding: 1rem 1.25rem;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-align: left;
+        white-space: nowrap;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .table-modern thead th:first-child {
+        padding-left: 1.5rem;
+    }
+
+    .table-modern thead th:last-child {
+        padding-right: 1.5rem;
+        text-align: right;
+    }
+
+    .table-modern thead th.center {
+        text-align: center;
+    }
+
+    .table-modern tbody tr {
+        transition: all 0.15s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .table-modern tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .table-modern tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .table-modern tbody td {
+        padding: 1.25rem;
+        font-size: 0.875rem;
+        color: #d4d4d8;
+        vertical-align: middle;
+    }
+
+    .table-modern tbody td:first-child {
+        padding-left: 1.5rem;
+    }
+
+    .table-modern tbody td:last-child {
+        padding-right: 1.5rem;
+    }
+
+    /* ==================== JOB TITLE CELL ==================== */
+    .job-title-cell {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .job-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: #34d399;
+        flex-shrink: 0;
+    }
+
+    .job-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+
+    .job-name {
+        font-weight: 600;
+        color: #f4f4f5;
+        font-size: 0.9375rem;
+    }
+
+    .job-location {
+        font-size: 0.75rem;
+        color: #71717a;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .job-location i {
+        font-size: 0.75rem;
+    }
+
+    /* ==================== BADGES ==================== */
+    .type-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .type-badge.internship {
+        background: rgba(6, 182, 212, 0.15);
+        color: #22d3ee;
+        border: 1px solid rgba(6, 182, 212, 0.25);
+    }
+
+    .type-badge.job {
+        background: rgba(147, 51, 234, 0.15);
+        color: #c084fc;
+        border: 1px solid rgba(147, 51, 234, 0.25);
+    }
+
+    .type-badge i {
+        font-size: 0.75rem;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-badge.draft {
+        background: rgba(113, 113, 122, 0.15);
+        color: #a1a1aa;
+        border: 1px solid rgba(113, 113, 122, 0.25);
+    }
+
+    .status-badge.published {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-badge.closed {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.25);
+    }
+
+    .status-badge i {
+        font-size: 0.5rem;
+    }
+
+    /* Contract & Level */
+    .info-text {
+        color: #a1a1aa;
+        font-size: 0.8125rem;
+    }
+
+    .info-text.empty {
+        color: #52525b;
+    }
+
+    /* Applications count */
+    .applications-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        height: 32px;
+        padding: 0 0.625rem;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
+        border: 1px solid rgba(59, 130, 246, 0.25);
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #60a5fa;
+    }
+
+    .applications-badge.has-new {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+        border-color: rgba(16, 185, 129, 0.3);
+        color: #34d399;
+        animation: pulse-badge 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-badge {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+        50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+    }
+
+    /* ==================== ACTIONS ==================== */
+    .actions-cell {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.375rem;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.5rem 0.875rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.15s ease;
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+
+    .action-btn i {
+        font-size: 0.875rem;
+    }
+
+    .action-btn.view {
+        background: #27272a;
+        color: #a1a1aa;
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .action-btn.view:hover {
+        background: rgba(59, 130, 246, 0.15);
+        border-color: rgba(59, 130, 246, 0.3);
+        color: #60a5fa;
+        transform: translateY(-2px);
+    }
+
+    .action-btn.applications {
+        background: #27272a;
+        color: #a1a1aa;
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .action-btn.applications:hover {
+        background: rgba(16, 185, 129, 0.15);
+        border-color: rgba(16, 185, 129, 0.3);
+        color: #34d399;
+        transform: translateY(-2px);
+    }
+
+    .action-btn.edit {
+        background: rgba(147, 51, 234, 0.1);
+        color: #c084fc;
+        border-color: rgba(147, 51, 234, 0.2);
+    }
+
+    .action-btn.edit:hover {
+        background: rgba(147, 51, 234, 0.2);
+        border-color: rgba(147, 51, 234, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .action-btn.delete {
+        background: rgba(239, 68, 68, 0.1);
+        color: #f87171;
+        border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .action-btn.delete:hover {
+        background: rgba(239, 68, 68, 0.2);
+        border-color: rgba(239, 68, 68, 0.4);
+        transform: translateY(-2px);
+    }
+
+    /* Action button text hidden on smaller screens */
+    .action-btn span {
+        display: inline;
+    }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: #27272a;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: #52525b;
+    }
+
+    .empty-state h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #d4d4d8;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .empty-state p {
+        color: #71717a;
+        font-size: 0.875rem;
+        margin: 0 0 1.5rem 0;
+    }
+
+    .empty-state-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 10px;
+        color: white;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .empty-state-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        color: white;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1400px) {
+        .action-btn span {
+            display: none;
+        }
+
+        .action-btn {
+            padding: 0.5rem;
+        }
+    }
+
+    @media (max-width: 1200px) {
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+        }
+
+        .btn-create {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .stats-row {
+            grid-template-columns: 1fr;
+        }
+
+        /* Mobile table */
+        .table-modern thead {
+            display: none;
+        }
+
+        .table-modern tbody tr {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background: #27272a;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+        }
+
+        .table-modern tbody tr:hover {
+            background: #2a2a2e;
+        }
+
+        .table-modern tbody td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.625rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .table-modern tbody td:first-child {
+            padding-left: 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .table-modern tbody td:last-child {
+            border-bottom: none;
+            padding-top: 1rem;
+            padding-right: 0;
+            justify-content: center;
+        }
+
+        .table-modern tbody td::before {
+            content: attr(data-label);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: #71717a;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .table-modern tbody td:first-child::before,
+        .table-modern tbody td:last-child::before {
+            display: none;
+        }
+
+        .job-title-cell {
+            width: 100%;
+        }
+
+        .actions-cell {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .action-btn {
+            flex: 1;
+            justify-content: center;
+            max-width: 80px;
+        }
+
+        .action-btn span {
+            display: none;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-left {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-icon {
+            width: 44px;
+            height: 44px;
+            font-size: 1.25rem;
+        }
+
+        .header-text h1 {
+            font-size: 1.25rem;
+        }
+    }
+
+    /* ==================== ANIMATIONS ==================== */
+    .stat-card {
+        animation: fadeInUp 0.4s ease-out forwards;
+        opacity: 0;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.05s; }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.15s; }
+    .stat-card:nth-child(4) { animation-delay: 0.2s; }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .table-modern tbody tr {
+        animation: fadeInUp 0.3s ease-out forwards;
+        opacity: 0;
+    }
+
+    .table-modern tbody tr:nth-child(1) { animation-delay: 0.1s; }
+    .table-modern tbody tr:nth-child(2) { animation-delay: 0.15s; }
+    .table-modern tbody tr:nth-child(3) { animation-delay: 0.2s; }
+    .table-modern tbody tr:nth-child(4) { animation-delay: 0.25s; }
+    .table-modern tbody tr:nth-child(5) { animation-delay: 0.3s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="jobs-page">
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="ph-bold ph-briefcase"></i>
+            </div>
+            <div class="header-text">
+                <h1>Recrutement</h1>
+                <p>Gérez les offres de stage et d'emploi</p>
+            </div>
+        </div>
+        <a href="{% url 'services_app:admin_jobs_create' %}" class="btn-create">
+            <i class="ph-bold ph-plus-circle"></i>
+            Nouvelle offre
+        </a>
     </div>
-  </div>
+
+    <!-- STATS ROW -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon total">
+                <i class="ph ph-briefcase"></i>
+            </div>
+            <div class="stat-info">
+                <h4>{{ offers|length }}</h4>
+                <p>Total offres</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon published">
+                <i class="ph ph-broadcast"></i>
+            </div>
+            <div class="stat-info">
+                <h4>{% with published=offers|length %}{{ published }}{% endwith %}</h4>
+                <p>Publiées</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon draft">
+                <i class="ph ph-file-dashed"></i>
+            </div>
+            <div class="stat-info">
+                <h4>0</h4>
+                <p>Brouillons</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon applications">
+                <i class="ph ph-users"></i>
+            </div>
+            <div class="stat-info">
+                <h4>{% for o in offers %}{% if forloop.last %}{{ o.applications.count }}{% endif %}{% endfor %}</h4>
+                <p>Candidatures</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE CARD -->
+    <div class="table-card">
+        <div class="table-header">
+            <div class="table-title">
+                <i class="ph ph-list"></i>
+                Liste des offres
+                <span class="table-count">{{ offers|length }}</span>
+            </div>
+        </div>
+
+        <div class="table-responsive-modern">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Offre</th>
+                        <th>Type</th>
+                        <th>Statut</th>
+                        <th>Contrat</th>
+                        <th>Niveau</th>
+                        <th class="center">Candidatures</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for o in offers %}
+                    <tr>
+                        <td data-label="">
+                            <div class="job-title-cell">
+                                <div class="job-icon">
+                                    {% if o.offer_type == 'INTERNSHIP' %}
+                                        <i class="ph ph-student"></i>
+                                    {% else %}
+                                        <i class="ph ph-briefcase"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="job-info">
+                                    <span class="job-name">{{ o.title }}</span>
+                                    {% if o.location %}
+                                    <span class="job-location">
+                                        <i class="ph ph-map-pin"></i>
+                                        {{ o.location }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td data-label="Type">
+                            <span class="type-badge {% if o.offer_type == 'INTERNSHIP' %}internship{% else %}job{% endif %}">
+                                {% if o.offer_type == 'INTERNSHIP' %}
+                                    <i class="ph ph-student"></i>
+                                {% else %}
+                                    <i class="ph ph-briefcase"></i>
+                                {% endif %}
+                                {{ o.get_offer_type_display }}
+                            </span>
+                        </td>
+                        <td data-label="Statut">
+                            <span class="status-badge {% if o.status == 'DRAFT' %}draft{% elif o.status == 'PUBLISHED' %}published{% else %}closed{% endif %}">
+                                <i class="ph-fill ph-circle"></i>
+                                {% if o.status == "DRAFT" %}Brouillon{% endif %}
+                                {% if o.status == "PUBLISHED" %}Publié{% endif %}
+                                {% if o.status == "CLOSED" %}Fermé{% endif %}
+                            </span>
+                        </td>
+                        <td data-label="Contrat">
+                            <span class="info-text {% if not o.contract_type %}empty{% endif %}">
+                                {{ o.get_contract_type_display|default:"—" }}
+                            </span>
+                        </td>
+                        <td data-label="Niveau">
+                            <span class="info-text {% if not o.level %}empty{% endif %}">
+                                {{ o.get_level_display|default:"—" }}
+                            </span>
+                        </td>
+                        <td data-label="Candidatures" style="text-align: center;">
+                            <span class="applications-badge {% if o.applications.count > 0 %}has-new{% endif %}">
+                                {{ o.applications.count }}
+                            </span>
+                        </td>
+                        <td data-label="">
+                            <div class="actions-cell">
+                                <a href="{% url 'services_app:admin_jobs_detail' o.pk %}" 
+                                   class="action-btn view" 
+                                   title="Voir détails">
+                                    <i class="ph ph-eye"></i>
+                                    <span>Détails</span>
+                                </a>
+                                <a href="{% url 'services_app:admin_jobs_applications' o.pk %}" 
+                                   class="action-btn applications"
+                                   title="Candidatures">
+                                    <i class="ph ph-users"></i>
+                                    <span>Candidatures</span>
+                                </a>
+                                <a href="{% url 'services_app:admin_jobs_edit' o.pk %}" 
+                                   class="action-btn edit"
+                                   title="Modifier">
+                                    <i class="ph ph-pencil-simple"></i>
+                                    <span>Modifier</span>
+                                </a>
+                                <a href="{% url 'services_app:admin_jobs_delete' o.pk %}" 
+                                   class="action-btn delete"
+                                   title="Supprimer">
+                                    <i class="ph ph-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="ph ph-briefcase"></i>
+                                </div>
+                                <h3>Aucune offre d'emploi</h3>
+                                <p>Créez votre première offre pour commencer le recrutement.</p>
+                                <a href="{% url 'services_app:admin_jobs_create' %}" class="empty-state-btn">
+                                    <i class="ph-bold ph-plus"></i>
+                                    Créer une offre
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 {% endblock %}

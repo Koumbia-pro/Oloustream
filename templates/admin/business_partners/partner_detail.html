@@ -1,0 +1,1084 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Partenaire {{ partner.partner_code }} - Oloustream Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ==================== VARIABLES LOCALES ==================== */
+    :root {
+        --partner-pink: #ec4899;
+        --partner-success: #10b981;
+        --partner-warning: #f59e0b;
+        --partner-danger: #ef4444;
+        --partner-info: #3b82f6;
+    }
+
+    /* ==================== PAGE WRAPPER ==================== */
+    .partner-detail-wrapper {
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ==================== BREADCRUMB ==================== */
+    .breadcrumb-modern {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.5rem 0;
+        font-size: 0.875rem;
+    }
+
+    .breadcrumb-modern li {
+        display: flex;
+        align-items: center;
+    }
+
+    .breadcrumb-modern li a {
+        color: var(--surface-400);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        transition: color 0.2s;
+    }
+
+    .breadcrumb-modern li a:hover {
+        color: var(--primary-400);
+    }
+
+    .breadcrumb-modern li.active {
+        color: var(--surface-200);
+        font-weight: 500;
+    }
+
+    .breadcrumb-separator {
+        color: var(--surface-600);
+        margin: 0 0.25rem;
+    }
+
+    /* ==================== HERO CARD ==================== */
+    .hero-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--partner-pink), var(--primary-600), var(--partner-info));
+    }
+
+    .hero-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .hero-left {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    .hero-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, var(--partner-pink), #db2777);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+        box-shadow: 0 8px 25px rgba(236, 72, 153, 0.35);
+    }
+
+    .hero-info h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .status-badge.active {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-badge.suspended {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .hero-meta {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        color: var(--surface-400);
+        font-size: 0.875rem;
+    }
+
+    .hero-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .hero-meta-item i {
+        color: var(--surface-500);
+    }
+
+    .hero-meta-item strong {
+        color: var(--surface-200);
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        font-family: inherit;
+    }
+
+    .btn-success-modern {
+        background: linear-gradient(135deg, var(--partner-success), #059669);
+        color: white;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-success-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+        color: white;
+    }
+
+    .btn-warning-modern {
+        background: linear-gradient(135deg, var(--partner-warning), #d97706);
+        color: white;
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);
+    }
+
+    .btn-warning-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35);
+        color: white;
+    }
+
+    .btn-outline-modern {
+        background: var(--surface-800);
+        color: var(--surface-300);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-outline-modern:hover {
+        background: var(--surface-700);
+        color: white;
+    }
+
+    /* ==================== STATS GRID ==================== */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .stat-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--stat-color, var(--primary-600)), transparent);
+    }
+
+    .stat-card.contracts { --stat-color: var(--primary-600); }
+    .stat-card.revenue { --stat-color: var(--partner-info); }
+    .stat-card.commission { --stat-color: var(--partner-success); }
+    .stat-card.pending { --stat-color: var(--partner-danger); }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin: 0 auto 1rem;
+    }
+
+    .stat-card.contracts .stat-icon {
+        background: rgba(147, 51, 234, 0.15);
+        color: #c084fc;
+    }
+
+    .stat-card.revenue .stat-icon {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+    }
+
+    .stat-card.commission .stat-icon {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+    }
+
+    .stat-card.pending .stat-icon {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        line-height: 1;
+        margin-bottom: 0.375rem;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--surface-400);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* ==================== CONTENT GRID ==================== */
+    .content-grid {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ==================== MODERN CARDS ==================== */
+    .modern-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .modern-card:hover {
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .card-header-modern {
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.25);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .card-title-modern {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--surface-100);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0;
+    }
+
+    .card-title-modern i {
+        font-size: 1.25rem;
+        color: var(--primary-400);
+    }
+
+    .card-action {
+        font-size: 0.8125rem;
+        color: var(--primary-400);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        transition: all 0.2s;
+    }
+
+    .card-action:hover {
+        color: var(--primary-300);
+        gap: 0.5rem;
+    }
+
+    .card-body-modern {
+        padding: 1.5rem;
+    }
+
+    /* ==================== INFO LIST ==================== */
+    .info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .info-section {
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .info-section:last-child {
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .info-section-title {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: var(--surface-500);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.75rem;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0;
+    }
+
+    .info-item i {
+        font-size: 1.125rem;
+        color: var(--surface-500);
+        width: 24px;
+        text-align: center;
+    }
+
+    .info-item span {
+        font-size: 0.9375rem;
+        color: var(--surface-200);
+    }
+
+    .info-item a {
+        color: var(--primary-400);
+        text-decoration: none;
+    }
+
+    .info-item a:hover {
+        color: var(--primary-300);
+    }
+
+    .info-highlight {
+        background: var(--surface-800);
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .info-highlight .label {
+        font-size: 0.875rem;
+        color: var(--surface-400);
+    }
+
+    .info-highlight .value {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--primary-400);
+    }
+
+    .network-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        background: rgba(147, 51, 234, 0.1);
+        color: var(--primary-400);
+        border: 1px solid rgba(147, 51, 234, 0.2);
+    }
+
+    /* ==================== TABLE MODERNE ==================== */
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .table-modern {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-modern thead {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .table-modern thead th {
+        padding: 1rem 1.25rem;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: var(--surface-400);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-align: left;
+        white-space: nowrap;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .table-modern thead th.text-end {
+        text-align: right;
+    }
+
+    .table-modern tbody tr {
+        transition: all 0.15s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .table-modern tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .table-modern tbody td {
+        padding: 1rem 1.25rem;
+        font-size: 0.875rem;
+        color: var(--surface-300);
+        vertical-align: middle;
+    }
+
+    .client-name {
+        font-weight: 600;
+        color: var(--surface-100);
+    }
+
+    .service-type {
+        font-size: 0.8125rem;
+        color: var(--surface-400);
+    }
+
+    .amount {
+        font-weight: 600;
+        text-align: right;
+    }
+
+    .amount.revenue {
+        color: var(--surface-200);
+    }
+
+    .amount.commission {
+        color: var(--partner-success);
+    }
+
+    .amount.paid {
+        color: var(--partner-success);
+    }
+
+    .contract-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.375rem 0.625rem;
+        border-radius: 6px;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .contract-badge.pending {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .contract-badge.validated {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .contract-badge.completed {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .method-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        font-size: 0.8125rem;
+        color: var(--surface-300);
+    }
+
+    .method-badge i {
+        color: var(--surface-500);
+    }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state {
+        text-align: center;
+        padding: 2.5rem 1.5rem;
+        color: var(--surface-500);
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+        display: block;
+        opacity: 0.5;
+    }
+
+    .empty-state p {
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    /* ==================== CARDS STACK ==================== */
+    .cards-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* ==================== ANIMATIONS ==================== */
+    .stat-card {
+        animation: fadeInUp 0.5s ease-out backwards;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.15s; }
+    .stat-card:nth-child(3) { animation-delay: 0.2s; }
+    .stat-card:nth-child(4) { animation-delay: 0.25s; }
+
+    .content-grid > * {
+        animation: fadeInUp 0.5s ease-out backwards;
+        animation-delay: 0.3s;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 768px) {
+        .hero-content {
+            flex-direction: column;
+        }
+
+        .hero-actions {
+            width: 100%;
+        }
+
+        .btn-modern {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .hero-meta {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        /* Mobile table */
+        .table-modern thead {
+            display: none;
+        }
+
+        .table-modern tbody tr {
+            display: block;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            background: var(--surface-800);
+        }
+
+        .table-modern tbody td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .table-modern tbody td:last-child {
+            border-bottom: none;
+        }
+
+        .table-modern tbody td::before {
+            content: attr(data-label);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: var(--surface-500);
+            text-transform: uppercase;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="partner-detail-wrapper">
+    
+    <!-- BREADCRUMB -->
+    <nav>
+        <ol class="breadcrumb-modern">
+            <li>
+                <a href="{% url 'dashboard:business_partners_list' %}">
+                    <i class="ph ph-users-three"></i>
+                    Partenaires
+                </a>
+            </li>
+            <span class="breadcrumb-separator">
+                <i class="ph ph-caret-right"></i>
+            </span>
+            <li class="active">{{ partner.partner_code }}</li>
+        </ol>
+    </nav>
+
+    <!-- HERO CARD -->
+    <div class="hero-card">
+        <div class="hero-content">
+            <div class="hero-left">
+                <div class="hero-avatar">
+                    {{ partner.user.first_name|default:partner.user.username|first|upper }}{{ partner.user.last_name|first|upper }}
+                </div>
+                <div class="hero-info">
+                    <h1>
+                        {{ partner.user.get_full_name|default:partner.user.username }}
+                        {% if partner.is_active %}
+                        <span class="status-badge active">
+                            <i class="ph ph-check-circle"></i>
+                            Actif
+                        </span>
+                        {% else %}
+                        <span class="status-badge suspended">
+                            <i class="ph ph-x-circle"></i>
+                            Suspendu
+                        </span>
+                        {% endif %}
+                    </h1>
+                    <div class="hero-meta">
+                        <div class="hero-meta-item">
+                            <i class="ph ph-identification-badge"></i>
+                            Code : <strong>{{ partner.partner_code }}</strong>
+                        </div>
+                        <div class="hero-meta-item">
+                            <i class="ph ph-map-pin"></i>
+                            {{ partner.application.city.name|default:"Non spécifiée" }}
+                        </div>
+                        <div class="hero-meta-item">
+                            <i class="ph ph-calendar"></i>
+                            Membre depuis <strong>{{ partner.activated_at|date:"F Y" }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-actions">
+                {% if partner.pending_commission > 0 %}
+                <a href="{% url 'dashboard:partner_payment_create' partner.pk %}" class="btn-modern btn-success-modern">
+                    <i class="ph-bold ph-currency-circle-dollar"></i>
+                    Payer commission
+                </a>
+                {% endif %}
+                
+                <form method="post" action="{% url 'dashboard:business_partner_toggle_active' partner.pk %}" style="display: contents;">
+                    {% csrf_token %}
+                    {% if partner.is_active %}
+                    <button type="submit" class="btn-modern btn-warning-modern" onclick="return confirm('Êtes-vous sûr de vouloir suspendre ce partenaire ?');">
+                        <i class="ph ph-pause"></i>
+                        Suspendre
+                    </button>
+                    {% else %}
+                    <button type="submit" class="btn-modern btn-success-modern">
+                        <i class="ph ph-play"></i>
+                        Réactiver
+                    </button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATS GRID -->
+    <div class="stats-grid">
+        <div class="stat-card contracts">
+            <div class="stat-icon">
+                <i class="ph-bold ph-file-text"></i>
+            </div>
+            <div class="stat-value">{{ partner.total_contracts }}</div>
+            <div class="stat-label">Contrats apportés</div>
+        </div>
+
+        <div class="stat-card revenue">
+            <div class="stat-icon">
+                <i class="ph-bold ph-chart-line-up"></i>
+            </div>
+            <div class="stat-value">{{ partner.total_revenue|floatformat:0 }}</div>
+            <div class="stat-label">CA généré (XOF)</div>
+        </div>
+
+        <div class="stat-card commission">
+            <div class="stat-icon">
+                <i class="ph-bold ph-coins"></i>
+            </div>
+            <div class="stat-value">{{ partner.total_commission_earned|floatformat:0 }}</div>
+            <div class="stat-label">Commission totale</div>
+        </div>
+
+        <div class="stat-card pending">
+            <div class="stat-icon">
+                <i class="ph-bold ph-clock"></i>
+            </div>
+            <div class="stat-value">{{ partner.pending_commission|floatformat:0 }}</div>
+            <div class="stat-label">En attente</div>
+        </div>
+    </div>
+
+    <!-- CONTENT GRID -->
+    <div class="content-grid">
+        
+        <!-- SIDEBAR - INFORMATIONS -->
+        <div class="modern-card">
+            <div class="card-header-modern">
+                <h2 class="card-title-modern">
+                    <i class="ph ph-identification-card"></i>
+                    Informations
+                </h2>
+            </div>
+            <div class="card-body-modern">
+                <div class="info-list">
+                    <!-- Contact -->
+                    <div class="info-section">
+                        <div class="info-section-title">Contact</div>
+                        <div class="info-item">
+                            <i class="ph ph-phone"></i>
+                            <span>{{ partner.application.phone }}</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="ph ph-envelope"></i>
+                            <a href="mailto:{{ partner.user.email }}">{{ partner.user.email }}</a>
+                        </div>
+                        {% if partner.application.whatsapp %}
+                        <div class="info-item">
+                            <i class="ph ph-whatsapp-logo"></i>
+                            <span>{{ partner.application.whatsapp }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Commission -->
+                    <div class="info-section">
+                        <div class="info-section-title">Commission</div>
+                        <div class="info-highlight">
+                            <span class="label">Taux appliqué</span>
+                            <span class="value">{{ partner.commission_rate }}%</span>
+                        </div>
+                    </div>
+
+                    <!-- Réseau -->
+                    <div class="info-section">
+                        <div class="info-section-title">Réseau</div>
+                        <div class="info-item">
+                            <i class="ph ph-chart-bar"></i>
+                            <span class="network-badge">
+                                <i class="ph ph-graph"></i>
+                                {{ partner.application.get_network_strength_display }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Dernier contrat -->
+                    {% if partner.last_contract_at %}
+                    <div class="info-section">
+                        <div class="info-section-title">Activité</div>
+                        <div class="info-item">
+                            <i class="ph ph-calendar-check"></i>
+                            <span>Dernier contrat : {{ partner.last_contract_at|date:"d/m/Y" }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="cards-stack">
+            
+            <!-- CONTRATS RÉCENTS -->
+            <div class="modern-card">
+                <div class="card-header-modern">
+                    <h2 class="card-title-modern">
+                        <i class="ph ph-file-text"></i>
+                        Contrats récents
+                    </h2>
+                    <a href="{% url 'dashboard:partner_contracts_list' %}?partner={{ partner.pk }}" class="card-action">
+                        Voir tout
+                        <i class="ph ph-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table-modern">
+                        <thead>
+                            <tr>
+                                <th>Client</th>
+                                <th>Service</th>
+                                <th class="text-end">Montant</th>
+                                <th class="text-end">Commission</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contract in contracts %}
+                            <tr>
+                                <td data-label="Client">
+                                    <span class="client-name">{{ contract.client_name }}</span>
+                                </td>
+                                <td data-label="Service">
+                                    <span class="service-type">{{ contract.service_type|truncatewords:3 }}</span>
+                                </td>
+                                <td data-label="Montant" class="amount revenue">
+                                    {{ contract.contract_amount|floatformat:0 }}
+                                </td>
+                                <td data-label="Commission" class="amount commission">
+                                    {{ contract.commission_amount|floatformat:0 }}
+                                </td>
+                                <td data-label="Statut">
+                                    {% if contract.status == 'pending' %}
+                                    <span class="contract-badge pending">
+                                        <i class="ph ph-clock"></i>
+                                        En attente
+                                    </span>
+                                    {% elif contract.status == 'validated' %}
+                                    <span class="contract-badge validated">
+                                        <i class="ph ph-check"></i>
+                                        Validé
+                                    </span>
+                                    {% elif contract.status == 'completed' %}
+                                    <span class="contract-badge completed">
+                                        <i class="ph ph-check-circle"></i>
+                                        Terminé
+                                    </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <i class="ph ph-file-dashed"></i>
+                                        <p>Aucun contrat pour le moment</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- DERNIERS PAIEMENTS -->
+            <div class="modern-card">
+                <div class="card-header-modern">
+                    <h2 class="card-title-modern">
+                        <i class="ph ph-currency-circle-dollar"></i>
+                        Derniers paiements
+                    </h2>
+                    <a href="{% url 'dashboard:partner_payments_list' %}?partner={{ partner.pk }}" class="card-action">
+                        Voir tout
+                        <i class="ph ph-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table-modern">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Montant</th>
+                                <th>Méthode</th>
+                                <th>Référence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                            <tr>
+                                <td data-label="Date">
+                                    {{ payment.paid_at|date:"d/m/Y" }}
+                                </td>
+                                <td data-label="Montant" class="amount paid">
+                                    {{ payment.amount|floatformat:0 }} FCFA
+                                </td>
+                                <td data-label="Méthode">
+                                    <span class="method-badge">
+                                        {% if payment.payment_method == 'orange_money' %}
+                                        <i class="ph ph-device-mobile"></i>
+                                        {% elif payment.payment_method == 'bank_transfer' %}
+                                        <i class="ph ph-bank"></i>
+                                        {% elif payment.payment_method == 'check' %}
+                                        <i class="ph ph-note"></i>
+                                        {% else %}
+                                        <i class="ph ph-money"></i>
+                                        {% endif %}
+                                        {{ payment.get_payment_method_display }}
+                                    </span>
+                                </td>
+                                <td data-label="Référence">
+                                    {% if payment.reference %}
+                                    <code style="color: var(--primary-400); background: rgba(147, 51, 234, 0.1); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8125rem;">
+                                        {{ payment.reference }}
+                                    </code>
+                                    {% else %}
+                                    <span style="color: var(--surface-600);">—</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4">
+                                    <div class="empty-state">
+                                        <i class="ph ph-wallet"></i>
+                                        <p>Aucun paiement enregistré</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+        
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des valeurs des stats
+    const animateValue = (element, start, end, duration) => {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            const value = Math.floor(progress * (end - start) + start);
+            element.textContent = value.toLocaleString('fr-FR');
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    };
+
+    // Animer les stats
+    document.querySelectorAll('.stat-value').forEach(element => {
+        const text = element.textContent.replace(/\s/g, '').replace(/,/g, '');
+        const finalValue = parseInt(text);
+        if (!isNaN(finalValue) && finalValue > 0) {
+            element.textContent = '0';
+            setTimeout(() => {
+                animateValue(element, 0, finalValue, 1200);
+            }, 300);
+        }
+    });
+
+    // Highlight row avec commission en attente
+    const pendingCard = document.querySelector('.stat-card.pending');
+    if (pendingCard) {
+        const value = parseInt(pendingCard.querySelector('.stat-value').textContent.replace(/\s/g, ''));
+        if (value > 0) {
+            pendingCard.style.boxShadow = '0 0 0 2px rgba(239, 68, 68, 0.3), 0 8px 30px rgba(0, 0, 0, 0.3)';
+        }
+    }
+});
+</script>
+{% endblock %}

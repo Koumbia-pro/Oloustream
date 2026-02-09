@@ -1,0 +1,1303 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Candidatures Partenaires - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ==================== ANIMATIONS ==================== */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes countUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    @keyframes ripple {
+        0% {
+            transform: scale(0);
+            opacity: 0.5;
+        }
+        100% {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+
+    .animate-fade-in {
+        animation: fadeInUp 0.5s ease-out forwards;
+    }
+
+    /* ==================== PAGE WRAPPER ==================== */
+    .applications-wrapper {
+        min-height: calc(100vh - 70px);
+    }
+
+    /* ==================== PAGE HEADER ==================== */
+    .page-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        animation: fadeInUp 0.4s ease-out;
+    }
+
+    .page-header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .page-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, var(--primary-600, #9333ea), var(--primary-700, #7c3aed));
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+        box-shadow: 0 8px 25px rgba(147, 51, 234, 0.35);
+        flex-shrink: 0;
+    }
+
+    .page-header-text h1 {
+        font-size: 1.625rem;
+        font-weight: 700;
+        color: var(--surface-100, #f4f4f5);
+        margin: 0 0 0.25rem 0;
+    }
+
+    .page-header-text p {
+        font-size: 0.875rem;
+        color: var(--surface-400, #a1a1aa);
+        margin: 0;
+    }
+
+    .btn-view-public {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        background: rgba(147, 51, 234, 0.1);
+        border: 1px solid rgba(147, 51, 234, 0.3);
+        border-radius: 12px;
+        color: var(--primary-400, #c084fc);
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.25s ease;
+    }
+
+    .btn-view-public:hover {
+        background: rgba(147, 51, 234, 0.2);
+        border-color: var(--primary-400, #c084fc);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.25);
+        color: var(--primary-300, #d8b4fe);
+    }
+
+    .btn-view-public i {
+        font-size: 1.125rem;
+    }
+
+    /* ==================== STATS CARDS ==================== */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+        background: rgba(31, 31, 35, 0.7);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 1.25rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.4s ease-out backwards;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.05s; }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.15s; }
+    .stat-card:nth-child(4) { animation-delay: 0.2s; }
+    .stat-card:nth-child(5) { animation-delay: 0.25s; }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--stat-color, var(--primary-600, #9333ea));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-card:hover::before {
+        opacity: 1;
+    }
+
+    .stat-card.highlight {
+        border-left: 3px solid var(--stat-color);
+    }
+
+    .stat-card.highlight::before {
+        opacity: 1;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--stat-color, var(--surface-100, #f4f4f5));
+        margin-bottom: 0.25rem;
+        animation: countUp 0.6s ease-out backwards;
+    }
+
+    .stat-card:nth-child(1) .stat-value { animation-delay: 0.3s; }
+    .stat-card:nth-child(2) .stat-value { animation-delay: 0.4s; }
+    .stat-card:nth-child(3) .stat-value { animation-delay: 0.5s; }
+    .stat-card:nth-child(4) .stat-value { animation-delay: 0.6s; }
+    .stat-card:nth-child(5) .stat-value { animation-delay: 0.7s; }
+
+    .stat-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--surface-500, #71717a);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Stat colors */
+    .stat-card.total { --stat-color: var(--primary-500, #a855f7); }
+    .stat-card.pending { --stat-color: #f59e0b; }
+    .stat-card.reviewing { --stat-color: #3b82f6; }
+    .stat-card.approved { --stat-color: #10b981; }
+    .stat-card.rejected { --stat-color: #ef4444; }
+
+    /* ==================== FILTERS CARD ==================== */
+    .filters-card {
+        background: rgba(31, 31, 35, 0.7);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        animation: fadeInUp 0.4s ease-out 0.2s backwards;
+    }
+
+    .filters-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .filters-header i {
+        font-size: 1.25rem;
+        color: var(--primary-400, #c084fc);
+    }
+
+    .filters-header span {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--surface-200, #e4e4e7);
+    }
+
+    .filters-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr auto;
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .filter-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: var(--surface-500, #71717a);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .filter-input,
+    .filter-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: rgba(39, 39, 42, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        color: var(--surface-100, #f4f4f5);
+        font-size: 0.875rem;
+        font-family: inherit;
+        transition: all 0.2s ease;
+    }
+
+    .filter-input::placeholder {
+        color: var(--surface-500, #71717a);
+    }
+
+    .filter-input:focus,
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--primary-500, #a855f7);
+        box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15);
+        background: rgba(147, 51, 234, 0.05);
+    }
+
+    .filter-select {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        padding-right: 2.5rem;
+    }
+
+    .filter-select option {
+        background: var(--surface-800, #27272a);
+        color: var(--surface-100, #f4f4f5);
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-filter {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        text-decoration: none;
+    }
+
+    .btn-filter i {
+        font-size: 1rem;
+    }
+
+    .btn-filter.primary {
+        background: linear-gradient(135deg, var(--primary-600, #9333ea), var(--primary-700, #7c3aed));
+        color: white;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+    }
+
+    .btn-filter.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(147, 51, 234, 0.4);
+    }
+
+    .btn-filter.secondary {
+        background: transparent;
+        color: var(--surface-400, #a1a1aa);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-filter.secondary:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--surface-200, #e4e4e7);
+    }
+
+    /* ==================== TABLE CARD ==================== */
+    .table-card {
+        background: rgba(31, 31, 35, 0.7);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        overflow: hidden;
+        animation: fadeInUp 0.4s ease-out 0.3s backwards;
+    }
+
+    .table-responsive-modern {
+        overflow-x: auto;
+    }
+
+    .table-modern {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-modern thead {
+        background: rgba(0, 0, 0, 0.25);
+    }
+
+    .table-modern thead th {
+        padding: 1rem 1.25rem;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: var(--surface-400, #a1a1aa);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-align: left;
+        white-space: nowrap;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .table-modern thead th:first-child {
+        padding-left: 1.5rem;
+    }
+
+    .table-modern thead th:last-child {
+        padding-right: 1.5rem;
+        text-align: right;
+    }
+
+    .table-modern tbody tr {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        transition: all 0.2s ease;
+        animation: fadeInUp 0.3s ease-out backwards;
+    }
+
+    .table-modern tbody tr:nth-child(1) { animation-delay: 0.35s; }
+    .table-modern tbody tr:nth-child(2) { animation-delay: 0.4s; }
+    .table-modern tbody tr:nth-child(3) { animation-delay: 0.45s; }
+    .table-modern tbody tr:nth-child(4) { animation-delay: 0.5s; }
+    .table-modern tbody tr:nth-child(5) { animation-delay: 0.55s; }
+    .table-modern tbody tr:nth-child(6) { animation-delay: 0.6s; }
+    .table-modern tbody tr:nth-child(7) { animation-delay: 0.65s; }
+    .table-modern tbody tr:nth-child(8) { animation-delay: 0.7s; }
+    .table-modern tbody tr:nth-child(9) { animation-delay: 0.75s; }
+    .table-modern tbody tr:nth-child(10) { animation-delay: 0.8s; }
+
+    .table-modern tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .table-modern tbody tr:hover {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .table-modern tbody td {
+        padding: 1rem 1.25rem;
+        font-size: 0.875rem;
+        color: var(--surface-300, #d4d4d8);
+        vertical-align: middle;
+    }
+
+    .table-modern tbody td:first-child {
+        padding-left: 1.5rem;
+    }
+
+    .table-modern tbody td:last-child {
+        padding-right: 1.5rem;
+    }
+
+    /* ID Cell */
+    .id-cell {
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        font-size: 0.75rem;
+        color: var(--surface-500, #71717a);
+        background: rgba(0, 0, 0, 0.2);
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+    }
+
+    /* Candidate Cell */
+    .candidate-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+    }
+
+    .candidate-avatar {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, var(--primary-600, #9333ea), var(--primary-400, #c084fc));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 700;
+        color: white;
+        text-transform: uppercase;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(147, 51, 234, 0.25);
+    }
+
+    .candidate-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+
+    .candidate-name {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--surface-100, #f4f4f5);
+    }
+
+    .candidate-contact {
+        font-size: 0.75rem;
+        color: var(--surface-500, #71717a);
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .candidate-contact span {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    /* City Cell */
+    .city-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .city-name {
+        font-weight: 500;
+        color: var(--surface-200, #e4e4e7);
+    }
+
+    .priority-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.625rem;
+        font-weight: 700;
+        color: #fbbf24;
+        background: rgba(251, 191, 36, 0.15);
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        border: 1px solid rgba(251, 191, 36, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        width: fit-content;
+    }
+
+    /* Network Badges */
+    .network-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .network-badge.weak {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .network-badge.medium {
+        background: rgba(251, 191, 36, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .network-badge.strong {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .network-badge.very_strong {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .network-badge i {
+        font-size: 0.875rem;
+    }
+
+    /* Availability Cell */
+    .availability-cell {
+        font-size: 0.8125rem;
+        color: var(--surface-400, #a1a1aa);
+    }
+
+    /* Date Cell */
+    .date-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+
+    .date-main {
+        font-weight: 500;
+        color: var(--surface-200, #e4e4e7);
+    }
+
+    .date-time {
+        font-size: 0.6875rem;
+        color: var(--surface-500, #71717a);
+    }
+
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.875rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-badge.pending {
+        background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.15));
+        color: #fbbf24;
+        border: 1px solid rgba(251, 191, 36, 0.3);
+        animation: pulse 2s infinite;
+    }
+
+    .status-badge.reviewing {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.15));
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .status-badge.interview {
+        background: linear-gradient(135deg, rgba(147, 51, 234, 0.15), rgba(124, 58, 237, 0.15));
+        color: var(--primary-400, #c084fc);
+        border: 1px solid rgba(147, 51, 234, 0.3);
+    }
+
+    .status-badge.approved {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15));
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-badge.rejected {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15));
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .status-badge i {
+        font-size: 0.875rem;
+    }
+
+    /* Actions Cell */
+    .actions-cell {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        border: 1px solid transparent;
+        background: rgba(39, 39, 42, 0.8);
+        color: var(--surface-400, #a1a1aa);
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .action-btn::before {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.375rem 0.75rem;
+        background: var(--surface-700, #3f3f46);
+        color: var(--surface-100, #f4f4f5);
+        font-size: 0.6875rem;
+        font-weight: 500;
+        border-radius: 6px;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.2s ease;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    .action-btn::after {
+        content: '';
+        position: absolute;
+        bottom: calc(100% + 2px);
+        left: 50%;
+        transform: translateX(-50%);
+        border: 6px solid transparent;
+        border-top-color: var(--surface-700, #3f3f46);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .action-btn:hover::before,
+    .action-btn:hover::after {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .action-btn i {
+        font-size: 1.125rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .action-btn.view:hover {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    .action-btn.approve:hover {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .action-btn.reject:hover {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .action-btn.partner:hover {
+        background: rgba(147, 51, 234, 0.15);
+        color: var(--primary-400, #c084fc);
+        border-color: rgba(147, 51, 234, 0.3);
+    }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: rgba(39, 39, 42, 0.8);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: var(--surface-500, #71717a);
+    }
+
+    .empty-state h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--surface-300, #d4d4d8);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .empty-state p {
+        color: var(--surface-500, #71717a);
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    /* ==================== PAGINATION ==================== */
+    .table-footer {
+        display: flex;
+        justify-content: center;
+        padding: 1.25rem;
+        background: rgba(0, 0, 0, 0.15);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .pagination-modern {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .page-item-modern {
+        display: flex;
+    }
+
+    .page-link-modern {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 40px;
+        padding: 0 0.75rem;
+        background: rgba(39, 39, 42, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        color: var(--surface-300, #d4d4d8);
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .page-link-modern:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .page-item-modern.active .page-link-modern {
+        background: linear-gradient(135deg, var(--primary-600, #9333ea), var(--primary-700, #7c3aed));
+        border-color: transparent;
+        color: white;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.35);
+    }
+
+    .page-item-modern.disabled .page-link-modern {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1400px) {
+        .stats-grid {
+            grid-template-columns: repeat(5, 1fr);
+        }
+    }
+
+    @media (max-width: 1200px) {
+        .stats-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .filters-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .filter-actions {
+            grid-column: span 2;
+            justify-content: flex-start;
+        }
+    }
+
+    @media (max-width: 992px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .btn-view-public {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .stat-card:nth-child(5) {
+            grid-column: span 2;
+        }
+
+        .filters-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-actions {
+            grid-column: span 1;
+            flex-direction: column;
+        }
+
+        .btn-filter {
+            width: 100%;
+        }
+
+        /* Mobile Table */
+        .table-modern thead {
+            display: none;
+        }
+
+        .table-modern tbody tr {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            margin: 0.5rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .table-modern tbody td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.625rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .table-modern tbody td:first-child {
+            padding-left: 0;
+        }
+
+        .table-modern tbody td:last-child {
+            padding-right: 0;
+            border-bottom: none;
+            padding-top: 1rem;
+            justify-content: center;
+        }
+
+        .table-modern tbody td::before {
+            content: attr(data-label);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: var(--surface-500, #71717a);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .candidate-cell {
+            flex-direction: row;
+        }
+
+        .actions-cell {
+            justify-content: center;
+            width: 100%;
+            gap: 0.75rem;
+        }
+
+        .action-btn {
+            flex: 1;
+            max-width: 60px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-header-left {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .page-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .stat-card {
+            padding: 1rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+        }
+
+        .filters-card {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="applications-wrapper">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-left">
+            <div class="page-icon">
+                <i class="ph-bold ph-note-pencil"></i>
+            </div>
+            <div class="page-header-text">
+                <h1>Candidatures Partenaires</h1>
+                <p>Gérez les demandes de partenariat</p>
+            </div>
+        </div>
+        <a href="{% url 'partners:program_info' %}" target="_blank" class="btn-view-public">
+            <i class="ph ph-arrow-square-out"></i>
+            Voir la page publique
+        </a>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card total">
+            <div class="stat-value">{{ stats.total }}</div>
+            <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-card pending highlight">
+            <div class="stat-value">{{ stats.pending }}</div>
+            <div class="stat-label">En attente</div>
+        </div>
+        <div class="stat-card reviewing">
+            <div class="stat-value">{{ stats.reviewing }}</div>
+            <div class="stat-label">En examen</div>
+        </div>
+        <div class="stat-card approved highlight">
+            <div class="stat-value">{{ stats.approved }}</div>
+            <div class="stat-label">Approuvées</div>
+        </div>
+        <div class="stat-card rejected">
+            <div class="stat-value">{{ stats.rejected }}</div>
+            <div class="stat-label">Rejetées</div>
+        </div>
+    </div>
+
+    <!-- Filters Card -->
+    <div class="filters-card">
+        <div class="filters-header">
+            <i class="ph ph-funnel"></i>
+            <span>Filtres & Recherche</span>
+        </div>
+        <form method="get">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label class="filter-label">Recherche</label>
+                    <input type="text" 
+                           name="search" 
+                           class="filter-input"
+                           placeholder="Nom, téléphone, email..." 
+                           value="{{ search_query|default:'' }}">
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Statut</label>
+                    <select name="status" class="filter-select">
+                        <option value="">Tous les statuts</option>
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Ville</label>
+                    <select name="city" class="filter-select">
+                        <option value="">Toutes les villes</option>
+                        {% for region in regions %}
+                        <option value="{{ region.id }}" {% if current_city == region.id|stringformat:"d" %}selected{% endif %}>
+                            {{ region.name }} {% if region.is_priority %}⭐{% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Réseau</label>
+                    <select name="network" class="filter-select">
+                        <option value="">Tous les réseaux</option>
+                        {% for value, label in network_choices %}
+                        <option value="{{ value }}" {% if current_network == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button type="submit" class="btn-filter primary">
+                        <i class="ph ph-magnifying-glass"></i>
+                        Filtrer
+                    </button>
+                    <a href="{% url 'dashboard:partner_applications_list' %}" class="btn-filter secondary">
+                        <i class="ph ph-arrow-counter-clockwise"></i>
+                        Reset
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table Card -->
+    <div class="table-card">
+        <div class="table-responsive-modern">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">ID</th>
+                        <th>Candidat</th>
+                        <th>Ville</th>
+                        <th>Réseau</th>
+                        <th>Disponibilité</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                        <th style="width: 180px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                    <tr>
+                        <td data-label="ID">
+                            <span class="id-cell">#{{ app.id }}</span>
+                        </td>
+                        <td data-label="Candidat">
+                            <div class="candidate-cell">
+                                <div class="candidate-avatar">
+                                    {{ app.full_name|slice:":1" }}
+                                </div>
+                                <div class="candidate-info">
+                                    <span class="candidate-name">{{ app.full_name }}</span>
+                                    <span class="candidate-contact">
+                                        <span>
+                                            <i class="ph ph-phone"></i>
+                                            {{ app.phone }}
+                                        </span>
+                                        {% if app.email %}
+                                        <span>•</span>
+                                        <span>
+                                            <i class="ph ph-envelope"></i>
+                                            {{ app.email|truncatechars:20 }}
+                                        </span>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+                        <td data-label="Ville">
+                            <div class="city-cell">
+                                <span class="city-name">{{ app.city.name }}</span>
+                                {% if app.city.is_priority %}
+                                <span class="priority-badge">
+                                    <i class="ph ph-star-fill"></i>
+                                    Prioritaire
+                                </span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td data-label="Réseau">
+                            {% if app.network_strength == 'weak' %}
+                            <span class="network-badge weak">
+                                <i class="ph ph-circle-fill"></i>
+                                Limité
+                            </span>
+                            {% elif app.network_strength == 'medium' %}
+                            <span class="network-badge medium">
+                                <i class="ph ph-circle-fill"></i>
+                                Moyen
+                            </span>
+                            {% elif app.network_strength == 'strong' %}
+                            <span class="network-badge strong">
+                                <i class="ph ph-circle-fill"></i>
+                                Fort
+                            </span>
+                            {% elif app.network_strength == 'very_strong' %}
+                            <span class="network-badge very_strong">
+                                <i class="ph ph-star-fill"></i>
+                                Très fort
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td data-label="Disponibilité">
+                            <span class="availability-cell">{{ app.get_availability_display }}</span>
+                        </td>
+                        <td data-label="Date">
+                            <div class="date-cell">
+                                <span class="date-main">{{ app.created_at|date:"d/m/Y" }}</span>
+                                <span class="date-time">{{ app.created_at|date:"H:i" }}</span>
+                            </div>
+                        </td>
+                        <td data-label="Statut">
+                            {% if app.status == 'pending' %}
+                            <span class="status-badge pending">
+                                <i class="ph ph-hourglass-medium"></i>
+                                En attente
+                            </span>
+                            {% elif app.status == 'reviewing' %}
+                            <span class="status-badge reviewing">
+                                <i class="ph ph-magnifying-glass"></i>
+                                En examen
+                            </span>
+                            {% elif app.status == 'interview' %}
+                            <span class="status-badge interview">
+                                <i class="ph ph-phone-call"></i>
+                                Entretien
+                            </span>
+                            {% elif app.status == 'approved' %}
+                            <span class="status-badge approved">
+                                <i class="ph ph-check-circle"></i>
+                                Approuvée
+                            </span>
+                            {% elif app.status == 'rejected' %}
+                            <span class="status-badge rejected">
+                                <i class="ph ph-x-circle"></i>
+                                Rejetée
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td data-label="Actions">
+                            <div class="actions-cell">
+                                <a href="{% url 'dashboard:partner_application_detail' app.pk %}" 
+                                   class="action-btn view"
+                                   data-tooltip="Voir détails">
+                                    <i class="ph ph-eye"></i>
+                                </a>
+                                
+                                {% if app.status == 'pending' or app.status == 'reviewing' %}
+                                <a href="{% url 'dashboard:partner_application_approve' app.pk %}" 
+                                   class="action-btn approve"
+                                   data-tooltip="Approuver"
+                                   onclick="return confirm('Confirmer l\'approbation de {{ app.full_name }} ?');">
+                                    <i class="ph ph-check"></i>
+                                </a>
+                                <a href="{% url 'dashboard:partner_application_reject' app.pk %}" 
+                                   class="action-btn reject"
+                                   data-tooltip="Rejeter"
+                                   onclick="return confirm('Confirmer le rejet ?');">
+                                    <i class="ph ph-x"></i>
+                                </a>
+                                {% endif %}
+                                
+                                {% if app.status == 'approved' and app.partner_profile %}
+                                <a href="{% url 'dashboard:business_partner_detail' app.partner_profile.pk %}" 
+                                   class="action-btn partner"
+                                   data-tooltip="Voir partenaire">
+                                    <i class="ph ph-user"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="ph ph-folder-open"></i>
+                                </div>
+                                <h3>Aucune candidature trouvée</h3>
+                                <p>Aucune candidature ne correspond à vos critères de recherche.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if applications.has_other_pages %}
+        <div class="table-footer">
+            <nav aria-label="Pagination">
+                <ul class="pagination-modern">
+                    {% if applications.has_previous %}
+                    <li class="page-item-modern">
+                        <a class="page-link-modern" href="?page={{ applications.previous_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_city %}&city={{ current_city }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_network %}&network={{ current_network }}{% endif %}">
+                            <i class="ph ph-caret-left"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item-modern disabled">
+                        <span class="page-link-modern"><i class="ph ph-caret-left"></i></span>
+                    </li>
+                    {% endif %}
+
+                    {% for num in applications.paginator.page_range %}
+                        {% if applications.number == num %}
+                        <li class="page-item-modern active">
+                            <span class="page-link-modern">{{ num }}</span>
+                        </li>
+                        {% elif num > applications.number|add:'-3' and num < applications.number|add:'3' %}
+                        <li class="page-item-modern">
+                            <a class="page-link-modern" href="?page={{ num }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_city %}&city={{ current_city }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_network %}&network={{ current_network }}{% endif %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if applications.has_next %}
+                    <li class="page-item-modern">
+                        <a class="page-link-modern" href="?page={{ applications.next_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_city %}&city={{ current_city }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_network %}&network={{ current_network }}{% endif %}">
+                            <i class="ph ph-caret-right"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item-modern disabled">
+                        <span class="page-link-modern"><i class="ph ph-caret-right"></i></span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

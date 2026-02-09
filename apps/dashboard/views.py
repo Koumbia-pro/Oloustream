@@ -45,65 +45,376 @@ from apps.notifications.emailing import send_reservation_status_changed_email
 
 
 # ---------- DASHBOARD GLOBAL ----------
+# apps/dashboard/views.py
+
+from datetime import timedelta
+from django.db.models import Sum, Count, Q
+from calendar import monthrange
+
+from apps.accounts.models import User
+from apps.business_partners.models import (
+    BusinessPartner, PartnerApplication, Contract, CommissionPayment
+)
+from apps.messaging.models import Message, Conversation
+from apps.notifications.models import Notification, NotificationTypeChoices
+from apps.payments.models import Payment, PaymentStatus
+from apps.services_app.models import Service, Training, Partner, JobOffer, JobApplication
+from apps.studio.models import Reservation, Equipment, Studio
+from apps.studio.choices import EquipmentStatus, ReservationStatus
+
 
 @staff_member_required
 def dashboard_view(request):
-    # Chiffres globaux
-    total_revenue = Payment.objects.filter(
-        status=PaymentStatus.PAID
-    ).aggregate(total=Sum('amount'))['total'] or 0
-
-    total_reservations = Reservation.objects.count()
+    """
+    Dashboard principal avec toutes les statistiques et graphiques.
+    """
+    
+    # ==================== PÉRIODE DE FILTRAGE ====================
+    period = request.GET.get('period', 'all')  # all, today, week, month, year
+    
+    now = timezone.now()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    if period == 'today':
+        start_date = today_start
+        end_date = now
+    elif period == 'week':
+        start_date = today_start - timedelta(days=today_start.weekday())
+        end_date = now
+    elif period == 'month':
+        start_date = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        end_date = now
+    elif period == 'year':
+        start_date = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+        end_date = now
+    else:
+        start_date = None
+        end_date = None
+    
+    # ==================== STATS PRINCIPALES ====================
+    
+    # Chiffre d'affaires
+    total_revenue_qs = Payment.objects.filter(status=PaymentStatus.PAID)
+    if start_date:
+        total_revenue_qs = total_revenue_qs.filter(created_at__gte=start_date, created_at__lte=end_date)
+    total_revenue = total_revenue_qs.aggregate(total=Sum('amount'))['total'] or 0
+    
+    # Réservations
+    reservations_qs = Reservation.objects.all()
+    if start_date:
+        reservations_qs = reservations_qs.filter(created_at__gte=start_date, created_at__lte=end_date)
+    total_reservations = reservations_qs.count()
+    
+    # Clients
     total_clients = User.objects.filter(role=User.Role.CLIENT).count()
-    total_employees = User.objects.filter(is_employee=True).count()
-
-    from apps.studio.choices import EquipmentStatus
-
+    
+    # Employés
+    total_employees = User.objects.filter(is_employee=True, is_active=True).count()
+    
+    # Équipements
     equipments_available = Equipment.objects.filter(status=EquipmentStatus.AVAILABLE).count()
     equipments_maintenance = Equipment.objects.filter(status=EquipmentStatus.MAINTENANCE).count()
-
+    total_equipments = Equipment.objects.count()
+    
+    # Services & Formations
     active_services = Service.objects.filter(is_active=True).count()
     active_trainings = Training.objects.filter(is_active=True).count()
+    
+    # Partenaires simples
     active_partners = Partner.objects.filter(active=True).count()
-
+    
     # Revenus récents (30 derniers jours)
-    thirty_days_ago = timezone.now() - timedelta(days=30)
+    thirty_days_ago = now - timedelta(days=30)
     recent_revenue = Payment.objects.filter(
         status=PaymentStatus.PAID,
         created_at__gte=thirty_days_ago
     ).aggregate(total=Sum('amount'))['total'] or 0
-
-    # Dernières réservations
-    last_reservations = Reservation.objects.select_related('user', 'studio').order_by('-created_at')[:5]
-
-    # Notifications & messages
-    unread_notifications_count = Notification.objects.filter(
-        user=request.user,
-        is_read=False
-    ).count()
-
+    
+    # ==================== BUSINESS PARTNERS ====================
+    total_business_partners = BusinessPartner.objects.filter(is_active=True).count()
+    pending_applications = PartnerApplication.objects.filter(status='pending').count()
+    pending_contracts = Contract.objects.filter(status='pending').count()
+    
+    bp_stats = BusinessPartner.objects.aggregate(
+        total_commission_earned=Sum('total_commission_earned'),
+        total_commission_paid=Sum('total_commission_paid'),
+    )
+    total_commission_earned = bp_stats['total_commission_earned'] or 0
+    total_commission_paid = bp_stats['total_commission_paid'] or 0
+    pending_commission = total_commission_earned - total_commission_paid
+    
+    # ==================== RÉSERVATIONS PAR STATUT ====================
+    reservations_by_status = {
+        'pending': Reservation.objects.filter(status=ReservationStatus.PENDING).count(),
+        'confirmed': Reservation.objects.filter(status=ReservationStatus.CONFIRMED).count(),
+        'completed': Reservation.objects.filter(status=ReservationStatus.COMPLETED).count(),
+        'cancelled': Reservation.objects.filter(status=ReservationStatus.CANCELLED).count(),
+        'rejected': Reservation.objects.filter(status=ReservationStatus.REJECTED).count(),
+    }
+    
+    # ==================== TOP 5 STUDIOS ====================
+    top_studios = (
+        Reservation.objects
+        .filter(studio__isnull=False)
+        .values('studio__name')
+        .annotate(count=Count('id'))
+        .order_by('-count')[:5]
+    )
+    
+    # ==================== TOP 5 SERVICES ====================
+    top_services = (
+        Reservation.objects
+        .filter(service__isnull=False)
+        .values('service__name')
+        .annotate(count=Count('id'))
+        .order_by('-count')[:5]
+    )
+    
+    # ==================== TOP 5 PARTENAIRES D'AFFAIRES ====================
+    top_partners = (
+        BusinessPartner.objects
+        .filter(is_active=True)
+        .order_by('-total_revenue')[:5]
+    )
+    
+    # ==================== GRAPHIQUE ÉVOLUTION CA (6 derniers mois) ====================
+    revenue_chart_data = []
+    for i in range(5, -1, -1):
+        month_date = now - timedelta(days=30 * i)
+        month_start = month_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        last_day = monthrange(month_start.year, month_start.month)[1]
+        month_end = month_start.replace(day=last_day, hour=23, minute=59, second=59)
+        
+        month_revenue = Payment.objects.filter(
+            status=PaymentStatus.PAID,
+            created_at__gte=month_start,
+            created_at__lte=month_end
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        revenue_chart_data.append({
+            'month': month_start.strftime('%b %Y'),
+            'revenue': float(month_revenue)
+        })
+    
+    # ==================== ALERTES & ACTIONS URGENTES ====================
+    alerts = []
+    
+    # Réservations en attente
+    pending_reservations_count = reservations_by_status['pending']
+    if pending_reservations_count > 0:
+        alerts.append({
+            'icon': 'ph-calendar-check',
+            'color': 'warning',
+            'text': f"{pending_reservations_count} réservation{'s' if pending_reservations_count > 1 else ''} en attente de confirmation",
+            'link': '/dashboard/reservations/?status=PENDING',
+        })
+    
+    # Candidatures partenaires
+    if pending_applications > 0:
+        alerts.append({
+            'icon': 'ph-user-plus',
+            'color': 'info',
+            'text': f"{pending_applications} candidature{'s' if pending_applications > 1 else ''} partenaire{'s' if pending_applications > 1 else ''} à examiner",
+            'link': '/dashboard/partenaires/candidatures/?status=pending',
+        })
+    
+    # Contrats à valider
+    if pending_contracts > 0:
+        alerts.append({
+            'icon': 'ph-file-text',
+            'color': 'primary',
+            'text': f"{pending_contracts} contrat{'s' if pending_contracts > 1 else ''} à valider",
+            'link': '/dashboard/partenaires/contrats/?status=pending',
+        })
+    
+    # Messages non lus
     unread_messages_count = Notification.objects.filter(
         user=request.user,
         notification_type=NotificationTypeChoices.MESSAGE_RECEIVED,
         is_read=False
-    ).count(),
-
+    ).count()
+    if unread_messages_count > 0:
+        alerts.append({
+            'icon': 'ph-chat-circle-dots',
+            'color': 'success',
+            'text': f"{unread_messages_count} message{'s' if unread_messages_count > 1 else ''} non lu{'s' if unread_messages_count > 1 else ''}",
+            'link': '/messaging/admin/conversations/',
+        })
+    
+    # Équipements en maintenance
+    if equipments_maintenance > 0:
+        alerts.append({
+            'icon': 'ph-wrench',
+            'color': 'danger',
+            'text': f"{equipments_maintenance} équipement{'s' if equipments_maintenance > 1 else ''} en maintenance",
+            'link': '/dashboard/equipments/?status=MAINTENANCE',
+        })
+    
+    # Candidatures emploi/stage
+    pending_job_applications = JobApplication.objects.filter(status='PENDING').count()
+    if pending_job_applications > 0:
+        alerts.append({
+            'icon': 'ph-briefcase',
+            'color': 'info',
+            'text': f"{pending_job_applications} candidature{'s' if pending_job_applications > 1 else ''} emploi/stage à traiter",
+            'link': '/services/admin/jobs/',
+        })
+    
+    # ==================== DERNIÈRES RÉSERVATIONS ====================
+    last_reservations = (
+        Reservation.objects
+        .select_related('user', 'studio', 'service')
+        .order_by('-created_at')[:10]
+    )
+    
+    # ==================== FORMATIONS À VENIR ====================
+    upcoming_trainings = Training.objects.filter(
+        is_active=True,
+        start_date__gte=now.date()
+    ).order_by('start_date')[:5]
+    
+    # ==================== OFFRES D'EMPLOI OUVERTES ====================
+    open_job_offers = JobOffer.objects.filter(
+        status='PUBLISHED',
+        deadline__gte=now.date()
+    ).count()
+    
+    # ==================== STUDIOS (OCCUPATION) ====================
+    total_studios = Studio.objects.filter(is_active=True).count()
+    
+    # Calcul taux d'occupation (réservations confirmées sur période)
+    if start_date and total_studios > 0:
+        confirmed_reservations = Reservation.objects.filter(
+            status=ReservationStatus.CONFIRMED,
+            start_datetime__gte=start_date,
+            start_datetime__lte=end_date
+        ).count()
+        # Simplification : on considère qu'un studio peut être réservé 8h/jour
+        available_slots = total_studios * (end_date - start_date).days * 8
+        occupation_rate = (confirmed_reservations / available_slots * 100) if available_slots > 0 else 0
+    else:
+        occupation_rate = 0
+    
+    # ==================== NOTIFICATIONS ====================
+    unread_notifications_count = Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).count()
+    
+    # ==================== CONTEXT ====================
     context = {
-        "total_revenue": total_revenue,
-        "total_reservations": total_reservations,
-        "total_clients": total_clients,
-        "total_employees": total_employees,
-        "equipments_available": equipments_available,
-        "equipments_maintenance": equipments_maintenance,
-        "active_services": active_services,
-        "active_trainings": active_trainings,
-        "active_partners": active_partners,
-        "recent_revenue": recent_revenue,
-        "last_reservations": last_reservations,
-        "unread_notifications_count": unread_notifications_count,
-        "unread_messages_count": unread_messages_count,
+        # Filtres
+        'current_period': period,
+        
+        # Stats principales
+        'total_revenue': total_revenue,
+        'total_reservations': total_reservations,
+        'total_clients': total_clients,
+        'total_employees': total_employees,
+        'equipments_available': equipments_available,
+        'equipments_maintenance': equipments_maintenance,
+        'total_equipments': total_equipments,
+        'active_services': active_services,
+        'active_trainings': active_trainings,
+        'active_partners': active_partners,
+        'recent_revenue': recent_revenue,
+        
+        # Business Partners
+        'total_business_partners': total_business_partners,
+        'pending_applications': pending_applications,
+        'pending_contracts': pending_contracts,
+        'total_commission_earned': total_commission_earned,
+        'total_commission_paid': total_commission_paid,
+        'pending_commission': pending_commission,
+        
+        # Réservations
+        'reservations_by_status': reservations_by_status,
+        
+        # Top performers
+        'top_studios': top_studios,
+        'top_services': top_services,
+        'top_partners': top_partners,
+        
+        # Graphiques
+        'revenue_chart_data': revenue_chart_data,
+        
+        # Alertes
+        'alerts': alerts,
+        
+        # Listes
+        'last_reservations': last_reservations,
+        'upcoming_trainings': upcoming_trainings,
+        'open_job_offers': open_job_offers,
+        
+        # Studios
+        'total_studios': total_studios,
+        'occupation_rate': round(occupation_rate, 1),
+        
+        # Notifications
+        'unread_notifications_count': unread_notifications_count,
+        'unread_messages_count': unread_messages_count,
     }
+    
     return render(request, "admin/dashboard.html", context)
+
+# @staff_member_required
+# def dashboard_view(request):
+#     # Chiffres globaux
+#     total_revenue = Payment.objects.filter(
+#         status=PaymentStatus.PAID
+#     ).aggregate(total=Sum('amount'))['total'] or 0
+
+#     total_reservations = Reservation.objects.count()
+#     total_clients = User.objects.filter(role=User.Role.CLIENT).count()
+#     total_employees = User.objects.filter(is_employee=True).count()
+
+#     from apps.studio.choices import EquipmentStatus
+
+#     equipments_available = Equipment.objects.filter(status=EquipmentStatus.AVAILABLE).count()
+#     equipments_maintenance = Equipment.objects.filter(status=EquipmentStatus.MAINTENANCE).count()
+
+#     active_services = Service.objects.filter(is_active=True).count()
+#     active_trainings = Training.objects.filter(is_active=True).count()
+#     active_partners = Partner.objects.filter(active=True).count()
+
+#     # Revenus récents (30 derniers jours)
+#     thirty_days_ago = timezone.now() - timedelta(days=30)
+#     recent_revenue = Payment.objects.filter(
+#         status=PaymentStatus.PAID,
+#         created_at__gte=thirty_days_ago
+#     ).aggregate(total=Sum('amount'))['total'] or 0
+
+#     # Dernières réservations
+#     last_reservations = Reservation.objects.select_related('user', 'studio').order_by('-created_at')[:5]
+
+#     # Notifications & messages
+#     unread_notifications_count = Notification.objects.filter(
+#         user=request.user,
+#         is_read=False
+#     ).count()
+
+#     unread_messages_count = Notification.objects.filter(
+#         user=request.user,
+#         notification_type=NotificationTypeChoices.MESSAGE_RECEIVED,
+#         is_read=False
+#     ).count(),
+
+#     context = {
+#         "total_revenue": total_revenue,
+#         "total_reservations": total_reservations,
+#         "total_clients": total_clients,
+#         "total_employees": total_employees,
+#         "equipments_available": equipments_available,
+#         "equipments_maintenance": equipments_maintenance,
+#         "active_services": active_services,
+#         "active_trainings": active_trainings,
+#         "active_partners": active_partners,
+#         "recent_revenue": recent_revenue,
+#         "last_reservations": last_reservations,
+#         "unread_notifications_count": unread_notifications_count,
+#         "unread_messages_count": unread_messages_count,
+#     }
+#     return render(request, "admin/dashboard.html", context)
 
 
 # ---------- GESTION DES EMPLOYÉS ----------
@@ -2286,3 +2597,458 @@ def reservation_set_status_view(request, reservation_id):
 
     messages.success(request, f"Statut mis à jour : {_status_label(new_status)}")
     return redirect(next_url)
+
+
+
+
+
+
+#============================================================= pour la partie business partners ====================================
+# ============================================================
+# VUES PARTENAIRES D'AFFAIRES
+# ============================================================
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib import messages
+from django.core.paginator import Paginator
+from django.db.models import Sum, Count, Q
+from django.utils import timezone
+from django.http import JsonResponse
+
+from apps.business_partners.models import (
+    PartnerApplication, BusinessPartner, Contract, 
+    CommissionPayment, Region
+)
+from apps.business_partners.services import activate_partner
+
+
+def is_staff(user):
+    """Vérifie que l'utilisateur est staff"""
+    return user.is_staff
+
+
+# ==================== CANDIDATURES ====================
+
+@login_required
+@user_passes_test(is_staff)
+def partner_applications_list(request):
+    """Liste des candidatures partenaires"""
+    applications = PartnerApplication.objects.all().order_by('-created_at')
+    
+    # Filtres
+    status = request.GET.get('status')
+    city = request.GET.get('city')
+    network = request.GET.get('network')
+    search = request.GET.get('search')
+    
+    if status:
+        applications = applications.filter(status=status)
+    if city:
+        applications = applications.filter(city_id=city)
+    if network:
+        applications = applications.filter(network_strength=network)
+    if search:
+        applications = applications.filter(
+            Q(full_name__icontains=search) |
+            Q(phone__icontains=search) |
+            Q(email__icontains=search)
+        )
+    
+    # Statistiques
+    stats = {
+        'total': PartnerApplication.objects.count(),
+        'pending': PartnerApplication.objects.filter(status='pending').count(),
+        'reviewing': PartnerApplication.objects.filter(status='reviewing').count(),
+        'approved': PartnerApplication.objects.filter(status='approved').count(),
+        'rejected': PartnerApplication.objects.filter(status='rejected').count(),
+    }
+    
+    # Pagination
+    paginator = Paginator(applications, 15)
+    page = request.GET.get('page')
+    applications = paginator.get_page(page)
+    
+    context = {
+        'applications': applications,
+        'stats': stats,
+        'regions': Region.objects.all(),
+        'status_choices': PartnerApplication.STATUS_CHOICES,
+        'network_choices': PartnerApplication.NETWORK_STRENGTH,
+        'current_status': status,
+        'current_city': city,
+        'current_network': network,
+        'search_query': search,
+    }
+    return render(request, 'admin/business_partners/applications_list.html', context)
+
+
+@login_required
+@user_passes_test(is_staff)
+def partner_application_detail(request, pk):
+    """Détail d'une candidature"""
+    application = get_object_or_404(PartnerApplication, pk=pk)
+    
+    context = {
+        'application': application,
+    }
+    return render(request, 'admin/business_partners/application_detail.html', context)
+
+
+@login_required
+@user_passes_test(is_staff)
+def partner_application_approve(request, pk):
+    """Approuver une candidature"""
+    application = get_object_or_404(PartnerApplication, pk=pk)
+    
+    if application.status == 'approved':
+        messages.warning(request, "⚠️ Cette candidature est déjà approuvée.")
+    else:
+        try:
+            partner = activate_partner(application, request.user)
+            messages.success(
+                request,
+                f"✅ Partenaire activé ! Code : {partner.partner_code}. "
+                f"Un email avec les identifiants a été envoyé à {partner.user.email}"
+            )
+            return redirect('dashboard:business_partner_detail', pk=partner.pk)
+        except Exception as e:
+            messages.error(request, f"❌ Erreur : {str(e)}")
+    
+    return redirect('dashboard:partner_applications_list')
+
+
+@login_required
+@user_passes_test(is_staff)
+def partner_application_reject(request, pk):
+    """Rejeter une candidature"""
+    application = get_object_or_404(PartnerApplication, pk=pk)
+    
+    reason = request.POST.get('reason', '')
+    
+    application.status = 'rejected'
+    application.reviewed_by = request.user
+    application.reviewed_at = timezone.now()
+    application.internal_notes = f"Rejetée le {timezone.now().strftime('%d/%m/%Y %H:%M')}\nRaison : {reason}"
+    application.save()
+    
+    messages.warning(request, f"❌ Candidature de {application.full_name} rejetée.")
+    return redirect('dashboard:partner_applications_list')
+
+
+@login_required
+@user_passes_test(is_staff)
+def partner_application_update_status(request, pk):
+    """Mettre à jour le statut d'une candidature"""
+    application = get_object_or_404(PartnerApplication, pk=pk)
+    
+    new_status = request.POST.get('status')
+    if new_status in dict(PartnerApplication.STATUS_CHOICES):
+        application.status = new_status
+        application.save()
+        messages.success(request, f"✅ Statut mis à jour : {application.get_status_display()}")
+    
+    return redirect('dashboard:partner_application_detail', pk=pk)
+
+
+# ==================== PARTENAIRES ACTIFS ====================
+
+@login_required
+@user_passes_test(is_staff)
+def business_partners_list(request):
+    """Liste des partenaires actifs"""
+    partners = BusinessPartner.objects.all().select_related(
+        'user', 'application', 'application__city'
+    ).order_by('-total_revenue')
+    
+    # Filtres
+    active_filter = request.GET.get('active')
+    city_filter = request.GET.get('city')
+    search = request.GET.get('search')
+    
+    if active_filter == 'true':
+        partners = partners.filter(is_active=True)
+    elif active_filter == 'false':
+        partners = partners.filter(is_active=False)
+    
+    if city_filter:
+        partners = partners.filter(application__city_id=city_filter)
+    
+    if search:
+        partners = partners.filter(
+            Q(partner_code__icontains=search) |
+            Q(user__first_name__icontains=search) |
+            Q(user__last_name__icontains=search) |
+            Q(user__email__icontains=search)
+        )
+    
+    # Statistiques globales
+    stats = BusinessPartner.objects.aggregate(
+        total_partners=Count('id'),
+        active_partners=Count('id', filter=Q(is_active=True)),
+        total_revenue=Sum('total_revenue'),
+        total_commission=Sum('total_commission_earned'),
+        total_paid=Sum('total_commission_paid'),
+    )
+    stats['pending_commission'] = (stats['total_commission'] or 0) - (stats['total_paid'] or 0)
+    
+    # Pagination
+    paginator = Paginator(partners, 15)
+    page = request.GET.get('page')
+    partners = paginator.get_page(page)
+    
+    context = {
+        'partners': partners,
+        'stats': stats,
+        'regions': Region.objects.all(),
+        'current_active': active_filter,
+        'current_city': city_filter,
+        'search_query': search,
+    }
+    return render(request, 'admin/business_partners/partners_list.html', context)
+
+
+@login_required
+@user_passes_test(is_staff)
+def business_partner_detail(request, pk):
+    """Détail d'un partenaire"""
+    partner = get_object_or_404(BusinessPartner, pk=pk)
+    
+    # Contrats du partenaire
+    contracts = Contract.objects.filter(partner=partner).order_by('-created_at')[:10]
+    
+    # Paiements du partenaire
+    payments = CommissionPayment.objects.filter(partner=partner).order_by('-paid_at')[:5]
+    
+    # Statistiques
+    contracts_stats = Contract.objects.filter(partner=partner).aggregate(
+        total=Count('id'),
+        validated=Count('id', filter=Q(status='validated')),
+        completed=Count('id', filter=Q(status='completed')),
+        pending=Count('id', filter=Q(status='pending')),
+    )
+    
+    context = {
+        'partner': partner,
+        'contracts': contracts,
+        'payments': payments,
+        'contracts_stats': contracts_stats,
+    }
+    return render(request, 'admin/business_partners/partner_detail.html', context)
+
+
+@login_required
+@user_passes_test(is_staff)
+def business_partner_toggle_active(request, pk):
+    """Activer/Désactiver un partenaire"""
+    partner = get_object_or_404(BusinessPartner, pk=pk)
+    
+    if partner.is_active:
+        partner.is_active = False
+        partner.suspension_reason = request.POST.get('reason', 'Suspendu par admin')
+        messages.warning(request, f"⚠️ Partenaire {partner.partner_code} suspendu.")
+    else:
+        partner.is_active = True
+        partner.suspension_reason = ''
+        messages.success(request, f"✅ Partenaire {partner.partner_code} réactivé.")
+    
+    partner.save()
+    return redirect('dashboard:business_partner_detail', pk=pk)
+
+
+# ==================== CONTRATS ====================
+
+@login_required
+@user_passes_test(is_staff)
+def partner_contracts_list(request):
+    """Liste de tous les contrats"""
+    contracts = Contract.objects.all().select_related(
+        'partner', 'partner__user'
+    ).order_by('-created_at')
+    
+    # Filtres
+    status = request.GET.get('status')
+    partner = request.GET.get('partner')
+    search = request.GET.get('search')
+    
+    if status:
+        contracts = contracts.filter(status=status)
+    if partner:
+        contracts = contracts.filter(partner_id=partner)
+    if search:
+        contracts = contracts.filter(
+            Q(client_name__icontains=search) |
+            Q(partner__partner_code__icontains=search) |
+            Q(service_type__icontains=search)
+        )
+    
+    # Statistiques
+    stats = Contract.objects.aggregate(
+        total=Count('id'),
+        pending=Count('id', filter=Q(status='pending')),
+        validated=Count('id', filter=Q(status='validated')),
+        completed=Count('id', filter=Q(status='completed')),
+        total_amount=Sum('contract_amount'),
+        total_commission=Sum('commission_amount'),
+    )
+    
+    # Pagination
+    paginator = Paginator(contracts, 20)
+    page = request.GET.get('page')
+    contracts = paginator.get_page(page)
+    
+    context = {
+        'contracts': contracts,
+        'stats': stats,
+        'partners': BusinessPartner.objects.filter(is_active=True),
+        'status_choices': Contract.STATUS_CHOICES,
+        'current_status': status,
+        'current_partner': partner,
+        'search_query': search,
+    }
+    return render(request, 'admin/business_partners/contracts_list.html', context)
+
+
+@login_required
+@user_passes_test(is_staff)
+def partner_contract_detail(request, pk):
+    """Détail d'un contrat"""
+    contract = get_object_or_404(Contract, pk=pk)
+    
+    context = {
+        'contract': contract,
+    }
+    return render(request, 'admin/business_partners/contract_detail.html', context)
+
+
+@login_required
+@user_passes_test(is_staff)
+def partner_contract_validate(request, pk):
+    """Valider un contrat"""
+    contract = get_object_or_404(Contract, pk=pk)
+    
+    if contract.status != 'pending':
+        messages.warning(request, "⚠️ Ce contrat ne peut pas être validé.")
+        return redirect('dashboard:partner_contract_detail', pk=pk)
+    
+    contract.status = 'validated'
+    contract.validated_by = request.user
+    contract.validated_at = timezone.now()
+    contract.save()
+    
+    # Mettre à jour les stats du partenaire
+    partner = contract.partner
+    partner.total_contracts += 1
+    partner.total_revenue += contract.contract_amount
+    partner.total_commission_earned += contract.commission_amount
+    partner.last_contract_at = timezone.now()
+    partner.save()
+    
+    messages.success(
+        request,
+        f"✅ Contrat validé ! Commission de {contract.commission_amount:,.0f} FCFA attribuée à {partner.partner_code}"
+    )
+    return redirect('dashboard:partner_contracts_list')
+
+
+@login_required
+@user_passes_test(is_staff)
+def partner_contract_reject(request, pk):
+    """Rejeter/Annuler un contrat"""
+    contract = get_object_or_404(Contract, pk=pk)
+    
+    contract.status = 'cancelled'
+    contract.save()
+    
+    messages.warning(request, f"❌ Contrat de {contract.client_name} annulé.")
+    return redirect('dashboard:partner_contracts_list')
+
+
+# ==================== PAIEMENTS ====================
+
+@login_required
+@user_passes_test(is_staff)
+def partner_payments_list(request):
+    """Liste des paiements de commissions"""
+    payments = CommissionPayment.objects.all().select_related(
+        'partner', 'partner__user', 'created_by'
+    ).order_by('-paid_at')
+    
+    # Filtres
+    partner_filter = request.GET.get('partner')
+    method = request.GET.get('method')
+    
+    if partner_filter:
+        payments = payments.filter(partner_id=partner_filter)
+    if method:
+        payments = payments.filter(payment_method=method)
+    
+    # Statistiques
+    stats = CommissionPayment.objects.aggregate(
+        total_payments=Count('id'),
+        total_amount=Sum('amount'),
+    )
+    
+    # Pagination
+    paginator = Paginator(payments, 20)
+    page = request.GET.get('page')
+    payments = paginator.get_page(page)
+    
+    context = {
+        'payments': payments,
+        'stats': stats,
+        'partners': BusinessPartner.objects.filter(is_active=True),
+        'method_choices': CommissionPayment.PAYMENT_METHODS,
+        'current_partner': partner_filter,
+        'current_method': method,
+    }
+    return render(request, 'admin/business_partners/payments_list.html', context)
+
+
+@login_required
+@user_passes_test(is_staff)
+def partner_payment_create(request, partner_pk):
+    """Créer un paiement de commission"""
+    partner = get_object_or_404(BusinessPartner, pk=partner_pk)
+    
+    if request.method == 'POST':
+        amount = float(request.POST.get('amount', 0))
+        method = request.POST.get('payment_method')
+        reference = request.POST.get('reference', '')
+        notes = request.POST.get('notes', '')
+        
+        if amount > 0:
+            payment = CommissionPayment.objects.create(
+                partner=partner,
+                amount=amount,
+                payment_method=method,
+                reference=reference,
+                notes=notes,
+                created_by=request.user
+            )
+            
+            # Mettre à jour le partenaire
+            partner.total_commission_paid += amount
+            partner.save()
+            
+            messages.success(
+                request,
+                f"✅ Paiement de {amount:,.0f} FCFA enregistré pour {partner.partner_code}"
+            )
+            return redirect('dashboard:business_partner_detail', pk=partner_pk)
+        else:
+            messages.error(request, "❌ Le montant doit être supérieur à 0.")
+    
+    # Contrats non payés
+    unpaid_contracts = Contract.objects.filter(
+        partner=partner,
+        status__in=['validated', 'completed'],
+    ).order_by('-created_at')
+    
+    context = {
+        'partner': partner,
+        'unpaid_contracts': unpaid_contracts,
+        'pending_amount': partner.pending_commission,
+        'method_choices': CommissionPayment.PAYMENT_METHODS,
+    }
+    return render(request, 'admin/business_partners/payment_create.html', context)

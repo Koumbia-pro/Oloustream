@@ -2,105 +2,1420 @@
 
 {% block title %}Dashboard - Oloustream Admin{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* ==================== VARIABLES DASHBOARD ==================== */
+    :root {
+        --dashboard-spacing: 1.5rem;
+        --card-radius: 16px;
+        --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ==================== LAYOUT PRINCIPAL ==================== */
+    .dashboard-container {
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ==================== HEADER DASHBOARD ==================== */
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--dashboard-spacing);
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .dashboard-welcome h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        margin: 0 0 0.25rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .dashboard-welcome p {
+        color: var(--surface-400);
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    .dashboard-filters {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .filter-btn {
+        padding: 0.625rem 1.25rem;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        color: var(--surface-300);
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all var(--transition-smooth);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-btn:hover {
+        background: var(--surface-700);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .filter-btn.active {
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+    }
+
+    /* ==================== STATS GRID ==================== */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+        margin-bottom: var(--dashboard-spacing);
+    }
+
+    .stat-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: var(--card-radius);
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        transition: all var(--transition-smooth);
+        animation: fadeInUp 0.5s ease-out backwards;
+    }
+
+    .stat-card:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--stat-color, var(--primary-600)), transparent);
+    }
+
+    .stat-card.revenue { --stat-color: #9333ea; }
+    .stat-card.reservations { --stat-color: #3b82f6; }
+    .stat-card.clients { --stat-color: #10b981; }
+    .stat-card.studios { --stat-color: #f59e0b; }
+    .stat-card.equipments { --stat-color: #8b5cf6; }
+    .stat-card.partners { --stat-color: #ec4899; }
+    .stat-card.alerts { --stat-color: #ef4444; }
+
+    .stat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        background: rgba(var(--stat-color-rgb, 147, 51, 234), 0.15);
+        color: var(--stat-color, var(--primary-400));
+    }
+
+    .stat-trend {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+    }
+
+    .stat-trend.up {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+    }
+
+    .stat-trend.down {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+    }
+
+    .stat-trend.neutral {
+        background: rgba(113, 113, 122, 0.15);
+        color: var(--surface-400);
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--surface-400);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Animation décalée pour les cards */
+    .stat-card:nth-child(1) { animation-delay: 0.05s; }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.15s; }
+    .stat-card:nth-child(4) { animation-delay: 0.2s; }
+    .stat-card:nth-child(5) { animation-delay: 0.25s; }
+    .stat-card:nth-child(6) { animation-delay: 0.3s; }
+    .stat-card:nth-child(7) { animation-delay: 0.35s; }
+
+    /* ==================== GRID 2 COLONNES ==================== */
+    .dashboard-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: var(--dashboard-spacing);
+        margin-bottom: var(--dashboard-spacing);
+    }
+
+    /* ==================== CARDS GÉNÉRIQUES ==================== */
+    .dashboard-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: var(--card-radius);
+        overflow: hidden;
+        transition: all var(--transition-smooth);
+    }
+
+    .dashboard-card:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .card-header {
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--surface-100);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .card-title i {
+        font-size: 1.25rem;
+        color: var(--primary-400);
+    }
+
+    .card-action {
+        font-size: 0.8125rem;
+        color: var(--primary-400);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        transition: all 0.2s;
+    }
+
+    .card-action:hover {
+        color: var(--primary-300);
+        gap: 0.625rem;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    /* ==================== GRAPHIQUES ==================== */
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+
+    /* ==================== TOP LISTS ==================== */
+    .top-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .top-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        transition: all 0.2s;
+    }
+
+    .top-item:hover {
+        background: var(--surface-700);
+        border-color: rgba(255, 255, 255, 0.12);
+        transform: translateX(4px);
+    }
+
+    .top-rank {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.875rem;
+        flex-shrink: 0;
+    }
+
+    .top-rank.gold {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    }
+
+    .top-rank.silver {
+        background: linear-gradient(135deg, #d4d4d8, #a1a1aa);
+    }
+
+    .top-rank.bronze {
+        background: linear-gradient(135deg, #fb923c, #f97316);
+    }
+
+    .top-info {
+        flex: 1;
+    }
+
+    .top-name {
+        font-weight: 600;
+        color: var(--surface-100);
+        font-size: 0.9375rem;
+    }
+
+    .top-value {
+        font-size: 0.75rem;
+        color: var(--surface-500);
+    }
+
+    .top-bar {
+        flex: 1;
+        height: 8px;
+        background: var(--surface-700);
+        border-radius: 4px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .top-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-600), var(--accent-400));
+        border-radius: 4px;
+        transition: width 1s ease;
+    }
+
+    .top-count {
+        font-weight: 700;
+        color: var(--surface-200);
+        font-size: 0.9375rem;
+        min-width: 40px;
+        text-align: right;
+    }
+
+    /* ==================== ALERTES ==================== */
+    .alerts-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .alert-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--surface-800);
+        border-left: 3px solid var(--alert-color, var(--primary-500));
+        border-radius: 10px;
+        transition: all 0.2s;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .alert-item:hover {
+        background: var(--surface-700);
+        transform: translateX(4px);
+    }
+
+    .alert-item.warning { --alert-color: #f59e0b; }
+    .alert-item.danger { --alert-color: #ef4444; }
+    .alert-item.info { --alert-color: #3b82f6; }
+    .alert-item.success { --alert-color: #10b981; }
+    .alert-item.primary { --alert-color: #9333ea; }
+
+    .alert-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: rgba(var(--alert-color-rgb, 147, 51, 234), 0.15);
+        color: var(--alert-color, var(--primary-400));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .alert-content {
+        flex: 1;
+    }
+
+    .alert-text {
+        color: var(--surface-200);
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+    .alert-arrow {
+        color: var(--surface-500);
+        font-size: 1.125rem;
+        transition: transform 0.2s;
+    }
+
+    .alert-item:hover .alert-arrow {
+        transform: translateX(4px);
+    }
+
+    /* ==================== TABLE MODERNE ==================== */
+    .table-modern {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-modern thead th {
+        padding: 1rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--surface-400);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .table-modern tbody tr {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        transition: all 0.2s;
+    }
+
+    .table-modern tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .table-modern tbody td {
+        padding: 1rem;
+        font-size: 0.875rem;
+        color: var(--surface-300);
+        vertical-align: middle;
+    }
+
+    .table-user {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .table-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.875rem;
+        flex-shrink: 0;
+    }
+
+    .table-user-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .table-user-name {
+        font-weight: 600;
+        color: var(--surface-100);
+    }
+
+    .table-user-email {
+        font-size: 0.75rem;
+        color: var(--surface-500);
+    }
+
+    .table-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .table-badge.pending {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .table-badge.confirmed {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .table-badge.completed {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .table-badge.cancelled, .table-badge.rejected {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .table-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .table-action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--surface-400);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .table-action-btn:hover {
+        background: var(--primary-600);
+        color: white;
+        border-color: var(--primary-500);
+        transform: translateY(-2px);
+    }
+
+    /* ==================== WIDGETS MINI ==================== */
+    .mini-widgets {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: var(--dashboard-spacing);
+    }
+
+    .mini-widget {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 1.25rem;
+        transition: all 0.2s;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .mini-widget:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+        transform: translateY(-2px);
+    }
+
+    .mini-widget-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .mini-widget-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .mini-widget-icon.training {
+        background: rgba(139, 92, 246, 0.15);
+        color: #a78bfa;
+    }
+
+    .mini-widget-icon.job {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+    }
+
+    .mini-widget-icon.equipment {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+    }
+
+    .mini-widget-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--surface-300);
+    }
+
+    .mini-widget-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        margin-bottom: 0.25rem;
+    }
+
+    .mini-widget-label {
+        font-size: 0.75rem;
+        color: var(--surface-500);
+    }
+
+    .mini-widget-link {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.375rem;
+        font-size: 0.75rem;
+        color: var(--primary-400);
+        margin-top: 0.75rem;
+        transition: all 0.2s;
+    }
+
+    .mini-widget:hover .mini-widget-link {
+        gap: 0.625rem;
+    }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1.5rem;
+    }
+
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1rem;
+        background: var(--surface-800);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: var(--surface-500);
+    }
+
+    .empty-state h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--surface-300);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .empty-state p {
+        color: var(--surface-500);
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1200px) {
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+        
+        .dashboard-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .dashboard-filters {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-container {
+            height: 250px;
+        }
+
+        .table-modern thead {
+            display: none;
+        }
+
+        .table-modern tbody tr {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: var(--surface-800);
+            border-radius: 12px;
+        }
+
+        .table-modern tbody td {
+            padding: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-modern tbody td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: var(--surface-500);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .dashboard-welcome h1 {
+            font-size: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+        }
+
+        .mini-widgets {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ==================== SKELETON LOADING ==================== */
+    .skeleton {
+        background: linear-gradient(
+            90deg,
+            var(--surface-800) 25%,
+            var(--surface-750) 50%,
+            var(--surface-800) 75%
+        );
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+        border-radius: 8px;
+    }
+
+    @keyframes loading {
+        0% {
+            background-position: 200% 0;
+        }
+        100% {
+            background-position: -200% 0;
+        }
+    }
+
+    .skeleton-text {
+        height: 16px;
+        margin-bottom: 8px;
+    }
+
+    .skeleton-title {
+        height: 24px;
+        width: 60%;
+        margin-bottom: 12px;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="detail-dashboard-wrapper">
-    <h2>Dashboard</h2>
+<div class="dashboard-container">
+    
+    <!-- HEADER -->
+    <div class="dashboard-header">
+        <div class="dashboard-welcome">
+            <h1>
+                <span>👋</span>
+                Bonjour, {{ request.user.get_full_name|default:request.user.username }}
+            </h1>
+            <p>Voici un aperçu de votre activité sur Oloustream</p>
+        </div>
+        
+        <div class="dashboard-filters">
+            <a href="?period=today" class="filter-btn {% if current_period == 'today' %}active{% endif %}">
+                <i class="ph ph-calendar"></i>
+                Aujourd'hui
+            </a>
+            <a href="?period=week" class="filter-btn {% if current_period == 'week' %}active{% endif %}">
+                <i class="ph ph-calendar-blank"></i>
+                Cette semaine
+            </a>
+            <a href="?period=month" class="filter-btn {% if current_period == 'month' %}active{% endif %}">
+                <i class="ph ph-calendar-check"></i>
+                Ce mois
+            </a>
+            <a href="?period=year" class="filter-btn {% if current_period == 'year' %}active{% endif %}">
+                <i class="ph ph-calendar-star"></i>
+                Cette année
+            </a>
+            <a href="?period=all" class="filter-btn {% if current_period == 'all' or not current_period %}active{% endif %}">
+                <i class="ph ph-infinity"></i>
+                Tout
+            </a>
+        </div>
+    </div>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card text-bg-primary">
-            <div class="card-body">
-                <h6 class="card-title">Chiffre d'affaires total</h6>
-                <p class="card-text fs-4">{{ total_revenue }} F CFA</p>
+    <!-- STATS PRINCIPALES -->
+    <div class="stats-grid">
+        <!-- CA -->
+        <div class="stat-card revenue">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="ph-bold ph-currency-circle-dollar"></i>
+                </div>
+                {% if current_period == 'all' %}
+                <span class="stat-trend neutral">
+                    <i class="ph ph-minus"></i>
+                    Total
+                </span>
+                {% else %}
+                <span class="stat-trend up">
+                    <i class="ph ph-arrow-up"></i>
+                    +12%
+                </span>
+                {% endif %}
             </div>
+            <div class="stat-value">{{ total_revenue|floatformat:0 }}</div>
+            <div class="stat-label">Chiffre d'affaires (XOF)</div>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-bg-success">
-            <div class="card-body">
-                <h6 class="card-title">Réservations</h6>
-                <p class="card-text fs-4">{{ total_reservations }}</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-bg-info">
-            <div class="card-body">
-                <h6 class="card-title">Clients</h6>
-                <p class="card-text fs-4">{{ total_clients }}</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-bg-secondary">
-            <div class="card-body">
-                <h6 class="card-title">Employés</h6>
-                <p class="card-text fs-4">{{ total_employees }}</p>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">Équipements</div>
-            <div class="card-body">
-                <p>Fonctionnels : {{ equipments_functional }}</p>
-                <p>En maintenance : {{ equipments_maintenance }}</p>
+        <!-- RÉSERVATIONS -->
+        <div class="stat-card reservations">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="ph-bold ph-calendar-check"></i>
+                </div>
+                <span class="stat-trend up">
+                    <i class="ph ph-arrow-up"></i>
+                    +8%
+                </span>
             </div>
+            <div class="stat-value">{{ total_reservations }}</div>
+            <div class="stat-label">Réservations</div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">Offre de services</div>
-            <div class="card-body">
-                <p>Services actifs : {{ active_services }}</p>
-                <p>Formations actives : {{ active_trainings }}</p>
-                <p>Partenaires : {{ active_partners }}</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">Revenus récents</div>
-            <div class="card-body">
-                <p>30 derniers jours : {{ recent_revenue }} F CFA</p>
-            </div>
-        </div>
-    </div>
-</div>
 
-<h2 class="h5 mt-4 mb-3">Dernières réservations</h2>
-<div class="table-responsive">
-    <table class="table table-striped table-sm align-middle">
-        <thead>
-        <tr>
-            <th>#</th>
-            <th>Client</th>
-            <th>Studio</th>
-            <th>Début</th>
-            <th>Fin</th>
-            <th>Statut</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for r in last_reservations %}
-            <tr>
-                <td>{{ r.id }}</td>
-                <td>{{ r.user.get_full_name|default:r.user.username }}</td>
-                <td>{{ r.studio|default:"-" }}</td>
-                <td>{{ r.start_datetime|date:"d/m/Y H:i" }}</td>
-                <td>{{ r.end_datetime|date:"d/m/Y H:i" }}</td>
-                <td>{{ r.get_status_display }}</td>
-            </tr>
-        {% empty %}
-            <tr>
-                <td colspan="6" class="text-center text-muted">Aucune réservation récente.</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+        <!-- CLIENTS -->
+        <div class="stat-card clients">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="ph-bold ph-users-three"></i>
+                </div>
+                <span class="stat-trend up">
+                    <i class="ph ph-arrow-up"></i>
+                    +15%
+                </span>
+            </div>
+            <div class="stat-value">{{ total_clients }}</div>
+            <div class="stat-label">Clients</div>
+        </div>
+
+        <!-- STUDIOS -->
+        <div class="stat-card studios">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="ph-bold ph-microphone-stage"></i>
+                </div>
+                <span class="stat-trend neutral">
+                    <i class="ph ph-check-circle"></i>
+                    {{ occupation_rate }}%
+                </span>
+            </div>
+            <div class="stat-value">{{ total_studios }}</div>
+            <div class="stat-label">Studios actifs</div>
+        </div>
+
+        <!-- ÉQUIPEMENTS -->
+        <div class="stat-card equipments">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="ph-bold ph-device-mobile-camera"></i>
+                </div>
+                <span class="stat-trend neutral">
+                    <i class="ph ph-info"></i>
+                    {{ equipments_available }}/{{ total_equipments }}
+                </span>
+            </div>
+            <div class="stat-value">{{ equipments_available }}</div>
+            <div class="stat-label">Équipements dispo</div>
+        </div>
+
+        <!-- PARTENAIRES -->
+        <div class="stat-card partners">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="ph-bold ph-handshake"></i>
+                </div>
+                <span class="stat-trend up">
+                    <i class="ph ph-plus"></i>
+                    +2
+                </span>
+            </div>
+            <div class="stat-value">{{ total_business_partners }}</div>
+            <div class="stat-label">Partenaires actifs</div>
+        </div>
+
+        <!-- ALERTES -->
+        <div class="stat-card alerts">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="ph-bold ph-bell-ringing"></i>
+                </div>
+                <span class="stat-trend {% if alerts|length > 0 %}up{% else %}neutral{% endif %}">
+                    <i class="ph {% if alerts|length > 0 %}ph-warning{% else %}ph-check{% endif %}"></i>
+                    {% if alerts|length > 0 %}Important{% else %}OK{% endif %}
+                </span>
+            </div>
+            <div class="stat-value">{{ alerts|length }}</div>
+            <div class="stat-label">Alertes actives</div>
+        </div>
+    </div>
+
+    <!-- GRAPHIQUES & TOP PERFORMERS -->
+    <div class="dashboard-row">
+        <!-- GRAPHIQUE ÉVOLUTION CA -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="ph-bold ph-chart-line"></i>
+                    Évolution du chiffre d'affaires
+                </div>
+                <a href="#" class="card-action">
+                    <span>Détails</span>
+                    <i class="ph ph-arrow-right"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOP 5 STUDIOS -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="ph-bold ph-trophy"></i>
+                    Top 5 Studios
+                </div>
+                <a href="{% url 'dashboard:studios_list' %}" class="card-action">
+                    <span>Voir tout</span>
+                    <i class="ph ph-arrow-right"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                {% if top_studios %}
+                <div class="top-list">
+                    {% for studio in top_studios %}
+                    <div class="top-item">
+                        <div class="top-rank {% if forloop.counter == 1 %}gold{% elif forloop.counter == 2 %}silver{% elif forloop.counter == 3 %}bronze{% endif %}">
+                            {{ forloop.counter }}
+                        </div>
+                        <div class="top-info">
+                            <div class="top-name">{{ studio.studio__name }}</div>
+                        </div>
+                        <div class="top-bar">
+                            <div class="top-bar-fill" style="width: {% widthratio studio.count top_studios.0.count 100 %}%;"></div>
+                        </div>
+                        <div class="top-count">{{ studio.count }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="ph ph-microphone-stage"></i>
+                    </div>
+                    <h3>Aucune donnée</h3>
+                    <p>Pas encore de réservations studio sur cette période.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- RÉSERVATIONS PAR STATUT & BUSINESS PARTNERS -->
+    <div class="dashboard-row">
+        <!-- RÉSERVATIONS PAR STATUT -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="ph-bold ph-chart-donut"></i>
+                    Réservations par statut
+                </div>
+                <a href="{% url 'dashboard:reservations_list' %}" class="card-action">
+                    <span>Voir tout</span>
+                    <i class="ph ph-arrow-right"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="reservationsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- BUSINESS PARTNERS -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="ph-bold ph-users-three"></i>
+                    Business Partners
+                </div>
+                <a href="{% url 'dashboard:business_partners_list' %}" class="card-action">
+                    <span>Gérer</span>
+                    <i class="ph ph-arrow-right"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="top-list">
+                    <div class="top-item">
+                        <div class="top-icon">
+                            <i class="ph ph-handshake" style="font-size: 1.5rem; color: var(--primary-400);"></i>
+                        </div>
+                        <div class="top-info">
+                            <div class="top-name">Partenaires actifs</div>
+                            <div class="top-value">{{ total_business_partners }} actifs</div>
+                        </div>
+                    </div>
+
+                    <div class="top-item">
+                        <div class="top-icon">
+                            <i class="ph ph-currency-circle-dollar" style="font-size: 1.5rem; color: #34d399;"></i>
+                        </div>
+                        <div class="top-info">
+                            <div class="top-name">Commissions gagnées</div>
+                            <div class="top-value">{{ total_commission_earned|floatformat:0 }} XOF</div>
+                        </div>
+                    </div>
+
+                    <div class="top-item">
+                        <div class="top-icon">
+                            <i class="ph ph-user-plus" style="font-size: 1.5rem; color: #60a5fa;"></i>
+                        </div>
+                        <div class="top-info">
+                            <div class="top-name">Candidatures en attente</div>
+                            <div class="top-value">{{ pending_applications }} à examiner</div>
+                        </div>
+                    </div>
+
+                    <div class="top-item">
+                        <div class="top-icon">
+                            <i class="ph ph-file-text" style="font-size: 1.5rem; color: #fbbf24;"></i>
+                        </div>
+                        <div class="top-info">
+                            <div class="top-name">Contrats en attente</div>
+                            <div class="top-value">{{ pending_contracts }} à valider</div>
+                        </div>
+                    </div>
+
+                    <div class="top-item">
+                        <div class="top-icon">
+                            <i class="ph ph-wallet" style="font-size: 1.5rem; color: #f87171;"></i>
+                        </div>
+                        <div class="top-info">
+                            <div class="top-name">À payer</div>
+                            <div class="top-value">{{ pending_commission|floatformat:0 }} XOF</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ALERTES & ACTIONS URGENTES -->
+    {% if alerts %}
+    <div class="dashboard-card">
+        <div class="card-header">
+            <div class="card-title">
+                <i class="ph-bold ph-bell-ringing"></i>
+                Alertes & Actions urgentes
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="alerts-list">
+                {% for alert in alerts %}
+                <a href="{{ alert.link }}" class="alert-item {{ alert.color }}">
+                    <div class="alert-icon">
+                        <i class="{{ alert.icon }}"></i>
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-text">{{ alert.text }}</div>
+                    </div>
+                    <i class="alert-arrow ph ph-arrow-right"></i>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- DERNIÈRES RÉSERVATIONS -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <div class="card-title">
+                <i class="ph-bold ph-clock-counter-clockwise"></i>
+                Dernières réservations
+            </div>
+            <a href="{% url 'dashboard:reservations_list' %}" class="card-action">
+                <span>Voir tout</span>
+                <i class="ph ph-arrow-right"></i>
+            </a>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <div class="table-responsive">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Studio</th>
+                            <th>Service</th>
+                            <th>Début</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reservation in last_reservations %}
+                        <tr>
+                            <td data-label="Client">
+                                <div class="table-user">
+                                    <div class="table-avatar">
+                                        {{ reservation.user.first_name|default:reservation.user.username|first|upper }}
+                                    </div>
+                                    <div class="table-user-info">
+                                        <span class="table-user-name">{{ reservation.user.get_full_name|default:reservation.user.username }}</span>
+                                        <span class="table-user-email">{{ reservation.user.email }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td data-label="Studio">
+                                {{ reservation.studio.name|default:"—" }}
+                            </td>
+                            <td data-label="Service">
+                                {{ reservation.service.name|default:"—" }}
+                            </td>
+                            <td data-label="Début">
+                                {{ reservation.start_datetime|date:"d/m/Y H:i" }}
+                            </td>
+                            <td data-label="Statut">
+                                <span class="table-badge {{ reservation.status|lower }}">
+                                    {{ reservation.get_status_display }}
+                                </span>
+                            </td>
+                            <td data-label="Actions">
+                                <div class="table-actions">
+                                    <a href="{% url 'dashboard:reservations_detail' reservation.id %}" class="table-action-btn" title="Voir détails">
+                                        <i class="ph ph-eye"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <div class="empty-state-icon">
+                                        <i class="ph ph-calendar-x"></i>
+                                    </div>
+                                    <h3>Aucune réservation</h3>
+                                    <p>Pas de réservations sur cette période.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MINI WIDGETS (FORMATIONS, EMPLOIS, ÉQUIPEMENTS) -->
+    <div class="mini-widgets">
+        <!-- FORMATIONS -->
+        <a href="{% url 'dashboard:trainings_list' %}" class="mini-widget">
+            <div class="mini-widget-header">
+                <div class="mini-widget-icon training">
+                    <i class="ph-bold ph-graduation-cap"></i>
+                </div>
+                <div class="mini-widget-title">Formations</div>
+            </div>
+            <div class="mini-widget-value">{{ upcoming_trainings.count }}</div>
+            <div class="mini-widget-label">À venir</div>
+            <div class="mini-widget-link">
+                <span>Voir tout</span>
+                <i class="ph ph-arrow-right"></i>
+            </div>
+        </a>
+
+        <!-- EMPLOIS -->
+        <a href="{% url 'services_app:admin_jobs_list' %}" class="mini-widget">
+            <div class="mini-widget-header">
+                <div class="mini-widget-icon job">
+                    <i class="ph-bold ph-briefcase"></i>
+                </div>
+                <div class="mini-widget-title">Recrutement</div>
+            </div>
+            <div class="mini-widget-value">{{ open_job_offers }}</div>
+            <div class="mini-widget-label">Offres ouvertes</div>
+            <div class="mini-widget-link">
+                <span>Gérer</span>
+                <i class="ph ph-arrow-right"></i>
+            </div>
+        </a>
+
+        <!-- ÉQUIPEMENTS -->
+        <a href="{% url 'dashboard:equipments_list' %}" class="mini-widget">
+            <div class="mini-widget-header">
+                <div class="mini-widget-icon equipment">
+                    <i class="ph-bold ph-device-mobile-camera"></i>
+                </div>
+                <div class="mini-widget-title">Équipements</div>
+            </div>
+            <div class="mini-widget-value">{{ equipments_available }}</div>
+            <div class="mini-widget-label">Disponibles</div>
+            <div class="mini-widget-link">
+                <span>Voir tout</span>
+                <i class="ph ph-arrow-right"></i>
+            </div>
+        </a>
+    </div>
+
 </div>
-</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // ==================== GRAPHIQUE ÉVOLUTION CA ====================
+    const revenueCtx = document.getElementById('revenueChart');
+    if (revenueCtx) {
+        const revenueData = {{ revenue_chart_data|safe }};
+        
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: revenueData.map(d => d.month),
+                datasets: [{
+                    label: 'Chiffre d\'affaires (XOF)',
+                    data: revenueData.map(d => d.revenue),
+                    borderColor: '#9333ea',
+                    backgroundColor: 'rgba(147, 51, 234, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#9333ea',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#18181b',
+                        titleColor: '#f4f4f5',
+                        bodyColor: '#d4d4d8',
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return new Intl.NumberFormat('fr-FR').format(context.parsed.y) + ' XOF';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)',
+                            drawBorder: false,
+                        },
+                        ticks: {
+                            color: '#71717a',
+                            callback: function(value) {
+                                return new Intl.NumberFormat('fr-FR', {
+                                    notation: 'compact',
+                                    compactDisplay: 'short'
+                                }).format(value);
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false,
+                        },
+                        ticks: {
+                            color: '#71717a'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // ==================== GRAPHIQUE RÉSERVATIONS PAR STATUT ====================
+    const reservationsCtx = document.getElementById('reservationsChart');
+    if (reservationsCtx) {
+        const reservationsData = {{ reservations_by_status|safe }};
+        
+        new Chart(reservationsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['En attente', 'Confirmées', 'Terminées', 'Annulées', 'Refusées'],
+                datasets: [{
+                    data: [
+                        reservationsData.pending,
+                        reservationsData.confirmed,
+                        reservationsData.completed,
+                        reservationsData.cancelled,
+                        reservationsData.rejected
+                    ],
+                    backgroundColor: [
+                        '#fbbf24', // pending - orange
+                        '#3b82f6', // confirmed - blue
+                        '#10b981', // completed - green
+                        '#ef4444', // cancelled - red
+                        '#f87171'  // rejected - light red
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#d4d4d8',
+                            padding: 15,
+                            font: {
+                                size: 12
+                            },
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#18181b',
+                        titleColor: '#f4f4f5',
+                        bodyColor: '#d4d4d8',
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return label + ': ' + value + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                },
+                cutout: '65%',
+            }
+        });
+    }
+
+    // ==================== ANIMATION BARRES TOP STUDIOS ====================
+    const topBars = document.querySelectorAll('.top-bar-fill');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.width = entry.target.getAttribute('style').match(/width: (\d+%)/)[1];
+            }
+        });
+    }, { threshold: 0.5 });
+
+    topBars.forEach(bar => {
+        const targetWidth = bar.style.width;
+        bar.style.width = '0%';
+        observer.observe(bar);
+        setTimeout(() => {
+            bar.style.width = targetWidth;
+        }, 100);
+    });
+
+});
+</script>
 {% endblock %}

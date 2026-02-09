@@ -1,0 +1,1508 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Candidature #{{ application.id }} - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ==================== ANIMATIONS ==================== */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.03); }
+    }
+
+    @keyframes glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(147, 51, 234, 0.3); }
+        50% { box-shadow: 0 0 35px rgba(147, 51, 234, 0.5); }
+    }
+
+    @keyframes borderPulse {
+        0%, 100% { border-color: rgba(147, 51, 234, 0.3); }
+        50% { border-color: rgba(147, 51, 234, 0.6); }
+    }
+
+    .animate-fade-in {
+        animation: fadeInUp 0.5s ease-out forwards;
+    }
+
+    .animate-slide-in {
+        animation: slideInRight 0.5s ease-out forwards;
+    }
+
+    /* ==================== PAGE WRAPPER ==================== */
+    .application-detail-wrapper {
+        min-height: calc(100vh - 70px);
+        animation: fadeInUp 0.4s ease-out;
+    }
+
+    /* ==================== BREADCRUMB ==================== */
+    .breadcrumb-modern {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        background: rgba(31, 31, 35, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        list-style: none;
+    }
+
+    .breadcrumb-modern li {
+        display: flex;
+        align-items: center;
+        font-size: 0.875rem;
+    }
+
+    .breadcrumb-modern li a {
+        color: var(--surface-400, #a1a1aa);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        transition: all 0.2s ease;
+    }
+
+    .breadcrumb-modern li a:hover {
+        color: var(--primary-400, #c084fc);
+    }
+
+    .breadcrumb-modern li a i {
+        font-size: 1rem;
+    }
+
+    .breadcrumb-modern .separator {
+        color: var(--surface-600, #52525b);
+        margin: 0 0.25rem;
+    }
+
+    .breadcrumb-modern .active {
+        color: var(--surface-200, #e4e4e7);
+        font-weight: 500;
+    }
+
+    /* ==================== HEADER CARD ==================== */
+    .application-header {
+        background: linear-gradient(135deg, rgba(31, 31, 35, 0.9) 0%, rgba(39, 39, 42, 0.9) 100%);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 1.75rem 2rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .application-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary-600, #9333ea), var(--primary-400, #c084fc), #fbbf24);
+    }
+
+    .application-header::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(147, 51, 234, 0.08) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    .applicant-avatar {
+        width: 72px;
+        height: 72px;
+        background: linear-gradient(135deg, var(--primary-600, #9333ea), var(--primary-400, #c084fc));
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: white;
+        text-transform: uppercase;
+        box-shadow: 0 8px 30px rgba(147, 51, 234, 0.4);
+        flex-shrink: 0;
+    }
+
+    .applicant-info h1 {
+        font-size: 1.625rem;
+        font-weight: 700;
+        color: var(--surface-100, #f4f4f5);
+        margin: 0 0 0.375rem 0;
+    }
+
+    .applicant-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--surface-400, #a1a1aa);
+        font-size: 0.875rem;
+    }
+
+    .applicant-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .applicant-meta i {
+        font-size: 1rem;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-shrink: 0;
+    }
+
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-action::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%);
+        transition: width 0.4s ease, height 0.4s ease;
+    }
+
+    .btn-action:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    .btn-action i {
+        font-size: 1.125rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .btn-action span {
+        position: relative;
+        z-index: 1;
+    }
+
+    .btn-action.success {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+    }
+
+    .btn-action.success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.45);
+    }
+
+    .btn-action.danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-action.danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(239, 68, 68, 0.45);
+    }
+
+    .btn-action.primary {
+        background: linear-gradient(135deg, var(--primary-600, #9333ea), var(--primary-700, #7c3aed));
+        color: white;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.35);
+    }
+
+    .btn-action.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(147, 51, 234, 0.45);
+    }
+
+    /* ==================== CONTENT LAYOUT ==================== */
+    .content-layout {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    .main-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .sidebar-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    /* ==================== INFO CARDS ==================== */
+    .info-card {
+        background: rgba(31, 31, 35, 0.7);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.4s ease-out backwards;
+    }
+
+    .main-column .info-card:nth-child(1) { animation-delay: 0.05s; }
+    .main-column .info-card:nth-child(2) { animation-delay: 0.1s; }
+    .main-column .info-card:nth-child(3) { animation-delay: 0.15s; }
+    .main-column .info-card:nth-child(4) { animation-delay: 0.2s; }
+    .main-column .info-card:nth-child(5) { animation-delay: 0.25s; }
+    .main-column .info-card:nth-child(6) { animation-delay: 0.3s; }
+
+    .sidebar-column .info-card:nth-child(1) { animation: slideInRight 0.4s ease-out 0.1s backwards; }
+    .sidebar-column .info-card:nth-child(2) { animation: slideInRight 0.4s ease-out 0.15s backwards; }
+    .sidebar-column .info-card:nth-child(3) { animation: slideInRight 0.4s ease-out 0.2s backwards; }
+    .sidebar-column .info-card:nth-child(4) { animation: slideInRight 0.4s ease-out 0.25s backwards; }
+
+    .info-card:hover {
+        border-color: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-header-modern {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.25rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .card-header-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.125rem;
+    }
+
+    .card-header-icon.primary {
+        background: rgba(147, 51, 234, 0.15);
+        color: var(--primary-400, #c084fc);
+    }
+
+    .card-header-icon.success {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+    }
+
+    .card-header-icon.warning {
+        background: rgba(251, 191, 36, 0.15);
+        color: #fbbf24;
+    }
+
+    .card-header-icon.info {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+    }
+
+    .card-header-icon.danger {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+    }
+
+    .card-header-title {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--surface-200, #e4e4e7);
+        margin: 0;
+    }
+
+    .card-body-modern {
+        padding: 1.25rem;
+    }
+
+    /* ==================== DATA GRID ==================== */
+    .data-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+
+    .data-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .data-field.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .data-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: var(--surface-500, #71717a);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .data-value {
+        font-size: 0.9375rem;
+        color: var(--surface-200, #e4e4e7);
+        font-weight: 500;
+    }
+
+    .data-value.highlight {
+        font-weight: 700;
+        color: var(--surface-100, #f4f4f5);
+    }
+
+    .data-value a {
+        color: var(--primary-400, #c084fc);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .data-value a:hover {
+        color: var(--primary-300, #d8b4fe);
+    }
+
+    .data-value.muted {
+        color: var(--surface-500, #71717a);
+        font-style: italic;
+    }
+
+    /* Priority Badge */
+    .priority-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: #fbbf24;
+        background: rgba(251, 191, 36, 0.15);
+        padding: 0.375rem 0.625rem;
+        border-radius: 8px;
+        border: 1px solid rgba(251, 191, 36, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        margin-left: 0.5rem;
+    }
+
+    .priority-badge i {
+        font-size: 0.75rem;
+    }
+
+    /* Document Button */
+    .btn-document {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(147, 51, 234, 0.1);
+        border: 1px solid rgba(147, 51, 234, 0.3);
+        border-radius: 8px;
+        color: var(--primary-400, #c084fc);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-document:hover {
+        background: rgba(147, 51, 234, 0.2);
+        border-color: var(--primary-400, #c084fc);
+        transform: translateX(3px);
+        color: var(--primary-300, #d8b4fe);
+    }
+
+    .btn-document i {
+        font-size: 1rem;
+    }
+
+    /* Network Badge */
+    .network-badge-lg {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 10px;
+        font-size: 0.9375rem;
+        font-weight: 700;
+    }
+
+    .network-badge-lg.weak {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .network-badge-lg.medium {
+        background: rgba(251, 191, 36, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .network-badge-lg.strong {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .network-badge-lg.very_strong {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .network-badge-lg i {
+        font-size: 1.125rem;
+    }
+
+    /* Description Box */
+    .description-box {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        color: var(--surface-300, #d4d4d8);
+        font-size: 0.875rem;
+        line-height: 1.7;
+    }
+
+    /* ==================== STATUS CARD ==================== */
+    .status-card {
+        background: linear-gradient(135deg, rgba(31, 31, 35, 0.9), rgba(39, 39, 42, 0.9));
+        border: 1px solid rgba(147, 51, 234, 0.2);
+        animation: borderPulse 3s infinite;
+    }
+
+    .status-display {
+        padding: 1rem;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .status-display.pending {
+        background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1));
+        border: 1px solid rgba(251, 191, 36, 0.3);
+        animation: pulse 2s infinite;
+    }
+
+    .status-display.reviewing {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.1));
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .status-display.interview {
+        background: linear-gradient(135deg, rgba(147, 51, 234, 0.15), rgba(124, 58, 237, 0.1));
+        border: 1px solid rgba(147, 51, 234, 0.3);
+    }
+
+    .status-display.approved {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.1));
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-display.rejected {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1));
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .status-display i {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .status-display .status-text {
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .status-display.pending i,
+    .status-display.pending .status-text { color: #fbbf24; }
+
+    .status-display.reviewing i,
+    .status-display.reviewing .status-text { color: #60a5fa; }
+
+    .status-display.interview i,
+    .status-display.interview .status-text { color: var(--primary-400, #c084fc); }
+
+    .status-display.approved i,
+    .status-display.approved .status-text { color: #34d399; }
+
+    .status-display.rejected i,
+    .status-display.rejected .status-text { color: #f87171; }
+
+    /* Status Form */
+    .status-form {
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .status-form label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: var(--surface-500, #71717a);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .status-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: rgba(39, 39, 42, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        color: var(--surface-100, #f4f4f5);
+        font-size: 0.875rem;
+        font-family: inherit;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        padding-right: 2.5rem;
+        margin-bottom: 0.75rem;
+        transition: all 0.2s ease;
+    }
+
+    .status-select:focus {
+        outline: none;
+        border-color: var(--primary-500, #a855f7);
+        box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15);
+    }
+
+    .status-select option {
+        background: var(--surface-800, #27272a);
+        color: var(--surface-100, #f4f4f5);
+    }
+
+    .btn-update-status {
+        width: 100%;
+        padding: 0.75rem;
+        background: transparent;
+        border: 1px solid rgba(147, 51, 234, 0.5);
+        border-radius: 10px;
+        color: var(--primary-400, #c084fc);
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-update-status:hover {
+        background: rgba(147, 51, 234, 0.15);
+        border-color: var(--primary-400, #c084fc);
+    }
+
+    .btn-update-status i {
+        font-size: 1rem;
+    }
+
+    /* ==================== INFO LIST ==================== */
+    .info-list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .info-list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .info-list-item:last-child {
+        border-bottom: none;
+    }
+
+    .info-list-item .label {
+        font-size: 0.8125rem;
+        color: var(--surface-500, #71717a);
+    }
+
+    .info-list-item .value {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--surface-200, #e4e4e7);
+    }
+
+    /* ==================== NOTES CARD ==================== */
+    .notes-content {
+        min-height: 80px;
+    }
+
+    .notes-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        color: var(--surface-500, #71717a);
+        font-size: 0.875rem;
+    }
+
+    .notes-empty i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.5;
+    }
+
+    /* ==================== QUICK ACTIONS ==================== */
+    .quick-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.625rem;
+    }
+
+    .btn-quick-action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.625rem;
+        padding: 0.875rem 1rem;
+        background: rgba(39, 39, 42, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        color: var(--surface-300, #d4d4d8);
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.25s ease;
+    }
+
+    .btn-quick-action i {
+        font-size: 1.25rem;
+    }
+
+    .btn-quick-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-quick-action.phone:hover {
+        background: rgba(59, 130, 246, 0.15);
+        border-color: rgba(59, 130, 246, 0.4);
+        color: #60a5fa;
+    }
+
+    .btn-quick-action.whatsapp:hover {
+        background: rgba(16, 185, 129, 0.15);
+        border-color: rgba(16, 185, 129, 0.4);
+        color: #34d399;
+    }
+
+    .btn-quick-action.email:hover {
+        background: rgba(147, 51, 234, 0.15);
+        border-color: rgba(147, 51, 234, 0.4);
+        color: var(--primary-400, #c084fc);
+    }
+
+    /* ==================== MODAL ==================== */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+    }
+
+    .modal-content {
+        background: var(--surface-850, #1f1f23);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        width: 100%;
+        max-width: 480px;
+        overflow: hidden;
+        animation: fadeInUp 0.3s ease-out;
+    }
+
+    .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.5rem;
+        background: rgba(239, 68, 68, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .modal-header h3 {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #f87171;
+        margin: 0;
+    }
+
+    .modal-header h3 i {
+        font-size: 1.25rem;
+    }
+
+    .modal-close {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--surface-400, #a1a1aa);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .modal-close:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+    }
+
+    .modal-close i {
+        font-size: 1.125rem;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-body p {
+        color: var(--surface-300, #d4d4d8);
+        font-size: 0.9375rem;
+        margin: 0 0 1.25rem 0;
+    }
+
+    .modal-body p strong {
+        color: var(--surface-100, #f4f4f5);
+    }
+
+    .modal-textarea {
+        width: 100%;
+        min-height: 100px;
+        padding: 0.875rem 1rem;
+        background: rgba(39, 39, 42, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        color: var(--surface-100, #f4f4f5);
+        font-size: 0.875rem;
+        font-family: inherit;
+        resize: vertical;
+        transition: all 0.2s ease;
+    }
+
+    .modal-textarea::placeholder {
+        color: var(--surface-500, #71717a);
+    }
+
+    .modal-textarea:focus {
+        outline: none;
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+    }
+
+    .modal-textarea-label {
+        display: block;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--surface-400, #a1a1aa);
+        margin-bottom: 0.5rem;
+    }
+
+    .modal-footer {
+        display: flex;
+        gap: 0.75rem;
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .modal-btn {
+        flex: 1;
+        padding: 0.875rem 1.25rem;
+        border-radius: 12px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border: none;
+    }
+
+    .modal-btn.cancel {
+        background: rgba(39, 39, 42, 0.8);
+        color: var(--surface-300, #d4d4d8);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-btn.cancel:hover {
+        background: rgba(63, 63, 70, 0.8);
+    }
+
+    .modal-btn.confirm {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+    }
+
+    .modal-btn.confirm:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45);
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1200px) {
+        .content-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .sidebar-column {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .application-header {
+            padding: 1.25rem;
+        }
+
+        .header-content {
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .header-left {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .applicant-info h1 {
+            font-size: 1.375rem;
+        }
+
+        .applicant-meta {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .header-actions {
+            width: 100%;
+        }
+
+        .btn-action {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .data-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .sidebar-column {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .breadcrumb-modern {
+            padding: 0.625rem 1rem;
+            font-size: 0.8125rem;
+        }
+
+        .applicant-avatar {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+
+        .card-body-modern {
+            padding: 1rem;
+        }
+
+        .header-actions {
+            flex-direction: column;
+        }
+
+        .btn-action {
+            width: 100%;
+        }
+
+        .modal-content {
+            margin: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="application-detail-wrapper">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb-modern">
+            <li>
+                <a href="{% url 'dashboard:partner_applications_list' %}">
+                    <i class="ph ph-users-three"></i>
+                    Candidatures
+                </a>
+            </li>
+            <span class="separator">
+                <i class="ph ph-caret-right"></i>
+            </span>
+            <li class="active">{{ application.full_name }}</li>
+        </ol>
+    </nav>
+
+    <!-- Header Card -->
+    <div class="application-header animate-fade-in">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="applicant-avatar">
+                    {{ application.full_name|slice:":1" }}
+                </div>
+                <div class="applicant-info">
+                    <h1>{{ application.full_name }}</h1>
+                    <div class="applicant-meta">
+                        <span>
+                            <i class="ph ph-hash"></i>
+                            Candidature #{{ application.id }}
+                        </span>
+                        <span>
+                            <i class="ph ph-calendar"></i>
+                            {{ application.created_at|date:"d/m/Y à H:i" }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                {% if application.status == 'pending' or application.status == 'reviewing' or application.status == 'interview' %}
+                <a href="{% url 'dashboard:partner_application_approve' application.pk %}" 
+                   class="btn-action success"
+                   onclick="return confirm('Confirmer l\'approbation et la création du compte partenaire ?');">
+                    <i class="ph-bold ph-check"></i>
+                    <span>Approuver</span>
+                </a>
+                <button type="button" class="btn-action danger" onclick="openRejectModal()">
+                    <i class="ph-bold ph-x"></i>
+                    <span>Rejeter</span>
+                </button>
+                {% elif application.status == 'approved' and application.partner_profile %}
+                <a href="{% url 'dashboard:business_partner_detail' application.partner_profile.pk %}" 
+                   class="btn-action primary">
+                    <i class="ph-bold ph-user"></i>
+                    <span>Voir le partenaire</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Layout -->
+    <div class="content-layout">
+        <!-- Main Column -->
+        <div class="main-column">
+            <!-- Personal Information -->
+            <div class="info-card">
+                <div class="card-header-modern">
+                    <div class="card-header-icon primary">
+                        <i class="ph ph-user"></i>
+                    </div>
+                    <h3 class="card-header-title">Informations personnelles</h3>
+                </div>
+                <div class="card-body-modern">
+                    <div class="data-grid">
+                        <div class="data-field">
+                            <span class="data-label">Nom complet</span>
+                            <span class="data-value highlight">{{ application.full_name }}</span>
+                        </div>
+                        <div class="data-field">
+                            <span class="data-label">Téléphone</span>
+                            <span class="data-value">
+                                <a href="tel:{{ application.phone }}">{{ application.phone }}</a>
+                            </span>
+                        </div>
+                        <div class="data-field">
+                            <span class="data-label">Email</span>
+                            <span class="data-value {% if not application.email %}muted{% endif %}">
+                                {% if application.email %}
+                                <a href="mailto:{{ application.email }}">{{ application.email }}</a>
+                                {% else %}
+                                Non renseigné
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="data-field">
+                            <span class="data-label">WhatsApp</span>
+                            <span class="data-value {% if not application.whatsapp %}muted{% endif %}">
+                                {% if application.whatsapp %}
+                                <a href="https://wa.me/{{ application.whatsapp|cut:'+' }}" target="_blank">
+                                    {{ application.whatsapp }}
+                                </a>
+                                {% else %}
+                                Non renseigné
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Identity Document -->
+            <div class="info-card">
+                <div class="card-header-modern">
+                    <div class="card-header-icon warning">
+                        <i class="ph ph-identification-card"></i>
+                    </div>
+                    <h3 class="card-header-title">Document d'identité</h3>
+                </div>
+                <div class="card-body-modern">
+                    <div class="data-grid">
+                        <div class="data-field">
+                            <span class="data-label">Type de document</span>
+                            <span class="data-value highlight">{{ application.get_id_type_display }}</span>
+                        </div>
+                        <div class="data-field">
+                            <span class="data-label">Numéro</span>
+                            <span class="data-value">{{ application.id_number }}</span>
+                        </div>
+                        <div class="data-field full-width">
+                            <span class="data-label">Document joint</span>
+                            {% if application.id_document %}
+                            <a href="{{ application.id_document.url }}" target="_blank" class="btn-document">
+                                <i class="ph ph-file-pdf"></i>
+                                Voir le document
+                            </a>
+                            {% else %}
+                            <span class="data-value muted">Non fourni</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location -->
+            <div class="info-card">
+                <div class="card-header-modern">
+                    <div class="card-header-icon danger">
+                        <i class="ph ph-map-pin"></i>
+                    </div>
+                    <h3 class="card-header-title">Localisation</h3>
+                </div>
+                <div class="card-body-modern">
+                    <div class="data-grid">
+                        <div class="data-field">
+                            <span class="data-label">Ville / Région</span>
+                            <span class="data-value highlight">
+                                {{ application.city.name }}
+                                {% if application.city.is_priority %}
+                                <span class="priority-badge">
+                                    <i class="ph ph-star-fill"></i>
+                                    Zone prioritaire
+                                </span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="data-field">
+                            <span class="data-label">Adresse</span>
+                            <span class="data-value {% if not application.address %}muted{% endif %}">
+                                {{ application.address|default:"Non renseignée" }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Profile -->
+            <div class="info-card">
+                <div class="card-header-modern">
+                    <div class="card-header-icon info">
+                        <i class="ph ph-briefcase"></i>
+                    </div>
+                    <h3 class="card-header-title">Profil professionnel</h3>
+                </div>
+                <div class="card-body-modern">
+                    <div class="data-grid">
+                        <div class="data-field">
+                            <span class="data-label">Activité actuelle</span>
+                            <span class="data-value highlight">{{ application.current_activity }}</span>
+                        </div>
+                        <div class="data-field">
+                            <span class="data-label">Expérience</span>
+                            <span class="data-value">{{ application.experience_years }} ans</span>
+                        </div>
+                        <div class="data-field full-width">
+                            <span class="data-label">Secteurs de compétence</span>
+                            <span class="data-value">{{ application.sectors_knowledge }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Network -->
+            <div class="info-card">
+                <div class="card-header-modern">
+                    <div class="card-header-icon success">
+                        <i class="ph ph-graph"></i>
+                    </div>
+                    <h3 class="card-header-title">Réseau & Contacts</h3>
+                </div>
+                <div class="card-body-modern">
+                    <div class="data-field" style="margin-bottom: 1.25rem;">
+                        <span class="data-label">Force du réseau</span>
+                        <div style="margin-top: 0.5rem;">
+                            {% if application.network_strength == 'weak' %}
+                            <span class="network-badge-lg weak">
+                                <i class="ph ph-circle-fill"></i>
+                                Limité
+                            </span>
+                            {% elif application.network_strength == 'medium' %}
+                            <span class="network-badge-lg medium">
+                                <i class="ph ph-circle-fill"></i>
+                                Moyen
+                            </span>
+                            {% elif application.network_strength == 'strong' %}
+                            <span class="network-badge-lg strong">
+                                <i class="ph ph-circle-fill"></i>
+                                Fort
+                            </span>
+                            {% elif application.network_strength == 'very_strong' %}
+                            <span class="network-badge-lg very_strong">
+                                <i class="ph ph-star-fill"></i>
+                                Très fort
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="data-field">
+                        <span class="data-label">Description du réseau</span>
+                        <div class="description-box" style="margin-top: 0.5rem;">
+                            {{ application.network_description|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Motivations -->
+            <div class="info-card">
+                <div class="card-header-modern">
+                    <div class="card-header-icon warning">
+                        <i class="ph ph-lightbulb"></i>
+                    </div>
+                    <h3 class="card-header-title">Motivations</h3>
+                </div>
+                <div class="card-body-modern">
+                    <div class="data-field" style="margin-bottom: 1.25rem;">
+                        <span class="data-label">Pourquoi Oloustream ?</span>
+                        <div class="description-box" style="margin-top: 0.5rem;">
+                            {{ application.why_oloustream|linebreaks }}
+                        </div>
+                    </div>
+                    {% if application.references %}
+                    <div class="data-field">
+                        <span class="data-label">Références</span>
+                        <div class="description-box" style="margin-top: 0.5rem;">
+                            {{ application.references|linebreaks }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Column -->
+        <div class="sidebar-column">
+            <!-- Status Card -->
+            <div class="info-card status-card">
+                <div class="card-header-modern">
+                    <div class="card-header-icon primary">
+                        <i class="ph ph-chart-pie-slice"></i>
+                    </div>
+                    <h3 class="card-header-title">Statut</h3>
+                </div>
+                <div class="card-body-modern">
+                    {% if application.status == 'pending' %}
+                    <div class="status-display pending">
+                        <i class="ph ph-hourglass-medium"></i>
+                        <span class="status-text">En attente</span>
+                    </div>
+                    {% elif application.status == 'reviewing' %}
+                    <div class="status-display reviewing">
+                        <i class="ph ph-magnifying-glass"></i>
+                        <span class="status-text">En cours d'examen</span>
+                    </div>
+                    {% elif application.status == 'interview' %}
+                    <div class="status-display interview">
+                        <i class="ph ph-phone-call"></i>
+                        <span class="status-text">Entretien planifié</span>
+                    </div>
+                    {% elif application.status == 'approved' %}
+                    <div class="status-display approved">
+                        <i class="ph ph-check-circle"></i>
+                        <span class="status-text">Approuvée</span>
+                    </div>
+                    {% elif application.status == 'rejected' %}
+                    <div class="status-display rejected">
+                        <i class="ph ph-x-circle"></i>
+                        <span class="status-text">Rejetée</span>
+                    </div>
+                    {% endif %}
+
+                    {% if application.status != 'approved' and application.status != 'rejected' %}
+                    <form method="post" action="{% url 'dashboard:partner_application_update_status' application.pk %}" class="status-form">
+                        {% csrf_token %}
+                        <label class="status-form-label">Changer le statut</label>
+                        <select name="status" class="status-select">
+                            {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if application.status == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn-update-status">
+                            <i class="ph ph-arrows-clockwise"></i>
+                            Mettre à jour
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Additional Info -->
+            <div class="info-card">
+                <div class="card-header-modern">
+                    <div class="card-header-icon info">
+                        <i class="ph ph-info"></i>
+                    </div>
+                    <h3 class="card-header-title">Informations</h3>
+                </div>
+                <div class="card-body-modern">
+                    <div class="info-list">
+                        <div class="info-list-item">
+                            <span class="label">Disponibilité</span>
+                            <span class="value">{{ application.get_availability_display }}</span>
+                        </div>
+                        <div class="info-list-item">
+                            <span class="label">Date candidature</span>
+                            <span class="value">{{ application.created_at|date:"d/m/Y H:i" }}</span>
+                        </div>
+                        {% if application.reviewed_by %}
+                        <div class="info-list-item">
+                            <span class="label">Examinée par</span>
+                            <span class="value">{{ application.reviewed_by.get_full_name }}</span>
+                        </div>
+                        <div class="info-list-item">
+                            <span class="label">Date examen</span>
+                            <span class="value">{{ application.reviewed_at|date:"d/m/Y H:i" }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Internal Notes -->
+            <div class="info-card">
+                <div class="card-header-modern">
+                    <div class="card-header-icon warning">
+                        <i class="ph ph-note-pencil"></i>
+                    </div>
+                    <h3 class="card-header-title">Notes internes</h3>
+                </div>
+                <div class="card-body-modern">
+                    <div class="notes-content">
+                        {% if application.internal_notes %}
+                        <div class="description-box">
+                            {{ application.internal_notes|linebreaks }}
+                        </div>
+                        {% else %}
+                        <div class="notes-empty">
+                            <i class="ph ph-note-blank"></i>
+                            <span>Aucune note</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="info-card">
+                <div class="card-header-modern">
+                    <div class="card-header-icon success">
+                        <i class="ph ph-lightning"></i>
+                    </div>
+                    <h3 class="card-header-title">Actions rapides</h3>
+                </div>
+                <div class="card-body-modern">
+                    <div class="quick-actions">
+                        <a href="tel:{{ application.phone }}" class="btn-quick-action phone">
+                            <i class="ph ph-phone"></i>
+                            Appeler
+                        </a>
+                        {% if application.whatsapp %}
+                        <a href="https://wa.me/{{ application.whatsapp|cut:'+' }}" 
+                           target="_blank" 
+                           class="btn-quick-action whatsapp">
+                            <i class="ph ph-whatsapp-logo"></i>
+                            WhatsApp
+                        </a>
+                        {% endif %}
+                        {% if application.email %}
+                        <a href="mailto:{{ application.email }}" class="btn-quick-action email">
+                            <i class="ph ph-envelope"></i>
+                            Email
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal-overlay" id="rejectModal">
+    <div class="modal-content">
+        <form method="post" action="{% url 'dashboard:partner_application_reject' application.pk %}">
+            {% csrf_token %}
+            <div class="modal-header">
+                <h3>
+                    <i class="ph ph-x-circle"></i>
+                    Rejeter la candidature
+                </h3>
+                <button type="button" class="modal-close" onclick="closeRejectModal()">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Vous allez rejeter la candidature de <strong>{{ application.full_name }}</strong>.</p>
+                <label class="modal-textarea-label">Raison du rejet (optionnel)</label>
+                <textarea name="reason" class="modal-textarea" 
+                          placeholder="Ex: Réseau insuffisant, zone non prioritaire..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn cancel" onclick="closeRejectModal()">
+                    <i class="ph ph-x"></i>
+                    Annuler
+                </button>
+                <button type="submit" class="modal-btn confirm">
+                    <i class="ph ph-check"></i>
+                    Confirmer le rejet
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function openRejectModal() {
+        document.getElementById('rejectModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeRejectModal() {
+        document.getElementById('rejectModal').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // Close modal on outside click
+    document.getElementById('rejectModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeRejectModal();
+        }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeRejectModal();
+        }
+    });
+</script>
+{% endblock %}

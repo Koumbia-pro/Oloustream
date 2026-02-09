@@ -8,8 +8,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-_rse34uk8&e&ludzr!^qbfw62r-i7m^taq*8&dlr7jhl!bzxlg'
 
-#DEBUG = True  # Passe à False en production
-DEBUG = os.environ.get("DJANGO_ENV") != "production"
+DEBUG = True  # Passe à False en production
+#DEBUG = os.environ.get("DJANGO_ENV") != "production"
 
 ALLOWED_HOSTS = [
     "localhost",
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'apps.notifications',
     'apps.content',
     'apps.core',
+    'apps.business_partners',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
@@ -71,6 +72,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'apps.core.context_processors.site_settings',
+                'apps.core.context_processors.partner_counts',  # AJOUTER ce context processor pour les partenaires
             ],
         },
     },
@@ -177,3 +179,11 @@ CHANNEL_LAYERS = {
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'core:home'
 LOGOUT_REDIRECT_URL = 'core:home'
+
+
+
+# Email pour notifications admin
+ADMIN_EMAIL = 'info@oloustream.com'  # À adapter
+
+# URL du site (pour les emails)
+SITE_URL = 'https://oloustream.com'  # Ou http://localhost:8000 en dev

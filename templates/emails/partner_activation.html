@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #000; color: #fff; padding: 20px; text-align: center; }
+        .content { background: #f9f9f9; padding: 30px; }
+        .code-box { background: #fff; border: 2px solid #dc3545; padding: 15px; margin: 20px 0; text-align: center; }
+        .code { font-size: 24px; font-weight: bold; color: #dc3545; }
+        .credentials { background: #fff; padding: 15px; margin: 15px 0; border-left: 4px solid #000; }
+        .button { display: inline-block; background: #dc3545; color: #fff; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Bienvenue chez Oloustream !</h1>
+        </div>
+        
+        <div class="content">
+            <p>Bonjour <strong>{{ partner.user.get_full_name }}</strong>,</p>
+            
+            <p>Félicitations ! Votre candidature a été <strong style="color: #28a745;">approuvée</strong>.</p>
+            
+            <p>Vous êtes désormais officiellement <strong>Partenaire d'Affaires Oloustream</strong> !</p>
+            
+            <div class="code-box">
+                <p style="margin: 0; font-size: 14px;">Votre code partenaire :</p>
+                <div class="code">{{ partner.partner_code }}</div>
+            </div>
+            
+            <h3>🔑 Vos identifiants de connexion</h3>
+            
+            <div class="credentials">
+                <p><strong>Nom d'utilisateur :</strong> {{ partner.user.username }}</p>
+                <p><strong>Mot de passe :</strong> {{ password }}</p>
+            </div>
+            
+            <p style="color: #dc3545; font-size: 13px;">
+                ⚠️ <strong>Important :</strong> Conservez ces identifiants en lieu sûr. 
+                Nous vous recommandons de changer votre mot de passe lors de votre première connexion.
+            </p>
+            
+            <div style="text-align: center;">
+                <a href="{{ login_url }}" class="button">Accéder à mon espace partenaire</a>
+            </div>
+            
+            <h3>📋 Prochaines étapes</h3>
+            <ol>
+                <li>Connectez-vous à votre espace partenaire</li>
+                <li>Complétez votre profil</li>
+                <li>Consultez vos outils et ressources commerciales</li>
+                <li>Commencez à soumettre vos premiers contrats !</li>
+            </ol>
+            
+            <h3>💰 Votre configuration</h3>
+            <p>Taux de commission : <strong>{{ partner.commission_rate }}%</strong></p>
+            <p>Zone d'activité : <strong>{{ partner.application.city }}</strong></p>
+            
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
+            
+            <p>Besoin d'aide ? Contactez-nous :</p>
+            <p>
+                📞 +226 25 65 53 95 / +226 64 09 31 96<br>
+                ✉️ info@oloustream.com
+            </p>
+            
+            <p style="margin-top: 30px;">
+                Bienvenue dans la famille Oloustream !<br>
+                <strong>Ensemble, donnons du pouvoir à l'image.</strong>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>Oloustream S.A.S - Leader du live streaming au Burkina Faso</p>
+            <p>Ouaga 2000, Secteur 15 | www.oloustream.com</p>
+        </div>
+    </div>
+</body>
+</html>

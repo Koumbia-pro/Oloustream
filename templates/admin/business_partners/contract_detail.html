@@ -1,0 +1,1079 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Contrat #{{ contract.id }} - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ==================== ANIMATIONS ==================== */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+    }
+
+    @keyframes shimmer {
+        0% {
+            background-position: -200% 0;
+        }
+        100% {
+            background-position: 200% 0;
+        }
+    }
+
+    @keyframes borderGlow {
+        0%, 100% {
+            border-color: rgba(147, 51, 234, 0.3);
+            box-shadow: 0 0 15px rgba(147, 51, 234, 0.1);
+        }
+        50% {
+            border-color: rgba(147, 51, 234, 0.6);
+            box-shadow: 0 0 25px rgba(147, 51, 234, 0.3);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fadeInUp 0.5s ease-out forwards;
+    }
+
+    .animate-slide-in {
+        animation: slideInRight 0.5s ease-out forwards;
+    }
+
+    /* ==================== PAGE WRAPPER ==================== */
+    .contract-detail-wrapper {
+        min-height: calc(100vh - 70px);
+        animation: fadeInUp 0.4s ease-out;
+    }
+
+    /* ==================== BREADCRUMB ==================== */
+    .breadcrumb-modern {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        background: rgba(31, 31, 35, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        list-style: none;
+    }
+
+    .breadcrumb-modern li {
+        display: flex;
+        align-items: center;
+        font-size: 0.875rem;
+    }
+
+    .breadcrumb-modern li a {
+        color: var(--surface-400, #a1a1aa);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        transition: all 0.2s ease;
+    }
+
+    .breadcrumb-modern li a:hover {
+        color: var(--primary-400, #c084fc);
+    }
+
+    .breadcrumb-modern li a i {
+        font-size: 1rem;
+    }
+
+    .breadcrumb-modern .separator {
+        color: var(--surface-600, #52525b);
+        margin: 0 0.25rem;
+    }
+
+    .breadcrumb-modern .active {
+        color: var(--surface-200, #e4e4e7);
+        font-weight: 500;
+    }
+
+    /* ==================== HEADER CARD ==================== */
+    .contract-header-card {
+        background: linear-gradient(135deg, rgba(31, 31, 35, 0.9) 0%, rgba(39, 39, 42, 0.9) 100%);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 1.75rem 2rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .contract-header-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary-600, #9333ea), var(--primary-400, #c084fc), #fbbf24);
+    }
+
+    .contract-header-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(147, 51, 234, 0.1) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .header-left {
+        flex: 1;
+    }
+
+    .contract-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .contract-title h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--surface-100, #f4f4f5);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .contract-id-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, var(--primary-600, #9333ea), var(--primary-700, #7c3aed));
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        box-shadow: 0 8px 25px rgba(147, 51, 234, 0.35);
+    }
+
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .status-badge.pending {
+        background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.15));
+        color: #fbbf24;
+        border: 1px solid rgba(251, 191, 36, 0.3);
+        animation: pulse 2s infinite;
+    }
+
+    .status-badge.validated {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15));
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-badge.completed {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.15));
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .status-badge.cancelled {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15));
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .status-badge i {
+        font-size: 1rem;
+    }
+
+    .contract-meta {
+        color: var(--surface-400, #a1a1aa);
+        font-size: 0.9375rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .contract-meta strong {
+        color: var(--primary-400, #c084fc);
+    }
+
+    .contract-meta i {
+        font-size: 1rem;
+    }
+
+    /* Action Buttons */
+    .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-shrink: 0;
+    }
+
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-action::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%);
+        transition: width 0.4s ease, height 0.4s ease;
+    }
+
+    .btn-action:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    .btn-action i {
+        font-size: 1.125rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .btn-action span {
+        position: relative;
+        z-index: 1;
+    }
+
+    .btn-action.success {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+    }
+
+    .btn-action.success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.45);
+    }
+
+    .btn-action.danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-action.danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(239, 68, 68, 0.45);
+    }
+
+    /* ==================== LAYOUT ==================== */
+    .content-layout {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    /* ==================== INFO CARDS ==================== */
+    .info-card {
+        background: rgba(31, 31, 35, 0.7);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 1.25rem;
+        transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+        border-color: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-header-modern {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.25rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .card-header-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.125rem;
+    }
+
+    .card-header-icon.primary {
+        background: rgba(147, 51, 234, 0.15);
+        color: var(--primary-400, #c084fc);
+    }
+
+    .card-header-icon.success {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+    }
+
+    .card-header-icon.warning {
+        background: rgba(251, 191, 36, 0.15);
+        color: #fbbf24;
+    }
+
+    .card-header-icon.info {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+    }
+
+    .card-header-title {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--surface-200, #e4e4e7);
+        margin: 0;
+    }
+
+    .card-body-modern {
+        padding: 1.25rem;
+    }
+
+    /* ==================== DATA FIELDS ==================== */
+    .data-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .data-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .data-field.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .data-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: var(--surface-500, #71717a);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .data-value {
+        font-size: 0.9375rem;
+        color: var(--surface-200, #e4e4e7);
+        font-weight: 500;
+    }
+
+    .data-value.highlight {
+        font-weight: 700;
+        color: var(--surface-100, #f4f4f5);
+    }
+
+    /* Description Box */
+    .description-box {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        color: var(--surface-300, #d4d4d8);
+        font-size: 0.875rem;
+        line-height: 1.7;
+    }
+
+    /* ==================== DOCUMENT CARD ==================== */
+    .document-download {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px dashed rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .document-download:hover {
+        background: rgba(147, 51, 234, 0.1);
+        border-color: rgba(147, 51, 234, 0.3);
+    }
+
+    .document-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .document-info {
+        flex: 1;
+    }
+
+    .document-info h4 {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--surface-200, #e4e4e7);
+        margin: 0 0 0.25rem 0;
+    }
+
+    .document-info p {
+        font-size: 0.75rem;
+        color: var(--surface-500, #71717a);
+        margin: 0;
+    }
+
+    .btn-download {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        background: transparent;
+        border: 1px solid rgba(147, 51, 234, 0.5);
+        border-radius: 10px;
+        color: var(--primary-400, #c084fc);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-download:hover {
+        background: rgba(147, 51, 234, 0.15);
+        border-color: var(--primary-400, #c084fc);
+        color: var(--primary-300, #d8b4fe);
+        transform: translateX(3px);
+    }
+
+    .btn-download i {
+        font-size: 1rem;
+    }
+
+    /* ==================== SIDEBAR CARDS ==================== */
+    .sidebar-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    /* Financial Card */
+    .financial-card {
+        background: linear-gradient(135deg, rgba(31, 31, 35, 0.9), rgba(39, 39, 42, 0.9));
+        border: 1px solid rgba(147, 51, 234, 0.2);
+        animation: borderGlow 3s infinite;
+    }
+
+    .amount-display {
+        text-align: center;
+        padding: 1.25rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        margin-bottom: 1rem;
+    }
+
+    .amount-display .label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: var(--surface-500, #71717a);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 0.5rem;
+    }
+
+    .amount-display .value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary-400, #c084fc), #fbbf24);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .financial-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.875rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .financial-row:last-child {
+        border-bottom: none;
+    }
+
+    .financial-row .label {
+        font-size: 0.8125rem;
+        color: var(--surface-400, #a1a1aa);
+    }
+
+    .financial-row .value {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--surface-100, #f4f4f5);
+    }
+
+    .financial-row .value.success {
+        color: #34d399;
+    }
+
+    .financial-row .value.primary {
+        color: var(--primary-400, #c084fc);
+    }
+
+    /* Partner Card */
+    .partner-profile {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        margin-bottom: 1rem;
+    }
+
+    .partner-avatar {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, var(--primary-600, #9333ea), var(--primary-400, #c084fc));
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        font-weight: 800;
+        color: white;
+        text-transform: uppercase;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+    }
+
+    .partner-info {
+        flex: 1;
+    }
+
+    .partner-info .name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--surface-100, #f4f4f5);
+        margin-bottom: 0.25rem;
+    }
+
+    .partner-info .code {
+        font-size: 0.75rem;
+        color: var(--surface-500, #71717a);
+        font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    .btn-view-profile {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        background: rgba(147, 51, 234, 0.1);
+        border: 1px solid rgba(147, 51, 234, 0.3);
+        border-radius: 10px;
+        color: var(--primary-400, #c084fc);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-view-profile:hover {
+        background: rgba(147, 51, 234, 0.2);
+        border-color: var(--primary-400, #c084fc);
+        transform: translateY(-2px);
+        color: var(--primary-300, #d8b4fe);
+    }
+
+    /* ==================== TIMELINE ==================== */
+    .timeline {
+        position: relative;
+        padding-left: 1.5rem;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 6px;
+        top: 8px;
+        bottom: 8px;
+        width: 2px;
+        background: linear-gradient(180deg, var(--primary-600, #9333ea), var(--primary-400, #c084fc), rgba(147, 51, 234, 0.2));
+        border-radius: 1px;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-bottom: 1.25rem;
+    }
+
+    .timeline-item:last-child {
+        padding-bottom: 0;
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: -1.5rem;
+        top: 4px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--primary-600, #9333ea);
+        border: 3px solid rgba(31, 31, 35, 1);
+        box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.3);
+    }
+
+    .timeline-item:first-child .timeline-dot {
+        background: #34d399;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+    }
+
+    .timeline-content {
+        padding-left: 0.5rem;
+    }
+
+    .timeline-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: var(--surface-500, #71717a);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+    }
+
+    .timeline-value {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--surface-200, #e4e4e7);
+        margin-bottom: 0.125rem;
+    }
+
+    .timeline-actor {
+        font-size: 0.75rem;
+        color: var(--surface-500, #71717a);
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1200px) {
+        .content-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .sidebar-column {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .contract-header-card {
+            padding: 1.25rem;
+        }
+
+        .header-content {
+            flex-direction: column;
+        }
+
+        .header-actions {
+            width: 100%;
+        }
+
+        .btn-action {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .contract-title {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .contract-title h1 {
+            font-size: 1.25rem;
+        }
+
+        .data-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .sidebar-column {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .breadcrumb-modern {
+            padding: 0.625rem 1rem;
+            font-size: 0.8125rem;
+        }
+
+        .card-body-modern {
+            padding: 1rem;
+        }
+
+        .document-download {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .btn-download {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .header-actions {
+            flex-direction: column;
+        }
+
+        .btn-action {
+            width: 100%;
+        }
+    }
+
+    /* ==================== STAGGER ANIMATIONS ==================== */
+    .info-card:nth-child(1) { animation: fadeInUp 0.4s ease-out 0.1s backwards; }
+    .info-card:nth-child(2) { animation: fadeInUp 0.4s ease-out 0.2s backwards; }
+    .info-card:nth-child(3) { animation: fadeInUp 0.4s ease-out 0.3s backwards; }
+
+    .sidebar-column .info-card:nth-child(1) { animation: slideInRight 0.4s ease-out 0.15s backwards; }
+    .sidebar-column .info-card:nth-child(2) { animation: slideInRight 0.4s ease-out 0.25s backwards; }
+    .sidebar-column .info-card:nth-child(3) { animation: slideInRight 0.4s ease-out 0.35s backwards; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="contract-detail-wrapper">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb-modern">
+            <li>
+                <a href="{% url 'dashboard:partner_contracts_list' %}">
+                    <i class="ph ph-file-text"></i>
+                    Contrats
+                </a>
+            </li>
+            <span class="separator">
+                <i class="ph ph-caret-right"></i>
+            </span>
+            <li class="active">Contrat #{{ contract.id }}</li>
+        </ol>
+    </nav>
+
+    <!-- Header Card -->
+    <div class="contract-header-card animate-fade-in">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="contract-title">
+                    <h1>
+                        <span class="contract-id-icon">
+                            <i class="ph-bold ph-file-text"></i>
+                        </span>
+                        Contrat #{{ contract.id }}
+                    </h1>
+                    {% if contract.status == 'pending' %}
+                        <span class="status-badge pending">
+                            <i class="ph ph-hourglass-medium"></i>
+                            En attente
+                        </span>
+                    {% elif contract.status == 'validated' %}
+                        <span class="status-badge validated">
+                            <i class="ph ph-check-circle"></i>
+                            Validé
+                        </span>
+                    {% elif contract.status == 'completed' %}
+                        <span class="status-badge completed">
+                            <i class="ph ph-seal-check"></i>
+                            Terminé
+                        </span>
+                    {% elif contract.status == 'cancelled' %}
+                        <span class="status-badge cancelled">
+                            <i class="ph ph-x-circle"></i>
+                            Annulé
+                        </span>
+                    {% endif %}
+                </div>
+                <p class="contract-meta">
+                    <i class="ph ph-calendar"></i>
+                    Soumis le {{ contract.created_at|date:"d/m/Y à H:i" }} par
+                    <strong>{{ contract.partner.partner_code }}</strong>
+                </p>
+            </div>
+
+            {% if contract.status == 'pending' %}
+            <div class="header-actions">
+                <a href="{% url 'dashboard:partner_contract_validate' contract.pk %}" 
+                   class="btn-action success"
+                   onclick="return confirm('Confirmer la validation de ce contrat ?');">
+                    <i class="ph-bold ph-check"></i>
+                    <span>Valider</span>
+                </a>
+                <a href="{% url 'dashboard:partner_contract_reject' contract.pk %}" 
+                   class="btn-action danger"
+                   onclick="return confirm('Annuler ce contrat ?');">
+                    <i class="ph-bold ph-x"></i>
+                    <span>Rejeter</span>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Content Layout -->
+    <div class="content-layout">
+        <!-- Main Column -->
+        <div class="main-column">
+            <!-- Client Info -->
+            <div class="info-card">
+                <div class="card-header-modern">
+                    <div class="card-header-icon primary">
+                        <i class="ph ph-user"></i>
+                    </div>
+                    <h3 class="card-header-title">Informations client</h3>
+                </div>
+                <div class="card-body-modern">
+                    <div class="data-grid">
+                        <div class="data-field">
+                            <span class="data-label">Nom du client</span>
+                            <span class="data-value highlight">{{ contract.client_name }}</span>
+                        </div>
+                        <div class="data-field">
+                            <span class="data-label">Type</span>
+                            <span class="data-value">{{ contract.get_client_type_display }}</span>
+                        </div>
+                        <div class="data-field">
+                            <span class="data-label">Contact</span>
+                            <span class="data-value">{{ contract.client_contact }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Details -->
+            <div class="info-card">
+                <div class="card-header-modern">
+                    <div class="card-header-icon info">
+                        <i class="ph ph-briefcase"></i>
+                    </div>
+                    <h3 class="card-header-title">Détails du projet</h3>
+                </div>
+                <div class="card-body-modern">
+                    <div class="data-grid">
+                        <div class="data-field">
+                            <span class="data-label">Type de service</span>
+                            <span class="data-value highlight">{{ contract.service_type }}</span>
+                        </div>
+                        <div class="data-field full-width">
+                            <span class="data-label">Description</span>
+                            <div class="description-box">
+                                {{ contract.description|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document -->
+            {% if contract.contract_file %}
+            <div class="info-card">
+                <div class="card-header-modern">
+                    <div class="card-header-icon warning">
+                        <i class="ph ph-file-pdf"></i>
+                    </div>
+                    <h3 class="card-header-title">Document joint</h3>
+                </div>
+                <div class="card-body-modern">
+                    <div class="document-download">
+                        <div class="document-icon">
+                            <i class="ph ph-file-pdf"></i>
+                        </div>
+                        <div class="document-info">
+                            <h4>Contrat PDF</h4>
+                            <p>Document officiel du contrat</p>
+                        </div>
+                        <a href="{{ contract.contract_file.url }}" target="_blank" class="btn-download">
+                            <i class="ph ph-download-simple"></i>
+                            Télécharger
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar Column -->
+        <div class="sidebar-column">
+            <!-- Financial Info -->
+            <div class="info-card financial-card">
+                <div class="card-header-modern">
+                    <div class="card-header-icon success">
+                        <i class="ph ph-currency-circle-dollar"></i>
+                    </div>
+                    <h3 class="card-header-title">Informations financières</h3>
+                </div>
+                <div class="card-body-modern">
+                    <div class="amount-display">
+                        <div class="label">Montant du contrat</div>
+                        <div class="value">{{ contract.contract_amount|floatformat:0 }} FCFA</div>
+                    </div>
+                    <div class="financial-row">
+                        <span class="label">Taux de commission</span>
+                        <span class="value primary">{{ contract.commission_rate }}%</span>
+                    </div>
+                    <div class="financial-row">
+                        <span class="label">Commission partenaire</span>
+                        <span class="value success">{{ contract.commission_amount|floatformat:0 }} FCFA</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Partner Info -->
+            <div class="info-card">
+                <div class="card-header-modern">
+                    <div class="card-header-icon primary">
+                        <i class="ph ph-handshake"></i>
+                    </div>
+                    <h3 class="card-header-title">Partenaire</h3>
+                </div>
+                <div class="card-body-modern">
+                    <div class="partner-profile">
+                        <div class="partner-avatar">
+                            {{ contract.partner.partner_code|slice:":3" }}
+                        </div>
+                        <div class="partner-info">
+                            <div class="name">{{ contract.partner.user.get_full_name }}</div>
+                            <div class="code">{{ contract.partner.partner_code }}</div>
+                        </div>
+                    </div>
+                    <a href="{% url 'dashboard:business_partner_detail' contract.partner.pk %}" 
+                       class="btn-view-profile">
+                        <i class="ph ph-user-circle"></i>
+                        Voir le profil partenaire
+                    </a>
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="info-card">
+                <div class="card-header-modern">
+                    <div class="card-header-icon info">
+                        <i class="ph ph-clock-countdown"></i>
+                    </div>
+                    <h3 class="card-header-title">Historique</h3>
+                </div>
+                <div class="card-body-modern">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-label">Soumis le</div>
+                                <div class="timeline-value">{{ contract.created_at|date:"d/m/Y à H:i" }}</div>
+                            </div>
+                        </div>
+
+                        {% if contract.validated_at %}
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-label">Validé le</div>
+                                <div class="timeline-value">{{ contract.validated_at|date:"d/m/Y à H:i" }}</div>
+                                {% if contract.validated_by %}
+                                <div class="timeline-actor">
+                                    <i class="ph ph-user"></i>
+                                    Par {{ contract.validated_by.get_full_name }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if contract.completed_at %}
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-label">Terminé le</div>
+                                <div class="timeline-value">{{ contract.completed_at|date:"d/m/Y à H:i" }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

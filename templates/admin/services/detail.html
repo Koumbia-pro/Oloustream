@@ -1,297 +1,956 @@
 {% extends "admin/admin_base.html" %}
 {% block title %}Détail Service - {{ service.name }} - Oloustream Admin{% endblock %}
 
-{% block content %}
-
+{% block extra_css %}
 <style>
-/* =========================================================
-   DÉTAIL SERVICE – STYLE ULTRA PRO
-   ========================================================= */
+    /* ==================== VARIABLES ==================== */
+    :root {
+        --primary-400: #c084fc;
+        --primary-500: #a855f7;
+        --primary-600: #9333ea;
+        --primary-700: #7c3aed;
+        --accent-400: #fbbf24;
+        --accent-500: #f59e0b;
+        --surface-100: #f4f4f5;
+        --surface-200: #e4e4e7;
+        --surface-300: #d4d4d8;
+        --surface-400: #a1a1aa;
+        --surface-500: #71717a;
+        --surface-600: #52525b;
+        --surface-700: #3f3f46;
+        --surface-800: #27272a;
+        --surface-850: #1f1f23;
+        --surface-900: #18181b;
+        --error-color: #f87171;
+        --success-color: #34d399;
+        --info-color: #60a5fa;
+        --warning-color: #fbbf24;
+    }
 
-.svc-detail-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
-  animation: svcD-fadeInUp 0.4s ease-out;
-}
+    /* ==================== WRAPPER ==================== */
+    .service-detail-wrapper {
+        width: 100%;
+        animation: fadeIn 0.4s ease-out;
+    }
 
-.svcD-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-}
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-.svcD-header h1 {
-  font-size: 1.6rem;
-  margin: 0;
-}
+    /* ==================== PAGE HEADER ==================== */
+    .page-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
 
-.svcD-header .subtitle {
-  font-size: 0.9rem;
-  color: #6b7280;
-}
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
 
-/* Badges */
-.svcD-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
+    .back-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: var(--surface-400);
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
 
-.svcD-badge-type {
-  background: #eef2ff;
-  color: #4338ca;
-}
+    .back-btn:hover {
+        background: var(--surface-700);
+        color: white;
+        transform: translateX(-3px);
+    }
 
-.svcD-badge-active-yes {
-  background: #dcfce7;
-  color: #166534;
-}
+    .back-btn i {
+        font-size: 1.25rem;
+    }
 
-.svcD-badge-active-no {
-  background: #fee2e2;
-  color: #b91c1c;
-}
+    .header-info h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        margin: 0 0 0.25rem 0;
+    }
 
-/* Carte image */
-.svcD-image-card {
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
-  padding: 1rem;
-  text-align: center;
-}
+    .header-info p {
+        font-size: 0.875rem;
+        color: var(--surface-500);
+        margin: 0;
+    }
 
-.svcD-image-preview {
-  width: 100%;
-  max-height: 200px;
-  object-fit: cover;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-}
+    .header-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
 
-/* Sections */
-.svcD-section {
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
-  margin-bottom: 1.25rem;
-  padding: 1.25rem 1.5rem;
-}
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        font-family: inherit;
+    }
 
-.svcD-section-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-}
+    .btn i {
+        font-size: 1.125rem;
+    }
 
-.svcD-section-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
+    .btn-edit {
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        color: white;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+    }
 
-.svcD-section-title span.icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
-  background: #fee2e2;
-  color: #b91c1c;
-  font-size: 0.9rem;
-}
+    .btn-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(147, 51, 234, 0.4);
+        color: white;
+    }
 
-.svcD-section-desc {
-  font-size: 0.8rem;
-  color: #6b7280;
-}
+    .btn-delete {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--error-color);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
 
-/* Grille */
-.svcD-grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem 1.25rem;
-}
+    .btn-delete:hover {
+        background: rgba(239, 68, 68, 0.25);
+        color: #fca5a5;
+    }
 
-.svcD-item-label {
-  font-size: 0.8rem;
-  color: #6b7280;
-}
+    .btn-secondary {
+        background: var(--surface-800);
+        color: var(--surface-300);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
-.svcD-item-value {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #111827;
-}
+    .btn-secondary:hover {
+        background: var(--surface-700);
+        color: white;
+    }
 
-/* Responsive */
-@media (max-width: 992px) {
-  .svcD-grid-2 {
-    grid-template-columns: 1fr;
-  }
-}
+    /* ==================== MAIN GRID ==================== */
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 380px 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
 
-/* Animation */
-@keyframes svcD-fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+    /* ==================== PROFILE CARD ==================== */
+    .profile-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        overflow: hidden;
+        position: sticky;
+        top: calc(70px + 1.5rem);
+    }
+
+    .profile-cover {
+        height: 100px;
+        background: linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #fbbf24 100%);
+        position: relative;
+    }
+
+    .profile-cover::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 50%;
+        background: linear-gradient(to top, var(--surface-850), transparent);
+    }
+
+    .profile-body {
+        padding: 0 1.5rem 1.5rem;
+        text-align: center;
+        margin-top: -50px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .profile-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 20px;
+        border: 4px solid var(--surface-850);
+        margin-bottom: 1rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        display: inline-block;
+    }
+
+    .profile-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-image-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .profile-name {
+        font-size: 1.375rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        margin: 0 0 0.25rem 0;
+    }
+
+    .profile-category {
+        font-size: 0.875rem;
+        color: var(--surface-500);
+        margin: 0 0 1rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .profile-category i {
+        font-size: 1rem;
+    }
+
+    /* Badges */
+    .status-badges {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .badge-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+    }
+
+    .badge-type {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
+        color: var(--info-color);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .badge-active {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
+        color: var(--success-color);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-inactive {
+        background: rgba(113, 113, 122, 0.2);
+        color: var(--surface-400);
+        border: 1px solid rgba(113, 113, 122, 0.3);
+    }
+
+    /* Quick Stats */
+    .profile-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .stat-box {
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .stat-box-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-box-label {
+        font-size: 0.6875rem;
+        color: var(--surface-500);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Configuration List */
+    .config-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding-top: 1.5rem;
+        margin-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .config-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+    }
+
+    .config-label {
+        font-size: 0.8125rem;
+        color: var(--surface-400);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .config-label i {
+        font-size: 1rem;
+    }
+
+    .config-value {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--surface-200);
+    }
+
+    .config-value.yes {
+        color: var(--success-color);
+    }
+
+    .config-value.no {
+        color: var(--surface-600);
+    }
+
+    /* ==================== INFO CARDS ==================== */
+    .info-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .info-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .info-card:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .info-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .info-card-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .info-card-icon.purple {
+        background: rgba(147, 51, 234, 0.15);
+        color: var(--primary-400);
+    }
+
+    .info-card-icon.blue {
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--info-color);
+    }
+
+    .info-card-icon.green {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--success-color);
+    }
+
+    .info-card-icon.orange {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--warning-color);
+    }
+
+    .info-card-icon.pink {
+        background: rgba(236, 72, 153, 0.15);
+        color: #f472b6;
+    }
+
+    .info-card-icon.gray {
+        background: rgba(113, 113, 122, 0.15);
+        color: var(--surface-400);
+    }
+
+    .info-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--surface-100);
+        margin: 0;
+    }
+
+    .info-card-body {
+        padding: 1.5rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .info-item.full-width {
+        grid-column: span 2;
+    }
+
+    .info-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: var(--surface-500);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .info-label i {
+        font-size: 0.875rem;
+    }
+
+    .info-value {
+        font-size: 0.9375rem;
+        color: var(--surface-200);
+        font-weight: 500;
+        line-height: 1.5;
+    }
+
+    .info-value.empty {
+        color: var(--surface-600);
+        font-style: italic;
+    }
+
+    .info-value strong {
+        color: var(--surface-100);
+        font-weight: 600;
+    }
+
+    /* Price special display */
+    .price-display {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        border-radius: 8px;
+        color: var(--success-color);
+        font-weight: 600;
+    }
+
+    /* Duration display */
+    .duration-display {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 8px;
+        color: var(--info-color);
+        font-weight: 600;
+    }
+
+    .duration-display i {
+        font-size: 1rem;
+    }
+
+    /* Timeline */
+    .timeline-section {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .timeline-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--surface-500);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1rem;
+    }
+
+    .timeline {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .timeline-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        position: relative;
+    }
+
+    .timeline-item:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: calc(50% + 20px);
+        width: calc(100% - 40px);
+        height: 2px;
+        background: var(--surface-700);
+    }
+
+    .timeline-dot {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .timeline-dot.created {
+        background: rgba(147, 51, 234, 0.15);
+        color: var(--primary-400);
+        border: 2px solid rgba(147, 51, 234, 0.4);
+    }
+
+    .timeline-dot.updated {
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--info-color);
+        border: 2px solid rgba(59, 130, 246, 0.4);
+    }
+
+    .timeline-label {
+        font-size: 0.6875rem;
+        color: var(--surface-500);
+        text-align: center;
+    }
+
+    .timeline-date {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--surface-200);
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1024px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-card {
+            position: static;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-actions {
+            width: 100%;
+        }
+
+        .header-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .info-item.full-width {
+            grid-column: span 1;
+        }
+
+        .profile-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .timeline {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .timeline-item {
+            flex-direction: row;
+            width: 100%;
+        }
+
+        .timeline-item:not(:last-child)::after {
+            display: none;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-left {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .back-btn {
+            align-self: flex-start;
+        }
+
+        .header-info h1 {
+            font-size: 1.25rem;
+        }
+
+        .profile-body {
+            padding: 0 1rem 1rem;
+        }
+
+        .info-card-body {
+            padding: 1rem;
+        }
+    }
 </style>
+{% endblock %}
 
-<div class="svc-detail-wrapper">
-    <div class="svcD-header">
-        <div>
-            <h1>{{ service.name }}</h1>
-            <p class="subtitle">
-                Créé le {{ service.created_at|date:"d/m/Y H:i" }} – 
-                Mis à jour le {{ service.updated_at|date:"d/m/Y H:i" }}
-            </p>
+{% block content %}
+<div class="service-detail-wrapper">
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div class="header-left">
+            <a href="{% url 'dashboard:services_list' %}" class="back-btn" title="Retour à la liste">
+                <i class="ph ph-arrow-left"></i>
+            </a>
+            <div class="header-info">
+                <h1>Détail du service</h1>
+                <p>Consultez les informations détaillées de {{ service.name }}</p>
+            </div>
         </div>
-        <div class="text-end">
-            <div class="mb-2">
-                <span class="svcD-badge svcD-badge-type">
-                    <i class="ph ph-gear-six"></i>
-                    {{ service.get_service_type_display }}
-                </span>
-                {% if service.is_active %}
-                    <span class="svcD-badge svcD-badge-active-yes ms-1">
-                        <i class="ph ph-check-circle"></i> Actif
-                    </span>
-                {% else %}
-                    <span class="svcD-badge svcD-badge-active-no ms-1">
-                        <i class="ph ph-x-circle"></i> Inactif
-                    </span>
-                {% endif %}
-            </div>
-            <div class="btn-group btn-group-sm" role="group">
-                <a href="{% url 'dashboard:services_edit' service.id %}" class="btn btn-primary">
-                    <i class="ph ph-pencil-simple"></i> Modifier
-                </a>
-                <a href="{% url 'dashboard:services_delete' service.id %}" class="btn btn-danger">
-                    <i class="ph ph-trash"></i> Supprimer
-                </a>
-                <a href="{% url 'dashboard:services_list' %}" class="btn btn-secondary">
-                    Retour à la liste
-                </a>
-            </div>
+        <div class="header-actions">
+            <a href="{% url 'dashboard:services_edit' service.id %}" class="btn btn-edit">
+                <i class="ph ph-pencil-simple"></i>
+                Modifier
+            </a>
+            <a href="{% url 'dashboard:services_delete' service.id %}" class="btn btn-delete">
+                <i class="ph ph-trash"></i>
+                Supprimer
+            </a>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Colonne gauche : image + infos rapides -->
-        <div class="col-lg-4 mb-4">
-            <div class="svcD-image-card mb-3">
-                {% if service.image %}
-                    <img src="{{ service.image.url }}" alt="Image du service" class="svcD-image-preview mb-2">
-                {% else %}
-                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded mb-2"
-                         style="width: 100%; height: 180px; font-size: 2rem;">
-                        <i class="ph ph-image-square"></i>
-                    </div>
-                {% endif %}
-                <p class="mb-0 svcD-item-label">Slug (URL) :</p>
-                <p class="svcD-item-value">{{ service.slug }}</p>
-                <p class="mb-0 svcD-item-label">Catégorie :</p>
-                <p class="svcD-item-value">{{ service.category.name|default:"-" }}</p>
-            </div>
+    <!-- MAIN GRID -->
+    <div class="detail-grid">
+        <!-- PROFILE CARD -->
+        <aside class="profile-card">
+            <div class="profile-cover"></div>
+            <div class="profile-body">
+                <div class="profile-image">
+                    {% if service.image %}
+                        <img src="{{ service.image.url }}" alt="{{ service.name }}">
+                    {% else %}
+                        <div class="profile-image-placeholder">
+                            <i class="ph ph-image-square"></i>
+                        </div>
+                    {% endif %}
+                </div>
 
-            <div class="svcD-section">
-                <div class="svcD-section-header">
-                    <h2 class="svcD-section-title">
-                        <span class="icon"><i class="ph ph-chart-donut"></i></span>
-                        Statut & configuration
-                    </h2>
-                </div>
-                <div class="svcD-grid-2">
-                    <div>
-                        <p class="mb-0 svcD-item-label">Lieu de prestation :</p>
-                        <p class="svcD-item-value">{{ service.get_location_type_display }}</p>
-                    </div>
-                    <div>
-                        <p class="mb-0 svcD-item-label">Complexité :</p>
-                        <p class="svcD-item-value">{{ service.get_difficulty_level_display }}</p>
-                    </div>
-                    <div>
-                        <p class="mb-0 svcD-item-label">Studio requis :</p>
-                        <p class="svcD-item-value">
-                            {% if service.requires_studio %}Oui{% else %}Non{% endif %}
-                        </p>
-                    </div>
-                    <div>
-                        <p class="mb-0 svcD-item-label">Location matériel requise :</p>
-                        <p class="svcD-item-value">
-                            {% if service.requires_equipment_rental %}Oui{% else %}Non{% endif %}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Colonne droite : description, tarification, durée, notes -->
-        <div class="col-lg-8 mb-4">
-            <div class="svcD-section mb-3">
-                <div class="svcD-section-header">
-                    <h2 class="svcD-section-title">
-                        <span class="icon"><i class="ph ph-text-align-left"></i></span>
-                        Description
-                    </h2>
-                </div>
-                {% if service.short_description %}
-                    <p class="mb-2"><strong>Résumé :</strong> {{ service.short_description }}</p>
-                {% endif %}
-                <p class="mb-0">{{ service.description|linebreaksbr }}</p>
-            </div>
-
-            <div class="svcD-section mb-3">
-                <div class="svcD-section-header">
-                    <h2 class="svcD-section-title">
-                        <span class="icon"><i class="ph ph-currency-circle-dollar"></i></span>
-                        Tarification & durée
-                    </h2>
-                </div>
-                <div class="svcD-grid-2">
-                    <div>
-                        <p class="mb-0 svcD-item-label">Prix de base :</p>
-                        <p class="svcD-item-value">{{ service.base_price }} F CFA</p>
-                    </div>
-                    <div>
-                        <p class="mb-0 svcD-item-label">Durée estimée :</p>
-                        <p class="svcD-item-value">
-                            {% if service.duration_min_minutes or service.duration_max_minutes %}
-                                {{ service.duration_min_minutes|default:"-" }} – {{ service.duration_max_minutes|default:"-" }} min
-                            {% else %}
-                                <span class="text-muted">Non spécifiée</span>
-                            {% endif %}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="svcD-section">
-                <div class="svcD-section-header">
-                    <h2 class="svcD-section-title">
-                        <span class="icon"><i class="ph ph-clipboard-text"></i></span>
-                        Notes internes
-                    </h2>
-                    <p class="svcD-section-desc">
-                        Informations internes pour l’équipe (non visibles côté client).
-                    </p>
-                </div>
-                <p class="mb-0">
-                    {{ service.internal_notes|linebreaksbr|default:"Aucune note interne pour ce service." }}
+                <h2 class="profile-name">{{ service.name }}</h2>
+                
+                <p class="profile-category">
+                    <i class="ph ph-tag"></i>
+                    {{ service.category.name|default:"Non catégorisé" }}
                 </p>
+
+                <!-- Badges -->
+                <div class="status-badges">
+                    <span class="badge-item badge-type">
+                        <i class="ph ph-gear-six"></i>
+                        {{ service.get_service_type_display }}
+                    </span>
+                    {% if service.is_active %}
+                        <span class="badge-item badge-active">
+                            <i class="ph ph-check-circle"></i>
+                            Actif
+                        </span>
+                    {% else %}
+                        <span class="badge-item badge-inactive">
+                            <i class="ph ph-x-circle"></i>
+                            Inactif
+                        </span>
+                    {% endif %}
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="profile-stats">
+                    <div class="stat-box">
+                        <div class="stat-box-value">{{ service.base_price|floatformat:0 }}</div>
+                        <div class="stat-box-label">Prix (FCFA)</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-value">
+                            {% if service.duration_min_minutes %}
+                                {{ service.duration_min_minutes }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </div>
+                        <div class="stat-box-label">Durée min</div>
+                    </div>
+                </div>
+
+                <!-- Configuration -->
+                <div class="config-list">
+                    <div class="config-item">
+                        <span class="config-label">
+                            <i class="ph ph-map-pin"></i>
+                            Lieu de prestation
+                        </span>
+                        <span class="config-value">{{ service.get_location_type_display }}</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">
+                            <i class="ph ph-gauge"></i>
+                            Complexité
+                        </span>
+                        <span class="config-value">{{ service.get_difficulty_level_display }}</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">
+                            <i class="ph ph-buildings"></i>
+                            Studio requis
+                        </span>
+                        <span class="config-value {% if service.requires_studio %}yes{% else %}no{% endif %}">
+                            {% if service.requires_studio %}Oui{% else %}Non{% endif %}
+                        </span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">
+                            <i class="ph ph-speaker-high"></i>
+                            Location matériel
+                        </span>
+                        <span class="config-value {% if service.requires_equipment_rental %}yes{% else %}no{% endif %}">
+                            {% if service.requires_equipment_rental %}Oui{% else %}Non{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- INFO SECTION -->
+        <div class="info-section">
+            <!-- Informations générales -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon purple">
+                        <i class="ph ph-info"></i>
+                    </div>
+                    <h3 class="info-card-title">Informations générales</h3>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-link"></i>
+                                Slug (URL)
+                            </span>
+                            <span class="info-value">{{ service.slug }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-tag"></i>
+                                Catégorie
+                            </span>
+                            <span class="info-value {% if not service.category %}empty{% endif %}">
+                                {{ service.category.name|default:"Non catégorisé" }}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-briefcase"></i>
+                                Type de service
+                            </span>
+                            <span class="info-value">{{ service.get_service_type_display }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-power"></i>
+                                Statut
+                            </span>
+                            <span class="info-value">
+                                {% if service.is_active %}
+                                    <span style="color: var(--success-color);">✓ Actif</span>
+                                {% else %}
+                                    <span style="color: var(--surface-600);">✗ Inactif</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon blue">
+                        <i class="ph ph-text-align-left"></i>
+                    </div>
+                    <h3 class="info-card-title">Description</h3>
+                </div>
+                <div class="info-card-body">
+                    {% if service.short_description %}
+                        <div class="info-item full-width">
+                            <span class="info-label">Résumé</span>
+                            <span class="info-value">{{ service.short_description }}</span>
+                        </div>
+                    {% endif %}
+                    <div class="info-item full-width">
+                        <span class="info-label">Description complète</span>
+                        <span class="info-value {% if not service.description %}empty{% endif %}">
+                            {{ service.description|linebreaksbr|default:"Aucune description" }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarification & Durée -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon green">
+                        <i class="ph ph-currency-circle-dollar"></i>
+                    </div>
+                    <h3 class="info-card-title">Tarification & durée</h3>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-money"></i>
+                                Prix de base
+                            </span>
+                            <span class="info-value">
+                                <span class="price-display">
+                                    <i class="ph ph-currency-circle-dollar"></i>
+                                    {{ service.base_price|floatformat:0 }} FCFA
+                                </span>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-clock"></i>
+                                Durée estimée
+                            </span>
+                            <span class="info-value">
+                                {% if service.duration_min_minutes or service.duration_max_minutes %}
+                                    <span class="duration-display">
+                                        <i class="ph ph-clock"></i>
+                                        {{ service.duration_min_minutes|default:"?" }} - {{ service.duration_max_minutes|default:"?" }} min
+                                    </span>
+                                {% else %}
+                                    <span class="empty">Non spécifiée</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Timeline -->
+                    <div class="timeline-section">
+                        <div class="timeline-title">Historique</div>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-dot created">
+                                    <i class="ph ph-plus"></i>
+                                </div>
+                                <div>
+                                    <div class="timeline-label">Créé le</div>
+                                    <div class="timeline-date">{{ service.created_at|date:"d/m/Y" }}</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot updated">
+                                    <i class="ph ph-pencil"></i>
+                                </div>
+                                <div>
+                                    <div class="timeline-label">Modifié le</div>
+                                    <div class="timeline-date">{{ service.updated_at|date:"d/m/Y" }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes internes -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon gray">
+                        <i class="ph ph-clipboard-text"></i>
+                    </div>
+                    <h3 class="info-card-title">Notes internes</h3>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-item full-width">
+                        <span class="info-label">
+                            <i class="ph ph-note"></i>
+                            Notes pour l'équipe (non visibles côté client)
+                        </span>
+                        <span class="info-value {% if not service.internal_notes %}empty{% endif %}">
+                            {{ service.internal_notes|linebreaksbr|default:"Aucune note interne pour ce service." }}
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

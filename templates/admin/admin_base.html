@@ -6,70 +6,208 @@
     <title>{% block title %}Admin - Oloustream{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <style>
+        /* ==================== VARIABLES CSS ==================== */
         :root {
-            --primary-color: #4361ee;
-            --primary-dark: #3a56d4;
-            --primary-light: #4895ef;
-            --secondary-color: #7209b7;
-            --accent-color: #f72585;
-            --white: #ffffff;
-            --gray-50: #f8f9fa;
-            --gray-100: #f1f3f5;
-            --gray-200: #e9ecef;
-            --gray-300: #dee2e6;
-            --gray-400: #ced4da;
-            --gray-500: #adb5bd;
-            --gray-600: #6c757d;
-            --gray-700: #495057;
-            --gray-800: #343a40;
-            --gray-900: #212529;
-            --success-color: #28a745;
-            --warning-color: #ffc107;
-            --danger-color: #dc3545;
-            --info-color: #17a2b8;
+            /* Couleurs principales */
+            --primary-50: #faf5ff;
+            --primary-100: #f3e8ff;
+            --primary-200: #e9d5ff;
+            --primary-300: #d8b4fe;
+            --primary-400: #c084fc;
+            --primary-500: #a855f7;
+            --primary-600: #9333ea;
+            --primary-700: #7c3aed;
+            --primary-800: #6b21a8;
+            --primary-900: #581c87;
+            
+            /* Accent - Or/Doré */
+            --accent-400: #fbbf24;
+            --accent-500: #f59e0b;
+            --accent-600: #d97706;
+            
+            /* Surfaces sombres */
+            --surface-50: #fafafa;
+            --surface-100: #f4f4f5;
+            --surface-200: #e4e4e7;
+            --surface-300: #d4d4d8;
+            --surface-400: #a1a1aa;
+            --surface-500: #71717a;
+            --surface-600: #52525b;
+            --surface-700: #3f3f46;
+            --surface-800: #27272a;
+            --surface-850: #1f1f23;
+            --surface-900: #18181b;
+            --surface-950: #09090b;
+            
+            /* États */
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            
+            /* Sidebar dimensions */
+            --sidebar-width-expanded: 280px;
+            --sidebar-width-collapsed: 80px;
+            --header-height: 70px;
+            
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--white);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--surface-900);
+            color: var(--surface-100);
             min-height: 100vh;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* ==================== SIDEBAR STYLE ==================== */
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--surface-600);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-500);
+        }
+
+        /* ==================== SIDEBAR ==================== */
         #sidebar {
-            width: 256px;
-            min-height: 100vh;
-            background: var(--white);
-            border-right: 1px solid var(--gray-200);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
             position: fixed;
             left: 0;
             top: 0;
+            width: var(--sidebar-width-expanded);
+            height: 100vh;
+            background: linear-gradient(180deg, var(--surface-900) 0%, var(--surface-950) 100%);
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            flex-direction: column;
             z-index: 1000;
+            transition: width var(--transition-normal), transform var(--transition-normal);
+            overflow: hidden;
         }
 
+        /* Effet de lumière subtile en haut */
+        #sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: radial-gradient(ellipse at top left, rgba(168, 85, 247, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* État collapsed */
+        #sidebar.collapsed {
+            width: var(--sidebar-width-collapsed);
+        }
+
+        #sidebar.collapsed .logo-details,
+        #sidebar.collapsed .nav-text,
+        #sidebar.collapsed .nav-arrow,
+        #sidebar.collapsed .nav-section .section-title,
+        #sidebar.collapsed .message-badge-sidebar {
+            opacity: 0;
+            visibility: hidden;
+            width: 0;
+        }
+
+        #sidebar.collapsed .sidebar-header {
+            justify-content: center;
+            padding: 1.25rem 0.5rem;
+        }
+
+        #sidebar.collapsed .nav-link {
+            justify-content: center;
+            padding: 0.875rem;
+        }
+
+        #sidebar.collapsed .sub-menu {
+            display: none !important;
+        }
+
+        #sidebar.collapsed .collapse-btn i {
+            transform: rotate(180deg);
+        }
+
+        /* ==================== SIDEBAR HEADER ==================== */
         .sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--gray-200);
+            padding: 1.25rem 1.25rem;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.875rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .logo-container {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .logo-glow {
+            position: absolute;
+            inset: -4px;
+            background: linear-gradient(135deg, var(--primary-500), var(--accent-500));
+            border-radius: 14px;
+            opacity: 0.4;
+            filter: blur(8px);
+            animation: logo-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes logo-pulse {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
         }
 
         .logo-image {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
             overflow: hidden;
-            border: 2px solid var(--primary-color);
+            position: relative;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: var(--surface-800);
         }
 
         .logo-image img {
@@ -78,50 +216,99 @@
             object-fit: cover;
         }
 
-        .logo-details .title {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--gray-600);
+        .logo-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.125rem;
+            transition: opacity var(--transition-normal), width var(--transition-normal);
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .logo-details .brand-name {
+            font-size: 1.125rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-400), var(--accent-400));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-details .brand-subtitle {
+            font-size: 0.6875rem;
+            color: var(--surface-400);
+            font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.25rem;
+            letter-spacing: 0.1em;
         }
 
-        .logo-details .name {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--gray-900);
-            margin: 0;
+        /* ==================== COLLAPSE BUTTON ==================== */
+        .collapse-btn {
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            background: var(--surface-800);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--surface-400);
+            transition: all var(--transition-fast);
+            z-index: 10;
         }
 
+        .collapse-btn:hover {
+            background: var(--primary-600);
+            color: white;
+            border-color: var(--primary-500);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .collapse-btn i {
+            font-size: 0.75rem;
+            transition: transform var(--transition-normal);
+        }
+
+        /* ==================== SIDEBAR NAVIGATION ==================== */
         .sidebar-nav {
-            padding: 1rem;
             flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
+            padding: 1rem 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
         .nav-section {
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.5rem;
         }
 
-        .nav-section .title {
-            font-size: 0.75rem;
+        .nav-section .section-title {
+            font-size: 0.6875rem;
             font-weight: 600;
-            color: var(--gray-500);
+            color: var(--surface-500);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.75rem;
-            padding: 0 0.75rem;
+            letter-spacing: 0.1em;
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.25rem;
+            transition: opacity var(--transition-normal);
         }
 
         .nav-menu {
             list-style: none;
-            padding: 0;
-            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
         }
 
         .nav-item {
-            margin-bottom: 0.25rem;
             position: relative;
         }
 
@@ -129,110 +316,261 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            padding: 0.75rem;
-            color: var(--gray-700);
+            padding: 0.75rem 0.875rem;
+            color: var(--surface-400);
             text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.15s ease;
-            border: 1px solid transparent;
+            border-radius: 10px;
+            transition: all var(--transition-fast);
+            position: relative;
+            overflow: hidden;
             font-weight: 500;
             font-size: 0.875rem;
         }
 
-        .nav-link:hover {
-            background: var(--gray-100);
-            color: var(--gray-900);
-            border-color: var(--gray-200);
-            transform: translateX(2px);
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+            border-radius: 10px;
         }
 
-        .nav-item.active .nav-link {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: var(--white);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        .nav-link:hover {
+            color: var(--surface-100);
+        }
+
+        .nav-link:hover::before {
+            opacity: 0.1;
+        }
+
+        .nav-item.active > .nav-link {
+            color: white;
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item.active > .nav-link::before {
+            opacity: 0;
         }
 
         .nav-icon {
             font-size: 1.25rem;
             width: 24px;
-            text-align: center;
-            flex-shrink: 0;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
         }
 
         .nav-text {
             flex: 1;
-            font-weight: 500;
             white-space: nowrap;
+            position: relative;
+            z-index: 1;
+            transition: opacity var(--transition-normal);
         }
 
         .nav-arrow {
             font-size: 0.875rem;
-            transition: transform 0.3s ease;
-            color: var(--gray-500);
+            transition: transform var(--transition-fast), opacity var(--transition-normal);
+            position: relative;
+            z-index: 1;
         }
 
-        .nav-item.active .nav-arrow {
+        .nav-item.open > .nav-link .nav-arrow {
             transform: rotate(180deg);
-            color: var(--white);
         }
 
-        /* Sous-menus */
+        /* Badges dans la sidebar */
+        .message-badge-sidebar {
+            position: relative;
+            z-index: 1;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            border-radius: 10px;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity var(--transition-normal);
+        }
+
+        .badge-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+        }
+
+        .badge-warning {
+            background: linear-gradient(135deg, var(--warning), #d97706);
+            color: var(--surface-900);
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+        }
+
+        .badge-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+
+        /* ==================== SOUS-MENUS ==================== */
         .sub-menu {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease;
-            background: var(--gray-50);
+            transition: max-height var(--transition-normal), padding var(--transition-normal);
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 8px;
-            margin: 0.5rem 0;
+            margin-top: 0.25rem;
+            margin-left: 0.5rem;
         }
 
-        .nav-item.active .sub-menu {
+        .nav-item.open .sub-menu {
             max-height: 500px;
+            padding: 0.5rem 0;
         }
 
         .sub-menu .nav-link {
-            padding: 0.5rem 1rem 0.5rem 2.5rem;
-            font-size: 0.8rem;
-            border-left: 2px solid transparent;
+            padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+            font-size: 0.8125rem;
+            color: var(--surface-400);
             position: relative;
         }
 
-        .sub-menu .nav-link:hover {
-            background: var(--white);
-            color: var(--primary-color);
-            border-left-color: var(--primary-color);
-        }
-
-        .sub-menu .nav-link::before {
-            content: "";
+        .sub-menu .nav-link::after {
+            content: '';
             position: absolute;
-            left: 1.5rem;
+            left: 1rem;
             top: 50%;
             transform: translateY(-50%);
-            width: 4px;
-            height: 4px;
-            background: var(--gray-400);
+            width: 6px;
+            height: 6px;
+            background: var(--surface-600);
             border-radius: 50%;
+            transition: all var(--transition-fast);
         }
 
-        .sub-menu .nav-link:hover::before {
-            background: var(--primary-color);
+        .sub-menu .nav-link:hover::after,
+        .sub-menu .nav-link.active::after {
+            background: var(--primary-500);
+            box-shadow: 0 0 8px var(--primary-500);
         }
 
-        /* ==================== HEADER STYLE ==================== */
+        .sub-menu .nav-link:hover,
+        .sub-menu .nav-link.active {
+            color: var(--surface-100);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .sub-menu .badge {
+            font-size: 0.625rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        /* ==================== SIDEBAR FOOTER ==================== */
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            flex-shrink: 0;
+        }
+
+        #sidebar.collapsed .sidebar-footer {
+            padding: 0.75rem 0.5rem;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.75rem 0.875rem;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 10px;
+            color: #fca5a5;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all var(--transition-fast);
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #fecaca;
+            transform: translateX(4px);
+        }
+
+        #sidebar.collapsed .logout-btn {
+            justify-content: center;
+            padding: 0.75rem;
+        }
+
+        #sidebar.collapsed .logout-btn span {
+            display: none;
+        }
+
+        /* ==================== TOOLTIPS POUR MODE COLLAPSED ==================== */
+        .nav-item .tooltip-text {
+            position: absolute;
+            left: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--surface-800);
+            color: var(--surface-100);
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-fast);
+            z-index: 1001;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item .tooltip-text::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 6px solid transparent;
+            border-right-color: var(--surface-800);
+        }
+
+        #sidebar.collapsed .nav-item:hover .tooltip-text {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ==================== HEADER ==================== */
         #header {
             position: fixed;
             top: 0;
-            left: 256px;
-            width: calc(100% - 256px);
-            height: 70px;
-            background: var(--white);
-            border-bottom: 1px solid var(--gray-200);
+            left: var(--sidebar-width-expanded);
+            right: 0;
+            height: var(--header-height);
+            background: rgba(24, 24, 27, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
             z-index: 999;
-            transition: all 0.3s ease;
+            transition: left var(--transition-normal);
+        }
+
+        #sidebar.collapsed ~ #header {
+            left: var(--sidebar-width-collapsed);
         }
 
         .navbar-custom {
@@ -241,51 +579,78 @@
             justify-content: space-between;
             padding: 0 1.5rem;
             height: 100%;
-            width: 100%;
+            gap: 1rem;
         }
 
+        /* Toggle Mobile */
+        .sidebar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--surface-300);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all var(--transition-fast);
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        /* Navigation Home Links */
         .nav-home {
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem;
         }
 
         .nav-home a {
             text-decoration: none;
-            color: var(--gray-600);
+            color: var(--surface-400);
             font-weight: 500;
-            transition: all 0.15s ease;
-            padding: 0.5rem 0.75rem;
-            border-radius: 6px;
-            position: relative;
+            font-size: 0.875rem;
+            padding: 0.5rem 0.875rem;
+            border-radius: 8px;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .nav-home a:hover {
-            color: var(--primary-color);
-            background: var(--gray-100);
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
         }
 
+        /* Search Container */
         .search-container {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-wrapper {
             display: flex;
             align-items: center;
-            background: var(--gray-100);
-            border-radius: 20px;
-            padding: 0.5rem 1rem;
-            transition: all 0.15s ease;
-            border: 1px solid transparent;
-            flex: 0 1 400px;
-            margin: 0 auto;
+            background: var(--surface-800);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 0.625rem 1rem;
+            transition: all var(--transition-fast);
         }
 
-        .search-container:focus-within {
-            background: var(--white);
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        .search-wrapper:focus-within {
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15);
+            background: var(--surface-850);
         }
 
         .search-icon {
             font-size: 1.125rem;
-            color: var(--gray-500);
-            margin-right: 0.5rem;
+            color: var(--surface-500);
+            margin-right: 0.625rem;
         }
 
         .search-input {
@@ -293,460 +658,835 @@
             background: none;
             outline: none;
             font-size: 0.875rem;
-            color: var(--gray-800);
+            color: var(--surface-100);
             width: 100%;
+            font-family: inherit;
         }
 
-        .nav-messages {
+        .search-input::placeholder {
+            color: var(--surface-500);
+        }
+
+        .search-shortcut {
+            background: var(--surface-700);
+            color: var(--surface-400);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        /* Header Actions */
+        .header-actions {
             display: flex;
-            list-style: none;
-            gap: 0.75rem;
             align-items: center;
-            margin: 0;
-            padding: 0;
+            gap: 0.5rem;
         }
 
-        .nav-messages li {
+        .header-btn {
             position: relative;
-        }
-
-        .nav-messages a {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 40px;
-            height: 40px;
-            background: var(--gray-100);
-            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            background: var(--surface-800);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            color: var(--surface-400);
             text-decoration: none;
-            color: var(--gray-600);
-            transition: all 0.3s ease;
-            position: relative;
+            transition: all var(--transition-fast);
+            cursor: pointer;
         }
 
-        .nav-messages a:hover {
-            background: var(--primary-color);
-            color: var(--white);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .message-badge {
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            color: var(--white);
-            font-size: 0.7rem;
-            font-weight: 700;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid var(--white);
-            animation: pulse 2s infinite;
-        }
-
-        .message-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
+        .header-btn:hover {
+            background: var(--surface-700);
             color: white;
-            font-size: 0.7rem;
-            font-weight: 700;
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .header-btn i {
+            font-size: 1.25rem;
+        }
+
+        .header-btn .badge-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            width: 18px;
+            border: 2px solid var(--surface-900);
+        }
+
+        .header-btn .badge-count {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            min-width: 18px;
             height: 18px;
+            padding: 0 5px;
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            border-radius: 9px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid var(--white);
-            animation: pulse 2s infinite;
+            border: 2px solid var(--surface-900);
+            animation: badge-pulse 2s ease-in-out infinite;
         }
 
-        .badge-message {
-            background: var(--danger-color);
-        }
-
-        .badge-notification {
-            background: var(--warning-color);
-            color: var(--gray-900);
-        }
-
-        @keyframes pulse {
+        @keyframes badge-pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.1); }
         }
 
-        .badge-message {
-            background: var(--danger-color);
+        /* Separator */
+        .header-separator {
+            width: 1px;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.08);
+            margin: 0 0.5rem;
         }
 
-        .badge-notification {
-            background: var(--warning-color);
-            color: var(--gray-900);
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
+        /* User Profile */
         .user-profile {
-            display: flex;
-            align-items: center;
             position: relative;
         }
 
         .user-profile-btn {
             display: flex;
             align-items: center;
-            text-decoration: none;
-            color: var(--gray-800);
-            font-weight: 500;
-            transition: all 0.3s ease;
-            padding: 0.5rem 0.75rem;
-            border-radius: 20px;
             gap: 0.75rem;
-            border: none;
-            background: none;
+            padding: 0.375rem 0.75rem 0.375rem 0.375rem;
+            background: var(--surface-800);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
             cursor: pointer;
+            transition: all var(--transition-fast);
         }
 
         .user-profile-btn:hover {
-            background: var(--gray-100);
-            color: var(--primary-color);
+            background: var(--surface-700);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .user-avatar {
+            position: relative;
         }
 
         .user-image {
             width: 36px;
             height: 36px;
-            border-radius: 50%;
+            border-radius: 10px;
             object-fit: cover;
-            border: 2px solid var(--gray-300);
-            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.1);
         }
 
-        .user-profile-btn:hover .user-image {
-            border-color: var(--primary-color);
-            transform: scale(1.05);
+        .user-status {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 12px;
+            height: 12px;
+            background: var(--success);
+            border: 2px solid var(--surface-800);
+            border-radius: 50%;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
         }
 
         .user-name {
             font-size: 0.875rem;
-            font-weight: 500;
+            font-weight: 600;
+            color: var(--surface-100);
+            line-height: 1.2;
         }
 
+        .user-role {
+            font-size: 0.6875rem;
+            color: var(--surface-500);
+        }
+
+        .user-profile-btn i {
+            font-size: 1rem;
+            color: var(--surface-500);
+            transition: transform var(--transition-fast);
+        }
+
+        .user-profile.open .user-profile-btn i {
+            transform: rotate(180deg);
+        }
+
+        /* Profile Dropdown */
         .profile-dropdown {
             position: absolute;
-            top: 100%;
+            top: calc(100% + 8px);
             right: 0;
-            background: var(--white);
-            border: 1px solid var(--gray-200);
+            min-width: 220px;
+            background: var(--surface-800);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            min-width: 200px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all var(--transition-fast);
             z-index: 1001;
-            display: none;
+            overflow: hidden;
         }
 
-        .profile-dropdown.show {
-            display: block;
+        .user-profile.open .profile-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-header {
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(245, 158, 11, 0.05));
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .dropdown-header .name {
+            font-weight: 600;
+            color: var(--surface-100);
+            font-size: 0.9375rem;
+        }
+
+        .dropdown-header .email {
+            font-size: 0.75rem;
+            color: var(--surface-500);
+            margin-top: 0.125rem;
+        }
+
+        .dropdown-menu-items {
+            padding: 0.5rem;
         }
 
         .dropdown-item {
-            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem 0.75rem;
+            color: var(--surface-300);
             text-decoration: none;
-            color: var(--gray-700);
-            display: block;
-            transition: all 0.3s ease;
             border-radius: 8px;
-            margin: 0.25rem;
+            font-size: 0.875rem;
+            transition: all var(--transition-fast);
         }
 
         .dropdown-item:hover {
-            background: rgba(67, 97, 238, 0.1);
-            color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .dropdown-item i {
+            font-size: 1.125rem;
+            width: 20px;
         }
 
         .dropdown-divider {
-            border-top: 1px solid var(--gray-200);
+            height: 1px;
+            background: rgba(255, 255, 255, 0.06);
             margin: 0.5rem 0;
+        }
+
+        .dropdown-item.danger {
+            color: #fca5a5;
+        }
+
+        .dropdown-item.danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #fecaca;
         }
 
         /* ==================== MAIN CONTENT ==================== */
         #main-content {
-            margin-top: 70px;
-            margin-left: 256px;
-            width: calc(100% - 256px);
-            min-height: calc(100vh - 70px);
-            background: var(--white);
+            margin-top: var(--header-height);
+            margin-left: var(--sidebar-width-expanded);
+            min-height: calc(100vh - var(--header-height));
+            background: var(--surface-900);
             padding: 1.5rem;
-            transition: all 0.3s ease;
+            transition: margin-left var(--transition-normal);
         }
 
-        /* ==================== BOUTON TOGGLE MOBILE ==================== */
-        .sidebar-toggle {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--gray-600);
-            cursor: pointer;
-            padding: 0.5rem;
+        #sidebar.collapsed ~ #main-content {
+            margin-left: var(--sidebar-width-collapsed);
+        }
+
+        /* ==================== OVERLAY MOBILE ==================== */
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-normal);
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
         }
 
         /* ==================== RESPONSIVE ==================== */
-        @media (max-width: 1024px) {
+        
+        /* Tablette et petits écrans */
+        @media (max-width: 1200px) {
             #sidebar {
-                transform: translateX(-100%);
+                width: var(--sidebar-width-collapsed);
             }
-            
-            #sidebar.mobile-open {
-                transform: translateX(0);
+
+            #sidebar .logo-details,
+            #sidebar .nav-text,
+            #sidebar .nav-arrow,
+            #sidebar .nav-section .section-title,
+            #sidebar .message-badge-sidebar {
+                opacity: 0;
+                visibility: hidden;
+                width: 0;
             }
-            
+
+            #sidebar .sidebar-header {
+                justify-content: center;
+                padding: 1.25rem 0.5rem;
+            }
+
+            #sidebar .nav-link {
+                justify-content: center;
+                padding: 0.875rem;
+            }
+
+            #sidebar .sub-menu {
+                display: none !important;
+            }
+
+            #sidebar .collapse-btn {
+                display: none;
+            }
+
+            #sidebar .logout-btn {
+                justify-content: center;
+                padding: 0.75rem;
+            }
+
+            #sidebar .logout-btn span {
+                display: none;
+            }
+
+            #sidebar .nav-item:hover .tooltip-text {
+                opacity: 1;
+                visibility: visible;
+            }
+
             #header {
-                left: 0;
-                width: 100%;
+                left: var(--sidebar-width-collapsed);
             }
-            
+
             #main-content {
-                margin-left: 0;
-                width: 100%;
+                margin-left: var(--sidebar-width-collapsed);
             }
-            
-            .sidebar-toggle {
-                display: block;
+
+            /* Expand on hover pour tablette */
+            #sidebar:hover {
+                width: var(--sidebar-width-expanded);
+                box-shadow: 10px 0 40px rgba(0, 0, 0, 0.3);
+            }
+
+            #sidebar:hover .logo-details,
+            #sidebar:hover .nav-text,
+            #sidebar:hover .nav-arrow,
+            #sidebar:hover .nav-section .section-title,
+            #sidebar:hover .message-badge-sidebar {
+                opacity: 1;
+                visibility: visible;
+                width: auto;
+            }
+
+            #sidebar:hover .sidebar-header {
+                justify-content: flex-start;
+                padding: 1.25rem;
+            }
+
+            #sidebar:hover .nav-link {
+                justify-content: flex-start;
+                padding: 0.75rem 0.875rem;
+            }
+
+            #sidebar:hover .sub-menu {
+                display: block !important;
+            }
+
+            #sidebar:hover .logout-btn {
+                justify-content: flex-start;
+                padding: 0.75rem 0.875rem;
+            }
+
+            #sidebar:hover .logout-btn span {
+                display: inline;
+            }
+
+            #sidebar:hover .nav-item .tooltip-text {
+                opacity: 0 !important;
+                visibility: hidden !important;
             }
         }
 
+        /* Mobile */
         @media (max-width: 768px) {
-            .navbar-custom {
-                flex-wrap: wrap;
-                padding: 0 1rem;
+            #sidebar {
+                transform: translateX(-100%);
+                width: var(--sidebar-width-expanded);
             }
-            
+
+            #sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            #sidebar:hover {
+                width: var(--sidebar-width-expanded);
+                box-shadow: none;
+            }
+
+            #header {
+                left: 0;
+            }
+
+            #main-content {
+                margin-left: 0;
+            }
+
+            .sidebar-toggle {
+                display: flex;
+            }
+
+            .collapse-btn {
+                display: none !important;
+            }
+
+            .nav-home {
+                display: none;
+            }
+
             .search-container {
-                flex: 1 1 100%;
-                order: 3;
-                margin: 0.5rem 0 0 0;
+                display: none;
             }
-            
-            .user-name {
+
+            .user-info {
+                display: none;
+            }
+
+            .header-separator {
                 display: none;
             }
         }
 
+        /* Très petits écrans */
         @media (max-width: 480px) {
-            .nav-home {
-                gap: 0.5rem;
+            .navbar-custom {
+                padding: 0 1rem;
             }
-            
-            .nav-home a {
-                padding: 0.25rem 0.5rem;
-                font-size: 0.875rem;
+
+            .header-actions {
+                gap: 0.25rem;
             }
-            
-            .nav-messages {
-                gap: 0.5rem;
+
+            .header-btn {
+                width: 38px;
+                height: 38px;
+            }
+
+            .user-profile-btn {
+                padding: 0.25rem;
+            }
+
+            #main-content {
+                padding: 1rem;
             }
         }
+
+        /* ==================== UTILITAIRES ==================== */
+        .text-gradient {
+            background: linear-gradient(135deg, var(--primary-400), var(--accent-400));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Animations d'entrée */
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .animate-slide-in {
+            animation: slideInLeft 0.3s ease-out forwards;
+        }
     </style>
+
+    {% block extra_css %}{% endblock %}
 </head>
+
 <body>
+    <!-- OVERLAY POUR MOBILE -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- SIDEBAR -->
-    <nav id="sidebar" class="d-flex flex-column">
+    <nav id="sidebar">
+        <!-- Header avec logo -->
         <div class="sidebar-header">
-            <div class="logo-image">
-                <img src="{% static 'img/logo.jpg' %}" alt="Oloustream">
+            <div class="logo-container">
+                <div class="logo-glow"></div>
+                <div class="logo-image">
+                    <img src="{% static 'img/logo.jpg' %}" alt="Oloustream">
+                </div>
             </div>
             <div class="logo-details">
-                <div class="title">Oloustream</div>
-                <div class="name">Admin</div>
+                <span class="brand-name">Oloustream</span>
+                <span class="brand-subtitle">Administration</span>
             </div>
+            
+            <!-- Bouton pour collapse/expand -->
+            <button class="collapse-btn" id="collapseBtn" title="Réduire le menu">
+                <i class="ph ph-caret-left"></i>
+            </button>
         </div>
 
+        <!-- Navigation -->
         <div class="sidebar-nav">
             <!-- Section Main -->
             <div class="nav-section">
-                <div class="title">Main</div>
+                <div class="section-title">Principal</div>
                 <ul class="nav-menu">
-                    <li class="nav-item active">
+                    <!-- Dashboard -->
+                    <li class="nav-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
                         <a href="{% url 'dashboard:index' %}" class="nav-link">
                             <i class="nav-icon ph-bold ph-house-simple"></i>
                             <span class="nav-text">Dashboard</span>
                         </a>
+                        <span class="tooltip-text">Dashboard</span>
                     </li>
-                    <li class="nav-item">
+
+                    <!-- Employés -->
+                    <li class="nav-item {% if 'employees' in request.path %}active{% endif %}">
                         <a href="{% url 'dashboard:employees_list' %}" class="nav-link">
-                            <i class="nav-icon ph-bold ph-user"></i>
-                            <span class="nav-text">Employés</span>                  
+                            <i class="nav-icon ph-bold ph-users"></i>
+                            <span class="nav-text">Employés</span>
                         </a>
+                        <span class="tooltip-text">Employés</span>
                     </li>
-                    <li class="nav-item">
+
+                    <!-- Équipements -->
+                    <li class="nav-item {% if 'equipments' in request.path %}active{% endif %}">
                         <a href="{% url 'dashboard:equipments_list' %}" class="nav-link">
-                            <i class="nav-icon ph ph-device-mobile"></i>
+                            <i class="nav-icon ph ph-device-mobile-camera"></i>
                             <span class="nav-text">Équipements</span>
                         </a>
+                        <span class="tooltip-text">Équipements</span>
                     </li>
-                    <li class="nav-item">
+
+                    <!-- Réservations -->
+                    <li class="nav-item {% if 'reservations' in request.path %}active{% endif %}">
                         <a href="{% url 'dashboard:reservations_list' %}" class="nav-link">
                             <i class="nav-icon ph ph-calendar-check"></i>
                             <span class="nav-text">Réservations</span>
                         </a>
+                        <span class="tooltip-text">Réservations</span>
                     </li>
-                    <li class="nav-item">
+
+                    <!-- Services -->
+                    <li class="nav-item {% if 'services' in request.path and 'business' not in request.path %}active{% endif %}">
                         <a href="{% url 'dashboard:services_list' %}" class="nav-link">
                             <i class="nav-icon ph ph-gear-six"></i>
                             <span class="nav-text">Services</span>
                         </a>
+                        <span class="tooltip-text">Services</span>
                     </li>
-                     <li class="nav-item">
+
+                    <!-- Studios -->
+                    <li class="nav-item {% if 'studios' in request.path %}active{% endif %}">
                         <a href="{% url 'dashboard:studios_list' %}" class="nav-link">
-                            <i class="nav-icon ph ph-headphones"></i>
-                            <span class="nav-text">Studio</span>
+                            <i class="nav-icon ph ph-microphone-stage"></i>
+                            <span class="nav-text">Studios</span>
                         </a>
+                        <span class="tooltip-text">Studios</span>
                     </li>
-                    <li class="nav-item">
+
+                    <!-- Offres -->
+                    <li class="nav-item {% if 'offers' in request.path %}active{% endif %}">
                         <a href="{% url 'dashboard:offers_list' %}" class="nav-link">
                             <i class="nav-icon ph ph-tag"></i>
                             <span class="nav-text">Offres</span>
                         </a>
+                        <span class="tooltip-text">Offres</span>
                     </li>
-                    <li class="nav-item">
+
+                    <!-- Recrutement -->
+                    <li class="nav-item {% if 'jobs' in request.path %}active{% endif %}">
                         <a href="{% url 'services_app:admin_jobs_list' %}" class="nav-link">
                             <i class="nav-icon ph ph-briefcase"></i>
                             <span class="nav-text">Recrutement</span>
                         </a>
+                        <span class="tooltip-text">Recrutement</span>
                     </li>
-                    <li class="nav-item">
+
+                    <!-- Formations -->
+                    <li class="nav-item {% if 'trainings' in request.path %}active{% endif %}">
                         <a href="{% url 'dashboard:trainings_list' %}" class="nav-link">
-                            <i class="nav-icon ph ph-book"></i>
+                            <i class="nav-icon ph ph-graduation-cap"></i>
                             <span class="nav-text">Formations</span>
                         </a>
+                        <span class="tooltip-text">Formations</span>
                     </li>
-                    <li class="nav-item">
+
+                    <!-- Partenaires simples -->
+                    <li class="nav-item {% if 'partners' in request.path and 'business' not in request.path and 'applications' not in request.path and 'contracts' not in request.path %}active{% endif %}">
                         <a href="{% url 'dashboard:partners_list' %}" class="nav-link">
                             <i class="nav-icon ph ph-handshake"></i>
                             <span class="nav-text">Partenaires</span>
                         </a>
+                        <span class="tooltip-text">Partenaires</span>
                     </li>
-                    <li class="nav-item">
+                </ul>
+            </div>
+
+            <!-- Section Business -->
+            <div class="nav-section">
+                <div class="section-title">Business</div>
+                <ul class="nav-menu">
+                    <!-- Partenaires d'Affaires avec sous-menu -->
+                    <li class="nav-item {% if 'business_partner' in request.path or 'partner_applications' in request.path or 'partner_contracts' in request.path or 'partner_payments' in request.path %}open active{% endif %}">
+                        <a href="#" class="nav-link submenu-toggle">
+                            <i class="nav-icon ph ph-users-three"></i>
+                            <span class="nav-text">Partenaires d'Affaires</span>
+                            <i class="nav-arrow ph ph-caret-down"></i>
+                        </a>
+                        <span class="tooltip-text">Partenaires d'Affaires</span>
+                        <ul class="sub-menu">
+                            <li>
+                                <a href="{% url 'dashboard:partner_applications_list' %}" class="nav-link {% if 'applications' in request.path %}active{% endif %}">
+                                    <span>📝 Candidatures</span>
+                                    {% if pending_applications_count %}
+                                        <span class="badge bg-warning text-dark">{{ pending_applications_count }}</span>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'dashboard:business_partners_list' %}" class="nav-link {% if 'business_partners' in request.path %}active{% endif %}">
+                                    <span>🤝 Partenaires actifs</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'dashboard:partner_contracts_list' %}" class="nav-link {% if 'contracts' in request.path %}active{% endif %}">
+                                    <span>📋 Contrats</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'dashboard:partner_payments_list' %}" class="nav-link {% if 'partner_payments' in request.path %}active{% endif %}">
+                                    <span>💰 Paiements</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Paiements -->
+                    <li class="nav-item {% if 'payments' in request.path and 'partner' not in request.path %}active{% endif %}">
                         <a href="#" class="nav-link">
                             <i class="nav-icon ph ph-credit-card"></i>
                             <span class="nav-text">Paiements</span>
                         </a>
+                        <span class="tooltip-text">Paiements</span>
                     </li>
-                   <li class="nav-item">
-                        <a href="{% url 'messaging:admin_conversations_list' %}" class="nav-link position-relative">
-                            <i class="nav-icon ph ph-envelope"></i>
+                </ul>
+            </div>
+
+            <!-- Section Communication -->
+            <div class="nav-section">
+                <div class="section-title">Communication</div>
+                <ul class="nav-menu">
+                    <!-- Messages -->
+                    <li class="nav-item {% if request.resolver_match.namespace == 'messaging' %}active{% endif %}">
+                        <a href="{% url 'messaging:admin_conversations_list' %}" class="nav-link">
+                            <i class="nav-icon ph ph-chat-circle-dots"></i>
                             <span class="nav-text">Messages</span>
-                            <span class="message-badge badge-message">{{ unread_messages_count|default:0 }}</span>
+                            {% if unread_messages_count %}
+                                <span class="message-badge-sidebar badge-danger">{{ unread_messages_count }}</span>
+                            {% endif %}
                         </a>
+                        <span class="tooltip-text">Messages {% if unread_messages_count %}({{ unread_messages_count }}){% endif %}</span>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link position-relative" href="{% url 'notifications:list' %}">
-                            <i class="nav-icon ph ph-bell"></i>
+                    <!-- Notifications -->
+                    <li class="nav-item {% if request.resolver_match.namespace == 'notifications' %}active{% endif %}">
+                        <a href="{% url 'notifications:list' %}" class="nav-link">
+                            <i class="nav-icon ph ph-bell-ringing"></i>
                             <span class="nav-text">Notifications</span>
-                            <span class="message-badge badge-notification">{{ unread_notifications_count|default:0 }}</span>
+                            {% if unread_notifications_count %}
+                                <span class="message-badge-sidebar badge-warning">{{ unread_notifications_count }}</span>
+                            {% endif %}
                         </a>
+                        <span class="tooltip-text">Notifications {% if unread_notifications_count %}({{ unread_notifications_count }}){% endif %}</span>
                     </li>
                 </ul>
             </div>
 
             <!-- Section Settings -->
             <div class="nav-section">
-                <div class="title">Settings</div>
+                <div class="section-title">Système</div>
                 <ul class="nav-menu">
-                    <li class="nav-item">
+                    <!-- Paramètres -->
+                    <li class="nav-item {% if 'settings' in request.path %}active{% endif %}">
                         <a href="#" class="nav-link">
                             <i class="nav-icon ph-bold ph-gear"></i>
                             <span class="nav-text">Paramètres</span>
                         </a>
+                        <span class="tooltip-text">Paramètres</span>
                     </li>
-                </ul>
-            </div>
 
-            <!-- Section Account -->
-            <div class="nav-section">
-                <div class="title">Account</div>
-                <ul class="nav-menu">
+                    <!-- Aide -->
                     <li class="nav-item">
                         <a href="#" class="nav-link">
-                            <i class="nav-icon ph-bold ph-info"></i>
-                            <span class="nav-text">Aide</span>
+                            <i class="nav-icon ph-bold ph-question"></i>
+                            <span class="nav-text">Aide & Support</span>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'accounts:logout' %}" class="nav-link">
-                            <i class="nav-icon ph-bold ph-sign-out"></i>
-                            <span class="nav-text">Déconnexion</span>
-                        </a>
+                        <span class="tooltip-text">Aide & Support</span>
                     </li>
                 </ul>
             </div>
+        </div>
+
+        <!-- Footer avec déconnexion -->
+        <div class="sidebar-footer">
+            <a href="{% url 'accounts:logout' %}" class="logout-btn">
+                <i class="ph-bold ph-sign-out"></i>
+                <span>Déconnexion</span>
+            </a>
         </div>
     </nav>
 
     <!-- HEADER -->
     <header id="header">
         <div class="navbar-custom">
-            <!-- Bouton toggle pour mobile -->
-            <button class="sidebar-toggle" onclick="toggleMobileSidebar()">
+            <!-- Toggle Mobile -->
+            <button class="sidebar-toggle" id="sidebarToggle">
                 <i class="ph ph-list"></i>
             </button>
 
+            <!-- Navigation Links -->
             <div class="nav-home">
-                <a href="#">Accueil</a>
-                <a href="#">Contact</a>
+                <a href="/">
+                    <i class="ph ph-house"></i>
+                    <span>Accueil</span>
+                </a>
+                <a href="#">
+                    <i class="ph ph-headset"></i>
+                    <span>Support</span>
+                </a>
             </div>
 
+            <!-- Search Bar -->
             <div class="search-container">
-                <i class="search-icon ph ph-magnifying-glass"></i>
-                <input type="search" class="search-input" placeholder="Recherche">
+                <div class="search-wrapper">
+                    <i class="search-icon ph ph-magnifying-glass"></i>
+                    <input type="search" class="search-input" placeholder="Rechercher...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
             </div>
 
-            <ul class="nav-messages">
-                <li class="{% if request.resolver_match.namespace == 'messaging' %}active{% endif %}">
-                    <a href="{% url 'messaging:admin_conversations_list' %}" class="position-relative">
-                        <i class="icon ph ph-envelope"></i>
-                        {% if unread_messages_count %}
-                            <span class="message-badge badge-message">
-                                {% if unread_messages_count > 9 %}9+{% else %}{{ unread_messages_count }}{% endif %}
-                            </span>
-                        {% endif %}
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'notifications:list' %}">
-                        <i class="ph ph-bell"></i>
-                        <span class="message-badge badge-notification">{{ unread_notifications_count|default:0 }}</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" id="fullscreen-toggle">
-                        <i class="ph ph-arrows-out-simple"></i>
-                    </a>
-                </li>
-            </ul>
+            <!-- Header Actions -->
+            <div class="header-actions">
+                <!-- Messages -->
+                <a href="{% url 'messaging:admin_conversations_list' %}" class="header-btn" title="Messages">
+                    <i class="ph ph-chat-circle-dots"></i>
+                    {% if unread_messages_count %}
+                        <span class="badge-count">
+                            {% if unread_messages_count > 9 %}9+{% else %}{{ unread_messages_count }}{% endif %}
+                        </span>
+                    {% endif %}
+                </a>
 
-            <div class="user-profile">
-                <button class="user-profile-btn" onclick="toggleProfileDropdown()">
-                    <img src="{% static 'img/user.jpg' %}" alt="User" class="user-image">
-                    <span class="user-name">{{ request.user.get_full_name|default:request.user.username }}</span>
-                    <i class="ph ph-caret-down"></i>
+                <!-- Notifications -->
+                <a href="{% url 'notifications:list' %}" class="header-btn" title="Notifications">
+                    <i class="ph ph-bell"></i>
+                    {% if unread_notifications_count %}
+                        <span class="badge-count">
+                            {% if unread_notifications_count > 9 %}9+{% else %}{{ unread_notifications_count }}{% endif %}
+                        </span>
+                    {% endif %}
+                </a>
+
+                <!-- Fullscreen -->
+                <button class="header-btn" id="fullscreenToggle" title="Plein écran">
+                    <i class="ph ph-arrows-out-simple"></i>
                 </button>
-                <div class="profile-dropdown" id="profileDropdown">
-                    <a href="{% url 'accounts:profile' %}" class="dropdown-item">
-                        <i class="ph ph-user me-2"></i>Mon profil
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="{% url 'accounts:logout' %}" class="dropdown-item">
-                        <i class="ph ph-sign-out me-2"></i>Déconnexion
-                    </a>
+
+                <div class="header-separator"></div>
+
+                <!-- User Profile -->
+                <div class="user-profile" id="userProfile">
+                    <button class="user-profile-btn">
+                        <div class="user-avatar">
+                            {% if request.user.employeeprofile.avatar %}
+                                <img src="{{ request.user.employeeprofile.avatar.url }}" alt="Avatar" class="user-image">
+                            {% else %}
+                                <img src="{% static 'img/user.jpg' %}" alt="Avatar" class="user-image">
+                            {% endif %}
+                            <span class="user-status"></span>
+                        </div>
+                        <div class="user-info">
+                            <span class="user-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+                            <span class="user-role">Administrateur</span>
+                        </div>
+                        <i class="ph ph-caret-down"></i>
+                    </button>
+
+                    <!-- Dropdown -->
+                    <div class="profile-dropdown">
+                        <div class="dropdown-header">
+                            <div class="name">{{ request.user.get_full_name|default:request.user.username }}</div>
+                            <div class="email">{{ request.user.email }}</div>
+                        </div>
+                        <div class="dropdown-menu-items">
+                            <a href="{% url 'accounts:profile' %}" class="dropdown-item">
+                                <i class="ph ph-user-circle"></i>
+                                <span>Mon Profil</span>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="ph ph-gear"></i>
+                                <span>Paramètres</span>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="ph ph-question"></i>
+                                <span>Aide</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="{% url 'accounts:logout' %}" class="dropdown-item danger">
+                                <i class="ph ph-sign-out"></i>
+                                <span>Déconnexion</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -760,92 +1500,172 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- JavaScript Personnalisé -->
+    <!-- JavaScript Optimisé -->
     <script>
-        // Gestion du mode plein écran
-        document.getElementById('fullscreen-toggle')?.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                document.exitFullscreen();
+        document.addEventListener('DOMContentLoaded', function() {
+            // Éléments DOM
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const collapseBtn = document.getElementById('collapseBtn');
+            const userProfile = document.getElementById('userProfile');
+            const fullscreenToggle = document.getElementById('fullscreenToggle');
+
+            // ==================== SIDEBAR MOBILE ====================
+            function openMobileSidebar() {
+                sidebar.classList.add('mobile-open');
+                sidebarOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
             }
-        });
 
-        // Mise à jour de l'icône plein écran
-        document.addEventListener('fullscreenchange', function() {
-            const icon = document.querySelector('#fullscreen-toggle i');
-            if (icon) {
-                if (document.fullscreenElement) {
-                    icon.classList.replace('ph-arrows-out-simple', 'ph-arrows-in-simple');
-                } else {
-                    icon.classList.replace('ph-arrows-in-simple', 'ph-arrows-out-simple');
-                }
+            function closeMobileSidebar() {
+                sidebar.classList.remove('mobile-open');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
             }
-        });
 
-        // Responsive sidebar pour mobile
-        function toggleMobileSidebar() {
-            document.getElementById('sidebar').classList.toggle('mobile-open');
-        }
-
-        // Gestion des menus déroulants dans la sidebar
-        document.querySelectorAll('.nav-item').forEach(item => {
-            const link = item.querySelector('.nav-link');
-            const subMenu = item.querySelector('.sub-menu');
-            
-            if (link && subMenu) {
-                link.addEventListener('click', function(e) {
-                    if (window.innerWidth > 1024) { // Seulement sur desktop
-                        e.preventDefault();
-                        const isActive = item.classList.contains('active');
-                        
-                        // Fermer les autres menus
-                        document.querySelectorAll('.nav-item.active').forEach(activeItem => {
-                            if (activeItem !== item) {
-                                activeItem.classList.remove('active');
-                            }
-                        });
-                        
-                        // Ouvrir/fermer le menu actuel
-                        item.classList.toggle('active', !isActive);
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    if (sidebar.classList.contains('mobile-open')) {
+                        closeMobileSidebar();
+                    } else {
+                        openMobileSidebar();
                     }
                 });
             }
-        });
 
-        // Gestion du dropdown du profil
-        function toggleProfileDropdown() {
-            const dropdown = document.getElementById('profileDropdown');
-            dropdown.classList.toggle('show');
-        }
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', closeMobileSidebar);
+            }
 
-        // Fermer le dropdown en cliquant à l'extérieur
-        document.addEventListener('click', function(e) {
-            const dropdown = document.getElementById('profileDropdown');
-            const profileBtn = document.querySelector('.user-profile-btn');
-            
-            if (dropdown && profileBtn && !profileBtn.contains(e.target) && !dropdown.contains(e.target)) {
-                dropdown.classList.remove('show');
+            // ==================== SIDEBAR COLLAPSE (DESKTOP) ====================
+            function toggleSidebarCollapse() {
+                sidebar.classList.toggle('collapsed');
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
             }
-            
-            // Fermer la sidebar en cliquant à l'extérieur (mobile)
-            const sidebar = document.getElementById('sidebar');
-            const toggleBtn = document.querySelector('.sidebar-toggle');
-            
-            if (window.innerWidth <= 1024 && sidebar && !sidebar.contains(e.target) && 
-                !toggleBtn.contains(e.target)) {
-                sidebar.classList.remove('mobile-open');
-            }
-        });
 
-        // Adapter le layout au redimensionnement
-        window.addEventListener('resize', function() {
-            const sidebar = document.getElementById('sidebar');
-            if (window.innerWidth > 1024) {
-                sidebar.classList.remove('mobile-open');
+            // Restaurer l'état au chargement
+            if (window.innerWidth > 1200) {
+                const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+                if (isCollapsed) {
+                    sidebar.classList.add('collapsed');
+                }
             }
+
+            if (collapseBtn) {
+                collapseBtn.addEventListener('click', toggleSidebarCollapse);
+            }
+
+            // ==================== SOUS-MENUS ====================
+            const submenuToggles = document.querySelectorAll('.submenu-toggle');
+            
+            submenuToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const navItem = this.closest('.nav-item');
+                    const isOpen = navItem.classList.contains('open');
+
+                    // Fermer les autres sous-menus (optionnel)
+                    // document.querySelectorAll('.nav-item.open').forEach(item => {
+                    //     if (item !== navItem) item.classList.remove('open');
+                    // });
+
+                    navItem.classList.toggle('open', !isOpen);
+                });
+            });
+
+            // ==================== DROPDOWN PROFIL ====================
+            if (userProfile) {
+                const profileBtn = userProfile.querySelector('.user-profile-btn');
+                
+                profileBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userProfile.classList.toggle('open');
+                });
+
+                // Fermer quand on clique ailleurs
+                document.addEventListener('click', function(e) {
+                    if (!userProfile.contains(e.target)) {
+                        userProfile.classList.remove('open');
+                    }
+                });
+            }
+
+            // ==================== PLEIN ÉCRAN ====================
+            if (fullscreenToggle) {
+                fullscreenToggle.addEventListener('click', function() {
+                    if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen().catch(err => {
+                            console.log('Erreur fullscreen:', err);
+                        });
+                    } else {
+                        document.exitFullscreen();
+                    }
+                });
+
+                document.addEventListener('fullscreenchange', function() {
+                    const icon = fullscreenToggle.querySelector('i');
+                    if (document.fullscreenElement) {
+                        icon.classList.replace('ph-arrows-out-simple', 'ph-arrows-in-simple');
+                    } else {
+                        icon.classList.replace('ph-arrows-in-simple', 'ph-arrows-out-simple');
+                    }
+                });
+            }
+
+            // ==================== RESPONSIVE ====================
+            let resizeTimer;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    if (window.innerWidth > 768) {
+                        closeMobileSidebar();
+                    }
+                    
+                    // Reset collapsed state pour mobile
+                    if (window.innerWidth <= 1200) {
+                        sidebar.classList.remove('collapsed');
+                    }
+                }, 100);
+            });
+
+            // ==================== RACCOURCI CLAVIER RECHERCHE ====================
+            document.addEventListener('keydown', function(e) {
+                // Cmd/Ctrl + K pour focus sur la recherche
+                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                    e.preventDefault();
+                    const searchInput = document.querySelector('.search-input');
+                    if (searchInput) {
+                        searchInput.focus();
+                    }
+                }
+
+                // Escape pour fermer la sidebar mobile
+                if (e.key === 'Escape') {
+                    closeMobileSidebar();
+                    if (userProfile) {
+                        userProfile.classList.remove('open');
+                    }
+                }
+            });
+
+            // ==================== ACTIVE STATE POUR LIENS ====================
+            // Marquer le lien actif basé sur l'URL
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav-link[href]');
+            
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && href !== '#' && currentPath.includes(href) && href !== '/') {
+                    const navItem = link.closest('.nav-item');
+                    if (navItem && !link.closest('.sub-menu')) {
+                        navItem.classList.add('active');
+                    }
+                }
+            });
         });
     </script>
+
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

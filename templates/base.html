@@ -15,15 +15,15 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="icon" href="{% static 'img/ICONE OLOUSTREAM.png' %}">
-    <link rel="shortcut icon" href="{% static 'img/ICONE OLOUSTREAM.png' %}">
+    <link rel="icon" href="{% static 'img/icone-oloustream.png' %}">
+    <link rel="shortcut icon" href="{% static 'img/icone-oloustream.png' %}">
 
     <!-- Recommandé (PNG) -->
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/ICONE OLOUSTREAM.png' %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/ICONE OLOUSTREAM.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/icone-oloustream.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/icone-oloustream.png' %}">
 
     <!-- iPhone/iPad -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/ICONE OLOUSTREAM.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/icone-oloustream.png' %}">
  
     <style>
         /* DESIGN SYSTEM */
@@ -965,6 +965,10 @@
                                     <a href="#services" class="nav-dropdown-link">
                                         <i class="fa-solid fa-tower-broadcast"></i>
                                         Live streaming
+                                    </a>
+                                    <a href="{% url 'partners:program_info' %}" class="nav-dropdown-link">
+                                        <i class="fa-solid fa-tower-broadcast"></i>
+                                        Devenir partenaire
                                     </a>
                                 </div>
                                 <div class="mb-2">

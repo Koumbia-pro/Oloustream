@@ -1,204 +1,1249 @@
 {# templates/admin/reservations/detail.html #}
 {% extends "admin/admin_base.html" %}
 
-{% block title %}Réservation #{{ reservation.id }} - Admin{% endblock %}
+{% block title %}Réservation #{{ reservation.id }} - Oloustream Admin{% endblock %}
 
-{% block content %}
-
+{% block extra_css %}
 <style>
+    /* ==================== VARIABLES ==================== */
     :root {
-        --adm-primary: #4f46e5;
-        --adm-muted: #6b7280;
-        --adm-border: #e5e7eb;
-        --adm-bg: #f9fafb;
+        --primary-400: #c084fc;
+        --primary-500: #a855f7;
+        --primary-600: #9333ea;
+        --primary-700: #7c3aed;
+        --accent-400: #fbbf24;
+        --accent-500: #f59e0b;
+        --surface-100: #f4f4f5;
+        --surface-200: #e4e4e7;
+        --surface-300: #d4d4d8;
+        --surface-400: #a1a1aa;
+        --surface-500: #71717a;
+        --surface-600: #52525b;
+        --surface-700: #3f3f46;
+        --surface-800: #27272a;
+        --surface-850: #1f1f23;
+        --surface-900: #18181b;
+        --error-color: #f87171;
+        --success-color: #34d399;
+        --info-color: #60a5fa;
+        --warning-color: #fbbf24;
     }
 
-    .adm-res-detail-page { margin-bottom: 2rem; }
+    /* ==================== WRAPPER ==================== */
+    .reservation-detail-wrapper {
+        width: 100%;
+        animation: fadeIn 0.4s ease-out;
+    }
 
-    .adm-res-detail-header {
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==================== PAGE HEADER ==================== */
+    .page-header {
         display: flex;
+        flex-wrap: wrap;
         justify-content: space-between;
         align-items: flex-start;
         gap: 1rem;
-        margin-bottom: 1rem;
+        margin-bottom: 2rem;
     }
 
-    .adm-res-detail-header h1 {
-        font-size: 1.4rem;
-        font-weight: 700;
-        margin-bottom: 0.25rem;
-    }
-
-    .adm-res-detail-header small {
-        font-size: 0.85rem;
-        color: var(--adm-muted);
-    }
-
-    .adm-res-back-link a {
-        font-size: 0.85rem;
-        text-decoration: none;
-        color: var(--adm-muted);
-    }
-
-    .adm-res-back-link a:hover { text-decoration: underline; }
-
-    .adm-actions-bar {
+    .header-left {
         display: flex;
-        gap: .5rem;
-        flex-wrap: wrap;
-        margin-top: .6rem;
-    }
-
-    .adm-res-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr);
+        align-items: center;
         gap: 1rem;
     }
 
-    @media (max-width: 992px) {
-        .adm-res-grid { grid-template-columns: 1fr; }
-    }
-
-    .adm-res-card {
-        background: #ffffff;
-        border-radius: 1rem;
-        border: 1px solid var(--adm-border);
-        box-shadow: 0 8px 24px rgba(15,23,42,0.06);
-        padding: 0.9rem 1rem;
-        margin-bottom: 0.8rem;
-    }
-
-    .adm-card-title {
-        font-size: 0.95rem;
-        font-weight: 700;
-        margin-bottom: 0.6rem;
-    }
-
-    .adm-field-label {
-        font-size: 0.78rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: #9ca3af;
-        margin-bottom: 0.1rem;
-    }
-
-    .adm-field-value {
-        font-size: 0.9rem;
-        color: #111827;
-        margin-bottom: 0.55rem;
-    }
-
-    .adm-field-value-muted {
-        color: var(--adm-muted);
-        font-size: 0.88rem;
-    }
-
-    .adm-tag {
-        display: inline-flex;
+    .back-btn {
+        display: flex;
         align-items: center;
         justify-content: center;
-        padding: 0.15rem 0.6rem;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        background: #eef2ff;
-        color: #4338ca;
-        margin-right: 0.3rem;
+        width: 42px;
+        height: 42px;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: var(--surface-400);
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+        background: var(--surface-700);
+        color: white;
+        transform: translateX(-3px);
+    }
+
+    .back-btn i {
+        font-size: 1.25rem;
+    }
+
+    .header-info h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        margin: 0 0 0.25rem 0;
+    }
+
+    .header-info h1 .reservation-id {
+        color: var(--primary-400);
+    }
+
+    .header-meta {
+        font-size: 0.875rem;
+        color: var(--surface-500);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .header-meta i {
+        font-size: 1rem;
+    }
+
+    .meta-separator {
+        width: 4px;
+        height: 4px;
+        background: var(--surface-600);
+        border-radius: 50%;
+    }
+
+    .header-meta a {
+        color: var(--primary-400);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .header-meta a:hover {
+        color: var(--primary-500);
+        text-decoration: underline;
+    }
+
+    .header-right {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-end;
+    }
+
+    /* ==================== STATUS BADGE ==================== */
+    .status-badge-large {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .status-badge-large i {
+        font-size: 1.125rem;
+    }
+
+    .status-pending {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1));
+        color: var(--warning-color);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .status-confirmed {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
+        color: var(--success-color);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-completed {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
+        color: var(--info-color);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .status-cancelled,
+    .status-rejected {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
+        color: var(--error-color);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .status-default {
+        background: rgba(113, 113, 122, 0.2);
+        color: var(--surface-300);
+        border: 1px solid rgba(113, 113, 122, 0.3);
+    }
+
+    /* ==================== ACTION BUTTONS ==================== */
+    .header-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        font-family: inherit;
+    }
+
+    .btn i {
+        font-size: 1.125rem;
+    }
+
+    .btn-confirm {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-confirm:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        color: white;
+    }
+
+    .btn-reject {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-reject:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        color: white;
+    }
+
+    .btn-complete {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-complete:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        color: white;
+    }
+
+    .btn-cancel {
+        background: transparent;
+        color: var(--error-color);
+        border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-cancel:hover {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: #ef4444;
+        color: #fca5a5;
+    }
+
+    /* ==================== MAIN GRID ==================== */
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 380px 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    /* ==================== SUMMARY CARD (LEFT SIDEBAR) ==================== */
+    .summary-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        overflow: hidden;
+        position: sticky;
+        top: calc(70px + 1.5rem);
+    }
+
+    .summary-cover {
+        height: 100px;
+        background: linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #3b82f6 100%);
+        position: relative;
+    }
+
+    .summary-cover::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 50%;
+        background: linear-gradient(to top, var(--surface-850), transparent);
+    }
+
+    .summary-body {
+        padding: 0 1.5rem 1.5rem;
+        margin-top: -50px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .summary-icon {
+        width: 100px;
+        height: 100px;
+        border-radius: 20px;
+        border: 4px solid var(--surface-850);
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: white;
+        margin: 0 auto 1rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .summary-title {
+        text-align: center;
+        font-size: 1.375rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        margin: 0 0 0.25rem 0;
+    }
+
+    .summary-title .id-highlight {
+        color: var(--primary-400);
+    }
+
+    .summary-subtitle {
+        text-align: center;
+        font-size: 0.875rem;
+        color: var(--surface-500);
+        margin: 0 0 1rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .summary-subtitle i {
+        font-size: 1rem;
+    }
+
+    /* Status in summary */
+    .summary-status {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .status-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .status-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+
+    .status-indicator.pending {
+        background: var(--warning-color);
+        box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+    }
+
+    .status-indicator.confirmed {
+        background: var(--success-color);
+        box-shadow: 0 0 10px rgba(52, 211, 153, 0.5);
+    }
+
+    .status-indicator.completed {
+        background: var(--info-color);
+        box-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+    }
+
+    .status-indicator.cancelled {
+        background: var(--error-color);
+        box-shadow: 0 0 10px rgba(248, 113, 113, 0.5);
+    }
+
+    .status-indicator.inactive {
+        background: var(--surface-500);
+    }
+
+    .status-label {
+        font-size: 0.6875rem;
+        color: var(--surface-500);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Date Range Box */
+    .date-range-box {
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .date-range-title {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: var(--surface-500);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.75rem;
+        text-align: center;
+    }
+
+    .date-range-content {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .date-item {
+        flex: 1;
+        text-align: center;
+    }
+
+    .date-label {
+        font-size: 0.6875rem;
+        color: var(--surface-500);
+        margin-bottom: 0.375rem;
+    }
+
+    .date-value {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--surface-200);
+    }
+
+    .date-separator {
+        width: 32px;
+        height: 32px;
+        background: var(--surface-700);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--surface-500);
+        flex-shrink: 0;
+    }
+
+    /* Quick Stats */
+    .summary-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        margin-top: 1.25rem;
+    }
+
+    .stat-box {
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .stat-box-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--surface-100);
         margin-bottom: 0.25rem;
     }
 
-    .adm-status-pill {
-        display: inline-flex;
+    .stat-box-label {
+        font-size: 0.6875rem;
+        color: var(--surface-500);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Quick Info List */
+    .quick-info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        margin-top: 1.25rem;
+    }
+
+    .quick-info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+    }
+
+    .quick-info-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
         align-items: center;
         justify-content: center;
-        padding: 0.15rem 0.7rem;
-        border-radius: 999px;
-        font-size: 0.78rem;
+        font-size: 1.125rem;
+        flex-shrink: 0;
+    }
+
+    .quick-info-icon.purple {
+        background: rgba(147, 51, 234, 0.15);
+        color: var(--primary-400);
+    }
+
+    .quick-info-icon.blue {
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--info-color);
+    }
+
+    .quick-info-icon.green {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--success-color);
+    }
+
+    .quick-info-icon.orange {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--warning-color);
+    }
+
+    .quick-info-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .quick-info-label {
+        font-size: 0.6875rem;
+        color: var(--surface-500);
+        margin-bottom: 0.125rem;
+    }
+
+    .quick-info-value {
+        font-size: 0.875rem;
         font-weight: 600;
-        letter-spacing: 0.02em;
+        color: var(--surface-200);
+        overflow: hidden;
+        text-overflow: ellipsis;
         white-space: nowrap;
     }
 
-    .adm-status--pending { background: #fef3c7; color: #92400e; }
-    .adm-status--confirmed { background: #dcfce7; color: #166534; }
-    .adm-status--cancelled { background: #fee2e2; color: #991b1b; }
-    .adm-status--default { background: #e5e7eb; color: #374151; }
+    .quick-info-value.empty {
+        color: var(--surface-600);
+        font-style: italic;
+        font-weight: 400;
+    }
 
-    .adm-history-table {
+    /* ==================== INFO CARDS (RIGHT SECTION) ==================== */
+    .info-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .info-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .info-card:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .info-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .info-card-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .info-card-icon.purple {
+        background: rgba(147, 51, 234, 0.15);
+        color: var(--primary-400);
+    }
+
+    .info-card-icon.blue {
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--info-color);
+    }
+
+    .info-card-icon.green {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--success-color);
+    }
+
+    .info-card-icon.orange {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--warning-color);
+    }
+
+    .info-card-icon.pink {
+        background: rgba(236, 72, 153, 0.15);
+        color: #f472b6;
+    }
+
+    .info-card-icon.cyan {
+        background: rgba(6, 182, 212, 0.15);
+        color: #22d3ee;
+    }
+
+    .info-card-icon.gray {
+        background: rgba(113, 113, 122, 0.15);
+        color: var(--surface-400);
+    }
+
+    .info-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--surface-100);
+        margin: 0;
+    }
+
+    .info-card-body {
+        padding: 1.5rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .info-item.full-width {
+        grid-column: span 2;
+    }
+
+    .info-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: var(--surface-500);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .info-label i {
+        font-size: 0.875rem;
+    }
+
+    .info-value {
+        font-size: 0.9375rem;
+        color: var(--surface-200);
+        font-weight: 500;
+        line-height: 1.5;
+    }
+
+    .info-value.empty {
+        color: var(--surface-600);
+        font-style: italic;
+        font-weight: 400;
+    }
+
+    .info-value a {
+        color: var(--primary-400);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        transition: color 0.2s ease;
+    }
+
+    .info-value a:hover {
+        color: var(--primary-500);
+    }
+
+    /* ==================== TAGS ==================== */
+    .tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .tag-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.5rem 0.875rem;
+        background: rgba(147, 51, 234, 0.15);
+        border: 1px solid rgba(147, 51, 234, 0.3);
+        border-radius: 20px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--primary-400);
+    }
+
+    .tag-item i {
+        font-size: 1rem;
+    }
+
+    /* ==================== BUDGET DISPLAY ==================== */
+    .budget-range {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: rgba(16, 185, 129, 0.08);
+        border: 1px solid rgba(16, 185, 129, 0.15);
+        border-radius: 10px;
+    }
+
+    .budget-item {
+        flex: 1;
+        text-align: center;
+    }
+
+    .budget-label {
+        font-size: 0.6875rem;
+        color: var(--surface-500);
+        margin-bottom: 0.25rem;
+    }
+
+    .budget-value {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--success-color);
+    }
+
+    .budget-separator {
+        color: var(--surface-600);
+        font-size: 1.125rem;
+    }
+
+    /* ==================== FORM STYLING ==================== */
+    .admin-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .form-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: var(--surface-500);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .admin-form input,
+    .admin-form select,
+    .admin-form textarea {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        color: var(--surface-200);
+        font-size: 0.9375rem;
+        font-family: inherit;
+        transition: all 0.2s ease;
+    }
+
+    .admin-form input:focus,
+    .admin-form select:focus,
+    .admin-form textarea:focus {
+        outline: none;
+        border-color: var(--primary-500);
+        box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15);
+        background: var(--surface-700);
+    }
+
+    .admin-form textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .admin-form select {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        padding-right: 2.5rem;
+    }
+
+    .admin-form select option {
+        background: var(--surface-800);
+        color: var(--surface-200);
+    }
+
+    .form-inline-group {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.625rem;
+        font-family: inherit;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(147, 51, 234, 0.4);
+    }
+
+    .btn-submit i {
+        font-size: 1.25rem;
+    }
+
+    .admin-form .errorlist {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .admin-form .errorlist li {
+        color: var(--error-color);
+        font-size: 0.8125rem;
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .admin-form .errorlist li::before {
+        content: '⚠';
+    }
+
+    /* Alert Box */
+    .alert-box {
+        padding: 1rem 1.25rem;
+        border-radius: 10px;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .alert-box.danger {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        color: #fca5a5;
+    }
+
+    .alert-box i {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    /* ==================== EQUIPMENT LIST ==================== */
+    .equipment-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .equipment-item {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        padding: 1rem;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        transition: all 0.2s ease;
+    }
+
+    .equipment-item:hover {
+        background: var(--surface-700);
+        border-color: rgba(255, 255, 255, 0.1);
+        transform: translateX(4px);
+    }
+
+    .equipment-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(6, 182, 212, 0.15);
+        border: 1px solid rgba(6, 182, 212, 0.2);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #22d3ee;
+        font-size: 1.125rem;
+        flex-shrink: 0;
+    }
+
+    .equipment-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .equipment-name {
+        font-weight: 600;
+        color: var(--surface-200);
+        font-size: 0.9375rem;
+        margin-bottom: 0.125rem;
+    }
+
+    .equipment-meta {
+        font-size: 0.8125rem;
+        color: var(--surface-500);
+    }
+
+    /* ==================== HISTORY TABLE ==================== */
+    .history-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .history-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.82rem;
     }
 
-    .adm-history-table th,
-    .adm-history-table td {
-        padding: 0.45rem 0.4rem;
-        border-bottom: 1px solid var(--adm-border);
-        vertical-align: top;
+    .history-table thead {
+        background: rgba(0, 0, 0, 0.2);
     }
 
-    .adm-history-table th {
+    .history-table th {
+        padding: 0.875rem 1rem;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: var(--surface-500);
         text-transform: uppercase;
+        letter-spacing: 0.08em;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .history-table tbody tr {
+        transition: background 0.15s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .history-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .history-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .history-table td {
+        padding: 1rem;
+        font-size: 0.875rem;
+        color: var(--surface-300);
+        vertical-align: middle;
+    }
+
+    .history-date {
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        font-size: 0.8125rem;
+        color: var(--surface-400);
+    }
+
+    .history-status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 6px;
         font-size: 0.75rem;
-        letter-spacing: 0.04em;
-        color: #9ca3af;
+        font-weight: 600;
     }
 
-    /* Form */
-    .adm-form .form-control,
-    .adm-form .form-select,
-    .adm-form select,
-    .adm-form textarea,
-    .adm-form input {
-        width: 100%;
-        border: 1px solid var(--adm-border);
-        border-radius: 0.75rem;
-        padding: 0.45rem 0.6rem;
-        font-size: 0.92rem;
+    .history-status-old {
+        background: rgba(113, 113, 122, 0.15);
+        color: var(--surface-400);
     }
 
-    .adm-form textarea { min-height: 110px; }
+    .history-status-new {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--success-color);
+    }
 
-    .adm-form .errorlist {
-        margin: .25rem 0 0;
-        padding-left: 1rem;
-        color: #b91c1c;
-        font-size: .85rem;
+    .history-user {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .history-user-avatar {
+        width: 28px;
+        height: 28px;
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .history-note {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--surface-500);
+        font-style: italic;
+    }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state-mini {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        width: 56px;
+        height: 56px;
+        background: var(--surface-800);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--surface-600);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state-mini p {
+        color: var(--surface-500);
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    /* ==================== SIDEBAR CARDS ==================== */
+    .sidebar-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1024px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .summary-card {
+            position: static;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-right {
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .header-actions {
+            width: 100%;
+        }
+
+        .header-actions form {
+            flex: 1;
+        }
+
+        .header-actions .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .info-item.full-width {
+            grid-column: span 1;
+        }
+
+        .form-inline-group {
+            grid-template-columns: 1fr;
+        }
+
+        .date-range-content {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .date-separator {
+            transform: rotate(90deg);
+        }
+
+        .budget-range {
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-left {
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .back-btn {
+            align-self: flex-start;
+        }
+
+        .header-info {
+            width: 100%;
+        }
+
+        .header-info h1 {
+            font-size: 1.25rem;
+        }
+
+        .summary-body {
+            padding: 0 1rem 1rem;
+        }
+
+        .info-card-body {
+            padding: 1rem;
+        }
+
+        .info-card-header {
+            padding: 1rem;
+        }
+
+        .summary-stats {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
+{% endblock %}
 
-<div class="adm-res-detail-page">
-    <div class="adm-res-detail-header">
-        <div>
-            <div class="adm-res-back-link mb-1">
-                <a href="{% url 'dashboard:reservations_list' %}">← Retour à la liste</a>
+{% block content %}
+<div class="reservation-detail-wrapper">
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div class="header-left">
+            <a href="{% url 'dashboard:reservations_list' %}" class="back-btn" title="Retour à la liste">
+                <i class="ph ph-arrow-left"></i>
+            </a>
+            <div class="header-info">
+                <h1>Réservation <span class="reservation-id">#{{ reservation.id }}</span></h1>
+                <p class="header-meta">
+                    <i class="ph ph-clock"></i>
+                    <span>Créée le {{ reservation.created_at|date:"d/m/Y" }} à {{ reservation.created_at|date:"H:i" }}</span>
+                    {% if reservation.user %}
+                        <span class="meta-separator"></span>
+                        <i class="ph ph-user"></i>
+                        <span>par <a href="mailto:{{ reservation.user.email }}">{{ reservation.user.get_full_name|default:reservation.user.username }}</a></span>
+                    {% endif %}
+                </p>
             </div>
-
-            <h1>Réservation #{{ reservation.id }}</h1>
-
-            <small>
-                Créée le {{ reservation.created_at|date:"d/m/Y H:i" }}
-                {% if reservation.user %}
-                    · par {{ reservation.user.get_full_name|default:reservation.user.username }}
-                    ({{ reservation.user.email }})
+        </div>
+        <div class="header-right">
+            <!-- Status Badge -->
+            {% with reservation.status as s %}
+                {% if s == "PENDING" %}
+                    <span class="status-badge-large status-pending">
+                        <i class="ph ph-hourglass"></i>
+                        {{ reservation.get_status_display }}
+                    </span>
+                {% elif s == "CONFIRMED" %}
+                    <span class="status-badge-large status-confirmed">
+                        <i class="ph ph-check-circle"></i>
+                        {{ reservation.get_status_display }}
+                    </span>
+                {% elif s == "COMPLETED" %}
+                    <span class="status-badge-large status-completed">
+                        <i class="ph ph-flag-checkered"></i>
+                        {{ reservation.get_status_display }}
+                    </span>
+                {% elif s == "CANCELLED" or s == "REJECTED" %}
+                    <span class="status-badge-large status-cancelled">
+                        <i class="ph ph-x-circle"></i>
+                        {{ reservation.get_status_display }}
+                    </span>
+                {% else %}
+                    <span class="status-badge-large status-default">
+                        <i class="ph ph-circle"></i>
+                        {{ reservation.get_status_display }}
+                    </span>
                 {% endif %}
-            </small>
+            {% endwith %}
 
-            {# ✅ Actions rapides POST (CONFIRMER/REFUSER/TERMINER/ANNULER) #}
-            <div class="adm-actions-bar">
+            <!-- Action Buttons -->
+            <div class="header-actions">
                 {% if reservation.status == "PENDING" %}
                     <form method="post" action="{% url 'dashboard:reservations_set_status' reservation.id %}">
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.get_full_path }}">
                         <input type="hidden" name="status" value="CONFIRMED">
-                        <button class="btn btn-success btn-sm" type="submit">Confirmer</button>
+                        <button class="btn btn-confirm" type="submit">
+                            <i class="ph ph-check-circle"></i>
+                            Confirmer
+                        </button>
                     </form>
-
                     <form method="post" action="{% url 'dashboard:reservations_set_status' reservation.id %}">
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.get_full_path }}">
                         <input type="hidden" name="status" value="REJECTED">
-                        <button class="btn btn-danger btn-sm" type="submit"
-                                onclick="return confirm('Refuser la réservation #{{ reservation.id }} ?');">
+                        <button class="btn btn-reject" type="submit" onclick="return confirm('Refuser cette réservation ?');">
+                            <i class="ph ph-x-circle"></i>
                             Refuser
                         </button>
                     </form>
@@ -209,7 +1254,10 @@
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.get_full_path }}">
                         <input type="hidden" name="status" value="COMPLETED">
-                        <button class="btn btn-primary btn-sm" type="submit">Terminer</button>
+                        <button class="btn btn-complete" type="submit">
+                            <i class="ph ph-flag-checkered"></i>
+                            Terminer
+                        </button>
                     </form>
                 {% endif %}
 
@@ -218,283 +1266,593 @@
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.get_full_path }}">
                         <input type="hidden" name="status" value="CANCELLED">
-                        <button class="btn btn-outline-danger btn-sm" type="submit"
-                                onclick="return confirm('Annuler la réservation #{{ reservation.id }} ?');">
+                        <button class="btn btn-cancel" type="submit" onclick="return confirm('Annuler cette réservation ?');">
+                            <i class="ph ph-prohibit"></i>
                             Annuler
                         </button>
                     </form>
                 {% endif %}
             </div>
         </div>
-
-        <div>
-            {% with reservation.status as raw %}
-                {% if raw == "PENDING" %}
-                    <span class="adm-status-pill adm-status--pending">{{ reservation.get_status_display }}</span>
-                {% elif raw == "CONFIRMED" %}
-                    <span class="adm-status-pill adm-status--confirmed">{{ reservation.get_status_display }}</span>
-                {% elif raw == "CANCELLED" or raw == "REJECTED" %}
-                    <span class="adm-status-pill adm-status--cancelled">{{ reservation.get_status_display }}</span>
-                {% else %}
-                    <span class="adm-status-pill adm-status--default">{{ reservation.get_status_display }}</span>
-                {% endif %}
-            {% endwith %}
-        </div>
     </div>
 
-    <div class="adm-res-grid">
-        <!-- COLONNE GAUCHE : INFOS -->
-        <div>
-            <div class="adm-res-card">
-                <div class="adm-card-title">📅 Créneau & contexte</div>
-
-                <div class="adm-field-label">Studio / Service</div>
-                <div class="adm-field-value">
-                    <strong>Studio :</strong>
-                    {% if reservation.studio %}{{ reservation.studio.name }}{% else %}<span class="adm-field-value-muted">—</span>{% endif %}
-                    <br>
-                    <strong>Service :</strong>
-                    {% if reservation.service %}{{ reservation.service.name }}{% else %}<span class="adm-field-value-muted">—</span>{% endif %}
+    <!-- MAIN GRID -->
+    <div class="detail-grid">
+        <!-- LEFT SIDEBAR - Summary Card -->
+        <aside class="summary-card">
+            <div class="summary-cover"></div>
+            <div class="summary-body">
+                <div class="summary-icon">
+                    <i class="ph ph-calendar-check"></i>
                 </div>
 
-                <div class="adm-field-label">Créneau demandé</div>
-                <div class="adm-field-value">
-                    Du {{ reservation.start_datetime|date:"d/m/Y H:i" }}
-                    au {{ reservation.end_datetime|date:"d/m/Y H:i" }}
-                </div>
+                <h2 class="summary-title">
+                    Réservation <span class="id-highlight">#{{ reservation.id }}</span>
+                </h2>
+                <p class="summary-subtitle">
+                    <i class="ph ph-calendar"></i>
+                    {{ reservation.created_at|date:"d F Y" }}
+                </p>
 
-                <div class="adm-field-label">Notes de planification</div>
-                <div class="adm-field-value">
-                    {{ reservation.scheduling_notes|default:"—"|linebreaksbr }}
-                </div>
-            </div>
-
-            <div class="adm-res-card">
-                <div class="adm-card-title">🧩 Informations client (snapshot)</div>
-
-                <div class="adm-field-label">Nom / structure</div>
-                <div class="adm-field-value">
-                    {{ reservation.contact_full_name|default:"—" }}
-                    {% if reservation.contact_company %}
-                        · <span class="adm-field-value-muted">{{ reservation.contact_company }}</span>
-                    {% endif %}
-                </div>
-
-                <div class="adm-field-label">Coordonnées</div>
-                <div class="adm-field-value">
-                    {% if reservation.contact_phone %}Tél. : {{ reservation.contact_phone }}<br>{% endif %}
-                    {% if reservation.contact_email %}Email : {{ reservation.contact_email }}<br>{% endif %}
-                    {% if reservation.contact_city or reservation.contact_country %}
-                        Localisation :
-                        {{ reservation.contact_city|default:"" }}
-                        {% if reservation.contact_city and reservation.contact_country %}, {% endif %}
-                        {{ reservation.contact_country|default:"" }}
-                    {% endif %}
-                    {% if not reservation.contact_phone and not reservation.contact_email and not reservation.contact_city and not reservation.contact_country %}
-                        <span class="adm-field-value-muted">Aucune coordonnée renseignée</span>
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="adm-res-card">
-                <div class="adm-card-title">🎬 Projet vidéo / podcast</div>
-
-                <div class="adm-field-label">Résumé du projet</div>
-                <div class="adm-field-value">
-                    {{ reservation.project_summary|default:"—"|linebreaksbr }}
-                </div>
-
-                <div class="adm-field-label">Références / inspirations</div>
-                <div class="adm-field-value">
-                    {{ reservation.project_references|default:"—"|linebreaksbr }}
-                </div>
-            </div>
-
-            <div class="adm-res-card">
-                <div class="adm-card-title">🎙️ Format & configuration</div>
-
-                <div class="adm-field-label">Type de format</div>
-                <div class="adm-field-value">
-                    {% if reservation.format_type %}
-                        {{ reservation.get_format_type_display }}
-                    {% else %}
-                        <span class="adm-field-value-muted">Non précisé</span>
-                    {% endif %}
-                </div>
-
-                <div class="adm-field-label">Intervenants</div>
-                <div class="adm-field-value">
-                    {% if reservation.participants_count %}
-                        {{ reservation.participants_count }} intervenant(s)
-                        {% if reservation.participants_details %}
-                            · <span class="adm-field-value-muted">{{ reservation.participants_details }}</span>
-                        {% endif %}
-                    {% else %}
-                        <span class="adm-field-value-muted">Non précisé</span>
-                    {% endif %}
-                </div>
-
-                <div class="adm-field-label">Durée & volume</div>
-                <div class="adm-field-value">
-                    {% if reservation.episode_duration_minutes %}
-                        Durée moyenne : {{ reservation.episode_duration_minutes }} min<br>
-                    {% endif %}
-                    {% if reservation.episodes_count %}
-                        Nombre d'épisodes : {{ reservation.episodes_count }}<br>
-                    {% endif %}
-                    {% if reservation.episodes_notes %}
-                        <span class="adm-field-value-muted">{{ reservation.episodes_notes }}</span>
-                    {% endif %}
-                    {% if not reservation.episode_duration_minutes and not reservation.episodes_count and not reservation.episodes_notes %}
-                        <span class="adm-field-value-muted">Non précisé</span>
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="adm-res-card">
-                <div class="adm-card-title">💰 Budget & préférences de contact</div>
-
-                <div class="adm-field-label">Budget indicatif</div>
-                <div class="adm-field-value">
-                    {% if reservation.budget_known %}
-                        Budget connu :
-                        {% if reservation.budget_min %}min {{ reservation.budget_min }} FCFA{% endif %}
-                        {% if reservation.budget_max %} · max {{ reservation.budget_max }} FCFA{% endif %}
-                        {% if not reservation.budget_min and not reservation.budget_max %}
-                            <span class="adm-field-value-muted">(fourchette non précisée)</span>
-                        {% endif %}
-                    {% else %}
-                        <span class="adm-field-value-muted">Le client souhaite être conseillé</span>
-                    {% endif %}
-                </div>
-
-                <div class="adm-field-label">Préférences</div>
-                <div class="adm-field-value">
-                    {% if reservation.contact_pref_call %}<span class="adm-tag">Être rappelé</span>{% endif %}
-                    {% if reservation.contact_pref_meeting %}<span class="adm-tag">RDV</span>{% endif %}
-                    {% if reservation.contact_pref_email_quote %}<span class="adm-tag">Devis email</span>{% endif %}
-                    {% if not reservation.contact_pref_call and not reservation.contact_pref_meeting and not reservation.contact_pref_email_quote %}
-                        <span class="adm-field-value-muted">Aucune préférence</span>
-                    {% endif %}
-                </div>
-
-                <div class="adm-field-label">Message client</div>
-                <div class="adm-field-value">
-                    {{ reservation.client_additional_message|default:"—"|linebreaksbr }}
-                </div>
-            </div>
-        </div>
-
-        <!-- COLONNE DROITE : ACTIONS + ÉQUIPEMENTS + HISTORIQUE -->
-        <div>
-            <div class="adm-res-card">
-                <div class="adm-card-title">✅ Édition (admin)</div>
-
-                <form method="post" class="adm-form" novalidate>
-                    {% csrf_token %}
-
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-                    {% endif %}
-
-                    <div class="mb-2">
-                        <div class="adm-field-label">Statut</div>
-                        {{ form.status }}
-                        {{ form.status.errors }}
+                <!-- Status Indicators -->
+                <div class="summary-status">
+                    <div class="status-item">
+                        <span class="status-indicator {% if reservation.status == 'PENDING' %}pending{% elif reservation.status == 'CONFIRMED' %}confirmed{% elif reservation.status == 'COMPLETED' %}completed{% elif reservation.status == 'CANCELLED' or reservation.status == 'REJECTED' %}cancelled{% else %}inactive{% endif %}"></span>
+                        <span class="status-label">{{ reservation.get_status_display }}</span>
                     </div>
+                </div>
 
-                    <div class="mb-2">
-                        <div class="adm-field-label">Début</div>
-                        {{ form.start_datetime }}
-                        {{ form.start_datetime.errors }}
+                <!-- Date Range -->
+                <div class="date-range-box">
+                    <div class="date-range-title">Créneau réservé</div>
+                    <div class="date-range-content">
+                        <div class="date-item">
+                            <div class="date-label">Début</div>
+                            <div class="date-value">{{ reservation.start_datetime|date:"d/m/Y H:i" }}</div>
+                        </div>
+                        <div class="date-separator">
+                            <i class="ph ph-arrow-right"></i>
+                        </div>
+                        <div class="date-item">
+                            <div class="date-label">Fin</div>
+                            <div class="date-value">{{ reservation.end_datetime|date:"d/m/Y H:i" }}</div>
+                        </div>
                     </div>
+                </div>
 
-                    <div class="mb-2">
-                        <div class="adm-field-label">Fin</div>
-                        {{ form.end_datetime }}
-                        {{ form.end_datetime.errors }}
+                <!-- Quick Stats -->
+                <div class="summary-stats">
+                    <div class="stat-box">
+                        <div class="stat-box-value">{{ reservation.equipments.count }}</div>
+                        <div class="stat-box-label">Équipements</div>
                     </div>
-
-                    <div class="mb-2">
-                        <div class="adm-field-label">Technicien assigné</div>
-                        {{ form.assigned_technician }}
-                        {{ form.assigned_technician.errors }}
+                    <div class="stat-box">
+                        <div class="stat-box-value">{{ reservation.participants_count|default:"0" }}</div>
+                        <div class="stat-box-label">Intervenants</div>
                     </div>
+                </div>
 
-                    <div class="mb-2">
-                        <div class="adm-field-label">Commentaire admin (interne)</div>
-                        {{ form.admin_comment }}
-                        {{ form.admin_comment.errors }}
+                <!-- Quick Info -->
+                <div class="quick-info-list">
+                    <div class="quick-info-item">
+                        <div class="quick-info-icon purple">
+                            <i class="ph ph-buildings"></i>
+                        </div>
+                        <div class="quick-info-content">
+                            <div class="quick-info-label">Studio</div>
+                            <div class="quick-info-value {% if not reservation.studio %}empty{% endif %}">
+                                {{ reservation.studio.name|default:"Non spécifié" }}
+                            </div>
+                        </div>
                     </div>
+                    <div class="quick-info-item">
+                        <div class="quick-info-icon green">
+                            <i class="ph ph-user"></i>
+                        </div>
+                        <div class="quick-info-content">
+                            <div class="quick-info-label">Client</div>
+                            <div class="quick-info-value {% if not reservation.contact_full_name %}empty{% endif %}">
+                                {{ reservation.contact_full_name|default:"Non renseigné" }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="quick-info-item">
+                        <div class="quick-info-icon blue">
+                            <i class="ph ph-phone"></i>
+                        </div>
+                        <div class="quick-info-content">
+                            <div class="quick-info-label">Téléphone</div>
+                            <div class="quick-info-value {% if not reservation.contact_phone %}empty{% endif %}">
+                                {{ reservation.contact_phone|default:"Non renseigné" }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="quick-info-item">
+                        <div class="quick-info-icon orange">
+                            <i class="ph ph-envelope"></i>
+                        </div>
+                        <div class="quick-info-content">
+                            <div class="quick-info-label">Email</div>
+                            <div class="quick-info-value {% if not reservation.contact_email %}empty{% endif %}">
+                                {{ reservation.contact_email|default:"Non renseigné" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
 
-                    <button class="btn btn-primary w-100" type="submit">
-                        Enregistrer les modifications
-                    </button>
-                </form>
+        <!-- RIGHT SECTION - Info Cards -->
+        <div class="info-section">
+            <!-- Créneau & contexte -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon blue">
+                        <i class="ph ph-calendar-blank"></i>
+                    </div>
+                    <h3 class="info-card-title">Créneau & contexte</h3>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-buildings"></i>
+                                Studio
+                            </span>
+                            <span class="info-value {% if not reservation.studio %}empty{% endif %}">
+                                {{ reservation.studio.name|default:"Non spécifié" }}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-star"></i>
+                                Service
+                            </span>
+                            <span class="info-value {% if not reservation.service %}empty{% endif %}">
+                                {{ reservation.service.name|default:"Non spécifié" }}
+                            </span>
+                        </div>
+                        <div class="info-item full-width">
+                            <span class="info-label">
+                                <i class="ph ph-note"></i>
+                                Notes de planification
+                            </span>
+                            <span class="info-value {% if not reservation.scheduling_notes %}empty{% endif %}">
+                                {{ reservation.scheduling_notes|default:"Aucune note"|linebreaksbr }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="adm-res-card">
-                <div class="adm-card-title">🎛️ Équipements réservés</div>
-
-                {% if reservation.equipments.count > 0 %}
-                    <ul style="margin:0;padding-left:1.1rem;">
-                        {% for e in reservation.equipments.all %}
-                            <li style="margin-bottom:.25rem;">
-                                <strong>{{ e.name }}</strong>
-                                {% if e.category %}
-                                    <span class="adm-field-value-muted">({{ e.category.name }})</span>
+            <!-- Informations client -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon green">
+                        <i class="ph ph-user-circle"></i>
+                    </div>
+                    <h3 class="info-card-title">Informations client</h3>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-user"></i>
+                                Nom complet
+                            </span>
+                            <span class="info-value {% if not reservation.contact_full_name %}empty{% endif %}">
+                                {{ reservation.contact_full_name|default:"Non renseigné" }}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-buildings"></i>
+                                Structure
+                            </span>
+                            <span class="info-value {% if not reservation.contact_company %}empty{% endif %}">
+                                {{ reservation.contact_company|default:"Non renseignée" }}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-phone"></i>
+                                Téléphone
+                            </span>
+                            <span class="info-value {% if not reservation.contact_phone %}empty{% endif %}">
+                                {% if reservation.contact_phone %}
+                                    <a href="tel:{{ reservation.contact_phone }}">{{ reservation.contact_phone }}</a>
+                                {% else %}
+                                    Non renseigné
                                 {% endif %}
-                                {% if e.brand or e.model %}
-                                    <span class="adm-field-value-muted">
-                                        — {{ e.brand|default:"" }} {{ e.model|default:"" }}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-envelope"></i>
+                                Email
+                            </span>
+                            <span class="info-value {% if not reservation.contact_email %}empty{% endif %}">
+                                {% if reservation.contact_email %}
+                                    <a href="mailto:{{ reservation.contact_email }}">{{ reservation.contact_email }}</a>
+                                {% else %}
+                                    Non renseigné
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="info-item full-width">
+                            <span class="info-label">
+                                <i class="ph ph-map-pin"></i>
+                                Localisation
+                            </span>
+                            <span class="info-value {% if not reservation.contact_city and not reservation.contact_country %}empty{% endif %}">
+                                {% if reservation.contact_city or reservation.contact_country %}
+                                    {{ reservation.contact_city|default:"" }}{% if reservation.contact_city and reservation.contact_country %}, {% endif %}{{ reservation.contact_country|default:"" }}
+                                {% else %}
+                                    Non renseignée
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projet vidéo / podcast -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon purple">
+                        <i class="ph ph-video-camera"></i>
+                    </div>
+                    <h3 class="info-card-title">Projet vidéo / podcast</h3>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-grid">
+                        <div class="info-item full-width">
+                            <span class="info-label">
+                                <i class="ph ph-article"></i>
+                                Résumé du projet
+                            </span>
+                            <span class="info-value {% if not reservation.project_summary %}empty{% endif %}">
+                                {{ reservation.project_summary|default:"Aucun résumé fourni"|linebreaksbr }}
+                            </span>
+                        </div>
+                        <div class="info-item full-width">
+                            <span class="info-label">
+                                <i class="ph ph-lightbulb"></i>
+                                Références / inspirations
+                            </span>
+                            <span class="info-value {% if not reservation.project_references %}empty{% endif %}">
+                                {{ reservation.project_references|default:"Aucune référence mentionnée"|linebreaksbr }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Format & configuration -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon pink">
+                        <i class="ph ph-microphone-stage"></i>
+                    </div>
+                    <h3 class="info-card-title">Format & configuration</h3>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-film-strip"></i>
+                                Type de format
+                            </span>
+                            <span class="info-value {% if not reservation.format_type %}empty{% endif %}">
+                                {{ reservation.get_format_type_display|default:"Non précisé" }}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-users-three"></i>
+                                Intervenants
+                            </span>
+                            <span class="info-value {% if not reservation.participants_count %}empty{% endif %}">
+                                {% if reservation.participants_count %}
+                                    {{ reservation.participants_count }} personne{{ reservation.participants_count|pluralize }}
+                                {% else %}
+                                    Non précisé
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% if reservation.participants_details %}
+                        <div class="info-item full-width">
+                            <span class="info-label">Détails intervenants</span>
+                            <span class="info-value">{{ reservation.participants_details }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-clock"></i>
+                                Durée moyenne
+                            </span>
+                            <span class="info-value {% if not reservation.episode_duration_minutes %}empty{% endif %}">
+                                {% if reservation.episode_duration_minutes %}
+                                    {{ reservation.episode_duration_minutes }} min
+                                {% else %}
+                                    Non précisé
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-list-numbers"></i>
+                                Nombre d'épisodes
+                            </span>
+                            <span class="info-value {% if not reservation.episodes_count %}empty{% endif %}">
+                                {% if reservation.episodes_count %}
+                                    {{ reservation.episodes_count }} épisode{{ reservation.episodes_count|pluralize }}
+                                {% else %}
+                                    Non précisé
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% if reservation.episodes_notes %}
+                        <div class="info-item full-width">
+                            <span class="info-label">Notes additionnelles</span>
+                            <span class="info-value">{{ reservation.episodes_notes }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Budget & préférences -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon orange">
+                        <i class="ph ph-currency-circle-dollar"></i>
+                    </div>
+                    <h3 class="info-card-title">Budget & préférences</h3>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-grid">
+                        <div class="info-item full-width">
+                            <span class="info-label">
+                                <i class="ph ph-money"></i>
+                                Budget indicatif
+                            </span>
+                            <div class="info-value">
+                                {% if reservation.budget_known %}
+                                    {% if reservation.budget_min or reservation.budget_max %}
+                                        <div class="budget-range">
+                                            {% if reservation.budget_min %}
+                                            <div class="budget-item">
+                                                <div class="budget-label">Minimum</div>
+                                                <div class="budget-value">{{ reservation.budget_min|floatformat:0 }} F</div>
+                                            </div>
+                                            {% endif %}
+                                            {% if reservation.budget_min and reservation.budget_max %}
+                                            <span class="budget-separator">—</span>
+                                            {% endif %}
+                                            {% if reservation.budget_max %}
+                                            <div class="budget-item">
+                                                <div class="budget-label">Maximum</div>
+                                                <div class="budget-value">{{ reservation.budget_max|floatformat:0 }} F</div>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    {% else %}
+                                        <span class="empty">Fourchette non précisée</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="empty">Le client souhaite être conseillé</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="info-item full-width">
+                            <span class="info-label">
+                                <i class="ph ph-hand-waving"></i>
+                                Préférences de contact
+                            </span>
+                            <div class="tags-container">
+                                {% if reservation.contact_pref_call %}
+                                    <span class="tag-item">
+                                        <i class="ph ph-phone-call"></i>
+                                        Être rappelé
                                     </span>
                                 {% endif %}
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <div class="adm-field-value-muted">Aucun équipement</div>
-                {% endif %}
+                                {% if reservation.contact_pref_meeting %}
+                                    <span class="tag-item">
+                                        <i class="ph ph-calendar"></i>
+                                        Rendez-vous
+                                    </span>
+                                {% endif %}
+                                {% if reservation.contact_pref_email_quote %}
+                                    <span class="tag-item">
+                                        <i class="ph ph-envelope"></i>
+                                        Devis par email
+                                    </span>
+                                {% endif %}
+                                {% if not reservation.contact_pref_call and not reservation.contact_pref_meeting and not reservation.contact_pref_email_quote %}
+                                    <span class="info-value empty">Aucune préférence indiquée</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if reservation.client_additional_message %}
+                        <div class="info-item full-width">
+                            <span class="info-label">
+                                <i class="ph ph-chat-circle-text"></i>
+                                Message du client
+                            </span>
+                            <span class="info-value">{{ reservation.client_additional_message|linebreaksbr }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
 
-            <div class="adm-res-card">
-                <div class="adm-card-title">📜 Historique de statut</div>
+            <!-- Édition admin -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon purple">
+                        <i class="ph ph-pencil-simple"></i>
+                    </div>
+                    <h3 class="info-card-title">Édition admin</h3>
+                </div>
+                <div class="info-card-body">
+                    <form method="post" class="admin-form" novalidate>
+                        {% csrf_token %}
 
+                        {% if form.non_field_errors %}
+                            <div class="alert-box danger">
+                                <i class="ph ph-warning-circle"></i>
+                                <div>{{ form.non_field_errors }}</div>
+                            </div>
+                        {% endif %}
+
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.status.id_for_label }}">Statut</label>
+                            {{ form.status }}
+                            {{ form.status.errors }}
+                        </div>
+
+                        <div class="form-inline-group">
+                            <div class="form-group">
+                                <label class="form-label" for="{{ form.start_datetime.id_for_label }}">Début</label>
+                                {{ form.start_datetime }}
+                                {{ form.start_datetime.errors }}
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="{{ form.end_datetime.id_for_label }}">Fin</label>
+                                {{ form.end_datetime }}
+                                {{ form.end_datetime.errors }}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.assigned_technician.id_for_label }}">Technicien assigné</label>
+                            {{ form.assigned_technician }}
+                            {{ form.assigned_technician.errors }}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="{{ form.admin_comment.id_for_label }}">Commentaire interne</label>
+                            {{ form.admin_comment }}
+                            {{ form.admin_comment.errors }}
+                        </div>
+
+                        <button type="submit" class="btn-submit">
+                            <i class="ph ph-floppy-disk"></i>
+                            Enregistrer les modifications
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Équipements réservés -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon cyan">
+                        <i class="ph ph-speaker-high"></i>
+                    </div>
+                    <h3 class="info-card-title">Équipements réservés</h3>
+                </div>
+                <div class="info-card-body">
+                    {% if reservation.equipments.count > 0 %}
+                        <div class="equipment-list">
+                            {% for e in reservation.equipments.all %}
+                                <div class="equipment-item">
+                                    <div class="equipment-icon">
+                                        <i class="ph ph-cube"></i>
+                                    </div>
+                                    <div class="equipment-info">
+                                        <div class="equipment-name">{{ e.name }}</div>
+                                        <div class="equipment-meta">
+                                            {% if e.category %}{{ e.category.name }}{% endif %}
+                                            {% if e.brand or e.model %}
+                                                {% if e.category %} · {% endif %}
+                                                {{ e.brand|default:"" }} {{ e.model|default:"" }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state-mini">
+                            <div class="empty-state-icon">
+                                <i class="ph ph-package"></i>
+                            </div>
+                            <p>Aucun équipement réservé</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Historique de statut -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon gray">
+                        <i class="ph ph-clock-counter-clockwise"></i>
+                    </div>
+                    <h3 class="info-card-title">Historique de statut</h3>
+                </div>
                 {% if status_history %}
-                    <table class="adm-history-table">
-                        <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Ancien</th>
-                            <th>Nouveau</th>
-                            <th>Par</th>
-                            <th>Note</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for h in status_history %}
-                            <tr>
-                                <td>{{ h.changed_at|date:"d/m/Y H:i" }}</td>
-                                <td>{{ h.get_old_status_display }}</td>
-                                <td>{{ h.get_new_status_display }}</td>
-                                <td>
-                                    {% if h.changed_by %}
-                                        {{ h.changed_by.get_full_name|default:h.changed_by.username }}
-                                    {% else %}
-                                        <span class="adm-field-value-muted">Système / inconnu</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ h.note|default:"" }}</td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                    <div class="history-table-wrapper">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Ancien</th>
+                                    <th>Nouveau</th>
+                                    <th>Par</th>
+                                    <th>Note</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for h in status_history %}
+                                    <tr>
+                                        <td>
+                                            <span class="history-date">{{ h.changed_at|date:"d/m/Y H:i" }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="history-status-badge history-status-old">
+                                                {{ h.get_old_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="history-status-badge history-status-new">
+                                                {{ h.get_new_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if h.changed_by %}
+                                                <div class="history-user">
+                                                    <span class="history-user-avatar">
+                                                        {{ h.changed_by.first_name|default:h.changed_by.username|first|upper }}
+                                                    </span>
+                                                    <span>{{ h.changed_by.get_full_name|default:h.changed_by.username }}</span>
+                                                </div>
+                                            {% else %}
+                                                <span class="info-value empty">Système</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="history-note">{{ h.note|default:"—" }}</span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 {% else %}
-                    <div class="adm-field-value-muted">Aucun historique de changement de statut.</div>
+                    <div class="info-card-body">
+                        <div class="empty-state-mini">
+                            <div class="empty-state-icon">
+                                <i class="ph ph-clock"></i>
+                            </div>
+                            <p>Aucun historique de changement</p>
+                        </div>
+                    </div>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
-
 {% endblock %}

@@ -1,165 +1,1088 @@
 {% extends "admin/admin_base.html" %}
 {% block title %}Détail Offre - {{ offer.title }} - Oloustream Admin{% endblock %}
 
-{% block content %}
+{% block extra_css %}
 <style>
-.svco-wrapper {
-  max-width: 1000px;
-  margin: 0 auto;
-  animation: svco-fadeInUp 0.4s ease-out;
-}
-.svco-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-}
-.svco-header h1 {
-  font-size: 1.6rem;
-  margin: 0;
-}
-.svco-header .subtitle {
-  font-size: 0.9rem;
-  color: #6b7280;
-}
-.svco-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-.svco-badge-period-current { background: #dbeafe; color: #1d4ed8; }
-.svco-badge-period-upcoming { background: #fef3c7; color: #92400e; }
-.svco-badge-period-expired { background: #fee2e2; color: #b91c1c; }
-.svco-badge-active-yes { background: #dcfce7; color: #166534; }
-.svco-badge-active-no { background: #e5e7eb; color: #6b7280; }
+    /* ==================== VARIABLES LOCALES ==================== */
+    :root {
+        --primary-400: #c084fc;
+        --primary-500: #a855f7;
+        --primary-600: #9333ea;
+        --primary-700: #7c3aed;
+        --accent-400: #fbbf24;
+        --surface-100: #f4f4f5;
+        --surface-200: #e4e4e7;
+        --surface-300: #d4d4d8;
+        --surface-400: #a1a1aa;
+        --surface-500: #71717a;
+        --surface-600: #52525b;
+        --surface-700: #3f3f46;
+        --surface-800: #27272a;
+        --surface-850: #1f1f23;
+        --surface-900: #18181b;
+        --surface-950: #09090b;
+        --error-color: #f87171;
+        --success-color: #34d399;
+        --info-color: #60a5fa;
+        --warning-color: #fbbf24;
+    }
 
-.svco-section {
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
-  margin-bottom: 1.25rem;
-  padding: 1.25rem 1.5rem;
-}
-.svco-section-header {
-  margin-bottom: 0.75rem;
-}
-.svco-section-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0;
-}
-.svco-grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem 1.25rem;
-}
-.svco-label {
-  font-size: 0.8rem;
-  color: #6b7280;
-}
-.svco-value {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #111827;
-}
+    /* ==================== WRAPPER PRINCIPAL ==================== */
+    .offer-detail-wrapper {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        animation: fadeInUp 0.4s ease-out;
+    }
 
-@media (max-width: 768px) {
-  .svco-grid-2 {
-    grid-template-columns: 1fr;
-  }
-}
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
-@keyframes svco-fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* ==================== HEADER ==================== */
+    .detail-page-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .header-left {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        flex: 1;
+    }
+
+    .header-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+        box-shadow: 0 8px 25px rgba(147, 51, 234, 0.35);
+        flex-shrink: 0;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            box-shadow: 0 8px 25px rgba(147, 51, 234, 0.35);
+        }
+        50% {
+            box-shadow: 0 8px 35px rgba(147, 51, 234, 0.45);
+        }
+    }
+
+    .header-text h1 {
+        font-size: 1.625rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        margin: 0 0 0.5rem 0;
+        line-height: 1.3;
+        letter-spacing: -0.01em;
+    }
+
+    .header-subtitle {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .header-info-line {
+        font-size: 0.875rem;
+        color: #a1a1aa;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .header-info-line i {
+        font-size: 1rem;
+        color: #71717a;
+    }
+
+    .header-info-line strong {
+        color: #d4d4d8;
+    }
+
+    /* Header Actions */
+    .header-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.75rem;
+    }
+
+    .status-badges-group {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.5rem 0.875rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        animation: slideIn 0.4s ease forwards;
+    }
+
+    .status-badge i {
+        font-size: 0.875rem;
+    }
+
+    /* Status Badge Variants */
+    .status-badge.current {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .status-badge.upcoming {
+        background: rgba(234, 179, 8, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(234, 179, 8, 0.3);
+    }
+
+    .status-badge.expired {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .status-badge.active {
+        background: rgba(34, 197, 94, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .status-badge.inactive {
+        background: rgba(82, 82, 91, 0.2);
+        color: #a1a1aa;
+        border: 1px solid rgba(82, 82, 91, 0.4);
+    }
+
+    /* Action Buttons Group */
+    .action-buttons-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        font-family: inherit;
+    }
+
+    .btn-action i {
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        color: white;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.35);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(147, 51, 234, 0.45);
+        color: white;
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(239, 68, 68, 0.45);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #27272a;
+        color: #d4d4d8;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary:hover {
+        background: #3f3f46;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* ==================== LAYOUT 2 COLONNES ==================== */
+    .detail-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    /* ==================== SIDEBAR STATS ==================== */
+    .detail-sidebar {
+        position: sticky;
+        top: calc(var(--header-height, 70px) + 1.5rem);
+    }
+
+    .stats-card {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        transition: all 0.25s ease;
+    }
+
+    .stats-card:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .stats-card-title {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .stats-card-title i {
+        font-size: 0.875rem;
+    }
+
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.625rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .stat-item:last-child {
+        border-bottom: none;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: #a1a1aa;
+    }
+
+    .stat-value {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #f4f4f5;
+    }
+
+    .stat-value.large {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--success-color);
+    }
+
+    /* Quick Actions Card */
+    .quick-actions-card {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 1.25rem;
+    }
+
+    .quick-actions-title {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.875rem;
+    }
+
+    .quick-action-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: #a1a1aa;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-bottom: 0.5rem;
+        text-align: left;
+        text-decoration: none;
+    }
+
+    .quick-action-btn:last-child {
+        margin-bottom: 0;
+    }
+
+    .quick-action-btn i {
+        font-size: 1rem;
+        width: 16px;
+        text-align: center;
+    }
+
+    .quick-action-btn:hover {
+        background: rgba(255, 255, 255, 0.03);
+        color: #e4e4e7;
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .quick-action-btn.primary:hover {
+        background: rgba(147, 51, 234, 0.1);
+        color: #c084fc;
+        border-color: rgba(147, 51, 234, 0.3);
+    }
+
+    .quick-action-btn.danger:hover {
+        background: rgba(239, 68, 68, 0.1);
+        color: #f87171;
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    /* ==================== CONTENT AREA ==================== */
+    .detail-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    /* ==================== DETAIL SECTIONS ==================== */
+    .detail-section {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.25s ease;
+        animation: fadeInUp 0.4s ease forwards;
+    }
+
+    .detail-section:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .detail-section:nth-child(1) { animation-delay: 0.1s; }
+    .detail-section:nth-child(2) { animation-delay: 0.15s; }
+    .detail-section:nth-child(3) { animation-delay: 0.2s; }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.25);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .section-header-left {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+    }
+
+    .section-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.125rem;
+        background: rgba(147, 51, 234, 0.15);
+        color: #c084fc;
+    }
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #f4f4f5;
+        margin: 0;
+    }
+
+    .section-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .section-body {
+        padding: 1.5rem;
+    }
+
+    /* Grid Info */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .info-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .info-value {
+        font-size: 0.9375rem;
+        font-weight: 500;
+        color: #f4f4f5;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-value i {
+        font-size: 1rem;
+        color: #a1a1aa;
+    }
+
+    .info-value.highlight {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--primary-400);
+    }
+
+    .info-value.discount {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--success-color);
+    }
+
+    /* Description Section */
+    .description-content {
+        font-size: 0.9375rem;
+        line-height: 1.7;
+        color: #d4d4d8;
+    }
+
+    .description-empty {
+        font-style: italic;
+        color: #71717a;
+    }
+
+    /* Timeline Section */
+    .timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 0.5rem;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(180deg, 
+            rgba(147, 51, 234, 0.5),
+            rgba(147, 51, 234, 0.1)
+        );
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-bottom: 1.5rem;
+    }
+
+    .timeline-item:last-child {
+        padding-bottom: 0;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        left: -1.5rem;
+        top: 0;
+        width: 1rem;
+        height: 1rem;
+        background: #1f1f23;
+        border: 2px solid #9333ea;
+        border-radius: 50%;
+    }
+
+    .timeline-marker.active {
+        background: #9333ea;
+        box-shadow: 0 0 10px rgba(147, 51, 234, 0.5);
+    }
+
+    .timeline-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .timeline-date {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #a1a1aa;
+    }
+
+    .timeline-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #f4f4f5;
+    }
+
+    .timeline-desc {
+        font-size: 0.8125rem;
+        color: #71717a;
+    }
+
+    /* ==================== FOOTER ==================== */
+    .detail-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        margin-top: 0.5rem;
+    }
+
+    .footer-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8125rem;
+        color: #71717a;
+    }
+
+    .footer-info i {
+        font-size: 1rem;
+    }
+
+    .footer-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1024px) {
+        .detail-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .detail-sidebar {
+            position: static;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .stats-card {
+            margin-bottom: 0;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .detail-page-header {
+            flex-direction: column;
+        }
+
+        .header-actions {
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .action-buttons-group {
+            width: 100%;
+            flex-direction: column;
+        }
+
+        .btn-action {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .detail-sidebar {
+            grid-template-columns: 1fr;
+        }
+
+        .detail-footer {
+            flex-direction: column;
+        }
+
+        .footer-actions {
+            width: 100%;
+        }
+
+        .footer-actions .btn-action {
+            flex: 1;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-left {
+            flex-direction: column;
+        }
+
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
+        }
+
+        .header-text h1 {
+            font-size: 1.25rem;
+        }
+
+        .section-body {
+            padding: 1rem;
+        }
+    }
 </style>
+{% endblock %}
 
-<div class="svco-wrapper">
-    <div class="svco-header">
-        <div>
-            <h1>{{ offer.title }}</h1>
-            <p class="subtitle">
-                Service : {{ offer.service.name|default:"-" }}<br>
-                Période : {{ offer.start_date|date:"d/m/Y" }} – {{ offer.end_date|date:"d/m/Y" }}
-            </p>
+{% block content %}
+<div class="offer-detail-wrapper">
+    <!-- ==================== HEADER ==================== -->
+    <div class="detail-page-header">
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="ph-bold ph-tag"></i>
+            </div>
+            <div class="header-text">
+                <h1>{{ offer.title }}</h1>
+                <div class="header-subtitle">
+                    <span class="header-info-line">
+                        <i class="ph ph-cube"></i>
+                        Service : <strong>{{ offer.service.name|default:"Non défini" }}</strong>
+                    </span>
+                    <span class="header-info-line">
+                        <i class="ph ph-calendar-blank"></i>
+                        Période : <strong>{{ offer.start_date|date:"d/m/Y" }} – {{ offer.end_date|date:"d/m/Y" }}</strong>
+                    </span>
+                </div>
+            </div>
         </div>
-        <div class="text-end">
-            <div class="mb-2">
+
+        <div class="header-actions">
+            <div class="status-badges-group">
                 {% if period_label == "En cours" %}
-                    <span class="svco-badge svco-badge-period-current">
-                        <i class="ph ph-calendar-check"></i> En cours
+                    <span class="status-badge current">
+                        <i class="ph ph-play-circle"></i>
+                        En cours
                     </span>
                 {% elif period_label == "À venir" %}
-                    <span class="svco-badge svco-badge-period-upcoming">
-                        <i class="ph ph-calendar-plus"></i> À venir
+                    <span class="status-badge upcoming">
+                        <i class="ph ph-clock-countdown"></i>
+                        À venir
                     </span>
                 {% else %}
-                    <span class="svco-badge svco-badge-period-expired">
-                        <i class="ph ph-calendar-x"></i> Expirée
+                    <span class="status-badge expired">
+                        <i class="ph ph-clock-afternoon"></i>
+                        Expirée
                     </span>
                 {% endif %}
 
                 {% if offer.is_active %}
-                    <span class="svco-badge svco-badge-active-yes ms-1">
-                        <i class="ph ph-check-circle"></i> Active
+                    <span class="status-badge active">
+                        <i class="ph ph-check-circle"></i>
+                        Active
                     </span>
                 {% else %}
-                    <span class="svco-badge svco-badge-active-no ms-1">
-                        <i class="ph ph-x-circle"></i> Inactive
+                    <span class="status-badge inactive">
+                        <i class="ph ph-x-circle"></i>
+                        Inactive
                     </span>
                 {% endif %}
             </div>
-            <div class="btn-group btn-group-sm" role="group">
-                <a href="{% url 'dashboard:offers_edit' offer.id %}" class="btn btn-primary">
-                    <i class="ph ph-pencil-simple"></i> Modifier
+
+            <div class="action-buttons-group">
+                <a href="{% url 'dashboard:offers_edit' offer.id %}" class="btn-action btn-primary">
+                    <i class="ph ph-pencil-simple"></i>
+                    Modifier
                 </a>
-                <a href="{% url 'dashboard:offers_delete' offer.id %}" class="btn btn-danger">
-                    <i class="ph ph-trash"></i> Supprimer
+                <a href="{% url 'dashboard:offers_delete' offer.id %}" class="btn-action btn-danger">
+                    <i class="ph ph-trash"></i>
+                    Supprimer
                 </a>
-                <a href="{% url 'dashboard:offers_list' %}" class="btn btn-secondary">
-                    Retour à la liste
+                <a href="{% url 'dashboard:offers_list' %}" class="btn-action btn-secondary">
+                    <i class="ph ph-arrow-left"></i>
+                    Retour
                 </a>
             </div>
         </div>
     </div>
 
-    <div class="svco-section">
-        <div class="svco-section-header">
-            <h2 class="svco-section-title">Détails de l’offre</h2>
+    <!-- ==================== LAYOUT 2 COLONNES ==================== -->
+    <div class="detail-layout">
+        <!-- ==================== SIDEBAR ==================== -->
+        <div class="detail-sidebar">
+            <!-- Stats Card -->
+            <div class="stats-card">
+                <div class="stats-card-title">
+                    <i class="ph ph-chart-bar"></i>
+                    Statistiques
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Réduction</span>
+                    <span class="stat-value large">-{{ offer.discount_percent }}%</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Durée</span>
+                    <span class="stat-value">
+                        {% with days=offer.end_date|timeuntil:offer.start_date %}
+                            {{ days|cut:" ago" }}
+                        {% endwith %}
+                    </span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Statut</span>
+                    <span class="stat-value">
+                        {% if offer.is_active %}Actif{% else %}Inactif{% endif %}
+                    </span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Créée le</span>
+                    <span class="stat-value">
+                        {% if offer.created_at %}
+                            {{ offer.created_at|date:"d/m/Y" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions-card">
+                <div class="quick-actions-title">Actions rapides</div>
+                <a href="{% url 'dashboard:offers_edit' offer.id %}" class="quick-action-btn primary">
+                    <i class="ph ph-pencil-simple"></i>
+                    Modifier l'offre
+                </a>
+                <a href="#" class="quick-action-btn">
+                    <i class="ph ph-copy"></i>
+                    Dupliquer
+                </a>
+                <a href="#" class="quick-action-btn">
+                    <i class="ph ph-share-network"></i>
+                    Partager
+                </a>
+                <a href="{% url 'dashboard:offers_delete' offer.id %}" class="quick-action-btn danger">
+                    <i class="ph ph-trash"></i>
+                    Supprimer
+                </a>
+            </div>
         </div>
-        <div class="svco-grid-2">
-            <div>
-                <p class="mb-0 svco-label">Service lié :</p>
-                <p class="svco-value">{{ offer.service.name|default:"-" }}</p>
-            </div>
-            <div>
-                <p class="mb-0 svco-label">Réduction :</p>
-                <p class="svco-value">-{{ offer.discount_percent }} %</p>
-            </div>
-            <div>
-                <p class="mb-0 svco-label">Date de début :</p>
-                <p class="svco-value">{{ offer.start_date|date:"d/m/Y" }}</p>
-            </div>
-            <div>
-                <p class="mb-0 svco-label">Date de fin :</p>
-                <p class="svco-value">{{ offer.end_date|date:"d/m/Y" }}</p>
-            </div>
+
+        <!-- ==================== CONTENT ==================== -->
+        <div class="detail-content">
+            <!-- Section: Détails de l'offre -->
+            <section class="detail-section">
+                <div class="section-header">
+                    <div class="section-header-left">
+                        <div class="section-icon">
+                            <i class="ph ph-tag"></i>
+                        </div>
+                        <h2 class="section-title">Détails de l'offre</h2>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Service lié</span>
+                            <span class="info-value">
+                                <i class="ph ph-cube"></i>
+                                {{ offer.service.name|default:"Non défini" }}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Réduction appliquée</span>
+                            <span class="info-value discount">
+                                -{{ offer.discount_percent }}%
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Date de début</span>
+                            <span class="info-value">
+                                <i class="ph ph-calendar-plus"></i>
+                                {{ offer.start_date|date:"d F Y" }}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Date de fin</span>
+                            <span class="info-value">
+                                <i class="ph ph-calendar-x"></i>
+                                {{ offer.end_date|date:"d F Y" }}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Code promo</span>
+                            <span class="info-value">
+                                <i class="ph ph-ticket"></i>
+                                {% if offer.promo_code %}
+                                    <code style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px;">
+                                        {{ offer.promo_code }}
+                                    </code>
+                                {% else %}
+                                    Aucun code
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Utilisations</span>
+                            <span class="info-value">
+                                <i class="ph ph-users"></i>
+                                {% if offer.usage_count %}
+                                    {{ offer.usage_count }} fois
+                                {% else %}
+                                    0 fois
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Description -->
+            <section class="detail-section">
+                <div class="section-header">
+                    <div class="section-header-left">
+                        <div class="section-icon">
+                            <i class="ph ph-text-align-left"></i>
+                        </div>
+                        <h2 class="section-title">Description</h2>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="description-content">
+                        {% if offer.description %}
+                            {{ offer.description|linebreaksbr }}
+                        {% else %}
+                            <span class="description-empty">
+                                Aucune description spécifique pour cette offre.
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Timeline -->
+            <section class="detail-section">
+                <div class="section-header">
+                    <div class="section-header-left">
+                        <div class="section-icon">
+                            <i class="ph ph-clock-clockwise"></i>
+                        </div>
+                        <h2 class="section-title">Chronologie</h2>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="timeline">
+                        {% now "Y-m-d" as today_str %}
+                        {% with today=today_str|date:"Y-m-d" %}
+                            <div class="timeline-item">
+                                <div class="timeline-marker {% if offer.start_date > today|date %}{% else %}active{% endif %}"></div>
+                                <div class="timeline-content">
+                                    <span class="timeline-date">{{ offer.start_date|date:"d/m/Y" }}</span>
+                                    <span class="timeline-title">Début de l'offre</span>
+                                    <span class="timeline-desc">L'offre devient active et utilisable</span>
+                                </div>
+                            </div>
+                            
+                            {% if offer.start_date <= today|date and offer.end_date >= today|date %}
+                            <div class="timeline-item">
+                                <div class="timeline-marker active"></div>
+                                <div class="timeline-content">
+                                    <span class="timeline-date">Aujourd'hui</span>
+                                    <span class="timeline-title">En cours</span>
+                                    <span class="timeline-desc">L'offre est actuellement active</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-marker {% if offer.end_date < today|date %}active{% endif %}"></div>
+                                <div class="timeline-content">
+                                    <span class="timeline-date">{{ offer.end_date|date:"d/m/Y" }}</span>
+                                    <span class="timeline-title">Fin de l'offre</span>
+                                    <span class="timeline-desc">L'offre expire et n'est plus utilisable</span>
+                                </div>
+                            </div>
+                        {% endwith %}
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
 
-    <div class="svco-section">
-        <div class="svco-section-header">
-            <h2 class="svco-section-title">Description</h2>
+    <!-- ==================== FOOTER ==================== -->
+    <div class="detail-footer">
+        <div class="footer-info">
+            <i class="ph ph-info"></i>
+            <span>
+                Dernière modification : 
+                {% if offer.updated_at %}
+                    {{ offer.updated_at|date:"d/m/Y à H:i" }}
+                {% else %}
+                    Non modifiée
+                {% endif %}
+            </span>
         </div>
-        <p class="mb-0">
-            {{ offer.description|linebreaksbr|default:"Aucune description spécifique pour cette offre." }}
-        </p>
+        <div class="footer-actions">
+            <a href="{% url 'dashboard:offers_edit' offer.id %}" class="btn-action btn-primary">
+                <i class="ph ph-pencil-simple"></i>
+                Modifier
+            </a>
+            <a href="{% url 'dashboard:offers_list' %}" class="btn-action btn-secondary">
+                <i class="ph ph-list"></i>
+                Voir toutes les offres
+            </a>
+        </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Copy promo code to clipboard
+    const promoCode = document.querySelector('code');
+    if (promoCode) {
+        promoCode.style.cursor = 'pointer';
+        promoCode.addEventListener('click', function() {
+            navigator.clipboard.writeText(this.textContent.trim()).then(() => {
+                const originalText = this.textContent;
+                this.textContent = 'Copié !';
+                this.style.background = 'rgba(34, 197, 94, 0.2)';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    this.style.background = '#27272a';
+                }, 2000);
+            });
+        });
+    }
+
+    // Animate timeline on scroll
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateX(0)';
+                }, index * 100);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    timelineItems.forEach(item => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateX(-20px)';
+        item.style.transition = 'all 0.5s ease';
+        observer.observe(item);
+    });
+
+    // Add ripple effect on buttons
+    document.querySelectorAll('.btn-action, .quick-action-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            const ripple = document.createElement('span');
+            ripple.style.cssText = `
+                position: absolute;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                transform: scale(0);
+                animation: ripple 0.6s ease-out;
+                pointer-events: none;
+            `;
+            
+            this.style.position = 'relative';
+            this.style.overflow = 'hidden';
+            this.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 600);
+        });
+    });
+
+    // Add ripple animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes ripple {
+            to {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+});
+</script>
 {% endblock %}

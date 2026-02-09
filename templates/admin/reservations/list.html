@@ -1,203 +1,938 @@
 {% extends "admin/admin_base.html" %}
+
 {% block title %}Réservations - Oloustream Admin{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* ==================== VARIABLES ==================== */
+    :root {
+        --primary-400: #c084fc;
+        --primary-500: #a855f7;
+        --primary-600: #9333ea;
+        --primary-700: #7c3aed;
+        --accent-400: #34d399;
+        --accent-500: #10b981;
+        --surface-100: #f4f4f5;
+        --surface-200: #e4e4e7;
+        --surface-300: #d4d4d8;
+        --surface-400: #a1a1aa;
+        --surface-500: #71717a;
+        --surface-600: #52525b;
+        --surface-700: #3f3f46;
+        --surface-800: #27272a;
+        --surface-850: #1f1f23;
+        --surface-900: #18181b;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --error-color: #ef4444;
+        --info-color: #3b82f6;
+    }
+
+    /* ==================== WRAPPER ==================== */
+    .reservations-wrapper {
+        width: 100%;
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==================== PAGE HEADER ==================== */
+    .page-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .header-left {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .header-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        flex-shrink: 0;
+    }
+
+    .header-text h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        margin: 0 0 0.375rem 0;
+    }
+
+    .header-text p {
+        font-size: 0.875rem;
+        color: #71717a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .header-text p i {
+        font-size: 1rem;
+        color: #52525b;
+    }
+
+    .export-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none;
+        border-radius: 10px;
+        color: white;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .export-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        color: white;
+    }
+
+    .export-btn i {
+        font-size: 1.125rem;
+    }
+
+    /* ==================== STATS ROW ==================== */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        transition: all 0.2s ease;
+    }
+
+    .stat-card:hover {
+        border-color: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .stat-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        line-height: 1;
+    }
+
+    .stat-value.warning { color: #fbbf24; }
+    .stat-value.success { color: #34d399; }
+    .stat-value.primary { color: #60a5fa; }
+    .stat-value.danger { color: #f87171; }
+
+    /* ==================== FILTERS CARD ==================== */
+    .filters-card {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .filters-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .field-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .field-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .form-input,
+    .form-select {
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        color: #f4f4f5;
+        font-size: 0.8125rem;
+        font-family: inherit;
+        transition: all 0.2s ease;
+    }
+
+    .form-input::placeholder {
+        color: #52525b;
+    }
+
+    .form-input:hover,
+    .form-select:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    .form-select {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        padding-right: 2rem;
+    }
+
+    .form-select option {
+        background: #27272a;
+        color: #f4f4f5;
+    }
+
+    .date-range {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .date-range .form-input {
+        flex: 1;
+        padding: 0.5rem 0.625rem;
+        font-size: 0.75rem;
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-filter {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+        padding: 0.625rem 1rem;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex: 1;
+    }
+
+    .btn-filter:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-reset {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.625rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #a1a1aa;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-reset:hover {
+        background: #3f3f46;
+        color: white;
+    }
+
+    .btn-reset i {
+        font-size: 1rem;
+    }
+
+    /* ==================== TABLE CARD ==================== */
+    .table-card {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    /* ==================== TABLE ==================== */
+    .reservations-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .reservations-table thead th {
+        padding: 1rem 1rem;
+        text-align: left;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        background: rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        white-space: nowrap;
+    }
+
+    .reservations-table thead th:last-child {
+        text-align: right;
+    }
+
+    .reservations-table tbody tr {
+        transition: background 0.2s ease;
+    }
+
+    .reservations-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .reservations-table tbody td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        vertical-align: middle;
+        font-size: 0.875rem;
+        color: #d4d4d8;
+    }
+
+    .reservations-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Table cells styling */
+    .cell-id {
+        font-weight: 600;
+        color: #a1a1aa;
+        font-family: monospace;
+    }
+
+    .cell-client {
+        min-width: 160px;
+    }
+
+    .client-name {
+        font-weight: 600;
+        color: #f4f4f5;
+        margin-bottom: 0.125rem;
+    }
+
+    .client-email {
+        font-size: 0.75rem;
+        color: #71717a;
+    }
+
+    .cell-empty {
+        color: #52525b;
+    }
+
+    .cell-datetime {
+        font-size: 0.8125rem;
+        white-space: nowrap;
+    }
+
+    /* Status badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.625rem;
+        border-radius: 6px;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+    }
+
+    .status-badge i {
+        font-size: 0.75rem;
+    }
+
+    .status-badge.pending {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .status-badge.confirmed {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .status-badge.completed {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .status-badge.cancelled,
+    .status-badge.rejected {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .status-badge.default {
+        background: rgba(113, 113, 122, 0.15);
+        color: #a1a1aa;
+        border: 1px solid rgba(113, 113, 122, 0.2);
+    }
+
+    /* Technician cell */
+    .cell-technician {
+        font-size: 0.8125rem;
+    }
+
+    .no-technician {
+        color: #52525b;
+        font-style: italic;
+    }
+
+    /* Equipment cell */
+    .equipment-count {
+        font-weight: 600;
+        color: #f4f4f5;
+        margin-bottom: 0.125rem;
+    }
+
+    .equipment-list {
+        font-size: 0.75rem;
+        color: #71717a;
+    }
+
+    /* Actions cell */
+    .actions-cell {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.375rem;
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        color: #a1a1aa;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .action-btn:hover {
+        background: #3f3f46;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .action-btn i {
+        font-size: 0.9375rem;
+    }
+
+    .action-btn.view:hover {
+        border-color: rgba(59, 130, 246, 0.3);
+        color: #60a5fa;
+    }
+
+    .action-btn.confirm {
+        border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .action-btn.confirm:hover {
+        background: rgba(16, 185, 129, 0.15);
+        border-color: rgba(16, 185, 129, 0.3);
+        color: #34d399;
+    }
+
+    .action-btn.complete {
+        border-color: rgba(59, 130, 246, 0.2);
+    }
+
+    .action-btn.complete:hover {
+        background: rgba(59, 130, 246, 0.15);
+        border-color: rgba(59, 130, 246, 0.3);
+        color: #60a5fa;
+    }
+
+    .action-btn.danger {
+        border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .action-btn.danger:hover {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #f87171;
+    }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: rgba(113, 113, 122, 0.1);
+        border: 2px dashed rgba(113, 113, 122, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .empty-icon i {
+        font-size: 2rem;
+        color: #52525b;
+    }
+
+    .empty-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #a1a1aa;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .empty-text {
+        font-size: 0.875rem;
+        color: #71717a;
+        margin: 0;
+    }
+
+    /* ==================== PAGINATION ==================== */
+    .pagination-wrapper {
+        display: flex;
+        justify-content: center;
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.15);
+        border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .pagination {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .page-item .page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 0.75rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        color: #a1a1aa;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .page-item .page-link:hover {
+        background: #3f3f46;
+        color: white;
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        border-color: transparent;
+        color: white;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .page-item.disabled .page-link {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1400px) {
+        .stats-row {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .filters-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .filters-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .reservations-table thead {
+            display: none;
+        }
+
+        .reservations-table tbody tr {
+            display: block;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .reservations-table tbody td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: none;
+        }
+
+        .reservations-table tbody td::before {
+            content: attr(data-label);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: #71717a;
+            text-transform: uppercase;
+        }
+
+        .actions-cell {
+            justify-content: flex-start;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+        }
+
+        .export-btn {
+            align-self: flex-start;
+        }
+
+        .filters-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-actions {
+            flex-direction: row;
+        }
+
+        .btn-filter {
+            flex: 1;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-left {
+            flex-direction: column;
+        }
+
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
+        }
+
+        .header-text h1 {
+            font-size: 1.25rem;
+        }
+
+        .stats-row {
+            grid-template-columns: 1fr;
+        }
+
+        .pagination {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Réservations</h1>
-    <div class="d-flex gap-2">
-        <a href="{% url 'dashboard:reservations_export_excel' %}{% if base_querystring %}?{{ base_querystring }}{% endif %}"
-           class="btn btn-success btn-sm">
-            <i class="ph ph-download-simple"></i> Export Excel
+<div class="reservations-wrapper">
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="ph-bold ph-calendar-check"></i>
+            </div>
+            <div class="header-text">
+                <h1>Réservations</h1>
+                <p>
+                    <i class="ph ph-info"></i>
+                    Gérez toutes les réservations de studios et services
+                </p>
+            </div>
+        </div>
+        <a href="{% url 'dashboard:reservations_export_excel' %}{% if base_querystring %}?{{ base_querystring }}{% endif %}" class="export-btn">
+            <i class="ph ph-download-simple"></i>
+            Export Excel
         </a>
     </div>
-</div>
 
-<!-- Statistiques -->
-<div class="row g-3 mb-3">
-    <div class="col-md-2 col-6"><div class="card shadow-sm border-0"><div class="card-body py-2">
-        <p class="text-muted mb-1">Total</p><h5 class="mb-0">{{ total_count }}</h5>
-    </div></div></div>
-
-    <div class="col-md-2 col-6"><div class="card shadow-sm border-0"><div class="card-body py-2">
-        <p class="text-muted mb-1">En attente</p><h5 class="mb-0 text-warning">{{ pending_count }}</h5>
-    </div></div></div>
-
-    <div class="col-md-2 col-6"><div class="card shadow-sm border-0"><div class="card-body py-2">
-        <p class="text-muted mb-1">Confirmées</p><h5 class="mb-0 text-success">{{ confirmed_count }}</h5>
-    </div></div></div>
-
-    <div class="col-md-2 col-6"><div class="card shadow-sm border-0"><div class="card-body py-2">
-        <p class="text-muted mb-1">Terminées</p><h5 class="mb-0 text-primary">{{ completed_count }}</h5>
-    </div></div></div>
-
-    <div class="col-md-2 col-6"><div class="card shadow-sm border-0"><div class="card-body py-2">
-        <p class="text-muted mb-1">Annulées / refusées</p><h6 class="mb-0 text-danger">{{ cancelled_count|add:rejected_count }}</h6>
-    </div></div></div>
-
-    <div class="col-md-2 col-6"><div class="card shadow-sm border-0"><div class="card-body py-2">
-        <p class="text-muted mb-1">À venir / passées</p><h6 class="mb-0">{{ upcoming_count }} / {{ past_count }}</h6>
-    </div></div></div>
-</div>
-
-<!-- Recherche & filtres -->
-<form method="get" class="row g-3 mb-3 align-items-end">
-    <div class="col-md-4">
-        <label class="form-label" for="id_q">Recherche</label>
-        <input type="text" name="q" id="id_q" class="form-control"
-               placeholder="Client, email, service, studio, commentaire..."
-               value="{{ q }}">
-    </div>
-
-    <div class="col-md-2">
-        <label class="form-label" for="id_status">Statut</label>
-        <select name="status" id="id_status" class="form-select">
-            <option value="">Tous</option>
-            {% for value, label in status_choices %}
-                <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>
-                    {{ label }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <div class="col-md-2">
-        <label class="form-label" for="id_studio">Studio</label>
-        <select name="studio" id="id_studio" class="form-select">
-            <option value="">Tous</option>
-            {% for s in studios %}
-                <option value="{{ s.id }}" {% if selected_studio|add:'' == s.id|add:'' %}selected{% endif %}>
-                    {{ s.name }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <div class="col-md-2">
-        <label class="form-label" for="id_service">Service</label>
-        <select name="service" id="id_service" class="form-select">
-            <option value="">Tous</option>
-            {% for s in services %}
-                <option value="{{ s.id }}" {% if selected_service|add:'' == s.id|add:'' %}selected{% endif %}>
-                    {{ s.name }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <div class="col-md-2">
-        <label class="form-label">Période</label>
-        <div class="d-flex gap-1">
-            <input type="date" name="date_from" class="form-control form-control-sm" value="{{ date_from }}">
-            <input type="date" name="date_to" class="form-control form-control-sm" value="{{ date_to }}">
+    <!-- STATS ROW -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-label">Total</div>
+            <div class="stat-value">{{ total_count }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">En attente</div>
+            <div class="stat-value warning">{{ pending_count }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Confirmées</div>
+            <div class="stat-value success">{{ confirmed_count }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Terminées</div>
+            <div class="stat-value primary">{{ completed_count }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Annulées / Refusées</div>
+            <div class="stat-value danger">{{ cancelled_count|add:rejected_count }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">À venir / Passées</div>
+            <div class="stat-value">{{ upcoming_count }} / {{ past_count }}</div>
         </div>
     </div>
 
-    <div class="col-md-2 d-flex gap-2">
-        <button type="submit" class="btn btn-primary w-100">
-            <i class="ph ph-magnifying-glass"></i> Filtrer
-        </button>
-        <a href="{% url 'dashboard:reservations_list' %}" class="btn btn-outline-secondary">
-            Réinitialiser
-        </a>
-    </div>
-</form>
+    <!-- FILTERS -->
+    <form method="get" class="filters-card">
+        <div class="filters-grid">
+            <div class="field-group">
+                <label class="field-label" for="id_q">Recherche</label>
+                <input type="text" name="q" id="id_q" class="form-input"
+                       placeholder="Client, email, service, studio..."
+                       value="{{ q }}">
+            </div>
 
-<div class="card shadow-sm">
-    <div class="card-body p-0">
+            <div class="field-group">
+                <label class="field-label" for="id_status">Statut</label>
+                <select name="status" id="id_status" class="form-select">
+                    <option value="">Tous</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="id_studio">Studio</label>
+                <select name="studio" id="id_studio" class="form-select">
+                    <option value="">Tous</option>
+                    {% for s in studios %}
+                        <option value="{{ s.id }}" {% if selected_studio|add:'' == s.id|add:'' %}selected{% endif %}>
+                            {{ s.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="id_service">Service</label>
+                <select name="service" id="id_service" class="form-select">
+                    <option value="">Tous</option>
+                    {% for s in services %}
+                        <option value="{{ s.id }}" {% if selected_service|add:'' == s.id|add:'' %}selected{% endif %}>
+                            {{ s.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label">Période</label>
+                <div class="date-range">
+                    <input type="date" name="date_from" class="form-input" value="{{ date_from }}">
+                    <input type="date" name="date_to" class="form-input" value="{{ date_to }}">
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label">&nbsp;</label>
+                <div class="filter-actions">
+                    <button type="submit" class="btn-filter">
+                        <i class="ph ph-magnifying-glass"></i>
+                        Filtrer
+                    </button>
+                    <a href="{% url 'dashboard:reservations_list' %}" class="btn-reset" title="Réinitialiser">
+                        <i class="ph ph-arrow-counter-clockwise"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- TABLE -->
+    <div class="table-card">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                <tr>
-                    <th>ID</th>
-                    <th>Client</th>
-                    <th>Service</th>
-                    <th>Studio</th>
-                    <th>Début</th>
-                    <th>Fin</th>
-                    <th>Statut</th>
-                    <th>Technicien</th>
-                    <th>Équipements</th>
-                    <th class="text-end">Actions</th>
-                </tr>
-                </thead>
-
-                <tbody>
-                {% for r in page_obj %}
+            <table class="reservations-table">
+                <thead>
                     <tr>
-                        <td class="fw-semibold">#{{ r.id }}</td>
+                        <th>ID</th>
+                        <th>Client</th>
+                        <th>Service</th>
+                        <th>Studio</th>
+                        <th>Début</th>
+                        <th>Fin</th>
+                        <th>Statut</th>
+                        <th>Technicien</th>
+                        <th>Équipements</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in page_obj %}
+                    <tr>
+                        <td data-label="ID" class="cell-id">#{{ r.id }}</td>
 
-                        <td>
-                            {{ r.user.get_full_name|default:r.user.username }}<br>
-                            <small class="text-muted">{{ r.user.email }}</small>
+                        <td data-label="Client" class="cell-client">
+                            <div class="client-name">{{ r.user.get_full_name|default:r.user.username }}</div>
+                            <div class="client-email">{{ r.user.email }}</div>
                         </td>
 
-                        <td>{% if r.service %}{{ r.service.name }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
-                        <td>{% if r.studio %}{{ r.studio.name }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
+                        <td data-label="Service">
+                            {% if r.service %}{{ r.service.name }}{% else %}<span class="cell-empty">—</span>{% endif %}
+                        </td>
 
-                        <td>{{ r.start_datetime|date:"d/m/Y H:i" }}</td>
-                        <td>{{ r.end_datetime|date:"d/m/Y H:i" }}</td>
+                        <td data-label="Studio">
+                            {% if r.studio %}{{ r.studio.name }}{% else %}<span class="cell-empty">—</span>{% endif %}
+                        </td>
 
-                        <td>
+                        <td data-label="Début" class="cell-datetime">{{ r.start_datetime|date:"d/m/Y H:i" }}</td>
+                        <td data-label="Fin" class="cell-datetime">{{ r.end_datetime|date:"d/m/Y H:i" }}</td>
+
+                        <td data-label="Statut">
                             {% if r.status == 'PENDING' %}
-                                <span class="badge text-bg-warning">En attente</span>
+                                <span class="status-badge pending">
+                                    <i class="ph ph-clock"></i> En attente
+                                </span>
                             {% elif r.status == 'CONFIRMED' %}
-                                <span class="badge text-bg-success">Confirmée</span>
+                                <span class="status-badge confirmed">
+                                    <i class="ph ph-check"></i> Confirmée
+                                </span>
                             {% elif r.status == 'COMPLETED' %}
-                                <span class="badge text-bg-primary">Terminée</span>
+                                <span class="status-badge completed">
+                                    <i class="ph ph-flag"></i> Terminée
+                                </span>
                             {% elif r.status == 'CANCELLED' %}
-                                <span class="badge text-bg-danger">Annulée</span>
+                                <span class="status-badge cancelled">
+                                    <i class="ph ph-x"></i> Annulée
+                                </span>
                             {% elif r.status == 'REJECTED' %}
-                                <span class="badge text-bg-danger">Refusée</span>
+                                <span class="status-badge rejected">
+                                    <i class="ph ph-x"></i> Refusée
+                                </span>
                             {% else %}
-                                <span class="badge text-bg-secondary">{{ r.get_status_display }}</span>
+                                <span class="status-badge default">{{ r.get_status_display }}</span>
                             {% endif %}
                         </td>
 
-                        <td>
+                        <td data-label="Technicien" class="cell-technician">
                             {% if r.assigned_technician %}
                                 {{ r.assigned_technician.get_full_name|default:r.assigned_technician.username }}
                             {% else %}
-                                <span class="text-muted">Non assigné</span>
+                                <span class="no-technician">Non assigné</span>
                             {% endif %}
                         </td>
 
-                        <td>
-                            <div class="fw-semibold">{{ r.equipments.count }}</div>
+                        <td data-label="Équipements">
+                            <div class="equipment-count">{{ r.equipments.count }}</div>
                             {% if r.equipments.count > 0 %}
-                                <small class="text-muted">
+                                <div class="equipment-list">
                                     {% for e in r.equipments.all|slice:":2" %}
                                         {{ e.name }}{% if not forloop.last %}, {% endif %}
                                     {% endfor %}
                                     {% if r.equipments.count > 2 %}…{% endif %}
-                                </small>
+                                </div>
                             {% else %}
-                                <small class="text-muted">Aucun</small>
+                                <div class="equipment-list">Aucun</div>
                             {% endif %}
                         </td>
 
-                        <td class="text-end">
-                            <div class="btn-group btn-group-sm" role="group">
-                                <a href="{% url 'dashboard:reservations_detail' r.id %}"
-                                   class="btn btn-outline-secondary" title="Détails">
+                        <td data-label="Actions">
+                            <div class="actions-cell">
+                                <a href="{% url 'dashboard:reservations_detail' r.id %}" 
+                                   class="action-btn view" title="Détails">
                                     <i class="ph ph-eye"></i>
                                 </a>
 
-                                {# ✅ Actions rapides POST #}
                                 {% if r.status == 'PENDING' %}
-                                    <form method="post" action="{% url 'dashboard:reservations_set_status' r.id %}" class="d-inline">
+                                    <form method="post" action="{% url 'dashboard:reservations_set_status' r.id %}" style="display: inline;">
                                         {% csrf_token %}
                                         <input type="hidden" name="next" value="{{ request.get_full_path }}">
                                         <input type="hidden" name="status" value="CONFIRMED">
-                                        <button class="btn btn-outline-success" title="Confirmer">
+                                        <button type="submit" class="action-btn confirm" title="Confirmer">
                                             <i class="ph ph-check-circle"></i>
                                         </button>
                                     </form>
 
-                                    <form method="post" action="{% url 'dashboard:reservations_set_status' r.id %}" class="d-inline">
+                                    <form method="post" action="{% url 'dashboard:reservations_set_status' r.id %}" style="display: inline;">
                                         {% csrf_token %}
                                         <input type="hidden" name="next" value="{{ request.get_full_path }}">
                                         <input type="hidden" name="status" value="REJECTED">
-                                        <button class="btn btn-outline-danger" title="Refuser"
+                                        <button type="submit" class="action-btn danger" title="Refuser"
                                                 onclick="return confirm('Refuser la réservation #{{ r.id }} ?');">
                                             <i class="ph ph-x-circle"></i>
                                         </button>
@@ -205,22 +940,22 @@
                                 {% endif %}
 
                                 {% if r.status == 'CONFIRMED' %}
-                                    <form method="post" action="{% url 'dashboard:reservations_set_status' r.id %}" class="d-inline">
+                                    <form method="post" action="{% url 'dashboard:reservations_set_status' r.id %}" style="display: inline;">
                                         {% csrf_token %}
                                         <input type="hidden" name="next" value="{{ request.get_full_path }}">
                                         <input type="hidden" name="status" value="COMPLETED">
-                                        <button class="btn btn-outline-primary" title="Terminer">
+                                        <button type="submit" class="action-btn complete" title="Terminer">
                                             <i class="ph ph-flag-checkered"></i>
                                         </button>
                                     </form>
                                 {% endif %}
 
                                 {% if r.status != 'CANCELLED' and r.status != 'REJECTED' and r.status != 'COMPLETED' %}
-                                    <form method="post" action="{% url 'dashboard:reservations_set_status' r.id %}" class="d-inline">
+                                    <form method="post" action="{% url 'dashboard:reservations_set_status' r.id %}" style="display: inline;">
                                         {% csrf_token %}
                                         <input type="hidden" name="next" value="{{ request.get_full_path }}">
                                         <input type="hidden" name="status" value="CANCELLED">
-                                        <button class="btn btn-outline-danger" title="Annuler"
+                                        <button type="submit" class="action-btn danger" title="Annuler"
                                                 onclick="return confirm('Annuler la réservation #{{ r.id }} ?');">
                                             <i class="ph ph-trash"></i>
                                         </button>
@@ -229,64 +964,102 @@
                             </div>
                         </td>
                     </tr>
-                {% empty %}
+                    {% empty %}
                     <tr>
-                        <td colspan="10" class="text-center text-muted py-4">
-                            Aucune réservation ne correspond à la recherche.
+                        <td colspan="10">
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <i class="ph ph-calendar-blank"></i>
+                                </div>
+                                <h3 class="empty-title">Aucune réservation</h3>
+                                <p class="empty-text">Aucune réservation ne correspond à la recherche.</p>
+                            </div>
                         </td>
                     </tr>
-                {% endfor %}
+                    {% endfor %}
                 </tbody>
-
             </table>
         </div>
-    </div>
 
-    {% if page_obj.paginator.num_pages > 1 %}
-        <div class="card-footer bg-white">
-            <nav aria-label="Pagination réservations">
-                <ul class="pagination justify-content-center mb-0">
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div class="pagination-wrapper">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                            « Première
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                            ‹ Préc.
+                        </a>
+                    </li>
+                {% endif %}
 
-                    {% if page_obj.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1{% if base_querystring %}&{{ base_querystring }}{% endif %}">
-                                « Première
-                            </a>
+                {% for num in page_obj.paginator.page_range %}
+                    {% if num == page_obj.number %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
                         </li>
+                    {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
-                                ‹ Précédente
-                            </a>
-                        </li>
-                    {% endif %}
-
-                    {% for num in page_obj.paginator.page_range %}
-                        {% if num == page_obj.number %}
-                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                        {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ num }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
-                                    {{ num }}
-                                </a>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-
-                    {% if page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
-                                Suivante ›
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
-                                Dernière »
+                            <a class="page-link" href="?page={{ num }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                {{ num }}
                             </a>
                         </li>
                     {% endif %}
-                </ul>
-            </nav>
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                            Suiv. ›
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                            Dernière »
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
         </div>
-    {% endif %}
+        {% endif %}
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation d'entrée pour les lignes
+    const tableRows = document.querySelectorAll('.reservations-table tbody tr');
+    
+    tableRows.forEach((row, index) => {
+        row.style.opacity = '0';
+        row.style.transform = 'translateY(10px)';
+        row.style.transition = 'all 0.3s ease';
+        
+        setTimeout(() => {
+            row.style.opacity = '1';
+            row.style.transform = 'translateY(0)';
+        }, 50 + (index * 30));
+    });
+
+    // Animation pour les stat cards
+    const statCards = document.querySelectorAll('.stat-card');
+    
+    statCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(10px)';
+        card.style.transition = 'all 0.3s ease';
+        
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, 100 + (index * 50));
+    });
+});
+</script>
 {% endblock %}

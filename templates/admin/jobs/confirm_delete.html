@@ -1,33 +1,569 @@
 {% extends "admin/admin_base.html" %}
-{% block title %}Supprimer - {{ offer.title }}{% endblock %}
+
+{% block title %}Supprimer offre - Oloustream Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ==================== VARIABLES ==================== */
+    :root {
+        --primary-400: #c084fc;
+        --primary-500: #a855f7;
+        --primary-600: #9333ea;
+        --surface-100: #f4f4f5;
+        --surface-400: #a1a1aa;
+        --surface-500: #71717a;
+        --surface-600: #52525b;
+        --surface-700: #3f3f46;
+        --surface-800: #27272a;
+        --surface-850: #1f1f23;
+        --error-color: #ef4444;
+        --error-light: #f87171;
+    }
+
+    /* ==================== WRAPPER ==================== */
+    .delete-wrapper {
+        min-height: calc(100vh - 70px - 3rem);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .delete-card {
+        width: 100%;
+        max-width: 480px;
+        background: #1f1f23;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 20px;
+        overflow: hidden;
+        animation: scaleIn 0.3s ease-out;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                    0 0 0 1px rgba(239, 68, 68, 0.1);
+    }
+
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* ==================== HEADER ==================== */
+    .delete-header {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
+        padding: 2rem;
+        text-align: center;
+        border-bottom: 1px solid rgba(239, 68, 68, 0.15);
+    }
+
+    .delete-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: rgba(239, 68, 68, 0.1);
+        border: 2px solid rgba(239, 68, 68, 0.3);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: pulse-warning 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-warning {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+        }
+        50% {
+            box-shadow: 0 0 0 15px rgba(239, 68, 68, 0);
+        }
+    }
+
+    .delete-icon i {
+        font-size: 2.5rem;
+        color: #f87171;
+    }
+
+    .delete-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .delete-subtitle {
+        font-size: 0.9375rem;
+        color: #a1a1aa;
+        margin: 0;
+    }
+
+    /* ==================== BODY ==================== */
+    .delete-body {
+        padding: 2rem;
+    }
+
+    /* Offer preview card */
+    .offer-preview {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+    .offer-icon-box {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        flex-shrink: 0;
+        background: linear-gradient(135deg, #10b981, #059669);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .offer-icon-box i {
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .offer-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .offer-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #f4f4f5;
+        margin: 0 0 0.25rem 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .offer-details {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .offer-detail {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        font-size: 0.8125rem;
+        color: #71717a;
+    }
+
+    .offer-detail i {
+        font-size: 0.875rem;
+    }
+
+    .offer-id {
+        padding: 0.25rem 0.625rem;
+        background: #3f3f46;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #a1a1aa;
+        font-family: monospace;
+    }
+
+    /* Warning message */
+    .warning-box {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem 1.25rem;
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .warning-box i {
+        font-size: 1.25rem;
+        color: #fbbf24;
+        flex-shrink: 0;
+        margin-top: 0.125rem;
+    }
+
+    .warning-box-content {
+        flex: 1;
+    }
+
+    .warning-box-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #fbbf24;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .warning-box-text {
+        font-size: 0.8125rem;
+        color: #d4d4d8;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    /* Consequences list */
+    .consequences-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.75rem;
+    }
+
+    .consequences-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.5rem 0;
+    }
+
+    .consequences-list li {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.625rem 0;
+        font-size: 0.875rem;
+        color: #d4d4d8;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .consequences-list li:last-child {
+        border-bottom: none;
+    }
+
+    .consequences-list li i {
+        font-size: 1rem;
+        color: #f87171;
+    }
+
+    /* ==================== ACTIONS ==================== */
+    .delete-actions {
+        display: flex;
+        gap: 0.75rem;
+        padding-top: 0.5rem;
+    }
+
+    .btn {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.5rem;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        font-family: inherit;
+    }
+
+    .btn i {
+        font-size: 1.125rem;
+    }
+
+    .btn-cancel {
+        background: #27272a;
+        color: #d4d4d8;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-cancel:hover {
+        background: #3f3f46;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-delete {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        color: white;
+        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.35);
+    }
+
+    .btn-delete:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(220, 38, 38, 0.45);
+    }
+
+    .btn-delete:active {
+        transform: translateY(0);
+    }
+
+    /* Confirmation checkbox */
+    .confirm-checkbox {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: rgba(239, 68, 68, 0.05);
+        border: 1px solid rgba(239, 68, 68, 0.15);
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .confirm-checkbox:hover {
+        background: rgba(239, 68, 68, 0.08);
+    }
+
+    .confirm-checkbox input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        appearance: none;
+        background: #27272a;
+        border: 2px solid #52525b;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+        margin-top: 0.125rem;
+        position: relative;
+    }
+
+    .confirm-checkbox input[type="checkbox"]:checked {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        border-color: #dc2626;
+    }
+
+    .confirm-checkbox input[type="checkbox"]:checked::after {
+        content: '';
+        position: absolute;
+        top: 3px;
+        left: 6px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    .confirm-checkbox-text {
+        font-size: 0.875rem;
+        color: #d4d4d8;
+        line-height: 1.5;
+    }
+
+    .confirm-checkbox-text strong {
+        color: #f87171;
+    }
+
+    /* Disabled state */
+    .btn-delete:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    /* ==================== FOOTER ==================== */
+    .delete-footer {
+        padding: 1rem 2rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        text-align: center;
+    }
+
+    .delete-footer-text {
+        font-size: 0.75rem;
+        color: #52525b;
+        margin: 0;
+    }
+
+    .delete-footer-text i {
+        margin-right: 0.375rem;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 480px) {
+        .delete-wrapper {
+            padding: 1rem;
+            align-items: flex-start;
+            padding-top: 2rem;
+        }
+
+        .delete-card {
+            border-radius: 16px;
+        }
+
+        .delete-header {
+            padding: 1.5rem;
+        }
+
+        .delete-icon {
+            width: 64px;
+            height: 64px;
+        }
+
+        .delete-icon i {
+            font-size: 2rem;
+        }
+
+        .delete-title {
+            font-size: 1.25rem;
+        }
+
+        .delete-body {
+            padding: 1.5rem;
+        }
+
+        .offer-preview {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .offer-details {
+            justify-content: center;
+        }
+
+        .delete-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid" style="max-width: 720px;">
-  <div class="mb-4">
-    <h3 class="mb-1">Supprimer l’offre</h3>
-    <div class="text-muted">Cette action est définitive.</div>
-  </div>
+<div class="delete-wrapper">
+    <div class="delete-card">
+        <!-- Header -->
+        <div class="delete-header">
+            <div class="delete-icon">
+                <i class="ph ph-warning-circle"></i>
+            </div>
+            <h1 class="delete-title">Supprimer cette offre ?</h1>
+            <p class="delete-subtitle">Cette action est irréversible</p>
+        </div>
 
-  <div class="card border-0 shadow-sm">
-    <div class="card-body">
-      <p class="mb-2">
-        Voulez-vous vraiment supprimer l’offre :
-        <strong>{{ offer.title }}</strong> ?
-      </p>
-      <div class="text-muted small mb-3">
-        Les candidatures liées à cette offre seront aussi supprimées.
-      </div>
+        <!-- Body -->
+        <div class="delete-body">
+            <!-- Offer Preview -->
+            <div class="offer-preview">
+                <div class="offer-icon-box">
+                    <i class="ph-bold ph-briefcase"></i>
+                </div>
+                <div class="offer-info">
+                    <h3 class="offer-name">{{ offer.title }}</h3>
+                    <div class="offer-details">
+                        <span class="offer-detail">
+                            <i class="ph ph-calendar"></i>
+                            Créée le {{ offer.created_at|date:"d/m/Y" }}
+                        </span>
+                        <span class="offer-id">#{{ offer.pk }}</span>
+                    </div>
+                </div>
+            </div>
 
-      <form method="post" class="d-flex gap-2">
-        {% csrf_token %}
-        <a href="{% url 'services_app:admin_jobs_detail' offer.pk %}" class="btn btn-outline-secondary w-50">
-          Annuler
-        </a>
-        <button type="submit" class="btn btn-danger w-50">
-          <i class="ph ph-trash me-1"></i> Supprimer
-        </button>
-      </form>
+            <!-- Warning -->
+            <div class="warning-box">
+                <i class="ph ph-warning"></i>
+                <div class="warning-box-content">
+                    <p class="warning-box-title">Attention !</p>
+                    <p class="warning-box-text">
+                        La suppression de cette offre entraînera la perte définitive de toutes les candidatures associées.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Consequences -->
+            <div class="consequences-title">Cette action va supprimer :</div>
+            <ul class="consequences-list">
+                <li>
+                    <i class="ph ph-briefcase"></i>
+                    L'offre d'emploi et sa description
+                </li>
+                <li>
+                    <i class="ph ph-users"></i>
+                    Toutes les candidatures reçues
+                </li>
+                <li>
+                    <i class="ph ph-image"></i>
+                    L'affiche et les médias associés
+                </li>
+                <li>
+                    <i class="ph ph-chart-line"></i>
+                    Les statistiques de l'offre
+                </li>
+            </ul>
+
+            <!-- Confirmation checkbox -->
+            <form method="post" id="deleteForm">
+                {% csrf_token %}
+                
+                <label class="confirm-checkbox">
+                    <input type="checkbox" id="confirmDelete" required>
+                    <span class="confirm-checkbox-text">
+                        Je confirme vouloir supprimer définitivement l'offre <strong>« {{ offer.title }} »</strong> et toutes les candidatures associées.
+                    </span>
+                </label>
+
+                <!-- Actions -->
+                <div class="delete-actions">
+                    <a href="{% url 'services_app:admin_jobs_detail' offer.pk %}" class="btn btn-cancel">
+                        <i class="ph ph-x"></i>
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn btn-delete" id="deleteBtn" disabled>
+                        <i class="ph ph-trash"></i>
+                        Supprimer
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="delete-footer">
+            <p class="delete-footer-text">
+                <i class="ph ph-info"></i>
+                Cette action ne peut pas être annulée. Procédez avec prudence.
+            </p>
+        </div>
     </div>
-  </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.getElementById('confirmDelete');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const form = document.getElementById('deleteForm');
+
+    // Enable/disable button based on checkbox
+    checkbox.addEventListener('change', function() {
+        deleteBtn.disabled = !this.checked;
+    });
+
+    // Confirm before submit
+    form.addEventListener('submit', function(e) {
+        if (!checkbox.checked) {
+            e.preventDefault();
+            return false;
+        }
+
+        // Add loading state
+        deleteBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Suppression...';
+        deleteBtn.disabled = true;
+    });
+});
+</script>
 {% endblock %}

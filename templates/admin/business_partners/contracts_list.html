@@ -1,0 +1,1332 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Contrats Partenaires - Oloustream Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ==================== VARIABLES LOCALES ==================== */
+    :root {
+        --contract-primary: #8b5cf6;
+        --contract-success: #10b981;
+        --contract-warning: #f59e0b;
+        --contract-danger: #ef4444;
+        --contract-info: #3b82f6;
+        --contract-pending: #f59e0b;
+        --contract-validated: #10b981;
+        --contract-signed: #06b6d4;
+        --contract-progress: #3b82f6;
+        --contract-completed: #22c55e;
+        --contract-cancelled: #ef4444;
+    }
+
+    /* ==================== PAGE WRAPPER ==================== */
+    .contracts-wrapper {
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ==================== HEADER ==================== */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .header-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, var(--contract-primary), #7c3aed);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+        box-shadow: 0 8px 25px rgba(139, 92, 246, 0.35);
+        flex-shrink: 0;
+    }
+
+    .header-text h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        margin: 0 0 0.25rem 0;
+    }
+
+    .header-text p {
+        font-size: 0.9375rem;
+        color: var(--surface-400);
+        margin: 0;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .btn-primary-modern {
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        color: white;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.25);
+    }
+
+    .btn-primary-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(147, 51, 234, 0.35);
+        color: white;
+    }
+
+    .btn-outline-modern {
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--surface-300);
+    }
+
+    .btn-outline-modern:hover {
+        background: var(--surface-700);
+        color: white;
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    /* ==================== STATS GRID ==================== */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 1400px) {
+        .stats-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .stat-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 1.25rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--stat-color, var(--primary-600)), transparent);
+    }
+
+    .stat-card.total { --stat-color: var(--contract-primary); }
+    .stat-card.pending { --stat-color: var(--contract-pending); }
+    .stat-card.validated { --stat-color: var(--contract-validated); }
+    .stat-card.completed { --stat-color: var(--contract-info); }
+    .stat-card.amount { --stat-color: var(--surface-400); }
+    .stat-card.commission { --stat-color: var(--contract-success); }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        margin: 0 auto 0.75rem;
+    }
+
+    .stat-card.total .stat-icon {
+        background: rgba(139, 92, 246, 0.15);
+        color: #a78bfa;
+    }
+
+    .stat-card.pending .stat-icon {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+    }
+
+    .stat-card.validated .stat-icon {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+    }
+
+    .stat-card.completed .stat-icon {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+    }
+
+    .stat-card.amount .stat-icon {
+        background: rgba(113, 113, 122, 0.15);
+        color: var(--surface-400);
+    }
+
+    .stat-card.commission .stat-icon {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        line-height: 1;
+        margin-bottom: 0.375rem;
+    }
+
+    .stat-label {
+        font-size: 0.6875rem;
+        color: var(--surface-400);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* ==================== FILTERS CARD ==================== */
+    .filters-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .filters-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .filters-header i {
+        font-size: 1.25rem;
+        color: var(--primary-400);
+    }
+
+    .filters-header span {
+        font-weight: 600;
+        color: var(--surface-200);
+        font-size: 0.9375rem;
+    }
+
+    .filters-form {
+        display: flex;
+        gap: 1rem;
+        align-items: end;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 180px;
+    }
+
+    .filter-group.search {
+        flex: 2;
+        min-width: 250px;
+    }
+
+    .filter-label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--surface-400);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+
+    .filter-input,
+    .filter-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        color: var(--surface-100);
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+        font-family: inherit;
+    }
+
+    .filter-input::placeholder {
+        color: var(--surface-500);
+    }
+
+    .filter-input:focus,
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--primary-500);
+        box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15);
+        background-color: var(--surface-850);
+    }
+
+    .filter-select {
+        appearance: none;
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        padding-right: 2.5rem;
+    }
+
+    .filter-select option {
+        background: var(--surface-800);
+        color: var(--surface-100);
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-filter {
+        padding: 0.75rem 1.25rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-filter-primary {
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        color: white;
+    }
+
+    .btn-filter-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+    }
+
+    .btn-filter-reset {
+        background: transparent;
+        color: var(--surface-400);
+        border: 1px solid var(--surface-700);
+        text-decoration: none;
+    }
+
+    .btn-filter-reset:hover {
+        background: var(--surface-800);
+        color: var(--surface-200);
+    }
+
+    /* ==================== TABLE CARD ==================== */
+    .table-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .table-header {
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.25);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .table-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--surface-200);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .table-title i {
+        font-size: 1.25rem;
+        color: var(--contract-primary);
+    }
+
+    .table-count {
+        background: var(--surface-700);
+        color: var(--surface-300);
+        padding: 0.25rem 0.625rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    /* ==================== TABLE MODERNE ==================== */
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .table-modern {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-modern thead {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .table-modern thead th {
+        padding: 1rem;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: var(--surface-400);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-align: left;
+        white-space: nowrap;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .table-modern thead th.text-end {
+        text-align: right;
+    }
+
+    .table-modern thead th.text-center {
+        text-align: center;
+    }
+
+    .table-modern tbody tr {
+        transition: all 0.15s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .table-modern tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .table-modern tbody td {
+        padding: 1rem;
+        font-size: 0.875rem;
+        color: var(--surface-300);
+        vertical-align: middle;
+    }
+
+    /* ID Cell */
+    .id-cell {
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        font-size: 0.75rem;
+        color: var(--surface-500);
+        background: var(--surface-800);
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+    }
+
+    /* Partner Cell */
+    .partner-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+
+    .partner-code {
+        font-weight: 600;
+        color: var(--contract-primary);
+        font-size: 0.875rem;
+    }
+
+    .partner-name {
+        font-size: 0.75rem;
+        color: var(--surface-500);
+    }
+
+    /* Client Cell */
+    .client-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+
+    .client-name {
+        font-weight: 600;
+        color: var(--surface-100);
+        font-size: 0.9375rem;
+    }
+
+    .client-type {
+        font-size: 0.75rem;
+        color: var(--surface-500);
+    }
+
+    /* Service Cell */
+    .service-cell {
+        max-width: 180px;
+    }
+
+    .service-name {
+        color: var(--surface-300);
+        font-size: 0.875rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Amount Cell */
+    .amount-cell {
+        text-align: right;
+    }
+
+    .amount-value {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--surface-100);
+    }
+
+    .amount-suffix {
+        font-size: 0.6875rem;
+        color: var(--surface-500);
+        margin-left: 0.25rem;
+    }
+
+    /* Commission Cell */
+    .commission-cell {
+        text-align: right;
+    }
+
+    .commission-value {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--contract-success);
+    }
+
+    .commission-rate {
+        display: inline-block;
+        margin-top: 0.25rem;
+        padding: 0.125rem 0.5rem;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        border-radius: 4px;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: #34d399;
+    }
+
+    /* Date Cell */
+    .date-cell {
+        font-size: 0.875rem;
+        color: var(--surface-400);
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        white-space: nowrap;
+    }
+
+    .status-badge.pending {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .status-badge.validated {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-badge.signed {
+        background: rgba(6, 182, 212, 0.15);
+        color: #22d3ee;
+        border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+
+    .status-badge.in_progress {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .status-badge.completed {
+        background: rgba(34, 197, 94, 0.15);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .status-badge.cancelled {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* Actions */
+    .actions-cell {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .actions-group {
+        display: inline-flex;
+        gap: 0.375rem;
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: var(--surface-800);
+        color: var(--surface-400);
+        text-decoration: none;
+        transition: all 0.15s ease;
+        position: relative;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .action-btn.view:hover {
+        background: rgba(113, 113, 122, 0.15);
+        color: var(--surface-200);
+        border-color: rgba(113, 113, 122, 0.3);
+    }
+
+    .action-btn.validate {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .action-btn.validate:hover {
+        background: rgba(16, 185, 129, 0.25);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .action-btn.reject {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .action-btn.reject:hover {
+        background: rgba(239, 68, 68, 0.25);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    /* Tooltips */
+    .action-btn::before {
+        content: attr(title);
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.375rem 0.625rem;
+        background: var(--surface-700);
+        color: var(--surface-100);
+        font-size: 0.6875rem;
+        font-weight: 500;
+        border-radius: 6px;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.15s ease;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    .action-btn:hover::before {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 1.5rem;
+        background: var(--surface-800);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: var(--surface-500);
+    }
+
+    .empty-state h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--surface-300);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .empty-state p {
+        color: var(--surface-500);
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    /* ==================== PAGINATION ==================== */
+    .table-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .pagination-info {
+        font-size: 0.8125rem;
+        color: var(--surface-400);
+    }
+
+    .pagination-modern {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .page-item-modern {
+        display: flex;
+    }
+
+    .page-link-modern {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 0.75rem;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 8px;
+        color: var(--surface-300);
+        text-decoration: none;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        transition: all 0.15s ease;
+    }
+
+    .page-link-modern:hover {
+        background: var(--surface-700);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+    .page-item-modern.active .page-link-modern {
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        border-color: transparent;
+        color: white;
+        box-shadow: 0 2px 8px rgba(147, 51, 234, 0.3);
+    }
+
+    .page-item-modern.disabled .page-link-modern {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+        }
+
+        .header-actions {
+            width: 100%;
+        }
+
+        .btn-modern {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .filters-form {
+            flex-direction: column;
+        }
+
+        .filter-group,
+        .filter-group.search {
+            width: 100%;
+        }
+
+        .table-footer {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Mobile table */
+        .table-modern thead {
+            display: none;
+        }
+
+        .table-modern tbody tr {
+            display: block;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            background: var(--surface-800);
+        }
+
+        .table-modern tbody td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.625rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .table-modern tbody td:last-child {
+            border-bottom: none;
+            justify-content: center;
+            padding-top: 1rem;
+        }
+
+        .table-modern tbody td::before {
+            content: attr(data-label);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: var(--surface-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .partner-cell,
+        .client-cell {
+            align-items: flex-end;
+            text-align: right;
+        }
+
+        .actions-group {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .action-btn {
+            flex: 1;
+            max-width: 60px;
+        }
+    }
+
+    /* ==================== ANIMATIONS ==================== */
+    .stat-card {
+        animation: fadeInUp 0.5s ease-out backwards;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.05s; }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.15s; }
+    .stat-card:nth-child(4) { animation-delay: 0.2s; }
+    .stat-card:nth-child(5) { animation-delay: 0.25s; }
+    .stat-card:nth-child(6) { animation-delay: 0.3s; }
+
+    .table-modern tbody tr {
+        animation: fadeInUp 0.3s ease-out backwards;
+    }
+
+    .table-modern tbody tr:nth-child(1) { animation-delay: 0.05s; }
+    .table-modern tbody tr:nth-child(2) { animation-delay: 0.1s; }
+    .table-modern tbody tr:nth-child(3) { animation-delay: 0.15s; }
+    .table-modern tbody tr:nth-child(4) { animation-delay: 0.2s; }
+    .table-modern tbody tr:nth-child(5) { animation-delay: 0.25s; }
+    .table-modern tbody tr:nth-child(6) { animation-delay: 0.3s; }
+    .table-modern tbody tr:nth-child(7) { animation-delay: 0.35s; }
+    .table-modern tbody tr:nth-child(8) { animation-delay: 0.4s; }
+
+    /* Highlight pending rows */
+    .table-modern tbody tr.pending-row {
+        border-left: 3px solid var(--contract-pending);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="contracts-wrapper">
+    
+    <!-- HEADER -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="ph-bold ph-file-text"></i>
+            </div>
+            <div class="header-text">
+                <h1>Contrats Partenaires</h1>
+                <p>Gérez et validez les contrats soumis par les partenaires d'affaires</p>
+            </div>
+        </div>
+        
+        <div class="header-actions">
+            <a href="{% url 'dashboard:business_partners_list' %}" class="btn-modern btn-outline-modern">
+                <i class="ph ph-users-three"></i>
+                Partenaires
+            </a>
+            <a href="{% url 'dashboard:partner_payments_list' %}" class="btn-modern btn-primary-modern">
+                <i class="ph ph-currency-circle-dollar"></i>
+                Paiements
+            </a>
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid">
+        <div class="stat-card total">
+            <div class="stat-icon">
+                <i class="ph-bold ph-files"></i>
+            </div>
+            <div class="stat-value">{{ stats.total|default:0 }}</div>
+            <div class="stat-label">Total contrats</div>
+        </div>
+
+        <div class="stat-card pending">
+            <div class="stat-icon">
+                <i class="ph-bold ph-clock"></i>
+            </div>
+            <div class="stat-value">{{ stats.pending|default:0 }}</div>
+            <div class="stat-label">En attente</div>
+        </div>
+
+        <div class="stat-card validated">
+            <div class="stat-icon">
+                <i class="ph-bold ph-check-circle"></i>
+            </div>
+            <div class="stat-value">{{ stats.validated|default:0 }}</div>
+            <div class="stat-label">Validés</div>
+        </div>
+
+        <div class="stat-card completed">
+            <div class="stat-icon">
+                <i class="ph-bold ph-flag-checkered"></i>
+            </div>
+            <div class="stat-value">{{ stats.completed|default:0 }}</div>
+            <div class="stat-label">Terminés</div>
+        </div>
+
+        <div class="stat-card amount">
+            <div class="stat-icon">
+                <i class="ph-bold ph-chart-line-up"></i>
+            </div>
+            <div class="stat-value">{{ stats.total_amount|floatformat:0|default:0 }}</div>
+            <div class="stat-label">Montant total</div>
+        </div>
+
+        <div class="stat-card commission">
+            <div class="stat-icon">
+                <i class="ph-bold ph-coins"></i>
+            </div>
+            <div class="stat-value">{{ stats.total_commission|floatformat:0|default:0 }}</div>
+            <div class="stat-label">Commissions</div>
+        </div>
+    </div>
+
+    <!-- FILTRES -->
+    <div class="filters-card">
+        <div class="filters-header">
+            <i class="ph ph-funnel"></i>
+            <span>Filtres & Recherche</span>
+        </div>
+        
+        <form method="get" class="filters-form">
+            <div class="filter-group search">
+                <label class="filter-label" for="search">Recherche</label>
+                <input type="text" 
+                       name="search" 
+                       id="search" 
+                       class="filter-input" 
+                       placeholder="Client, code partenaire, service..." 
+                       value="{{ search_query|default:'' }}">
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label" for="status">Statut</label>
+                <select name="status" id="status" class="filter-select">
+                    <option value="">Tous les statuts</option>
+                    {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label" for="partner">Partenaire</label>
+                <select name="partner" id="partner" class="filter-select">
+                    <option value="">Tous les partenaires</option>
+                    {% for p in partners %}
+                    <option value="{{ p.id }}" {% if current_partner == p.id|stringformat:"d" %}selected{% endif %}>
+                        {{ p.partner_code }} - {{ p.user.get_full_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter btn-filter-primary">
+                    <i class="ph ph-magnifying-glass"></i>
+                    Filtrer
+                </button>
+                <a href="{% url 'dashboard:partner_contracts_list' %}" class="btn-filter btn-filter-reset">
+                    <i class="ph ph-arrow-counter-clockwise"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-card">
+        <div class="table-header">
+            <div class="table-title">
+                <i class="ph ph-list"></i>
+                Liste des contrats
+                <span class="table-count">{{ contracts.paginator.count }}</span>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Partenaire</th>
+                        <th>Client</th>
+                        <th>Service</th>
+                        <th class="text-end">Montant</th>
+                        <th class="text-end">Commission</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contract in contracts %}
+                    <tr class="{% if contract.status == 'pending' %}pending-row{% endif %}">
+                        <td data-label="ID">
+                            <span class="id-cell">#{{ contract.id }}</span>
+                        </td>
+                        
+                        <td data-label="Partenaire">
+                            <div class="partner-cell">
+                                <span class="partner-code">{{ contract.partner.partner_code }}</span>
+                                <span class="partner-name">{{ contract.partner.user.get_full_name }}</span>
+                            </div>
+                        </td>
+                        
+                        <td data-label="Client">
+                            <div class="client-cell">
+                                <span class="client-name">{{ contract.client_name }}</span>
+                                <span class="client-type">{{ contract.get_client_type_display }}</span>
+                            </div>
+                        </td>
+                        
+                        <td data-label="Service" class="service-cell">
+                            <span class="service-name" title="{{ contract.service_type }}">
+                                {{ contract.service_type|truncatewords:3 }}
+                            </span>
+                        </td>
+                        
+                        <td data-label="Montant" class="amount-cell">
+                            <span class="amount-value">{{ contract.contract_amount|floatformat:0 }}</span>
+                            <span class="amount-suffix">XOF</span>
+                        </td>
+                        
+                        <td data-label="Commission" class="commission-cell">
+                            <span class="commission-value">{{ contract.commission_amount|floatformat:0 }}</span>
+                            <span class="amount-suffix">XOF</span>
+                            <br>
+                            <span class="commission-rate">{{ contract.commission_rate }}%</span>
+                        </td>
+                        
+                        <td data-label="Date" class="date-cell">
+                            {{ contract.created_at|date:"d/m/Y" }}
+                        </td>
+                        
+                        <td data-label="Statut">
+                            {% if contract.status == 'pending' %}
+                            <span class="status-badge pending">
+                                <i class="ph ph-clock"></i>
+                                En attente
+                            </span>
+                            {% elif contract.status == 'validated' %}
+                            <span class="status-badge validated">
+                                <i class="ph ph-check"></i>
+                                Validé
+                            </span>
+                            {% elif contract.status == 'signed' %}
+                            <span class="status-badge signed">
+                                <i class="ph ph-pen-nib"></i>
+                                Signé
+                            </span>
+                            {% elif contract.status == 'in_progress' %}
+                            <span class="status-badge in_progress">
+                                <i class="ph ph-spinner"></i>
+                                En cours
+                            </span>
+                            {% elif contract.status == 'completed' %}
+                            <span class="status-badge completed">
+                                <i class="ph ph-check-circle"></i>
+                                Terminé
+                            </span>
+                            {% elif contract.status == 'cancelled' %}
+                            <span class="status-badge cancelled">
+                                <i class="ph ph-x-circle"></i>
+                                Annulé
+                            </span>
+                            {% else %}
+                            <span class="status-badge">
+                                {{ contract.get_status_display }}
+                            </span>
+                            {% endif %}
+                        </td>
+                        
+                        <td data-label="Actions" class="actions-cell">
+                            <div class="actions-group">
+                                <a href="{% url 'dashboard:partner_contract_detail' contract.pk %}" 
+                                   class="action-btn view"
+                                   title="Voir détails">
+                                    <i class="ph ph-eye"></i>
+                                </a>
+                                {% if contract.status == 'pending' %}
+                                <a href="{% url 'dashboard:partner_contract_validate' contract.pk %}" 
+                                   class="action-btn validate"
+                                   onclick="return confirm('Valider ce contrat de {{ contract.contract_amount|floatformat:0 }} XOF ?');"
+                                   title="Valider">
+                                    <i class="ph ph-check"></i>
+                                </a>
+                                <a href="{% url 'dashboard:partner_contract_reject' contract.pk %}" 
+                                   class="action-btn reject"
+                                   onclick="return confirm('Annuler ce contrat ?');"
+                                   title="Rejeter">
+                                    <i class="ph ph-x"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="ph ph-folder-open"></i>
+                                </div>
+                                <h3>Aucun contrat trouvé</h3>
+                                <p>Aucun contrat ne correspond à vos critères de recherche.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- PAGINATION -->
+        {% if contracts.has_other_pages %}
+        <div class="table-footer">
+            <div class="pagination-info">
+                Affichage de {{ contracts.start_index }} à {{ contracts.end_index }} 
+                sur {{ contracts.paginator.count }} contrats
+            </div>
+            
+            <nav aria-label="Pagination">
+                <ul class="pagination-modern">
+                    {% if contracts.has_previous %}
+                    <li class="page-item-modern">
+                        <a class="page-link-modern" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.partner %}&partner={{ request.GET.partner }}{% endif %}">
+                            <i class="ph ph-caret-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item-modern">
+                        <a class="page-link-modern" href="?page={{ contracts.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.partner %}&partner={{ request.GET.partner }}{% endif %}">
+                            <i class="ph ph-caret-left"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item-modern disabled">
+                        <span class="page-link-modern"><i class="ph ph-caret-double-left"></i></span>
+                    </li>
+                    <li class="page-item-modern disabled">
+                        <span class="page-link-modern"><i class="ph ph-caret-left"></i></span>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in contracts.paginator.page_range %}
+                        {% if contracts.number == num %}
+                        <li class="page-item-modern active">
+                            <span class="page-link-modern">{{ num }}</span>
+                        </li>
+                        {% elif num > contracts.number|add:'-3' and num < contracts.number|add:'3' %}
+                        <li class="page-item-modern">
+                            <a class="page-link-modern" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.partner %}&partner={{ request.GET.partner }}{% endif %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% elif num == 1 or num == contracts.paginator.num_pages %}
+                        <li class="page-item-modern">
+                            <a class="page-link-modern" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.partner %}&partner={{ request.GET.partner }}{% endif %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% elif num == contracts.number|add:'-4' or num == contracts.number|add:'4' %}
+                        <li style="padding: 0 0.5rem; color: var(--surface-500);">...</li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if contracts.has_next %}
+                    <li class="page-item-modern">
+                        <a class="page-link-modern" href="?page={{ contracts.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.partner %}&partner={{ request.GET.partner }}{% endif %}">
+                            <i class="ph ph-caret-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item-modern">
+                        <a class="page-link-modern" href="?page={{ contracts.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.partner %}&partner={{ request.GET.partner }}{% endif %}">
+                            <i class="ph ph-caret-double-right"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item-modern disabled">
+                        <span class="page-link-modern"><i class="ph ph-caret-right"></i></span>
+                    </li>
+                    <li class="page-item-modern disabled">
+                        <span class="page-link-modern"><i class="ph ph-caret-double-right"></i></span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des valeurs des stats
+    const animateValue = (element, start, end, duration) => {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            const value = Math.floor(progress * (end - start) + start);
+            element.textContent = value.toLocaleString('fr-FR');
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    };
+
+    // Animer les stats
+    document.querySelectorAll('.stat-value').forEach(element => {
+        const text = element.textContent.replace(/\s/g, '');
+        const finalValue = parseInt(text);
+        if (!isNaN(finalValue) && finalValue > 0) {
+            animateValue(element, 0, finalValue, 1000);
+        }
+    });
+
+    // Highlight pending rows
+    document.querySelectorAll('.pending-row').forEach(row => {
+        row.style.animation = 'none';
+        row.offsetHeight;
+        row.style.animation = null;
+    });
+
+    // Confirmation avec animation
+    document.querySelectorAll('.action-btn.validate, .action-btn.reject').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const icon = this.querySelector('i');
+            if (icon) {
+                icon.style.animation = 'spin 0.5s linear';
+            }
+        });
+    });
+});
+
+// Add spin animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

@@ -1,4 +1,5 @@
 from django.urls import path
+from . import views
 from .views import (
     dashboard_view,
     # Employés
@@ -132,4 +133,55 @@ urlpatterns = [
     path('studios/<int:studio_id>/', studio_detail_view, name='studios_detail'),
     path('studios/<int:studio_id>/edit/', studio_update_view, name='studios_edit'),
     path('studios/<int:studio_id>/delete/', studio_delete_view, name='studios_delete'),
+
+
+    # Candidatures
+    path('partenaires/candidatures/', 
+         views.partner_applications_list, 
+         name='partner_applications_list'),
+    path('partenaires/candidatures/<int:pk>/', 
+         views.partner_application_detail, 
+         name='partner_application_detail'),
+    path('partenaires/candidatures/<int:pk>/approuver/', 
+         views.partner_application_approve, 
+         name='partner_application_approve'),
+    path('partenaires/candidatures/<int:pk>/rejeter/', 
+         views.partner_application_reject, 
+         name='partner_application_reject'),
+    path('partenaires/candidatures/<int:pk>/statut/', 
+         views.partner_application_update_status, 
+         name='partner_application_update_status'),
+    
+    # Partenaires actifs
+    path('partenaires/liste/', 
+         views.business_partners_list, 
+         name='business_partners_list'),
+    path('partenaires/<int:pk>/', 
+         views.business_partner_detail, 
+         name='business_partner_detail'),
+    path('partenaires/<int:pk>/toggle/', 
+         views.business_partner_toggle_active, 
+         name='business_partner_toggle_active'),
+    
+    # Contrats
+    path('partenaires/contrats/', 
+         views.partner_contracts_list, 
+         name='partner_contracts_list'),
+    path('partenaires/contrats/<int:pk>/', 
+         views.partner_contract_detail, 
+         name='partner_contract_detail'),
+    path('partenaires/contrats/<int:pk>/valider/', 
+         views.partner_contract_validate, 
+         name='partner_contract_validate'),
+    path('partenaires/contrats/<int:pk>/rejeter/', 
+         views.partner_contract_reject, 
+         name='partner_contract_reject'),
+    
+    # Paiements
+    path('partenaires/paiements/', 
+         views.partner_payments_list, 
+         name='partner_payments_list'),
+    path('partenaires/<int:partner_pk>/payer/', 
+         views.partner_payment_create, 
+         name='partner_payment_create'),
 ]

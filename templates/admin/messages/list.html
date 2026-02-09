@@ -1,227 +1,820 @@
 {% extends "admin/admin_base.html" %}
 {% block title %}Messages - Oloustream Admin{% endblock %}
 
-{% block content %}
-
+{% block extra_css %}
 <style>
-/* =========================================================
-   LISTE CONVERSATIONS – STYLE ULTRA PRO
-   ========================================================= */
+    /* ==================== VARIABLES ==================== */
+    :root {
+        --primary-400: #c084fc;
+        --primary-500: #a855f7;
+        --primary-600: #9333ea;
+        --primary-700: #7c3aed;
+        --accent-400: #fbbf24;
+        --surface-100: #f4f4f5;
+        --surface-200: #e4e4e7;
+        --surface-300: #d4d4d8;
+        --surface-400: #a1a1aa;
+        --surface-500: #71717a;
+        --surface-600: #52525b;
+        --surface-700: #3f3f46;
+        --surface-800: #27272a;
+        --surface-850: #1f1f23;
+        --surface-900: #18181b;
+        --error-color: #f87171;
+        --success-color: #34d399;
+        --info-color: #60a5fa;
+    }
 
-.msg-list-wrapper {
-  {% comment %} max-width: 1100px; {% endcomment %}
-  margin: 0 auto;
-  animation: msgL-fadeInUp 0.4s ease-out;
-}
+    /* ==================== WRAPPER ==================== */
+    .messages-wrapper {
+        width: 100%;
+        animation: fadeInUp 0.4s ease-out;
+    }
 
-.msgL-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-}
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
-.msgL-header h1 {
-  font-size: 1.6rem;
-  margin: 0;
-}
+    /* ==================== HEADER ==================== */
+    .messages-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
 
-.msgL-header .subtitle {
-  font-size: 0.9rem;
-  color: #6b7280;
-}
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
 
-.msgL-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: center;
-  margin-bottom: 1rem;
-}
+    .header-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+        box-shadow: 0 8px 25px rgba(147, 51, 234, 0.35);
+        position: relative;
+    }
 
-.msgL-conv-card {
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
-  padding: 0.9rem 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
-}
+    .unread-badge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        min-width: 24px;
+        height: 24px;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: white;
+        padding: 0 0.375rem;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        animation: pulse-badge 2s ease-in-out infinite;
+    }
 
-.msgL-conv-card:hover {
-  border-color: #e60023;
-  box-shadow: 0 8px 16px rgba(230, 0, 35, 0.12);
-  transform: translateY(-1px);
-}
+    @keyframes pulse-badge {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.1);
+        }
+    }
 
-.msgL-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
-  background: #e5e7eb;
-  color: #111827;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 1rem;
-  flex-shrink: 0;
-}
+    .header-text h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        margin: 0 0 0.25rem 0;
+    }
 
-.msgL-body {
-  flex: 1;
-  min-width: 0;
-}
+    .header-text p {
+        font-size: 0.875rem;
+        color: #71717a;
+        margin: 0;
+    }
 
-.msgL-name {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #111827;
-}
+    .header-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
 
-.msgL-meta {
-  font-size: 0.75rem;
-  color: #6b7280;
-}
+    /* ==================== SEARCH & FILTERS ==================== */
+    .search-filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding: 1.25rem;
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+    }
 
-.msgL-last-message {
-  font-size: 0.85rem;
-  color: #4b5563;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+    .search-group {
+        flex: 1;
+        min-width: 280px;
+        position: relative;
+    }
 
-.msgL-right {
-  text-align: right;
-  font-size: 0.8rem;
-}
+    .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #71717a;
+        font-size: 1.125rem;
+        pointer-events: none;
+    }
 
-.msgL-badge-unread {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  background: #dc2626;
-  color: #ffffff;
-  font-size: 0.7rem;
-  font-weight: 600;
-}
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 3rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: #f4f4f5;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+    }
 
-@keyframes msgL-fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+    .search-input::placeholder {
+        color: #71717a;
+    }
+
+    .search-input:hover {
+        border-color: rgba(255, 255, 255, 0.18);
+        background: #2a2a2e;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #9333ea;
+        box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.2);
+        background: rgba(147, 51, 234, 0.05);
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        font-family: inherit;
+        white-space: nowrap;
+    }
+
+    .btn i {
+        font-size: 1.125rem;
+    }
+
+    .btn-search {
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        color: white;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+    }
+
+    .btn-search:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(147, 51, 234, 0.4);
+        color: white;
+    }
+
+    .btn-filter {
+        background: #27272a;
+        color: #d4d4d8;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-filter:hover {
+        background: #3f3f46;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-filter.active {
+        background: linear-gradient(135deg, rgba(147, 51, 234, 0.2), rgba(147, 51, 234, 0.1));
+        border-color: rgba(147, 51, 234, 0.3);
+        color: #c084fc;
+    }
+
+    .btn-reset {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-reset:hover {
+        background: rgba(239, 68, 68, 0.25);
+        color: #fca5a5;
+    }
+
+    /* ==================== CONVERSATIONS LIST ==================== */
+    .conversations-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .conversation-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .conversation-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 0;
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        transition: width 0.3s ease;
+    }
+
+    .conversation-card:hover {
+        background: rgba(255, 255, 255, 0.02);
+        border-color: rgba(147, 51, 234, 0.3);
+        transform: translateX(4px);
+    }
+
+    .conversation-card:hover::before {
+        width: 4px;
+    }
+
+    .conversation-card.has-unread {
+        background: rgba(147, 51, 234, 0.05);
+        border-color: rgba(147, 51, 234, 0.3);
+    }
+
+    .conversation-card.has-unread::before {
+        width: 4px;
+    }
+
+    /* Avatar */
+    .conversation-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .conversation-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .conversation-avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: white;
+        text-transform: uppercase;
+    }
+
+    .online-indicator {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 14px;
+        height: 14px;
+        background: #34d399;
+        border: 2px solid #1f1f23;
+        border-radius: 50%;
+        box-shadow: 0 0 10px rgba(52, 211, 153, 0.5);
+    }
+
+    /* Content */
+    .conversation-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .conversation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .conversation-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #f4f4f5;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .new-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.625rem;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        border-radius: 12px;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: white;
+        animation: pulse-new 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-new {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+        }
+        50% {
+            box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+        }
+    }
+
+    .conversation-time {
+        font-size: 0.75rem;
+        color: #71717a;
+        white-space: nowrap;
+    }
+
+    .conversation-email {
+        font-size: 0.8125rem;
+        color: #71717a;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .conversation-email i {
+        font-size: 0.875rem;
+    }
+
+    .conversation-preview {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: #a1a1aa;
+    }
+
+    .conversation-preview strong {
+        color: #d4d4d8;
+        font-weight: 600;
+    }
+
+    .conversation-preview-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Unread count */
+    .unread-count {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 28px;
+        height: 28px;
+        padding: 0 0.5rem;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        border-radius: 14px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: white;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+    }
+
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: rgba(147, 51, 234, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: #71717a;
+    }
+
+    .empty-state-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #a1a1aa;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .empty-state-text {
+        font-size: 0.875rem;
+        color: #71717a;
+        margin: 0;
+    }
+
+    /* ==================== STATS BAR ==================== */
+    .stats-bar {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+        padding: 1.25rem;
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .stat-icon.purple {
+        background: rgba(147, 51, 234, 0.15);
+        color: #c084fc;
+    }
+
+    .stat-icon.red {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+    }
+
+    .stat-icon.green {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 768px) {
+        .messages-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .search-filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-group {
+            min-width: 100%;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .conversation-card {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .conversation-header {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stats-bar {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
+        }
+
+        .header-text h1 {
+            font-size: 1.25rem;
+        }
+
+        .conversation-avatar {
+            width: 48px;
+            height: 48px;
+        }
+    }
 </style>
+{% endblock %}
 
-<div class="msg-list-wrapper">
-    <div class="msgL-header">
-        <div>
-            <h1>Conversations</h1>
-            <p class="subtitle">
-                Liste des conversations client & échanges de messages.
-            </p>
+{% block content %}
+<div class="messages-wrapper">
+    <!-- HEADER -->
+    <div class="messages-header">
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="ph-bold ph-chats-circle"></i>
+                {% if total_unread %}
+                    <span class="unread-badge">{{ total_unread }}</span>
+                {% endif %}
+            </div>
+            <div class="header-text">
+                <h1>Conversations</h1>
+                <p>
+                    {% if total_unread %}
+                        {{ total_unread }} conversation{{ total_unread|pluralize }} avec des messages non lus
+                    {% else %}
+                        Gérez toutes vos conversations clients
+                    {% endif %}
+                </p>
+            </div>
         </div>
-        <div>
+        <div class="header-actions">
             {% if only_unread %}
-                <a href="{% url 'messaging:admin_conversations_list' %}" class="btn btn-outline-secondary btn-sm">
+                <a href="{% url 'messaging:admin_conversations_list' %}" class="btn btn-filter">
+                    <i class="ph ph-list"></i>
                     Voir toutes
                 </a>
             {% else %}
-                <a href="?only_unread=yes" class="btn btn-outline-primary btn-sm">
-                    <i class="ph ph-envelope-open"></i> Seulement non lues
+                <a href="?only_unread=yes" class="btn btn-filter active">
+                    <i class="ph ph-envelope-open"></i>
+                    Non lues uniquement
                 </a>
             {% endif %}
         </div>
     </div>
 
-    <!-- Barre de recherche -->
-    <form method="get" class="msgL-filters">
-        <div class="input-group input-group-sm" style="max-width: 320px;">
-            <span class="input-group-text"><i class="ph ph-magnifying-glass"></i></span>
-            <input type="text" name="q" class="form-control"
-                   placeholder="Nom, email, contenu du message..."
+    <!-- STATS BAR (Optional) -->
+    {% if show_stats %}
+    <div class="stats-bar">
+        <div class="stat-card">
+            <div class="stat-icon purple">
+                <i class="ph-bold ph-chats"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ total_conversations }}</div>
+                <div class="stat-label">Conversations totales</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon red">
+                <div class="stat-icon purple">
+                    <i class="ph-bold ph-envelope"></i>
+                </div>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ total_unread }}</div>
+                <div class="stat-label">Non lues</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="ph-bold ph-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ total_read }}</div>
+                <div class="stat-label">Lues</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- SEARCH & FILTERS -->
+    <form method="get" class="search-filter-bar">
+        <div class="search-group">
+            <i class="ph ph-magnifying-glass search-icon"></i>
+            <input type="text" 
+                   name="q" 
+                   class="search-input"
+                   placeholder="Rechercher par nom, email ou contenu du message..."
                    value="{{ q }}">
         </div>
+        
         {% if only_unread %}
             <input type="hidden" name="only_unread" value="yes">
         {% endif %}
-        <button type="submit" class="btn btn-primary btn-sm">
+        
+        <button type="submit" class="btn btn-search">
+            <i class="ph ph-magnifying-glass"></i>
             Rechercher
         </button>
+        
         {% if q or only_unread %}
-            <a href="{% url 'messaging:admin_conversations_list' %}" class="btn btn-outline-secondary btn-sm">
+            <a href="{% url 'messaging:admin_conversations_list' %}" class="btn btn-reset">
+                <i class="ph ph-x-circle"></i>
                 Réinitialiser
             </a>
         {% endif %}
     </form>
 
+    <!-- CONVERSATIONS LIST -->
     {% if conversations_data %}
-        {% for item in conversations_data %}
-            {% with c=item.conversation last=item.last_message has_unread=item.has_unread %}
-                <a href="{% url 'messaging:admin_conversation_chat' c.id %}" class="text-decoration-none">
-                    <div class="msgL-conv-card {% if has_unread %}border-danger{% endif %}">
-                        <div class="msgL-avatar">
-                            {{ c.user.first_name|default:c.user.username|first|upper }}
+        <div class="conversations-list">
+            {% for item in conversations_data %}
+                {% with c=item.conversation last=item.last_message has_unread=item.has_unread %}
+                    <a href="{% url 'messaging:admin_conversation_chat' c.id %}" class="conversation-card {% if has_unread %}has-unread{% endif %}">
+                        <!-- Avatar -->
+                        <div class="conversation-avatar">
+                            {% if c.user.avatar %}
+                                <img src="{{ c.user.avatar.url }}" alt="{{ c.user.get_full_name }}">
+                            {% else %}
+                                <div class="conversation-avatar-placeholder">
+                                    {{ c.user.first_name|default:c.user.username|first|upper }}
+                                </div>
+                            {% endif %}
+                            {% comment %} <span class="online-indicator"></span> {% endcomment %}
                         </div>
-                        <div class="msgL-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="msgL-name">
-                                        {{ c.user.get_full_name|default:c.user.username }}
-                                        {% if has_unread %}
-                                            <span class="badge bg-danger ms-1">Nouveaux</span>
-                                        {% endif %}
-                                    </div>
-                                    <div class="msgL-meta">
-                                        {{ c.user.email|default:"-" }}
-                                    </div>
-                                </div>
-                                <div class="msgL-right">
-                                    {% if last %}
-                                        <div class="text-muted small">
-                                            {{ last.sent_at|date:"d/m/Y H:i" }}
-                                        </div>
+
+                        <!-- Content -->
+                        <div class="conversation-content">
+                            <div class="conversation-header">
+                                <h3 class="conversation-name">
+                                    {{ c.user.get_full_name|default:c.user.username }}
+                                    {% if has_unread %}
+                                        <span class="new-badge">
+                                            <i class="ph-bold ph-dot"></i>
+                                            Nouveau
+                                        </span>
                                     {% endif %}
-                                </div>
+                                </h3>
+                                {% if last %}
+                                    <span class="conversation-time">
+                                        <i class="ph ph-clock"></i>
+                                        {{ last.sent_at|date:"d/m/Y H:i" }}
+                                    </span>
+                                {% endif %}
                             </div>
-                            <div class="msgL-last-message mt-1">
+
+                            <div class="conversation-email">
+                                <i class="ph ph-envelope"></i>
+                                {{ c.user.email|default:"Email non renseigné" }}
+                            </div>
+
+                            <div class="conversation-preview">
                                 {% if last %}
                                     {% if last.sender == request.user %}
                                         <strong>Vous :</strong>
                                     {% else %}
                                         <strong>{{ last.sender.get_full_name|default:last.sender.username }} :</strong>
                                     {% endif %}
-                                    {{ last.content|truncatechars:80 }}
+                                    <span class="conversation-preview-text">{{ last.content|truncatechars:80 }}</span>
                                 {% else %}
-                                    <span class="text-muted">Aucun message encore.</span>
+                                    <span class="conversation-preview-text" style="color: #71717a;">Aucun message encore</span>
                                 {% endif %}
                             </div>
                         </div>
-                        <div class="msgL-right">
-                            {% if has_unread %}
-                                <span class="msgL-badge-unread">
-                                    !
-                                </span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </a>
-            {% endwith %}
-        {% endfor %}
+
+                        <!-- Unread Count -->
+                        {% if has_unread %}
+                            <div class="unread-count">
+                                <i class="ph-bold ph-chat-centered-dots"></i>
+                            </div>
+                        {% endif %}
+                    </a>
+                {% endwith %}
+            {% endfor %}
+        </div>
     {% else %}
-        <div class="card shadow-sm">
-            <div class="card-body text-center text-muted py-4">
-                Aucune conversation pour le moment.
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="ph ph-chat-slash"></i>
             </div>
+            <h3 class="empty-state-title">Aucune conversation</h3>
+            <p class="empty-state-text">
+                {% if q %}
+                    Aucune conversation ne correspond à votre recherche.
+                {% elif only_unread %}
+                    Vous n'avez aucune conversation avec des messages non lus.
+                {% else %}
+                    Aucune conversation n'a été initiée pour le moment.
+                {% endif %}
+            </p>
         </div>
     {% endif %}
 </div>
+{% endblock %}
 
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus search input
+    const searchInput = document.querySelector('.search-input');
+    if (searchInput && !searchInput.value) {
+        searchInput.focus();
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + K = Focus search
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            searchInput.focus();
+            searchInput.select();
+        }
+
+        // U = Toggle unread filter
+        if (e.key === 'u' || e.key === 'U') {
+            const unreadBtn = document.querySelector('.btn-filter.active');
+            if (unreadBtn) {
+                unreadBtn.click();
+            }
+        }
+    });
+
+    // Mark conversation as visited on click
+    const conversationCards = document.querySelectorAll('.conversation-card');
+    conversationCards.forEach(card => {
+        card.addEventListener('click', function() {
+            this.style.opacity = '0.6';
+        });
+    });
+
+    // Real-time search (debounced)
+    let searchTimeout;
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                // You can add AJAX search here if needed
+                console.log('Searching for:', this.value);
+            }, 500);
+        });
+    }
+});
+</script>
 {% endblock %}

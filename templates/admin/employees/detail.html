@@ -1,174 +1,1149 @@
 {% extends "admin/admin_base.html" %}
 {% block title %}Détails employé - Oloustream Admin{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* ==================== VARIABLES ==================== */
+    :root {
+        --primary-400: #c084fc;
+        --primary-500: #a855f7;
+        --primary-600: #9333ea;
+        --primary-700: #7c3aed;
+        --accent-400: #fbbf24;
+        --accent-500: #f59e0b;
+        --surface-100: #f4f4f5;
+        --surface-200: #e4e4e7;
+        --surface-300: #d4d4d8;
+        --surface-400: #a1a1aa;
+        --surface-500: #71717a;
+        --surface-600: #52525b;
+        --surface-700: #3f3f46;
+        --surface-800: #27272a;
+        --surface-850: #1f1f23;
+        --surface-900: #18181b;
+        --error-color: #f87171;
+        --success-color: #34d399;
+        --info-color: #60a5fa;
+        --warning-color: #fbbf24;
+    }
+
+    /* ==================== WRAPPER ==================== */
+    .employee-detail-wrapper {
+        width: 100%;
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==================== PAGE HEADER ==================== */
+    .page-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .back-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: #a1a1aa;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+        background: #3f3f46;
+        color: white;
+        transform: translateX(-3px);
+    }
+
+    .back-btn i {
+        font-size: 1.25rem;
+    }
+
+    .header-info h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .header-info p {
+        font-size: 0.875rem;
+        color: #71717a;
+        margin: 0;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        font-family: inherit;
+    }
+
+    .btn i {
+        font-size: 1.125rem;
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        color: white;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+    }
+
+    .btn-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(147, 51, 234, 0.4);
+        color: white;
+    }
+
+    .btn-delete {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-delete:hover {
+        background: rgba(239, 68, 68, 0.25);
+        color: #fca5a5;
+    }
+
+    .btn-secondary {
+        background: #27272a;
+        color: #d4d4d8;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary:hover {
+        background: #3f3f46;
+        color: white;
+    }
+
+    /* ==================== MAIN GRID ==================== */
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 380px 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    /* ==================== PROFILE CARD ==================== */
+    .profile-card {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        overflow: hidden;
+        position: sticky;
+        top: calc(70px + 1.5rem);
+    }
+
+    .profile-cover {
+        height: 100px;
+        background: linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #fbbf24 100%);
+        position: relative;
+    }
+
+    .profile-cover::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 50%;
+        background: linear-gradient(to top, #1f1f23, transparent);
+    }
+
+    .profile-body {
+        padding: 0 1.5rem 1.5rem;
+        text-align: center;
+        margin-top: -50px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 20px;
+        border: 4px solid #1f1f23;
+        margin-bottom: 1rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 16px;
+    }
+
+    .profile-avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        text-transform: uppercase;
+    }
+
+    .profile-name {
+        font-size: 1.375rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .profile-email {
+        font-size: 0.875rem;
+        color: #71717a;
+        margin: 0 0 1rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .profile-email i {
+        font-size: 1rem;
+    }
+
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, rgba(147, 51, 234, 0.2), rgba(147, 51, 234, 0.1));
+        border: 1px solid rgba(147, 51, 234, 0.3);
+        border-radius: 20px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #c084fc;
+    }
+
+    .role-badge i {
+        font-size: 1rem;
+    }
+
+    /* Status indicators */
+    .profile-status {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .status-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .status-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+
+    .status-indicator.active {
+        background: #34d399;
+        box-shadow: 0 0 10px rgba(52, 211, 153, 0.5);
+    }
+
+    .status-indicator.inactive {
+        background: #71717a;
+    }
+
+    .status-label {
+        font-size: 0.6875rem;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Quick Stats */
+    .profile-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .stat-box {
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .stat-box-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-box-label {
+        font-size: 0.6875rem;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Social Links */
+    .profile-socials {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .social-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        color: #71717a;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .social-link:hover {
+        transform: translateY(-3px);
+    }
+
+    .social-link.linkedin:hover {
+        background: rgba(10, 102, 194, 0.2);
+        border-color: rgba(10, 102, 194, 0.4);
+        color: #0a66c2;
+    }
+
+    .social-link.facebook:hover {
+        background: rgba(24, 119, 242, 0.2);
+        border-color: rgba(24, 119, 242, 0.4);
+        color: #1877f2;
+    }
+
+    .social-link.twitter:hover {
+        background: rgba(29, 155, 240, 0.2);
+        border-color: rgba(29, 155, 240, 0.4);
+        color: #1d9bf0;
+    }
+
+    .social-link.instagram:hover {
+        background: rgba(225, 48, 108, 0.2);
+        border-color: rgba(225, 48, 108, 0.4);
+        color: #e1306c;
+    }
+
+    .social-link.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .social-link.disabled:hover {
+        transform: none;
+        background: #27272a;
+        border-color: rgba(255, 255, 255, 0.08);
+        color: #71717a;
+    }
+
+    .social-link i {
+        font-size: 1.25rem;
+    }
+
+    /* ==================== INFO CARDS ==================== */
+    .info-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .info-card {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .info-card:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .info-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .info-card-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .info-card-icon.purple {
+        background: rgba(147, 51, 234, 0.15);
+        color: #c084fc;
+    }
+
+    .info-card-icon.blue {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+    }
+
+    .info-card-icon.green {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+    }
+
+    .info-card-icon.orange {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+    }
+
+    .info-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #f4f4f5;
+        margin: 0;
+    }
+
+    .info-card-body {
+        padding: 1.5rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .info-item.full-width {
+        grid-column: span 2;
+    }
+
+    .info-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .info-label i {
+        font-size: 0.875rem;
+    }
+
+    .info-value {
+        font-size: 0.9375rem;
+        color: #e4e4e7;
+        font-weight: 500;
+    }
+
+    .info-value.empty {
+        color: #52525b;
+        font-style: italic;
+    }
+
+    .info-value a {
+        color: #c084fc;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        transition: color 0.2s ease;
+    }
+
+    .info-value a:hover {
+        color: #a855f7;
+    }
+
+    .info-value a i {
+        font-size: 0.875rem;
+    }
+
+    /* Salary special styling */
+    .salary-value {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        border-radius: 8px;
+        color: #34d399;
+        font-weight: 600;
+    }
+
+    /* Contract badge */
+    .contract-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 6px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #60a5fa;
+    }
+
+    /* Manager link */
+    .manager-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        color: #e4e4e7;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .manager-link:hover {
+        background: #3f3f46;
+        border-color: rgba(147, 51, 234, 0.3);
+        color: #c084fc;
+    }
+
+    .manager-link i {
+        font-size: 1rem;
+        color: #71717a;
+    }
+
+    /* Download button */
+    .download-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        border-radius: 8px;
+        color: white;
+        text-decoration: none;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .download-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
+        color: white;
+    }
+
+    .download-btn i {
+        font-size: 1rem;
+    }
+
+    /* ==================== TIMELINE ==================== */
+    .timeline-section {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .timeline-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1rem;
+    }
+
+    .timeline {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .timeline-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        position: relative;
+    }
+
+    .timeline-item:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: calc(50% + 20px);
+        width: calc(100% - 40px);
+        height: 2px;
+        background: #3f3f46;
+    }
+
+    .timeline-dot {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .timeline-dot.start {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 2px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .timeline-dot.end {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 2px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .timeline-dot.ongoing {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 2px solid rgba(59, 130, 246, 0.4);
+    }
+
+    .timeline-label {
+        font-size: 0.6875rem;
+        color: #71717a;
+        text-align: center;
+    }
+
+    .timeline-date {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #e4e4e7;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1024px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-card {
+            position: static;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-actions {
+            width: 100%;
+        }
+
+        .header-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .info-item.full-width {
+            grid-column: span 1;
+        }
+
+        .profile-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .timeline {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .timeline-item {
+            flex-direction: row;
+            width: 100%;
+        }
+
+        .timeline-item:not(:last-child)::after {
+            display: none;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-left {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .back-btn {
+            align-self: flex-start;
+        }
+
+        .header-info h1 {
+            font-size: 1.25rem;
+        }
+
+        .profile-body {
+            padding: 0 1rem 1rem;
+        }
+
+        .info-card-body {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="detail-dashboard-wrapper">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">Détails de l’employé</h2>
-        <div class="btn-group btn-group-sm">
-            <a href="{% url 'dashboard:employees_edit' employee.id %}" class="btn btn-primary">
-                <i class="ph ph-pencil-simple"></i> Modifier
+<div class="employee-detail-wrapper">
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div class="header-left">
+            <a href="{% url 'dashboard:employees_list' %}" class="back-btn" title="Retour à la liste">
+                <i class="ph ph-arrow-left"></i>
             </a>
-            <a href="{% url 'dashboard:employees_delete' employee.id %}" class="btn btn-danger">
-                <i class="ph ph-trash"></i> Supprimer
+            <div class="header-info">
+                <h1>Profil employé</h1>
+                <p>Consultez les informations détaillées de {{ employee.get_full_name|default:employee.username }}</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'dashboard:employees_edit' employee.id %}" class="btn btn-edit">
+                <i class="ph ph-pencil-simple"></i>
+                Modifier
             </a>
-            <a href="{% url 'dashboard:employees_list' %}" class="btn btn-secondary">
-                Retour à la liste
+            <a href="{% url 'dashboard:employees_delete' employee.id %}" class="btn btn-delete">
+                <i class="ph ph-trash"></i>
+                Supprimer
             </a>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Profil -->
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body text-center">
+    <!-- MAIN GRID -->
+    <div class="detail-grid">
+        <!-- PROFILE CARD -->
+        <aside class="profile-card">
+            <div class="profile-cover"></div>
+            <div class="profile-body">
+                <div class="profile-avatar">
                     {% if employee.avatar %}
-                        <img src="{{ employee.avatar.url }}" alt="Avatar"
-                             class="img-thumbnail mb-3"
-                             style="width: 120px; height: 120px; object-fit: cover;">
+                        <img src="{{ employee.avatar.url }}" alt="{{ employee.get_full_name }}">
                     {% else %}
-                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mb-3"
-                             style="width: 120px; height: 120px; font-size: 2.5rem;">
-                            {{ employee.first_name|default:employee.username|first|upper }}
+                        <div class="profile-avatar-placeholder">
+                            {{ employee.first_name|default:employee.username|first }}
                         </div>
                     {% endif %}
-                    <h5 class="mb-1">{{ employee.get_full_name|default:employee.username }}</h5>
-                    <p class="text-muted mb-1">{{ employee.email }}</p>
-                    <p class="mb-0"><span class="badge bg-primary">{{ employee.get_role_display }}</span></p>
+                </div>
+
+                <h2 class="profile-name">{{ employee.get_full_name|default:employee.username }}</h2>
+                
+                <p class="profile-email">
+                    <i class="ph ph-envelope"></i>
+                    {{ employee.email|default:"Non renseigné" }}
+                </p>
+
+                <span class="role-badge">
+                    <i class="ph ph-shield-check"></i>
+                    {{ employee.get_role_display }}
+                </span>
+
+                <!-- Status -->
+                <div class="profile-status">
+                    <div class="status-item">
+                        <span class="status-indicator {% if employee.is_active %}active{% else %}inactive{% endif %}"></span>
+                        <span class="status-label">{% if employee.is_active %}Actif{% else %}Inactif{% endif %}</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-indicator {% if employee.is_staff %}active{% else %}inactive{% endif %}"></span>
+                        <span class="status-label">{% if employee.is_staff %}Staff{% else %}Non Staff{% endif %}</span>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="profile-stats">
+                    <div class="stat-box">
+                        <div class="stat-box-value">{{ profile.years_of_experience|default:"0" }}</div>
+                        <div class="stat-box-label">Années d'exp.</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-value">
+                            {% if profile.hire_date %}
+                                {{ profile.hire_date|timesince }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </div>
+                        <div class="stat-box-label">Ancienneté</div>
+                    </div>
+                </div>
+
+                <!-- Social Links -->
+                <div class="profile-socials">
+                    <a href="{{ profile.linkedin_url|default:'#' }}" 
+                       class="social-link linkedin {% if not profile.linkedin_url %}disabled{% endif %}"
+                       {% if profile.linkedin_url %}target="_blank"{% endif %}
+                       title="LinkedIn">
+                        <i class="ph ph-linkedin-logo"></i>
+                    </a>
+                    <a href="{{ profile.facebook_url|default:'#' }}" 
+                       class="social-link facebook {% if not profile.facebook_url %}disabled{% endif %}"
+                       {% if profile.facebook_url %}target="_blank"{% endif %}
+                       title="Facebook">
+                        <i class="ph ph-facebook-logo"></i>
+                    </a>
+                    <a href="{{ profile.twitter_url|default:'#' }}" 
+                       class="social-link twitter {% if not profile.twitter_url %}disabled{% endif %}"
+                       {% if profile.twitter_url %}target="_blank"{% endif %}
+                       title="Twitter / X">
+                        <i class="ph ph-twitter-logo"></i>
+                    </a>
+                    <a href="{{ profile.instagram_url|default:'#' }}" 
+                       class="social-link instagram {% if not profile.instagram_url %}disabled{% endif %}"
+                       {% if profile.instagram_url %}target="_blank"{% endif %}
+                       title="Instagram">
+                        <i class="ph ph-instagram-logo"></i>
+                    </a>
                 </div>
             </div>
-        </div>
+        </aside>
 
-        <!-- Infos personnelles & pro -->
-        <div class="col-md-8 mb-4">
-            <div class="card shadow-sm mb-3">
-                <div class="card-body">
-                    <h5 class="mb-3">Données personnelles</h5>
-                    <div class="row">
-                        <div class="col-md-6 mb-2">
-                            <strong>Téléphone :</strong><br>
-                            {{ employee.phone|default:"-" }}
+        <!-- INFO SECTION -->
+        <div class="info-section">
+            <!-- Données personnelles -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon purple">
+                        <i class="ph ph-user"></i>
+                    </div>
+                    <h3 class="info-card-title">Données personnelles</h3>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-phone"></i>
+                                Téléphone
+                            </span>
+                            <span class="info-value {% if not employee.phone %}empty{% endif %}">
+                                {% if employee.phone %}
+                                    <a href="tel:{{ employee.phone }}">{{ employee.phone }}</a>
+                                {% else %}
+                                    Non renseigné
+                                {% endif %}
+                            </span>
                         </div>
-                        <div class="col-md-6 mb-2">
-                            <strong>Poste :</strong><br>
-                            {{ profile.position|default:"-" }}
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-briefcase"></i>
+                                Poste
+                            </span>
+                            <span class="info-value {% if not profile.position %}empty{% endif %}">
+                                {{ profile.position|default:"Non renseigné" }}
+                            </span>
                         </div>
-                        <div class="col-md-6 mb-2">
-                            <strong>Genre :</strong><br>
-                            {{ profile.get_gender_display|default:"-" }}
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-gender-intersex"></i>
+                                Genre
+                            </span>
+                            <span class="info-value {% if not profile.gender %}empty{% endif %}">
+                                {{ profile.get_gender_display|default:"Non renseigné" }}
+                            </span>
                         </div>
-                        <div class="col-md-6 mb-2">
-                            <strong>Date de naissance :</strong><br>
-                            {{ profile.date_of_birth|date:"d/m/Y"|default:"-" }}
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-cake"></i>
+                                Date de naissance
+                            </span>
+                            <span class="info-value {% if not profile.date_of_birth %}empty{% endif %}">
+                                {{ profile.date_of_birth|date:"d/m/Y"|default:"Non renseigné" }}
+                            </span>
                         </div>
-                        <div class="col-md-6 mb-2">
-                            <strong>Adresse :</strong><br>
-                            {{ profile.address|default:"-" }}
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-map-pin"></i>
+                                Ville
+                            </span>
+                            <span class="info-value {% if not profile.city %}empty{% endif %}">
+                                {{ profile.city|default:"Non renseigné" }}
+                            </span>
                         </div>
-                        <div class="col-md-6 mb-2">
-                            <strong>Ville :</strong><br>
-                            {{ profile.city|default:"-" }}
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-house"></i>
+                                Adresse
+                            </span>
+                            <span class="info-value {% if not profile.address %}empty{% endif %}">
+                                {{ profile.address|default:"Non renseigné" }}
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card shadow-sm mb-3">
-                <div class="card-body">
-                    <h5 class="mb-3">Informations contractuelles</h5>
-                    <div class="row">
-                        <div class="col-md-6 mb-2">
-                            <strong>Type de contrat :</strong><br>
-                            {{ profile.get_contract_type_display|default:"-" }}
+            <!-- Informations contractuelles -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon blue">
+                        <i class="ph ph-file-text"></i>
+                    </div>
+                    <h3 class="info-card-title">Informations contractuelles</h3>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-file-doc"></i>
+                                Type de contrat
+                            </span>
+                            <span class="info-value">
+                                {% if profile.contract_type %}
+                                    <span class="contract-badge">
+                                        <i class="ph ph-check-circle"></i>
+                                        {{ profile.get_contract_type_display }}
+                                    </span>
+                                {% else %}
+                                    <span class="empty">Non renseigné</span>
+                                {% endif %}
+                            </span>
                         </div>
-                        <div class="col-md-6 mb-2">
-                            <strong>Salaire :</strong><br>
-                            {% if profile.salary %}
-                                {{ profile.salary }} F CFA
-                            {% else %}
-                                -
-                            {% endif %}
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-money"></i>
+                                Salaire
+                            </span>
+                            <span class="info-value">
+                                {% if profile.salary %}
+                                    <span class="salary-value">
+                                        <i class="ph ph-currency-circle-dollar"></i>
+                                        {{ profile.salary|floatformat:0 }} F CFA
+                                    </span>
+                                {% else %}
+                                    <span class="empty">Non renseigné</span>
+                                {% endif %}
+                            </span>
                         </div>
-                        <div class="col-md-6 mb-2">
-                            <strong>Années d’expérience :</strong><br>
-                            {{ profile.years_of_experience|default:"-" }}
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-clock-clockwise"></i>
+                                Années d'expérience
+                            </span>
+                            <span class="info-value {% if not profile.years_of_experience %}empty{% endif %}">
+                                {% if profile.years_of_experience %}
+                                    {{ profile.years_of_experience }} an{{ profile.years_of_experience|pluralize:"s" }}
+                                {% else %}
+                                    Non renseigné
+                                {% endif %}
+                            </span>
                         </div>
-                        <div class="col-md-6 mb-2">
-                            <strong>Niveau d’études :</strong><br>
-                            {{ profile.get_education_level_display|default:"-" }}
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-graduation-cap"></i>
+                                Niveau d'études
+                            </span>
+                            <span class="info-value {% if not profile.education_level %}empty{% endif %}">
+                                {{ profile.get_education_level_display|default:"Non renseigné" }}
+                            </span>
                         </div>
-                        <div class="col-md-12 mb-2">
-                            <strong>Diplômes :</strong><br>
-                            {{ profile.diploma|default:"-" }}
+                        <div class="info-item full-width">
+                            <span class="info-label">
+                                <i class="ph ph-certificate"></i>
+                                Diplômes
+                            </span>
+                            <span class="info-value {% if not profile.diploma %}empty{% endif %}">
+                                {{ profile.diploma|default:"Non renseigné" }}
+                            </span>
                         </div>
                         {% if profile.contract_document %}
-                        <div class="col-md-12 mb-2">
-                            <strong>Document de contrat :</strong><br>
-                            <a href="{{ profile.contract_document.url }}" target="_blank">Télécharger</a>
+                        <div class="info-item full-width">
+                            <span class="info-label">
+                                <i class="ph ph-file-pdf"></i>
+                                Document de contrat
+                            </span>
+                            <span class="info-value">
+                                <a href="{{ profile.contract_document.url }}" target="_blank" class="download-btn">
+                                    <i class="ph ph-download-simple"></i>
+                                    Télécharger le contrat
+                                </a>
+                            </span>
                         </div>
                         {% endif %}
                     </div>
+
+                    <!-- Timeline embauche/fin -->
+                    {% if profile.hire_date or profile.contract_end_date %}
+                    <div class="timeline-section">
+                        <div class="timeline-title">Période de contrat</div>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-dot start">
+                                    <i class="ph ph-play"></i>
+                                </div>
+                                <div>
+                                    <div class="timeline-label">Date d'embauche</div>
+                                    <div class="timeline-date">{{ profile.hire_date|date:"d/m/Y"|default:"Non définie" }}</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                {% if profile.contract_end_date %}
+                                    <div class="timeline-dot end">
+                                        <i class="ph ph-stop"></i>
+                                    </div>
+                                    <div>
+                                        <div class="timeline-label">Fin de contrat</div>
+                                        <div class="timeline-date">{{ profile.contract_end_date|date:"d/m/Y" }}</div>
+                                    </div>
+                                {% else %}
+                                    <div class="timeline-dot ongoing">
+                                        <i class="ph ph-infinity"></i>
+                                    </div>
+                                    <div>
+                                        <div class="timeline-label">Statut</div>
+                                        <div class="timeline-date">En cours</div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="mb-3">Données administratives & réseaux</h5>
-                    <div class="row">
-                        <div class="col-md-4 mb-2">
-                            <strong>Date d’embauche :</strong><br>
-                            {{ profile.hire_date|date:"d/m/Y"|default:"-" }}
+            <!-- Données administratives -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-icon orange">
+                        <i class="ph ph-buildings"></i>
+                    </div>
+                    <h3 class="info-card-title">Données administratives</h3>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-calendar-check"></i>
+                                Date d'embauche
+                            </span>
+                            <span class="info-value {% if not profile.hire_date %}empty{% endif %}">
+                                {{ profile.hire_date|date:"d F Y"|default:"Non renseigné" }}
+                            </span>
                         </div>
-                        <div class="col-md-4 mb-2">
-                            <strong>Fin de contrat :</strong><br>
-                            {{ profile.contract_end_date|date:"d/m/Y"|default:"-" }}
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-calendar-x"></i>
+                                Fin de contrat
+                            </span>
+                            <span class="info-value {% if not profile.contract_end_date %}empty{% endif %}">
+                                {{ profile.contract_end_date|date:"d F Y"|default:"Indéterminé" }}
+                            </span>
                         </div>
-                        <div class="col-md-4 mb-2">
-                            <strong>Manager :</strong><br>
-                            {% if profile.manager %}
-                                {{ profile.manager.get_full_name|default:profile.manager.username }}
-                            {% else %}
-                                -
-                            {% endif %}
+                        <div class="info-item full-width">
+                            <span class="info-label">
+                                <i class="ph ph-user-circle"></i>
+                                Manager / Responsable
+                            </span>
+                            <span class="info-value">
+                                {% if profile.manager %}
+                                    <a href="{% url 'dashboard:employees_detail' profile.manager.id %}" class="manager-link">
+                                        <i class="ph ph-user"></i>
+                                        {{ profile.manager.get_full_name|default:profile.manager.username }}
+                                    </a>
+                                {% else %}
+                                    <span class="empty">Aucun manager assigné</span>
+                                {% endif %}
+                            </span>
                         </div>
-
-                        <div class="col-md-3 mb-2">
-                            <strong>LinkedIn :</strong><br>
-                            {% if profile.linkedin_url %}
-                                <a href="{{ profile.linkedin_url }}" target="_blank">Voir</a>
-                            {% else %}
-                                <span class="text-muted">Non renseigné</span>
-                            {% endif %}
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-identification-card"></i>
+                                ID Utilisateur
+                            </span>
+                            <span class="info-value">
+                                #{{ employee.id }}
+                            </span>
                         </div>
-                        <div class="col-md-3 mb-2">
-                            <strong>Facebook :</strong><br>
-                            {% if profile.facebook_url %}
-                                <a href="{{ profile.facebook_url }}" target="_blank">Voir</a>
-                            {% else %}
-                                <span class="text-muted">Non renseigné</span>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <strong>Twitter / X :</strong><br>
-                            {% if profile.twitter_url %}
-                                <a href="{{ profile.twitter_url }}" target="_blank">Voir</a>
-                            {% else %}
-                                <span class="text-muted">Non renseigné</span>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <strong>Instagram :</strong><br>
-                            {% if profile.instagram_url %}
-                                <a href="{{ profile.instagram_url }}" target="_blank">Voir</a>
-                            {% else %}
-                                <span class="text-muted">Non renseigné</span>
-                            {% endif %}
+                        <div class="info-item">
+                            <span class="info-label">
+                                <i class="ph ph-at"></i>
+                                Nom d'utilisateur
+                            </span>
+                            <span class="info-value">
+                                @{{ employee.username }}
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

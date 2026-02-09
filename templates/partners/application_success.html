@@ -1,0 +1,692 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Candidature envoyée - Oloustream{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================
+       PAGE SUCCÈS - DESIGN COMPLET
+       ============================================ */
+    
+    .application-success {
+        background: linear-gradient(180deg, var(--dark) 0%, #0a0a12 100%);
+        min-height: calc(100vh - 70px);
+        padding: 80px 0;
+        display: flex;
+        align-items: center;
+    }
+
+    /* ============================================
+       SUCCESS CARD
+       ============================================ */
+    .success-card {
+        background: rgba(255, 255, 255, 0.025);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 30px;
+        padding: 60px 50px;
+        text-align: center;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+    }
+
+    /* ============================================
+       SUCCESS ICON
+       ============================================ */
+    .success-icon-wrapper {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 35px;
+    }
+
+    .success-icon {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 15px 50px rgba(34, 197, 94, 0.4);
+        animation: success-pop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    @keyframes success-pop {
+        0% {
+            transform: scale(0);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.1);
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .success-icon i {
+        font-size: 3.5rem;
+        color: white;
+        animation: check-draw 0.5s ease-out 0.3s both;
+    }
+
+    @keyframes check-draw {
+        0% {
+            opacity: 0;
+            transform: scale(0) rotate(-45deg);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+        }
+    }
+
+    .success-rings {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 120px;
+        height: 120px;
+        pointer-events: none;
+    }
+
+    .success-ring {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: 2px solid rgba(34, 197, 94, 0.3);
+        border-radius: 50%;
+        animation: ring-pulse 2s ease-out infinite;
+    }
+
+    .success-ring:nth-child(1) { animation-delay: 0s; }
+    .success-ring:nth-child(2) { animation-delay: 0.5s; }
+    .success-ring:nth-child(3) { animation-delay: 1s; }
+
+    @keyframes ring-pulse {
+        0% {
+            width: 120px;
+            height: 120px;
+            opacity: 0.6;
+        }
+        100% {
+            width: 200px;
+            height: 200px;
+            opacity: 0;
+        }
+    }
+
+    /* ============================================
+       TITLE & TEXT
+       ============================================ */
+    .success-title {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #22C55E;
+        margin-bottom: 15px;
+    }
+
+    .success-subtitle {
+        font-size: 1.1rem;
+        color: var(--gray-300);
+        margin-bottom: 40px;
+        line-height: 1.7;
+    }
+
+    /* ============================================
+       STEPS CARD
+       ============================================ */
+    .steps-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        text-align: left;
+    }
+
+    .steps-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .steps-header-icon {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, rgba(230, 0, 0, 0.15), rgba(245, 158, 11, 0.08));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .steps-header-icon i {
+        font-size: 1.1rem;
+        color: var(--red);
+    }
+
+    .steps-header h5 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--white);
+        margin: 0;
+    }
+
+    .steps-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        counter-reset: step-counter;
+    }
+
+    .steps-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 18px;
+        padding: 15px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        counter-increment: step-counter;
+    }
+
+    .steps-list li:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .step-number {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        background: linear-gradient(135deg, var(--red), var(--gold));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: white;
+    }
+
+    .step-text {
+        color: var(--gray-300);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        padding-top: 4px;
+    }
+
+    .step-text strong {
+        color: var(--white);
+        font-weight: 600;
+    }
+
+    /* ============================================
+       INFO ALERT
+       ============================================ */
+    .info-alert {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+        border: 1px solid rgba(59, 130, 246, 0.25);
+        border-radius: 16px;
+        padding: 22px 25px;
+        margin-bottom: 35px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        text-align: left;
+    }
+
+    .info-alert-icon {
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
+        background: rgba(59, 130, 246, 0.15);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .info-alert-icon i {
+        font-size: 1.3rem;
+        color: #3B82F6;
+    }
+
+    .info-alert-content {
+        flex: 1;
+    }
+
+    .info-alert-title {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #60A5FA;
+        margin-bottom: 3px;
+    }
+
+    .info-alert-text {
+        font-size: 0.9rem;
+        color: var(--gray-400);
+    }
+
+    /* ============================================
+       BUTTONS
+       ============================================ */
+    .buttons-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        max-width: 350px;
+        margin: 0 auto 40px;
+    }
+
+    .btn-primary-custom {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 18px 35px;
+        background: linear-gradient(135deg, var(--red), var(--red-dark));
+        border: none;
+        border-radius: 14px;
+        color: white;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(230, 0, 0, 0.3);
+    }
+
+    .btn-primary-custom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(230, 0, 0, 0.4);
+        color: white;
+    }
+
+    .btn-primary-custom i {
+        font-size: 1.1rem;
+    }
+
+    .btn-secondary-custom {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 16px 35px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 14px;
+        color: var(--gray-200);
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary-custom:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: var(--white);
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary-custom i {
+        font-size: 1rem;
+        color: var(--red);
+    }
+
+    /* ============================================
+       CONTACT SECTION
+       ============================================ */
+    .contact-section {
+        padding-top: 35px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .contact-title {
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--white);
+        margin-bottom: 20px;
+    }
+
+    .contact-links {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        flex-wrap: wrap;
+    }
+
+    .contact-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 25px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 50px;
+        color: var(--gray-200);
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .contact-link:hover {
+        background: rgba(230, 0, 0, 0.1);
+        border-color: var(--red);
+        color: var(--white);
+        transform: translateY(-2px);
+    }
+
+    .contact-link i {
+        font-size: 1.1rem;
+        color: var(--red);
+    }
+
+    .contact-link:hover i {
+        color: var(--gold);
+    }
+
+    /* ============================================
+       CONFETTI (optionnel)
+       ============================================ */
+    .confetti-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 1000;
+    }
+
+    .confetti {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background: var(--red);
+        animation: confetti-fall 4s ease-out forwards;
+    }
+
+    .confetti:nth-child(odd) {
+        background: var(--gold);
+    }
+
+    .confetti:nth-child(3n) {
+        background: #22C55E;
+    }
+
+    @keyframes confetti-fall {
+        0% {
+            transform: translateY(-100px) rotate(0deg);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(100vh) rotate(720deg);
+            opacity: 0;
+        }
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 768px) {
+        .application-success {
+            padding: 50px 0;
+        }
+
+        .success-card {
+            padding: 40px 25px;
+            border-radius: 24px;
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+        }
+
+        .success-icon i {
+            font-size: 2.8rem;
+        }
+
+        .success-title {
+            font-size: 1.8rem;
+        }
+
+        .success-subtitle {
+            font-size: 1rem;
+        }
+
+        .steps-card {
+            padding: 25px 20px;
+        }
+
+        .steps-list li {
+            gap: 14px;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            font-size: 0.8rem;
+        }
+
+        .info-alert {
+            flex-direction: column;
+            text-align: center;
+            gap: 12px;
+        }
+
+        .buttons-wrapper {
+            max-width: 100%;
+        }
+
+        .contact-links {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .contact-link {
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .success-card {
+            padding: 35px 20px;
+        }
+
+        .success-icon {
+            width: 90px;
+            height: 90px;
+        }
+
+        .success-icon i {
+            font-size: 2.5rem;
+        }
+
+        .success-title {
+            font-size: 1.5rem;
+        }
+
+        .steps-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 10px;
+        }
+
+        .btn-primary-custom,
+        .btn-secondary-custom {
+            padding: 16px 30px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="application-success">
+    
+    <!-- Confetti Animation -->
+    <div class="confetti-container" id="confettiContainer"></div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7 col-xl-6">
+                
+                <!-- Success Card -->
+                <div class="success-card">
+                    
+                    <!-- Success Icon -->
+                    <div class="success-icon-wrapper">
+                        <div class="success-icon">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <div class="success-rings">
+                            <span class="success-ring"></span>
+                            <span class="success-ring"></span>
+                            <span class="success-ring"></span>
+                        </div>
+                    </div>
+
+                    <!-- Title -->
+                    <h1 class="success-title">Candidature envoyée !</h1>
+                    <p class="success-subtitle">
+                        Merci pour votre intérêt pour le programme de partenariat Oloustream. 
+                        Votre candidature a été reçue avec succès.
+                    </p>
+
+                    <!-- Steps Card -->
+                    <div class="steps-card">
+                        <div class="steps-header">
+                            <div class="steps-header-icon">
+                                <i class="fa-solid fa-list-check"></i>
+                            </div>
+                            <h5>Prochaines étapes</h5>
+                        </div>
+                        <ol class="steps-list">
+                            <li>
+                                <span class="step-number">1</span>
+                                <span class="step-text">
+                                    Notre équipe examine votre profil sous <strong>48-72h ouvrées</strong>
+                                </span>
+                            </li>
+                            <li>
+                                <span class="step-number">2</span>
+                                <span class="step-text">
+                                    Vous recevrez un <strong>email ou un appel</strong> pour un éventuel entretien
+                                </span>
+                            </li>
+                            <li>
+                                <span class="step-number">3</span>
+                                <span class="step-text">
+                                    En cas d'approbation, vous recevrez vos <strong>identifiants de connexion</strong>
+                                </span>
+                            </li>
+                            <li>
+                                <span class="step-number">4</span>
+                                <span class="step-text">
+                                    Vous pourrez alors <strong>commencer à soumettre des contrats</strong> et gagner vos commissions !
+                                </span>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <!-- Info Alert -->
+                    <div class="info-alert">
+                        <div class="info-alert-icon">
+                            <i class="fa-solid fa-envelope-circle-check"></i>
+                        </div>
+                        <div class="info-alert-content">
+                            <div class="info-alert-title">Email de confirmation envoyé</div>
+                            <div class="info-alert-text">
+                                Un récapitulatif de votre candidature a été envoyé à votre adresse email.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="buttons-wrapper">
+                        <a href="{% url 'core:home' %}" class="btn-primary-custom">
+                            <i class="fa-solid fa-house"></i>
+                            Retour à l'accueil
+                        </a>
+                        <a href="{% url 'partners:program_info' %}" class="btn-secondary-custom">
+                            <i class="fa-solid fa-book-open"></i>
+                            En savoir plus sur le programme
+                        </a>
+                    </div>
+
+                    <!-- Contact Section -->
+                    <div class="contact-section">
+                        <p class="contact-title">
+                            <i class="fa-solid fa-circle-question me-2" style="color: var(--gold);"></i>
+                            Des questions ? Contactez-nous
+                        </p>
+                        <div class="contact-links">
+                            <a href="tel:+22664093196" class="contact-link">
+                                <i class="fa-solid fa-phone"></i>
+                                +226 64 09 31 96
+                            </a>
+                            <a href="mailto:info@oloustream.com" class="contact-link">
+                                <i class="fa-solid fa-envelope"></i>
+                                info@oloustream.com
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // ==============================
+    // CONFETTI ANIMATION
+    // ==============================
+    function createConfetti() {
+        const container = document.getElementById('confettiContainer');
+        const colors = ['#E60000', '#F59E0B', '#22C55E', '#3B82F6', '#8B5CF6'];
+        
+        for (let i = 0; i < 50; i++) {
+            setTimeout(function() {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = (Math.random() * 10 + 5) + 'px';
+                confetti.style.height = (Math.random() * 10 + 5) + 'px';
+                confetti.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                
+                container.appendChild(confetti);
+                
+                // Remove after animation
+                setTimeout(function() {
+                    confetti.remove();
+                }, 5000);
+            }, i * 50);
+        }
+    }
+    
+    // Launch confetti on page load
+    createConfetti();
+    
+});
+</script>
+{% endblock %}

@@ -1,0 +1,948 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Paiement Commission - {{ partner.partner_code }} - Oloustream Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ==================== VARIABLES LOCALES ==================== */
+    :root {
+        --payment-success: #10b981;
+        --payment-warning: #f59e0b;
+        --payment-info: #3b82f6;
+        --payment-danger: #ef4444;
+        --payment-primary: #9333ea;
+    }
+
+    /* ==================== PAGE WRAPPER ==================== */
+    .payment-create-wrapper {
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ==================== BREADCRUMB ==================== */
+    .breadcrumb-modern {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.5rem 0;
+        font-size: 0.875rem;
+    }
+
+    .breadcrumb-modern li {
+        display: flex;
+        align-items: center;
+    }
+
+    .breadcrumb-modern li a {
+        color: var(--surface-400);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        transition: color 0.2s;
+    }
+
+    .breadcrumb-modern li a:hover {
+        color: var(--primary-400);
+    }
+
+    .breadcrumb-modern li.active {
+        color: var(--surface-200);
+        font-weight: 500;
+    }
+
+    .breadcrumb-separator {
+        color: var(--surface-600);
+        margin: 0 0.25rem;
+    }
+
+    /* ==================== HEADER ==================== */
+    .page-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .header-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, var(--payment-success), #059669);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
+        flex-shrink: 0;
+    }
+
+    .header-text h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        margin: 0 0 0.25rem 0;
+    }
+
+    .header-text p {
+        font-size: 0.875rem;
+        color: var(--surface-400);
+        margin: 0;
+    }
+
+    .partner-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.25rem 0.625rem;
+        background: rgba(236, 72, 153, 0.15);
+        border: 1px solid rgba(236, 72, 153, 0.3);
+        border-radius: 6px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #f472b6;
+    }
+
+    /* ==================== LAYOUT GRID ==================== */
+    .payment-layout {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+        .payment-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ==================== CARDS ==================== */
+    .modern-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .modern-card:hover {
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .card-header-modern {
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.25);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .card-header-modern i {
+        font-size: 1.25rem;
+        color: var(--primary-400);
+    }
+
+    .card-header-modern h2 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--surface-100);
+        margin: 0;
+    }
+
+    .card-body-modern {
+        padding: 1.5rem;
+    }
+
+    /* ==================== PENDING AMOUNT BOX ==================== */
+    .pending-amount-box {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .pending-label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .pending-label h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--surface-100);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pending-label p {
+        font-size: 0.8125rem;
+        color: var(--surface-400);
+        margin: 0;
+    }
+
+    .pending-value {
+        text-align: right;
+    }
+
+    .pending-value .amount {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--payment-info);
+        line-height: 1;
+    }
+
+    .pending-value .currency {
+        font-size: 0.875rem;
+        color: var(--surface-400);
+        margin-left: 0.25rem;
+    }
+
+    /* ==================== FORM ==================== */
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .form-group.full-width {
+        grid-column: span 2;
+    }
+
+    @media (max-width: 640px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-group.full-width {
+            grid-column: span 1;
+        }
+    }
+
+    .form-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--surface-400);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .form-label .required {
+        color: var(--payment-danger);
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: var(--surface-100);
+        font-size: 0.9375rem;
+        font-family: inherit;
+        transition: all 0.2s ease;
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+        color: var(--surface-500);
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary-500);
+        box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.2);
+        background: rgba(147, 51, 234, 0.05);
+    }
+
+    .form-select {
+        appearance: none;
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        padding-right: 2.5rem;
+    }
+
+    .form-select option {
+        background: var(--surface-800);
+        color: var(--surface-100);
+    }
+
+    .form-textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .input-group {
+        display: flex;
+        gap: 0;
+    }
+
+    .input-group .form-input {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        flex: 1;
+    }
+
+    .input-group-suffix {
+        padding: 0.875rem 1rem;
+        background: var(--surface-700);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-left: none;
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+        color: var(--surface-400);
+        font-size: 0.875rem;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    .form-hint {
+        font-size: 0.75rem;
+        color: var(--surface-500);
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .form-hint i {
+        font-size: 0.875rem;
+    }
+
+    /* ==================== FORM ACTIONS ==================== */
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        gap: 1rem;
+    }
+
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.5rem;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        font-family: inherit;
+    }
+
+    .btn-cancel {
+        background: var(--surface-800);
+        color: var(--surface-300);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-cancel:hover {
+        background: var(--surface-700);
+        color: white;
+    }
+
+    .btn-success-modern {
+        background: linear-gradient(135deg, var(--payment-success), #059669);
+        color: white;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-success-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    @media (max-width: 480px) {
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn-modern {
+            width: 100%;
+        }
+    }
+
+    /* ==================== SIDEBAR CARDS ==================== */
+    .sidebar-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /* Partner Info Card */
+    .partner-info-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .partner-main-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .partner-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #ec4899, #db2777);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .partner-details {
+        flex: 1;
+    }
+
+    .partner-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--surface-100);
+        margin: 0 0 0.25rem 0;
+    }
+
+    .partner-code {
+        font-size: 0.8125rem;
+        color: var(--surface-500);
+        font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    .partner-contact-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+
+    .contact-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: var(--surface-500);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .contact-value {
+        font-size: 0.875rem;
+        color: var(--surface-200);
+    }
+
+    /* Stats Card */
+    .stats-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+    }
+
+    .stat-row:not(:last-child) {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .stat-row .label {
+        font-size: 0.875rem;
+        color: var(--surface-400);
+    }
+
+    .stat-row .value {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--surface-200);
+    }
+
+    .stat-row .value.earned {
+        color: var(--payment-success);
+    }
+
+    .stat-row .value.paid {
+        color: var(--payment-info);
+    }
+
+    .stat-row .value.pending {
+        color: var(--payment-danger);
+    }
+
+    .stat-row.highlight {
+        background: rgba(239, 68, 68, 0.1);
+        padding: 0.75rem;
+        margin: 0.5rem -1.5rem -1.5rem -1.5rem;
+        border-radius: 0 0 16px 16px;
+    }
+
+    .stat-row.highlight .label {
+        color: var(--surface-300);
+    }
+
+    /* Contracts Card */
+    .contracts-list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .contract-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.875rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .contract-item:last-child {
+        border-bottom: none;
+    }
+
+    .contract-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+
+    .contract-id {
+        font-size: 0.6875rem;
+        color: var(--surface-500);
+        font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    .contract-client {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--surface-200);
+    }
+
+    .contract-amount {
+        text-align: right;
+    }
+
+    .contract-amount .label {
+        font-size: 0.6875rem;
+        color: var(--surface-500);
+    }
+
+    .contract-amount .value {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--payment-success);
+    }
+
+    .empty-contracts {
+        text-align: center;
+        padding: 1.5rem;
+        color: var(--surface-500);
+        font-size: 0.875rem;
+    }
+
+    .empty-contracts i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    /* ==================== ANIMATIONS ==================== */
+    .sidebar-stack .modern-card {
+        animation: fadeInRight 0.5s ease-out backwards;
+    }
+
+    @keyframes fadeInRight {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .sidebar-stack .modern-card:nth-child(1) { animation-delay: 0.1s; }
+    .sidebar-stack .modern-card:nth-child(2) { animation-delay: 0.2s; }
+    .sidebar-stack .modern-card:nth-child(3) { animation-delay: 0.3s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="payment-create-wrapper">
+    
+    <!-- BREADCRUMB -->
+    <nav>
+        <ol class="breadcrumb-modern">
+            <li>
+                <a href="{% url 'dashboard:business_partners_list' %}">
+                    <i class="ph ph-users-three"></i>
+                    Partenaires
+                </a>
+            </li>
+            <span class="breadcrumb-separator">
+                <i class="ph ph-caret-right"></i>
+            </span>
+            <li>
+                <a href="{% url 'dashboard:business_partner_detail' partner.pk %}">
+                    {{ partner.partner_code }}
+                </a>
+            </li>
+            <span class="breadcrumb-separator">
+                <i class="ph ph-caret-right"></i>
+            </span>
+            <li class="active">Paiement commission</li>
+        </ol>
+    </nav>
+
+    <!-- HEADER -->
+    <div class="page-header">
+        <div class="header-icon">
+            <i class="ph-bold ph-currency-circle-dollar"></i>
+        </div>
+        <div class="header-text">
+            <h1>
+                Enregistrer un paiement
+                <span class="partner-badge">{{ partner.partner_code }}</span>
+            </h1>
+            <p>Paiement de commission pour {{ partner.user.get_full_name }}</p>
+        </div>
+    </div>
+
+    <!-- LAYOUT GRID -->
+    <div class="payment-layout">
+        
+        <!-- MAIN FORM -->
+        <div class="modern-card">
+            <div class="card-header-modern">
+                <i class="ph ph-money"></i>
+                <h2>Détails du paiement</h2>
+            </div>
+            
+            <div class="card-body-modern">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- PENDING AMOUNT BOX -->
+                    <div class="pending-amount-box">
+                        <div class="pending-label">
+                            <h3>
+                                <i class="ph ph-clock"></i>
+                                Commission en attente
+                            </h3>
+                            <p>Montant total disponible pour paiement</p>
+                        </div>
+                        <div class="pending-value">
+                            <span class="amount">{{ pending_amount|floatformat:0 }}</span>
+                            <span class="currency">FCFA</span>
+                        </div>
+                    </div>
+
+                    <!-- FORM FIELDS -->
+                    <div class="form-grid">
+                        <!-- Montant -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                Montant à payer <span class="required">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="number" 
+                                       name="amount" 
+                                       class="form-input" 
+                                       min="1" 
+                                       max="{{ pending_amount }}"
+                                       value="{{ pending_amount|floatformat:0 }}" 
+                                       required>
+                                <span class="input-group-suffix">FCFA</span>
+                            </div>
+                            <span class="form-hint">
+                                <i class="ph ph-info"></i>
+                                Maximum : {{ pending_amount|floatformat:0 }} FCFA
+                            </span>
+                        </div>
+                        
+                        <!-- Méthode -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                Méthode de paiement <span class="required">*</span>
+                            </label>
+                            <select name="payment_method" class="form-select" required>
+                                <option value="">— Sélectionnez une méthode —</option>
+                                {% for value, label in method_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Référence -->
+                        <div class="form-group full-width">
+                            <label class="form-label">
+                                Référence de transaction
+                            </label>
+                            <input type="text" 
+                                   name="reference" 
+                                   class="form-input" 
+                                   placeholder="Ex: OM-123456, VIR-2024-001, CHQ-789...">
+                            <span class="form-hint">
+                                <i class="ph ph-info"></i>
+                                Numéro de transaction Orange Money, référence virement, numéro de chèque, etc.
+                            </span>
+                        </div>
+                        
+                        <!-- Notes -->
+                        <div class="form-group full-width">
+                            <label class="form-label">
+                                Notes complémentaires
+                            </label>
+                            <textarea name="notes" 
+                                      class="form-textarea" 
+                                      placeholder="Informations additionnelles sur ce paiement (optionnel)..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- FORM ACTIONS -->
+                    <div class="form-actions">
+                        <a href="{% url 'dashboard:business_partner_detail' partner.pk %}" class="btn-modern btn-cancel">
+                            <i class="ph ph-arrow-left"></i>
+                            Annuler
+                        </a>
+                        <button type="submit" class="btn-modern btn-success-modern">
+                            <i class="ph-bold ph-check-circle"></i>
+                            Confirmer le paiement
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- SIDEBAR -->
+        <div class="sidebar-stack">
+            
+            <!-- PARTNER INFO -->
+            <div class="modern-card">
+                <div class="card-header-modern">
+                    <i class="ph ph-user"></i>
+                    <h2>Partenaire</h2>
+                </div>
+                <div class="card-body-modern">
+                    <div class="partner-info-grid">
+                        <div class="partner-main-info">
+                            <div class="partner-avatar">
+                                {{ partner.user.first_name|default:partner.user.username|first|upper }}
+                            </div>
+                            <div class="partner-details">
+                                <h3 class="partner-name">{{ partner.user.get_full_name }}</h3>
+                                <span class="partner-code">{{ partner.partner_code }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="partner-contact-item">
+                            <span class="contact-label">Téléphone</span>
+                            <span class="contact-value">{{ partner.application.phone }}</span>
+                        </div>
+                        
+                        <div class="partner-contact-item">
+                            <span class="contact-label">Email</span>
+                            <span class="contact-value">{{ partner.user.email }}</span>
+                        </div>
+                        
+                        {% if partner.application.whatsapp %}
+                        <div class="partner-contact-item">
+                            <span class="contact-label">WhatsApp</span>
+                            <span class="contact-value">{{ partner.application.whatsapp }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATS -->
+            <div class="modern-card">
+                <div class="card-header-modern">
+                    <i class="ph ph-chart-bar"></i>
+                    <h2>Statistiques</h2>
+                </div>
+                <div class="card-body-modern">
+                    <div class="stats-list">
+                        <div class="stat-row">
+                            <span class="label">Total gagné</span>
+                            <span class="value earned">{{ partner.total_commission_earned|floatformat:0 }} FCFA</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="label">Déjà payé</span>
+                            <span class="value paid">{{ partner.total_commission_paid|floatformat:0 }} FCFA</span>
+                        </div>
+                        <div class="stat-row highlight">
+                            <span class="label">En attente</span>
+                            <span class="value pending">{{ pending_amount|floatformat:0 }} FCFA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTRACTS -->
+            <div class="modern-card">
+                <div class="card-header-modern">
+                    <i class="ph ph-file-text"></i>
+                    <h2>Contrats concernés</h2>
+                </div>
+                <div class="card-body-modern" style="padding: 0.5rem 1.5rem;">
+                    <div class="contracts-list">
+                        {% for contract in unpaid_contracts|slice:":5" %}
+                        <div class="contract-item">
+                            <div class="contract-info">
+                                <span class="contract-id">#{{ contract.id }}</span>
+                                <span class="contract-client">{{ contract.client_name|truncatewords:3 }}</span>
+                            </div>
+                            <div class="contract-amount">
+                                <span class="label">Commission</span>
+                                <span class="value">{{ contract.commission_amount|floatformat:0 }}</span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="empty-contracts">
+                            <i class="ph ph-file-x"></i>
+                            Aucun contrat non payé
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const amountInput = document.querySelector('input[name="amount"]');
+    const maxAmount = {{ pending_amount|default:0 }};
+    
+    // Validation en temps réel du montant
+    if (amountInput) {
+        amountInput.addEventListener('input', function() {
+            const value = parseFloat(this.value) || 0;
+            
+            if (value > maxAmount) {
+                this.value = maxAmount;
+            }
+            
+            if (value < 0) {
+                this.value = 0;
+            }
+        });
+        
+        // Animation du focus
+        amountInput.addEventListener('focus', function() {
+            this.select();
+        });
+    }
+
+    // Animation au submit
+    const form = document.querySelector('form');
+    const submitBtn = document.querySelector('.btn-success-modern');
+    
+    if (form && submitBtn) {
+        form.addEventListener('submit', function(e) {
+            const amount = parseFloat(amountInput.value) || 0;
+            
+            if (amount <= 0) {
+                e.preventDefault();
+                amountInput.focus();
+                amountInput.style.borderColor = '#ef4444';
+                amountInput.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.2)';
+                return;
+            }
+            
+            // Loading state
+            submitBtn.innerHTML = '<i class="ph ph-spinner" style="animation: spin 1s linear infinite;"></i> Traitement...';
+            submitBtn.disabled = true;
+        });
+    }
+
+    // Animation du montant en attente
+    const pendingAmount = document.querySelector('.pending-value .amount');
+    if (pendingAmount) {
+        const finalValue = parseInt(pendingAmount.textContent.replace(/\s/g, ''));
+        let currentValue = 0;
+        const duration = 1000;
+        const startTime = performance.now();
+
+        const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            currentValue = Math.floor(progress * finalValue);
+            pendingAmount.textContent = currentValue.toLocaleString('fr-FR');
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+        
+        requestAnimationFrame(animate);
+    }
+});
+
+// Style pour le spinner
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

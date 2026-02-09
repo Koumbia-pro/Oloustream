@@ -1,73 +1,720 @@
 {% extends "admin/admin_base.html" %}
-{% block title %}Candidatures - {{ offer.title }}{% endblock %}
+
+{% block title %}Candidatures - {{ offer.title }} - Oloustream Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ==================== VARIABLES ==================== */
+    :root {
+        --primary-400: #c084fc;
+        --primary-500: #a855f7;
+        --primary-600: #9333ea;
+        --primary-700: #7c3aed;
+        --accent-400: #34d399;
+        --accent-500: #10b981;
+        --surface-100: #f4f4f5;
+        --surface-200: #e4e4e7;
+        --surface-300: #d4d4d8;
+        --surface-400: #a1a1aa;
+        --surface-500: #71717a;
+        --surface-600: #52525b;
+        --surface-700: #3f3f46;
+        --surface-800: #27272a;
+        --surface-850: #1f1f23;
+        --surface-900: #18181b;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --error-color: #ef4444;
+    }
+
+    /* ==================== WRAPPER ==================== */
+    .applications-wrapper {
+        width: 100%;
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==================== PAGE HEADER ==================== */
+    .page-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .header-left {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .header-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #a855f7, #7c3aed);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+        box-shadow: 0 8px 20px rgba(168, 85, 247, 0.3);
+        flex-shrink: 0;
+    }
+
+    .header-text h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        margin: 0 0 0.375rem 0;
+    }
+
+    .header-text p {
+        font-size: 0.875rem;
+        color: #71717a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .header-text p i {
+        font-size: 1rem;
+        color: #52525b;
+    }
+
+    .offer-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.25rem 0.75rem;
+        background: rgba(16, 185, 129, 0.15);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        border-radius: 6px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: #34d399;
+        margin-top: 0.5rem;
+    }
+
+    .offer-badge i {
+        font-size: 0.875rem;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: #d4d4d8;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+        background: #3f3f46;
+        color: white;
+        transform: translateX(-3px);
+    }
+
+    .back-btn i {
+        font-size: 1.125rem;
+    }
+
+    /* ==================== TABLE CARD ==================== */
+    .table-card {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .table-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .table-card-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .table-card-icon {
+        width: 36px;
+        height: 36px;
+        background: rgba(168, 85, 247, 0.15);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.125rem;
+        color: #c084fc;
+    }
+
+    .table-card-title h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #f4f4f5;
+        margin: 0;
+    }
+
+    /* ==================== TABLE ==================== */
+    .applications-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .applications-table thead th {
+        padding: 1rem 1.5rem;
+        text-align: left;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        background: rgba(0, 0, 0, 0.15);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .applications-table thead th:last-child {
+        text-align: right;
+    }
+
+    .applications-table tbody tr {
+        transition: background 0.2s ease;
+    }
+
+    .applications-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .applications-table tbody td {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        vertical-align: middle;
+    }
+
+    .applications-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Candidate cell */
+    .candidate-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+    }
+
+    .candidate-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 700;
+        color: white;
+        text-transform: uppercase;
+        flex-shrink: 0;
+    }
+
+    .candidate-info {
+        min-width: 0;
+    }
+
+    .candidate-name {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: #f4f4f5;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Contact cell */
+    .contact-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8125rem;
+        color: #a1a1aa;
+    }
+
+    .contact-item i {
+        font-size: 0.875rem;
+        color: #52525b;
+    }
+
+    .contact-item a {
+        color: #a1a1aa;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .contact-item a:hover {
+        color: #c084fc;
+    }
+
+    /* CV button */
+    .cv-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.5rem 0.875rem;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 8px;
+        color: #60a5fa;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .cv-btn:hover {
+        background: rgba(59, 130, 246, 0.2);
+        transform: translateY(-1px);
+    }
+
+    .cv-btn i {
+        font-size: 1rem;
+    }
+
+    .no-cv {
+        color: #52525b;
+        font-size: 0.875rem;
+    }
+
+    /* Status badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .status-badge i {
+        font-size: 0.875rem;
+    }
+
+    .status-badge.pending {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .status-badge.accepted {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .status-badge.rejected {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    /* Actions cell */
+    .actions-cell {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+        padding: 0.5rem 0.875rem;
+        background: rgba(168, 85, 247, 0.15);
+        border: 1px solid rgba(168, 85, 247, 0.2);
+        border-radius: 8px;
+        color: #c084fc;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .action-btn:hover {
+        background: rgba(168, 85, 247, 0.25);
+        transform: translateY(-1px);
+    }
+
+    .action-btn i {
+        font-size: 1rem;
+    }
+
+    /* ==================== COVER LETTER ROW ==================== */
+    .cover-letter-row td {
+        padding: 0 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+    }
+
+    .cover-letter-content {
+        padding: 1rem 1.5rem 1rem 5rem;
+        background: rgba(168, 85, 247, 0.03);
+    }
+
+    .cover-letter-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.5rem;
+    }
+
+    .cover-letter-label i {
+        font-size: 0.8125rem;
+        color: #c084fc;
+    }
+
+    .cover-letter-text {
+        font-size: 0.8125rem;
+        color: #a1a1aa;
+        line-height: 1.6;
+    }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: rgba(113, 113, 122, 0.1);
+        border: 2px dashed rgba(113, 113, 122, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .empty-icon i {
+        font-size: 2rem;
+        color: #52525b;
+    }
+
+    .empty-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #a1a1aa;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .empty-text {
+        font-size: 0.875rem;
+        color: #71717a;
+        margin: 0;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1024px) {
+        .applications-table thead {
+            display: none;
+        }
+
+        .applications-table tbody tr:not(.cover-letter-row) {
+            display: block;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .applications-table tbody td {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: none;
+        }
+
+        .applications-table tbody td::before {
+            content: attr(data-label);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: #71717a;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .applications-table tbody td:first-child::before {
+            display: none;
+        }
+
+        .applications-table tbody td:first-child {
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .actions-cell {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            justify-content: flex-start;
+        }
+
+        .cover-letter-row {
+            display: block !important;
+        }
+
+        .cover-letter-row td {
+            display: block !important;
+            padding: 0 !important;
+        }
+
+        .cover-letter-content {
+            padding: 1rem 1.5rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+        }
+
+        .back-btn {
+            align-self: flex-start;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-left {
+            flex-direction: column;
+        }
+
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
+        }
+
+        .header-text h1 {
+            font-size: 1.25rem;
+        }
+
+        .candidate-cell {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .action-btn span {
+            display: none;
+        }
+
+        .action-btn {
+            padding: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-  <div class="d-flex align-items-center justify-content-between mb-4">
-    <div>
-      <h3 class="mb-1">Candidatures</h3>
-      <div class="text-muted">{{ offer.title }}</div>
+<div class="applications-wrapper">
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="ph-bold ph-users-three"></i>
+            </div>
+            <div class="header-text">
+                <h1>Candidatures</h1>
+                <p>
+                    <i class="ph ph-info"></i>
+                    Liste des candidatures reçues
+                </p>
+                <div class="offer-badge">
+                    <i class="ph ph-briefcase"></i>
+                    {{ offer.title }}
+                </div>
+            </div>
+        </div>
+        <a href="{% url 'services_app:admin_jobs_list' %}" class="back-btn">
+            <i class="ph ph-arrow-left"></i>
+            Retour
+        </a>
     </div>
-    <a href="{% url 'services_app:admin_jobs_list' %}" class="btn btn-outline-secondary">
-      <i class="ph ph-arrow-left me-1"></i> Retour
-    </a>
-  </div>
 
-  <div class="card border-0 shadow-sm">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table align-middle">
-          <thead class="table-light">
-            <tr>
-              <th>Candidat</th>
-              <th>Contact</th>
-              <th>CV</th>
-              <th>Statut</th>
-              <th class="text-end">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for a in applications %}
-              <tr>
-                <td class="fw-semibold">{{ a.full_name }}</td>
-                <td class="text-muted">
-                  {{ a.email }}<br>{{ a.phone|default:"" }}
-                </td>
-                <td>
-                  {% if a.cv %}
-                    <a href="{{ a.cv.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
-                      <i class="ph ph-file-pdf me-1"></i> CV
-                    </a>
-                  {% else %}
-                    <span class="text-muted">—</span>
-                  {% endif %}
-                </td>
-                <td>
-                  {% if a.status == "PENDING" %}<span class="badge bg-warning text-dark">En attente</span>{% endif %}
-                  {% if a.status == "ACCEPTED" %}<span class="badge bg-success">Accepté</span>{% endif %}
-                  {% if a.status == "REJECTED" %}<span class="badge bg-danger">Refusé</span>{% endif %}
-                </td>
-                <td class="text-end">
-                  <a href="{% url 'services_app:admin_job_application_update' a.pk %}"
-                     class="btn btn-sm btn-outline-dark">
-                    <i class="ph ph-pencil-simple me-1"></i> Statut
-                  </a>
-                </td>
-              </tr>
-              {% if a.cover_letter %}
+    <!-- TABLE CARD -->
+    <div class="table-card">
+        <div class="table-card-header">
+            <div class="table-card-title">
+                <div class="table-card-icon">
+                    <i class="ph ph-list-bullets"></i>
+                </div>
+                <h3>Toutes les candidatures</h3>
+            </div>
+        </div>
+
+        <table class="applications-table">
+            <thead>
                 <tr>
-                  <td colspan="5" class="bg-light">
-                    <div class="small text-muted">{{ a.cover_letter|linebreaksbr }}</div>
-                  </td>
+                    <th>Candidat</th>
+                    <th>Contact</th>
+                    <th>CV</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
                 </tr>
-              {% endif %}
-            {% empty %}
-              <tr><td colspan="5" class="text-center text-muted py-4">Aucune candidature.</td></tr>
-            {% endfor %}
-          </tbody>
+            </thead>
+            <tbody>
+                {% for a in applications %}
+                <tr>
+                    <td data-label="Candidat">
+                        <div class="candidate-cell">
+                            <div class="candidate-avatar">
+                                {{ a.full_name|slice:":2" }}
+                            </div>
+                            <div class="candidate-info">
+                                <h4 class="candidate-name">{{ a.full_name }}</h4>
+                            </div>
+                        </div>
+                    </td>
+                    <td data-label="Contact">
+                        <div class="contact-cell">
+                            <div class="contact-item">
+                                <i class="ph ph-envelope"></i>
+                                <a href="mailto:{{ a.email }}">{{ a.email }}</a>
+                            </div>
+                            {% if a.phone %}
+                            <div class="contact-item">
+                                <i class="ph ph-phone"></i>
+                                <span>{{ a.phone }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td data-label="CV">
+                        {% if a.cv %}
+                        <a href="{{ a.cv.url }}" class="cv-btn" target="_blank">
+                            <i class="ph ph-file-pdf"></i>
+                            <span>CV</span>
+                        </a>
+                        {% else %}
+                        <span class="no-cv">—</span>
+                        {% endif %}
+                    </td>
+                    <td data-label="Statut">
+                        {% if a.status == "PENDING" %}
+                        <span class="status-badge pending">
+                            <i class="ph ph-clock"></i>
+                            En attente
+                        </span>
+                        {% endif %}
+                        {% if a.status == "ACCEPTED" %}
+                        <span class="status-badge accepted">
+                            <i class="ph ph-check"></i>
+                            Accepté
+                        </span>
+                        {% endif %}
+                        {% if a.status == "REJECTED" %}
+                        <span class="status-badge rejected">
+                            <i class="ph ph-x"></i>
+                            Refusé
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td data-label="Actions">
+                        <div class="actions-cell">
+                            <a href="{% url 'services_app:admin_job_application_update' a.pk %}" class="action-btn">
+                                <i class="ph ph-pencil-simple"></i>
+                                <span>Statut</span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% if a.cover_letter %}
+                <tr class="cover-letter-row">
+                    <td colspan="5">
+                        <div class="cover-letter-content">
+                            <div class="cover-letter-label">
+                                <i class="ph ph-text-align-left"></i>
+                                Lettre de motivation
+                            </div>
+                            <div class="cover-letter-text">
+                                {{ a.cover_letter|linebreaksbr }}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endif %}
+                {% empty %}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="ph ph-users"></i>
+                            </div>
+                            <h3 class="empty-title">Aucune candidature</h3>
+                            <p class="empty-text">Cette offre n'a pas encore reçu de candidature.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
-      </div>
     </div>
-  </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation d'entrée pour les lignes du tableau
+    const tableRows = document.querySelectorAll('.applications-table tbody tr:not(.cover-letter-row)');
+    
+    tableRows.forEach((row, index) => {
+        row.style.opacity = '0';
+        row.style.transform = 'translateY(10px)';
+        row.style.transition = 'all 0.3s ease';
+        
+        setTimeout(() => {
+            row.style.opacity = '1';
+            row.style.transform = 'translateY(0)';
+        }, 100 + (index * 50));
+    });
+});
+</script>
 {% endblock %}

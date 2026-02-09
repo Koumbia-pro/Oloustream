@@ -1,137 +1,929 @@
 {% extends "admin/admin_base.html" %}
-{% block title %}Recrutement - {% if offer %}Modifier{% else %}Créer{% endif %}{% endblock %}
+{% block title %}Recrutement - {% if offer %}Modifier{% else %}Créer{% endif %} une offre{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ==================== VARIABLES ==================== */
+    :root {
+        --primary-400: #c084fc;
+        --primary-500: #a855f7;
+        --primary-600: #9333ea;
+        --primary-700: #7c3aed;
+        --accent-400: #34d399;
+        --accent-500: #10b981;
+        --surface-100: #f4f4f5;
+        --surface-200: #e4e4e7;
+        --surface-300: #d4d4d8;
+        --surface-400: #a1a1aa;
+        --surface-500: #71717a;
+        --surface-600: #52525b;
+        --surface-700: #3f3f46;
+        --surface-800: #27272a;
+        --surface-850: #1f1f23;
+        --surface-900: #18181b;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --error-color: #ef4444;
+    }
+
+    /* ==================== WRAPPER ==================== */
+    .job-form-wrapper {
+        width: 100%;
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==================== PAGE HEADER ==================== */
+    .page-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .header-left {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .header-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        flex-shrink: 0;
+    }
+
+    .header-text h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        margin: 0 0 0.375rem 0;
+    }
+
+    .header-text p {
+        font-size: 0.875rem;
+        color: #71717a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .header-text p i {
+        font-size: 1rem;
+        color: #52525b;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: #d4d4d8;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+        background: #3f3f46;
+        color: white;
+        transform: translateX(-3px);
+    }
+
+    .back-btn i {
+        font-size: 1.125rem;
+    }
+
+    /* ==================== FORM LAYOUT ==================== */
+    .form-layout {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    /* ==================== CARDS ==================== */
+    .form-card {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .form-card:hover {
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .form-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .form-card-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.125rem;
+    }
+
+    .form-card-icon.green {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+    }
+
+    .form-card-icon.purple {
+        background: rgba(147, 51, 234, 0.15);
+        color: #c084fc;
+    }
+
+    .form-card-icon.blue {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+    }
+
+    .form-card-icon.orange {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+    }
+
+    .form-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #f4f4f5;
+        margin: 0;
+    }
+
+    .form-card-body {
+        padding: 1.5rem;
+    }
+
+    /* ==================== FIELDS GRID ==================== */
+    .fields-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+
+    .field-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .field-group.full-width {
+        grid-column: span 2;
+    }
+
+    .field-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #a1a1aa;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .field-label .required {
+        color: #f87171;
+    }
+
+    .field-label i {
+        font-size: 0.875rem;
+        color: #71717a;
+    }
+
+    /* ==================== INPUTS ==================== */
+    .form-input,
+    .form-select,
+    .form-textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        color: #f4f4f5;
+        font-size: 0.875rem;
+        font-family: inherit;
+        transition: all 0.2s ease;
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+        color: #52525b;
+    }
+
+    .form-input:hover,
+    .form-select:hover,
+    .form-textarea:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+        background: #2a2a2e;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+        background: rgba(16, 185, 129, 0.03);
+    }
+
+    .form-select {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        padding-right: 2.5rem;
+    }
+
+    .form-select option {
+        background: #27272a;
+        color: #f4f4f5;
+    }
+
+    .form-textarea {
+        min-height: 120px;
+        resize: vertical;
+        line-height: 1.6;
+    }
+
+    .form-textarea.large {
+        min-height: 180px;
+    }
+
+    /* File input */
+    .form-file {
+        width: 100%;
+        padding: 0.5rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        color: #f4f4f5;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .form-file::file-selector-button {
+        padding: 0.5rem 1rem;
+        margin-right: 1rem;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .form-file::file-selector-button:hover {
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    .form-file:focus {
+        outline: none;
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    }
+
+    /* Field help */
+    .field-help {
+        font-size: 0.6875rem;
+        color: #52525b;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .field-help i {
+        font-size: 0.875rem;
+    }
+
+    /* Field error */
+    .field-error {
+        font-size: 0.75rem;
+        color: #f87171;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .field-error::before {
+        content: '•';
+    }
+
+    /* ==================== SIDEBAR ==================== */
+    .sidebar-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        position: sticky;
+        top: calc(70px + 1.5rem);
+    }
+
+    /* Poster preview */
+    .poster-preview {
+        margin-bottom: 1rem;
+    }
+
+    .poster-preview-image {
+        width: 100%;
+        aspect-ratio: 3/4;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        background: #27272a;
+    }
+
+    .poster-preview-label {
+        font-size: 0.6875rem;
+        color: #52525b;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-top: 0.5rem;
+        text-align: center;
+        display: block;
+    }
+
+    .poster-placeholder {
+        width: 100%;
+        aspect-ratio: 3/4;
+        border-radius: 12px;
+        background: #27272a;
+        border: 2px dashed rgba(255, 255, 255, 0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        color: #52525b;
+    }
+
+    .poster-placeholder i {
+        font-size: 2.5rem;
+    }
+
+    .poster-placeholder span {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    /* ==================== SUBMIT CARD ==================== */
+    .submit-card {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+        border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .submit-card .form-card-body {
+        padding: 1.25rem;
+    }
+
+    .submit-btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1rem 1.5rem;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .submit-btn:active {
+        transform: translateY(0);
+    }
+
+    .submit-btn i {
+        font-size: 1.25rem;
+    }
+
+    /* Submit info */
+    .submit-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        font-size: 0.75rem;
+        color: #71717a;
+    }
+
+    .submit-info i {
+        font-size: 0.875rem;
+        color: #52525b;
+    }
+
+    /* ==================== DETAIL FIELDS ==================== */
+    .detail-fields {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .detail-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .detail-field-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .detail-field-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+    }
+
+    .detail-field-icon.tasks {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+    }
+
+    .detail-field-icon.profile {
+        background: rgba(147, 51, 234, 0.15);
+        color: #c084fc;
+    }
+
+    .detail-field-icon.benefits {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+    }
+
+    /* ==================== MAIN CONTENT SPACING ==================== */
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1200px) {
+        .form-layout {
+            grid-template-columns: 1fr 320px;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .form-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .sidebar-section {
+            position: static;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .sidebar-section > .form-card {
+            flex: 1 1 300px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+        }
+
+        .back-btn {
+            align-self: flex-start;
+        }
+
+        .fields-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .field-group.full-width {
+            grid-column: span 1;
+        }
+
+        .sidebar-section {
+            flex-direction: column;
+        }
+
+        .sidebar-section > .form-card {
+            flex: 1 1 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-left {
+            flex-direction: column;
+        }
+
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
+        }
+
+        .header-text h1 {
+            font-size: 1.25rem;
+        }
+
+        .form-card-body {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-  <div class="d-flex align-items-center justify-content-between mb-4">
-    <div>
-      <h3 class="mb-1">{% if offer %}Modifier{% else %}Créer{% endif %} une offre</h3>
-      <div class="text-muted">Contrat et Niveau sont des listes déroulantes.</div>
-    </div>
-    <a href="{% url 'services_app:admin_jobs_list' %}" class="btn btn-outline-secondary">
-      <i class="ph ph-arrow-left me-1"></i> Retour
-    </a>
-  </div>
-
-  <form method="post" enctype="multipart/form-data" class="row g-3">
-    {% csrf_token %}
-
-    <div class="col-12 col-lg-8">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body">
-          <h5 class="mb-3">Informations principales</h5>
-          <div class="row g-3">
-
-            <div class="col-12">
-              <label class="form-label">Titre</label>
-              {{ form.title }}
+<div class="job-form-wrapper">
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="ph-bold {% if offer %}ph-pencil-simple{% else %}ph-plus{% endif %}"></i>
             </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Type</label>
-              {{ form.offer_type }}
+            <div class="header-text">
+                <h1>{% if offer %}Modifier{% else %}Créer{% endif %} une offre d'emploi</h1>
+                <p>
+                    <i class="ph ph-info"></i>
+                    {% if offer %}
+                        Modifiez les informations de l'offre "{{ offer.title }}"
+                    {% else %}
+                        Remplissez les informations pour publier une nouvelle offre
+                    {% endif %}
+                </p>
             </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Statut</label>
-              {{ form.status }}
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Lieu</label>
-              {{ form.location }}
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Date limite</label>
-              {{ form.deadline }}
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Département / Pôle</label>
-              {{ form.department }}
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Contrat</label>
-              {{ form.contract_type }}
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Niveau</label>
-              {{ form.level }}
-            </div>
-
-            <div class="col-12">
-              <label class="form-label">Résumé</label>
-              {{ form.summary }}
-            </div>
-
-            <div class="col-12">
-              <label class="form-label">Description</label>
-              {{ form.description }}
-            </div>
-
-          </div>
         </div>
-      </div>
-
-      <div class="card border-0 shadow-sm mt-3">
-        <div class="card-body">
-          <h5 class="mb-3">Détails</h5>
-
-          <div class="mb-3">
-            <label class="form-label">Missions</label>
-            {{ form.responsibilities }}
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Profil recherché</label>
-            {{ form.requirements }}
-          </div>
-
-          <div class="mb-0">
-            <label class="form-label">Avantages</label>
-            {{ form.benefits }}
-          </div>
-        </div>
-      </div>
+        <a href="{% url 'services_app:admin_jobs_list' %}" class="back-btn">
+            <i class="ph ph-arrow-left"></i>
+            Retour à la liste
+        </a>
     </div>
 
-    <div class="col-12 col-lg-4">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body">
-          <h5 class="mb-3">Affiche</h5>
+    <!-- FORM -->
+    <form method="post" enctype="multipart/form-data" id="jobForm">
+        {% csrf_token %}
+        
+        <div class="form-layout">
+            <!-- MAIN CONTENT -->
+            <div class="main-content">
+                <!-- Informations principales -->
+                <div class="form-card">
+                    <div class="form-card-header">
+                        <div class="form-card-icon green">
+                            <i class="ph ph-briefcase"></i>
+                        </div>
+                        <h3 class="form-card-title">Informations principales</h3>
+                    </div>
+                    <div class="form-card-body">
+                        <div class="fields-grid">
+                            <!-- Titre -->
+                            <div class="field-group full-width">
+                                <label class="field-label">
+                                    <i class="ph ph-text-t"></i>
+                                    Titre du poste <span class="required">*</span>
+                                </label>
+                                {{ form.title }}
+                            </div>
 
-          {% if offer and offer.poster %}
-            <img src="{{ offer.poster.url }}" class="img-fluid rounded border mb-2" alt="{{ offer.title }}">
-            <div class="text-muted small mb-2">Affiche actuelle</div>
-          {% endif %}
+                            <!-- Type -->
+                            <div class="field-group">
+                                <label class="field-label">
+                                    <i class="ph ph-tag"></i>
+                                    Type d'offre
+                                </label>
+                                {{ form.offer_type }}
+                            </div>
 
-          <label class="form-label">Choisir une image</label>
-          {{ form.poster }}
+                            <!-- Statut -->
+                            <div class="field-group">
+                                <label class="field-label">
+                                    <i class="ph ph-toggle-left"></i>
+                                    Statut
+                                </label>
+                                {{ form.status }}
+                            </div>
 
-          <div class="text-muted small mt-2">Formats conseillés: JPG/PNG.</div>
+                            <!-- Lieu -->
+                            <div class="field-group">
+                                <label class="field-label">
+                                    <i class="ph ph-map-pin"></i>
+                                    Lieu de travail
+                                </label>
+                                {{ form.location }}
+                            </div>
+
+                            <!-- Date limite -->
+                            <div class="field-group">
+                                <label class="field-label">
+                                    <i class="ph ph-calendar"></i>
+                                    Date limite
+                                </label>
+                                {{ form.deadline }}
+                            </div>
+
+                            <!-- Département -->
+                            <div class="field-group">
+                                <label class="field-label">
+                                    <i class="ph ph-buildings"></i>
+                                    Département / Pôle
+                                </label>
+                                {{ form.department }}
+                            </div>
+
+                            <!-- Contrat -->
+                            <div class="field-group">
+                                <label class="field-label">
+                                    <i class="ph ph-file-text"></i>
+                                    Type de contrat
+                                </label>
+                                {{ form.contract_type }}
+                            </div>
+
+                            <!-- Niveau -->
+                            <div class="field-group full-width">
+                                <label class="field-label">
+                                    <i class="ph ph-graduation-cap"></i>
+                                    Niveau d'expérience
+                                </label>
+                                {{ form.level }}
+                            </div>
+
+                            <!-- Résumé -->
+                            <div class="field-group full-width">
+                                <label class="field-label">
+                                    <i class="ph ph-article"></i>
+                                    Résumé de l'offre
+                                </label>
+                                {{ form.summary }}
+                                <span class="field-help">
+                                    <i class="ph ph-info"></i>
+                                    Court résumé affiché dans les listes (2-3 phrases)
+                                </span>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="field-group full-width">
+                                <label class="field-label">
+                                    <i class="ph ph-text-align-left"></i>
+                                    Description complète
+                                </label>
+                                {{ form.description }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Détails du poste -->
+                <div class="form-card">
+                    <div class="form-card-header">
+                        <div class="form-card-icon purple">
+                            <i class="ph ph-list-checks"></i>
+                        </div>
+                        <h3 class="form-card-title">Détails du poste</h3>
+                    </div>
+                    <div class="form-card-body">
+                        <div class="detail-fields">
+                            <!-- Missions -->
+                            <div class="detail-field">
+                                <div class="detail-field-header">
+                                    <div class="detail-field-icon tasks">
+                                        <i class="ph ph-check-square"></i>
+                                    </div>
+                                    <label class="field-label" style="margin: 0;">
+                                        Missions & responsabilités
+                                    </label>
+                                </div>
+                                {{ form.responsibilities }}
+                                <span class="field-help">
+                                    <i class="ph ph-info"></i>
+                                    Listez les principales missions du poste
+                                </span>
+                            </div>
+
+                            <!-- Profil -->
+                            <div class="detail-field">
+                                <div class="detail-field-header">
+                                    <div class="detail-field-icon profile">
+                                        <i class="ph ph-user-focus"></i>
+                                    </div>
+                                    <label class="field-label" style="margin: 0;">
+                                        Profil recherché
+                                    </label>
+                                </div>
+                                {{ form.requirements }}
+                                <span class="field-help">
+                                    <i class="ph ph-info"></i>
+                                    Compétences, diplômes et expériences requis
+                                </span>
+                            </div>
+
+                            <!-- Avantages -->
+                            <div class="detail-field">
+                                <div class="detail-field-header">
+                                    <div class="detail-field-icon benefits">
+                                        <i class="ph ph-gift"></i>
+                                    </div>
+                                    <label class="field-label" style="margin: 0;">
+                                        Avantages
+                                    </label>
+                                </div>
+                                {{ form.benefits }}
+                                <span class="field-help">
+                                    <i class="ph ph-info"></i>
+                                    Avantages proposés (salaire, télétravail, etc.)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIDEBAR -->
+            <div class="sidebar-section">
+                <!-- Affiche -->
+                <div class="form-card">
+                    <div class="form-card-header">
+                        <div class="form-card-icon orange">
+                            <i class="ph ph-image"></i>
+                        </div>
+                        <h3 class="form-card-title">Affiche</h3>
+                    </div>
+                    <div class="form-card-body">
+                        <!-- Preview -->
+                        <div class="poster-preview">
+                            {% if offer and offer.poster %}
+                                <img src="{{ offer.poster.url }}" 
+                                     alt="{{ offer.title }}" 
+                                     class="poster-preview-image"
+                                     id="posterPreview">
+                                <span class="poster-preview-label">Affiche actuelle</span>
+                            {% else %}
+                                <div class="poster-placeholder" id="posterPlaceholder">
+                                    <i class="ph ph-image"></i>
+                                    <span>Aucune affiche</span>
+                                </div>
+                                <img src="" 
+                                     alt="Preview" 
+                                     class="poster-preview-image" 
+                                     id="posterPreview" 
+                                     style="display: none;">
+                            {% endif %}
+                        </div>
+
+                        <!-- File input -->
+                        <div class="field-group">
+                            <label class="field-label">
+                                <i class="ph ph-upload"></i>
+                                Choisir une image
+                            </label>
+                            {{ form.poster }}
+                            <span class="field-help">
+                                <i class="ph ph-info"></i>
+                                Formats: JPG, PNG. Ratio 3:4 conseillé.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="form-card submit-card">
+                    <div class="form-card-body">
+                        <button type="submit" class="submit-btn" id="submitBtn">
+                            <i class="ph-bold ph-check-circle"></i>
+                            {% if offer %}Mettre à jour{% else %}Publier l'offre{% endif %}
+                        </button>
+                        
+                        <div class="submit-info">
+                            <i class="ph ph-keyboard"></i>
+                            <span><kbd style="background: #3f3f46; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.6875rem;">Ctrl</kbd> + <kbd style="background: #3f3f46; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.6875rem;">Enter</kbd> pour sauvegarder</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-
-      <div class="card border-0 shadow-sm mt-3">
-        <div class="card-body">
-          <button type="submit" class="btn btn-primary w-100">
-            <i class="ph ph-check-circle me-1"></i> Enregistrer
-          </button>
-        </div>
-      </div>
-    </div>
-  </form>
+    </form>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-  (function() {
-    document.querySelectorAll("select").forEach(el => el.classList.add("form-select"));
-    document.querySelectorAll("textarea").forEach(el => el.classList.add("form-control"));
-    document.querySelectorAll('input:not([type="file"])').forEach(el => el.classList.add("form-control"));
-    document.querySelectorAll('input[type="file"]').forEach(el => el.classList.add("form-control"));
-  })();
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('jobForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Add classes to Django form fields
+    document.querySelectorAll('select').forEach(el => {
+        el.classList.add('form-select');
+    });
+    
+    document.querySelectorAll('textarea').forEach(el => {
+        el.classList.add('form-textarea');
+        // Add large class for specific fields
+        if (el.name === 'description' || el.name === 'responsibilities' || 
+            el.name === 'requirements' || el.name === 'benefits') {
+            el.classList.add('large');
+        }
+    });
+    
+    document.querySelectorAll('input:not([type="file"]):not([type="hidden"])').forEach(el => {
+        el.classList.add('form-input');
+    });
+    
+    document.querySelectorAll('input[type="file"]').forEach(el => {
+        el.classList.add('form-file');
+    });
+
+    // Image preview
+    const posterInput = document.querySelector('input[type="file"][name="poster"]');
+    const posterPreview = document.getElementById('posterPreview');
+    const posterPlaceholder = document.getElementById('posterPlaceholder');
+
+    if (posterInput) {
+        posterInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    posterPreview.src = e.target.result;
+                    posterPreview.style.display = 'block';
+                    if (posterPlaceholder) {
+                        posterPlaceholder.style.display = 'none';
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Keyboard shortcut
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            form.submit();
+        }
+    });
+
+    // Form submit loading state
+    form.addEventListener('submit', function() {
+        submitBtn.innerHTML = '<i class="ph ph-spinner" style="animation: spin 1s linear infinite;"></i> Enregistrement...';
+        submitBtn.disabled = true;
+    });
+});
 </script>
+
+<style>
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+</style>
 {% endblock %}

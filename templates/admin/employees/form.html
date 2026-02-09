@@ -1,669 +1,1415 @@
 {% extends "admin/admin_base.html" %}
 {% block title %}Employé - Oloustream Admin{% endblock %}
 
-{% block content %}
-
+{% block extra_css %}
 <style>
-/* =========================================================
-   STYLE ULTRA PRO – FORMULAIRE EMPLOYÉ
-   ========================================================= */
+    /* ==================== VARIABLES LOCALES (au cas où) ==================== */
+    :root {
+        --primary-400: #c084fc;
+        --primary-500: #a855f7;
+        --primary-600: #9333ea;
+        --primary-700: #7c3aed;
+        --accent-400: #fbbf24;
+        --surface-100: #f4f4f5;
+        --surface-200: #e4e4e7;
+        --surface-300: #d4d4d8;
+        --surface-400: #a1a1aa;
+        --surface-500: #71717a;
+        --surface-600: #52525b;
+        --surface-700: #3f3f46;
+        --surface-800: #27272a;
+        --surface-850: #1f1f23;
+        --surface-900: #18181b;
+        --surface-950: #09090b;
+        --error-color: #f87171;
+        --success-color: #34d399;
+    }
 
-.employee-form-wrapper {
+    /* ==================== RESET DU CONTENEUR PRINCIPAL ==================== */
+    /* Le formulaire doit occuper TOUT l'espace disponible */
+    .employee-form-wrapper {
+        width: 100%;
+        min-height: calc(100vh - var(--header-height, 70px) - 3rem);
+        animation: fadeInUp 0.4s ease-out;
+    }
 
-  margin: 0 auto;
-  animation: fadeInUp 0.4s ease-out;
-}
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
-.employee-form-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-}
+    /* ==================== HEADER ==================== */
+    .form-page-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
 
-.employee-form-header h1 {
-  font-size: 1.6rem;
-  margin: 0;
-}
+    .header-left {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
 
-.employee-form-header .subtitle {
-  font-size: 0.9rem;
-  color: #6b7280;
-}
+    .header-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+        box-shadow: 0 8px 25px rgba(147, 51, 234, 0.35);
+        flex-shrink: 0;
+    }
 
-.employee-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  background: #eef2ff;
-  color: #4338ca;
-}
+    .header-text h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        margin: 0 0 0.375rem 0;
+        line-height: 1.3;
+    }
 
-/* Tabs de sections */
-.employee-form-tabs {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
-}
+    .header-text .subtitle {
+        font-size: 0.875rem;
+        color: #a1a1aa;
+        margin: 0;
+        line-height: 1.5;
+    }
 
-.employee-form-tab {
-  border-radius: 999px;
-  font-size: 0.8rem;
-  padding: 0.35rem 0.9rem;
-  border: 1px solid #e5e7eb;
-  background: #f9fafb;
-  color: #4b5563;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
-}
+    .employee-id-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(147, 51, 234, 0.15);
+        border: 1px solid rgba(147, 51, 234, 0.3);
+        border-radius: 10px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #c084fc;
+    }
 
-.employee-form-tab.active {
-  background: linear-gradient(135deg, #e60023, #b3001b);
-  border-color: transparent;
-  color: #ffffff;
-  box-shadow: 0 4px 10px rgba(230, 0, 35, 0.25);
-  transform: translateY(-1px);
-}
+    .employee-id-badge i {
+        font-size: 1.125rem;
+    }
 
-/* Sections */
-.employee-section {
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
-  margin-bottom: 1.25rem;
-  padding: 1.25rem 1.5rem;
-  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
-}
+    /* ==================== LAYOUT PRINCIPAL - 2 COLONNES ==================== */
+    .form-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
 
-.employee-section.active {
-  border-color: #e60023;
-  box-shadow: 0 8px 20px rgba(230, 0, 35, 0.12);
-  transform: translateY(-1px);
-}
+    /* ==================== SIDEBAR DE NAVIGATION ==================== */
+    .form-nav {
+        position: sticky;
+        top: calc(var(--header-height, 70px) + 1.5rem);
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
 
-.employee-section-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-}
+    .form-nav-title {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.25rem;
+    }
 
-.employee-section-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
+    .form-nav-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #a1a1aa;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: left;
+        width: 100%;
+        font-family: inherit;
+    }
 
-.employee-section-title span.icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
-  background: #fee2e2;
-  color: #b91c1c;
-  font-size: 0.9rem;
-}
+    .form-nav-item i {
+        font-size: 1.125rem;
+        width: 20px;
+        text-align: center;
+    }
 
-.employee-section-desc {
-  font-size: 0.8rem;
-  color: #6b7280;
-}
+    .form-nav-item:hover {
+        background: rgba(255, 255, 255, 0.03);
+        color: #e4e4e7;
+    }
 
-/* Grille des champs */
-.employee-fields-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.9rem 1.25rem;
-}
+    .form-nav-item.active {
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+    }
 
-.employee-field {
-  display: flex;
-  flex-direction: column;
-}
+    .form-nav-item .nav-badge {
+        margin-left: auto;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #34d399;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
 
-.employee-field label {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: #4b5563;
-  margin-bottom: 0.2rem;
-}
+    .form-nav-item.completed .nav-badge {
+        opacity: 1;
+    }
 
-.employee-field input,
-.employee-field select,
-.employee-field textarea {
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  padding: 0.5rem 0.7rem;
-  font-size: 0.85rem;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-}
+    /* Progress dans la nav */
+    .form-nav-progress {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
 
-.employee-field input:focus,
-.employee-field select:focus,
-.employee-field textarea:focus {
-  border-color: #e60023;
-  box-shadow: 0 0 0 1px rgba(230, 0, 35, 0.35);
-  outline: none;
-  background: #fffafa;
-}
+    .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
 
-.employee-field .help-text {
-  font-size: 0.75rem;
-  color: #9ca3af;
-  margin-top: 0.15rem;
-}
+    .progress-label {
+        font-size: 0.75rem;
+        color: #71717a;
+    }
 
-.employee-field .error-text {
-  font-size: 0.75rem;
-  color: #b91c1c;
-  margin-top: 0.15rem;
-}
+    .progress-value {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #c084fc;
+    }
 
-/* Champs booléens */
-.employee-booleans {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 1.25rem;
-}
+    .progress-bar-container {
+        height: 6px;
+        background: #27272a;
+        border-radius: 3px;
+        overflow: hidden;
+    }
 
-.employee-boolean {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.8rem;
-  color: #4b5563;
-}
+    .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #9333ea, #fbbf24);
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
 
-.employee-boolean input {
-  width: 16px;
-  height: 16px;
-}
+    /* ==================== ZONE FORMULAIRE ==================== */
+    .form-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
 
-/* Pied de formulaire */
-.employee-form-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
+    /* ==================== ALERT MESSAGES ==================== */
+    .alert-box {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem 1.25rem;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 12px;
+        color: #fca5a5;
+    }
 
-/* Responsivité */
-@media (max-width: 992px) {
-  .employee-fields-grid {
-    grid-template-columns: 1fr;
-  }
-}
+    .alert-box i {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+    .alert-box-content {
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+    /* ==================== SECTIONS ==================== */
+    .form-section {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.25s ease;
+    }
+
+    .form-section:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .form-section.active {
+        border-color: rgba(147, 51, 234, 0.4);
+        box-shadow: 0 0 0 1px rgba(147, 51, 234, 0.1),
+                    0 8px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.25);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .section-header:hover {
+        background: rgba(0, 0, 0, 0.35);
+    }
+
+    .section-header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .section-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        background: rgba(147, 51, 234, 0.15);
+        color: #c084fc;
+        transition: all 0.2s ease;
+    }
+
+    .form-section.active .section-icon {
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        color: white;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+    }
+
+    .section-info h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #f4f4f5;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .section-info p {
+        font-size: 0.75rem;
+        color: #71717a;
+        margin: 0;
+    }
+
+    .section-toggle-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #a1a1aa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .section-toggle-btn:hover {
+        background: #3f3f46;
+        color: white;
+    }
+
+    .section-toggle-btn i {
+        font-size: 1rem;
+        transition: transform 0.25s ease;
+    }
+
+    .form-section.collapsed .section-toggle-btn i {
+        transform: rotate(-90deg);
+    }
+
+    .section-body {
+        padding: 1.5rem;
+        transition: all 0.25s ease;
+    }
+
+    .form-section.collapsed .section-body {
+        display: none;
+    }
+
+    /* ==================== GRILLE DE CHAMPS ==================== */
+    .fields-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+
+    .field-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .field-group.full-width {
+        grid-column: span 2;
+    }
+
+    /* Labels */
+    .field-group label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #a1a1aa;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .field-group label .required-mark {
+        color: #f87171;
+    }
+
+    /* Inputs */
+    .field-group input,
+    .field-group select,
+    .field-group textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: #f4f4f5;
+        font-size: 0.875rem;
+        font-family: inherit;
+        transition: all 0.2s ease;
+    }
+
+    .field-group input::placeholder,
+    .field-group textarea::placeholder {
+        color: #71717a;
+    }
+
+    .field-group input:hover,
+    .field-group select:hover,
+    .field-group textarea:hover {
+        border-color: rgba(255, 255, 255, 0.18);
+        background: #2a2a2e;
+    }
+
+    .field-group input:focus,
+    .field-group select:focus,
+    .field-group textarea:focus {
+        outline: none;
+        border-color: #9333ea;
+        box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.2);
+        background: rgba(147, 51, 234, 0.05);
+    }
+
+    /* Select */
+    .field-group select {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        padding-right: 2.5rem;
+    }
+
+    .field-group select option {
+        background: #27272a;
+        color: #f4f4f5;
+    }
+
+    /* Textarea */
+    .field-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    /* File input */
+    .field-group input[type="file"] {
+        padding: 0.5rem;
+    }
+
+    .field-group input[type="file"]::file-selector-button {
+        padding: 0.5rem 1rem;
+        margin-right: 1rem;
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .field-group input[type="file"]::file-selector-button:hover {
+        box-shadow: 0 4px 12px rgba(147, 51, 234, 0.4);
+    }
+
+    /* Help text */
+    .field-help {
+        font-size: 0.6875rem;
+        color: #71717a;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    /* Error */
+    .field-error {
+        font-size: 0.75rem;
+        color: #f87171;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .field-error::before {
+        content: '•';
+    }
+
+    .field-group.has-error input,
+    .field-group.has-error select,
+    .field-group.has-error textarea {
+        border-color: #f87171;
+        background: rgba(239, 68, 68, 0.05);
+    }
+
+    /* ==================== CHECKBOXES ==================== */
+    .checkbox-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding-top: 1.25rem;
+        margin-top: 1.25rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.75rem 1rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .checkbox-item:hover {
+        border-color: rgba(255, 255, 255, 0.18);
+        background: #2a2a2e;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        appearance: none;
+        background: #3f3f46;
+        border: 2px solid #52525b;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .checkbox-item input[type="checkbox"]:checked {
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        border-color: #9333ea;
+    }
+
+    .checkbox-item input[type="checkbox"]:checked::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 5px;
+        width: 5px;
+        height: 9px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    .checkbox-item span {
+        font-size: 0.8125rem;
+        color: #d4d4d8;
+        font-weight: 500;
+    }
+
+    .checkbox-item:has(input:checked) {
+        border-color: rgba(147, 51, 234, 0.4);
+        background: rgba(147, 51, 234, 0.08);
+    }
+
+    .checkbox-item:has(input:checked) span {
+        color: #f4f4f5;
+    }
+
+    /* ==================== FOOTER ACTIONS ==================== */
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        margin-top: 0.5rem;
+    }
+
+    .actions-hint {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8125rem;
+        color: #71717a;
+    }
+
+    .actions-hint i {
+        font-size: 1rem;
+    }
+
+    .actions-hint kbd {
+        background: #27272a;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.6875rem;
+        color: #a1a1aa;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .actions-buttons {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        font-family: inherit;
+    }
+
+    .btn i {
+        font-size: 1.125rem;
+    }
+
+    .btn-cancel {
+        background: #27272a;
+        color: #d4d4d8;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-cancel:hover {
+        background: #3f3f46;
+        color: white;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        color: white;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.35);
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(147, 51, 234, 0.45);
+    }
+
+    .btn-submit:active {
+        transform: translateY(0);
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1024px) {
+        .form-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .form-nav {
+            position: static;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .form-nav-title {
+            width: 100%;
+        }
+
+        .form-nav-item {
+            flex: 1 1 auto;
+            min-width: fit-content;
+            justify-content: center;
+            padding: 0.625rem 1rem;
+        }
+
+        .form-nav-item span:not(.nav-badge) {
+            display: none;
+        }
+
+        .form-nav-progress {
+            width: 100%;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .form-page-header {
+            flex-direction: column;
+        }
+
+        .fields-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .field-group.full-width {
+            grid-column: span 1;
+        }
+
+        .section-header {
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .section-toggle-btn {
+            margin-left: auto;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .actions-buttons {
+            width: 100%;
+        }
+
+        .actions-buttons .btn {
+            flex: 1;
+        }
+
+        .checkbox-group {
+            flex-direction: column;
+        }
+
+        .checkbox-item {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-left {
+            flex-direction: column;
+        }
+
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
+        }
+
+        .header-text h1 {
+            font-size: 1.25rem;
+        }
+
+        .section-body {
+            padding: 1rem;
+        }
+
+        .form-nav-item {
+            padding: 0.625rem 0.75rem;
+        }
+    }
 </style>
+{% endblock %}
 
+{% block content %}
 <div class="employee-form-wrapper">
-    <div class="employee-form-header">
-        <div>
-            <h1>
-                {% if employee %}
-                    Modifier l'employé : {{ employee.get_full_name|default:employee.username }}
-                {% else %}
-                    Créer un nouvel employé
-                {% endif %}
-            </h1>
-            <p class="subtitle">
-                Gérez toutes les informations personnelles, contractuelles et administratives de l'employé.
-            </p>
+    <!-- HEADER -->
+    <div class="form-page-header">
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="ph-bold {% if employee %}ph-user-circle{% else %}ph-user-plus{% endif %}"></i>
+            </div>
+            <div class="header-text">
+                <h1>
+                    {% if employee %}
+                        Modifier l'employé
+                    {% else %}
+                        Créer un nouvel employé
+                    {% endif %}
+                </h1>
+                <p class="subtitle">
+                    {% if employee %}
+                        {{ employee.get_full_name|default:employee.username }} • Modifiez les informations ci-dessous
+                    {% else %}
+                        Remplissez le formulaire pour ajouter un nouveau membre à l'équipe
+                    {% endif %}
+                </p>
+            </div>
         </div>
         {% if employee %}
-            <span class="employee-badge">
-                <i class="ph ph-user-circle"></i>
-                Employé #{{ employee.id }}
+            <span class="employee-id-badge">
+                <i class="ph ph-identification-badge"></i>
+                ID #{{ employee.id }}
             </span>
         {% endif %}
     </div>
 
-    <!-- Onglets rapides (scroll vers les sections) -->
-    <div class="employee-form-tabs">
-        <button type="button" class="employee-form-tab active" data-target="#section-compte">
-            <i class="ph ph-user-circle"></i> Compte & rôle
-        </button>
-        <button type="button" class="employee-form-tab" data-target="#section-personnel">
-            <i class="ph ph-identification-badge"></i> Données personnelles
-        </button>
-        <button type="button" class="employee-form-tab" data-target="#section-contrat">
-            <i class="ph ph-briefcase"></i> Informations contractuelles
-        </button>
-        <button type="button" class="employee-form-tab" data-target="#section-contacts">
-            <i class="ph ph-chat-circle-dots"></i> Contacts & réseaux
-        </button>
-        <button type="button" class="employee-form-tab" data-target="#section-admin">
-            <i class="ph ph-buildings"></i> Données administratives
-        </button>
-    </div>
-
-    <form method="post" enctype="multipart/form-data" class="employee-form">
-        {% csrf_token %}
-
-        {% if form.non_field_errors %}
-            <div class="alert alert-danger">
-                {{ form.non_field_errors }}
-            </div>
-        {% endif %}
-
-        <!-- SECTION 1 : COMPTE & RÔLE -->
-        <section class="employee-section active" id="section-compte">
-            <div class="employee-section-header">
-                <h2 class="employee-section-title">
-                    <span class="icon"><i class="ph ph-user"></i></span>
-                    Compte & rôle
-                </h2>
-                <p class="employee-section-desc">
-                    Identité de connexion et droits dans le système.
-                </p>
-            </div>
-
-            <div class="employee-fields-grid">
-                {% if form.username %}
-                <div class="employee-field">
-                    <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
-                    {{ form.username }}
-                    {% if form.username.errors %}
-                        <div class="error-text">{{ form.username.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.email %}
-                <div class="employee-field">
-                    <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
-                    {{ form.email }}
-                    {% if form.email.errors %}
-                        <div class="error-text">{{ form.email.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.first_name %}
-                <div class="employee-field">
-                    <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
-                    {{ form.first_name }}
-                    {% if form.first_name.errors %}
-                        <div class="error-text">{{ form.first_name.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.last_name %}
-                <div class="employee-field">
-                    <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
-                    {{ form.last_name }}
-                    {% if form.last_name.errors %}
-                        <div class="error-text">{{ form.last_name.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.phone %}
-                <div class="employee-field">
-                    <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
-                    {{ form.phone }}
-                    {% if form.phone.errors %}
-                        <div class="error-text">{{ form.phone.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.role %}
-                <div class="employee-field">
-                    <label for="{{ form.role.id_for_label }}">{{ form.role.label }}</label>
-                    {{ form.role }}
-                    {% if form.role.errors %}
-                        <div class="error-text">{{ form.role.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.password1 %}
-                <div class="employee-field">
-                    <label for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>
-                    {{ form.password1 }}
-                    {% if form.password1.errors %}
-                        <div class="error-text">{{ form.password1.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.password2 %}
-                <div class="employee-field">
-                    <label for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
-                    {{ form.password2 }}
-                    {% if form.password2.errors %}
-                        <div class="error-text">{{ form.password2.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
-
-            <div class="employee-booleans mt-3">
-                {% if form.is_staff %}
-                <label class="employee-boolean">
-                    {{ form.is_staff }} <span>{{ form.is_staff.label }}</span>
-                </label>
-                {% endif %}
-                {% if form.is_employee %}
-                <label class="employee-boolean">
-                    {{ form.is_employee }} <span>{{ form.is_employee.label }}</span>
-                </label>
-                {% endif %}
-                {% if form.is_active %}
-                <label class="employee-boolean">
-                    {{ form.is_active }} <span>{{ form.is_active.label }}</span>
-                </label>
-                {% endif %}
-            </div>
-        </section>
-
-        <!-- SECTION 2 : DONNÉES PERSONNELLES -->
-        <section class="employee-section" id="section-personnel">
-            <div class="employee-section-header">
-                <h2 class="employee-section-title">
-                    <span class="icon"><i class="ph ph-identification-card"></i></span>
-                    Données personnelles
-                </h2>
-                <p class="employee-section-desc">
-                    Informations d’état civil et de localisation.
-                </p>
-            </div>
-
-            <div class="employee-fields-grid">
-                {% if form.position %}
-                <div class="employee-field">
-                    <label for="{{ form.position.id_for_label }}">{{ form.position.label }}</label>
-                    {{ form.position }}
-                    {% if form.position.errors %}
-                        <div class="error-text">{{ form.position.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.gender %}
-                <div class="employee-field">
-                    <label for="{{ form.gender.id_for_label }}">{{ form.gender.label }}</label>
-                    {{ form.gender }}
-                    {% if form.gender.errors %}
-                        <div class="error-text">{{ form.gender.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.date_of_birth %}
-                <div class="employee-field">
-                    <label for="{{ form.date_of_birth.id_for_label }}">{{ form.date_of_birth.label }}</label>
-                    {{ form.date_of_birth }}
-                    {% if form.date_of_birth.errors %}
-                        <div class="error-text">{{ form.date_of_birth.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.address %}
-                <div class="employee-field">
-                    <label for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
-                    {{ form.address }}
-                    {% if form.address.errors %}
-                        <div class="error-text">{{ form.address.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.city %}
-                <div class="employee-field">
-                    <label for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
-                    {{ form.city }}
-                    {% if form.city.errors %}
-                        <div class="error-text">{{ form.city.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
-        </section>
-
-        <!-- SECTION 3 : INFORMATIONS CONTRACTUELLES -->
-        <section class="employee-section" id="section-contrat">
-            <div class="employee-section-header">
-                <h2 class="employee-section-title">
-                    <span class="icon"><i class="ph ph-briefcase"></i></span>
-                    Informations contractuelles
-                </h2>
-                <p class="employee-section-desc">
-                    Type de contrat, salaire et parcours professionnel.
-                </p>
-            </div>
-
-            <div class="employee-fields-grid">
-                {% if form.salary %}
-                <div class="employee-field">
-                    <label for="{{ form.salary.id_for_label }}">{{ form.salary.label }}</label>
-                    {{ form.salary }}
-                    {% if form.salary.errors %}
-                        <div class="error-text">{{ form.salary.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.contract_type %}
-                <div class="employee-field">
-                    <label for="{{ form.contract_type.id_for_label }}">{{ form.contract_type.label }}</label>
-                    {{ form.contract_type }}
-                    {% if form.contract_type.errors %}
-                        <div class="error-text">{{ form.contract_type.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.years_of_experience %}
-                <div class="employee-field">
-                    <label for="{{ form.years_of_experience.id_for_label }}">{{ form.years_of_experience.label }}</label>
-                    {{ form.years_of_experience }}
-                    {% if form.years_of_experience.errors %}
-                        <div class="error-text">{{ form.years_of_experience.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.education_level %}
-                <div class="employee-field">
-                    <label for="{{ form.education_level.id_for_label }}">{{ form.education_level.label }}</label>
-                    {{ form.education_level }}
-                    {% if form.education_level.errors %}
-                        <div class="error-text">{{ form.education_level.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.diploma %}
-                <div class="employee-field">
-                    <label for="{{ form.diploma.id_for_label }}">{{ form.diploma.label }}</label>
-                    {{ form.diploma }}
-                    {% if form.diploma.errors %}
-                        <div class="error-text">{{ form.diploma.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.contract_document %}
-                <div class="employee-field">
-                    <label for="{{ form.contract_document.id_for_label }}">{{ form.contract_document.label }}</label>
-                    {{ form.contract_document }}
-                    {% if form.contract_document.errors %}
-                        <div class="error-text">{{ form.contract_document.errors|striptags }}</div>
-                    {% endif %}
-                    <div class="help-text">PDF, DOC ou image. Optionnel.</div>
-                </div>
-                {% endif %}
-            </div>
-        </section>
-
-        <!-- SECTION 4 : CONTACTS & RÉSEAUX -->
-        <section class="employee-section" id="section-contacts">
-            <div class="employee-section-header">
-                <h2 class="employee-section-title">
-                    <span class="icon"><i class="ph ph-chat-circle-dots"></i></span>
-                    Contacts & réseaux sociaux
-                </h2>
-                <p class="employee-section-desc">
-                    Informations de contact professionnelles et profils sociaux.
-                </p>
-            </div>
-
-            <div class="employee-fields-grid">
-                {% if form.linkedin_url %}
-                <div class="employee-field">
-                    <label for="{{ form.linkedin_url.id_for_label }}">{{ form.linkedin_url.label }}</label>
-                    {{ form.linkedin_url }}
-                    {% if form.linkedin_url.errors %}
-                        <div class="error-text">{{ form.linkedin_url.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.facebook_url %}
-                <div class="employee-field">
-                    <label for="{{ form.facebook_url.id_for_label }}">{{ form.facebook_url.label }}</label>
-                    {{ form.facebook_url }}
-                    {% if form.facebook_url.errors %}
-                        <div class="error-text">{{ form.facebook_url.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.twitter_url %}
-                <div class="employee-field">
-                    <label for="{{ form.twitter_url.id_for_label }}">{{ form.twitter_url.label }}</label>
-                    {{ form.twitter_url }}
-                    {% if form.twitter_url.errors %}
-                        <div class="error-text">{{ form.twitter_url.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.instagram_url %}
-                <div class="employee-field">
-                    <label for="{{ form.instagram_url.id_for_label }}">{{ form.instagram_url.label }}</label>
-                    {{ form.instagram_url }}
-                    {% if form.instagram_url.errors %}
-                        <div class="error-text">{{ form.instagram_url.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
-        </section>
-
-        <!-- SECTION 5 : DONNÉES ADMINISTRATIVES -->
-        <section class="employee-section" id="section-admin">
-            <div class="employee-section-header">
-                <h2 class="employee-section-title">
-                    <span class="icon"><i class="ph ph-buildings"></i></span>
-                    Données administratives
-                </h2>
-                <p class="employee-section-desc">
-                    Dates clés et rattachement hiérarchique.
-                </p>
-            </div>
-
-            <div class="employee-fields-grid">
-                {% if form.hire_date %}
-                <div class="employee-field">
-                    <label for="{{ form.hire_date.id_for_label }}">{{ form.hire_date.label }}</label>
-                    {{ form.hire_date }}
-                    {% if form.hire_date.errors %}
-                        <div class="error-text">{{ form.hire_date.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.contract_end_date %}
-                <div class="employee-field">
-                    <label for="{{ form.contract_end_date.id_for_label }}">{{ form.contract_end_date.label }}</label>
-                    {{ form.contract_end_date }}
-                    {% if form.contract_end_date.errors %}
-                        <div class="error-text">{{ form.contract_end_date.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                {% if form.manager %}
-                <div class="employee-field">
-                    <label for="{{ form.manager.id_for_label }}">{{ form.manager.label }}</label>
-                    {{ form.manager }}
-                    {% if form.manager.errors %}
-                        <div class="error-text">{{ form.manager.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
-        </section>
-
-        <div class="employee-form-footer">
-            <a href="{% url 'dashboard:employees_list' %}" class="btn btn-secondary">Annuler</a>
-            <button type="submit" class="btn btn-primary">
-                {% if employee %}Mettre à jour{% else %}Créer l'employé{% endif %}
+    <!-- LAYOUT 2 COLONNES -->
+    <div class="form-layout">
+        <!-- NAVIGATION SIDEBAR -->
+        <nav class="form-nav">
+            <div class="form-nav-title">Sections</div>
+            
+            <button type="button" class="form-nav-item active" data-target="#section-compte">
+                <i class="ph ph-user-circle"></i>
+                <span>Compte & rôle</span>
+                <span class="nav-badge"></span>
             </button>
-        </div>
-    </form>
-</div>
+            <button type="button" class="form-nav-item" data-target="#section-personnel">
+                <i class="ph ph-identification-card"></i>
+                <span>Personnel</span>
+                <span class="nav-badge"></span>
+            </button>
+            <button type="button" class="form-nav-item" data-target="#section-contrat">
+                <i class="ph ph-briefcase"></i>
+                <span>Contrat</span>
+                <span class="nav-badge"></span>
+            </button>
+            <button type="button" class="form-nav-item" data-target="#section-contacts">
+                <i class="ph ph-share-network"></i>
+                <span>Réseaux</span>
+                <span class="nav-badge"></span>
+            </button>
+            <button type="button" class="form-nav-item" data-target="#section-admin">
+                <i class="ph ph-buildings"></i>
+                <span>Admin</span>
+                <span class="nav-badge"></span>
+            </button>
 
+            <!-- Progress -->
+            <div class="form-nav-progress">
+                <div class="progress-header">
+                    <span class="progress-label">Progression</span>
+                    <span class="progress-value" id="progressValue">0%</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progressBar" style="width: 0%;"></div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- FORMULAIRE -->
+        <form method="post" enctype="multipart/form-data" class="form-content" id="employeeForm">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert-box">
+                    <i class="ph ph-warning-circle"></i>
+                    <div class="alert-box-content">
+                        {{ form.non_field_errors }}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- SECTION 1 : COMPTE & RÔLE -->
+            <section class="form-section active" id="section-compte">
+                <div class="section-header">
+                    <div class="section-header-left">
+                        <div class="section-icon">
+                            <i class="ph ph-user-circle"></i>
+                        </div>
+                        <div class="section-info">
+                            <h3>Compte & rôle</h3>
+                            <p>Identité de connexion et droits système</p>
+                        </div>
+                    </div>
+                    <button type="button" class="section-toggle-btn">
+                        <i class="ph ph-caret-down"></i>
+                    </button>
+                </div>
+
+                <div class="section-body">
+                    <div class="fields-grid">
+                        {% if form.username %}
+                        <div class="field-group {% if form.username.errors %}has-error{% endif %}">
+                            <label for="{{ form.username.id_for_label }}">
+                                {{ form.username.label }} <span class="required-mark">*</span>
+                            </label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <span class="field-error">{{ form.username.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.email %}
+                        <div class="field-group {% if form.email.errors %}has-error{% endif %}">
+                            <label for="{{ form.email.id_for_label }}">
+                                {{ form.email.label }} <span class="required-mark">*</span>
+                            </label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <span class="field-error">{{ form.email.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.first_name %}
+                        <div class="field-group {% if form.first_name.errors %}has-error{% endif %}">
+                            <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <span class="field-error">{{ form.first_name.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.last_name %}
+                        <div class="field-group {% if form.last_name.errors %}has-error{% endif %}">
+                            <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <span class="field-error">{{ form.last_name.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.phone %}
+                        <div class="field-group {% if form.phone.errors %}has-error{% endif %}">
+                            <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}
+                                <span class="field-error">{{ form.phone.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.role %}
+                        <div class="field-group {% if form.role.errors %}has-error{% endif %}">
+                            <label for="{{ form.role.id_for_label }}">{{ form.role.label }}</label>
+                            {{ form.role }}
+                            {% if form.role.errors %}
+                                <span class="field-error">{{ form.role.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.password1 %}
+                        <div class="field-group {% if form.password1.errors %}has-error{% endif %}">
+                            <label for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}
+                                <span class="field-error">{{ form.password1.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.password2 %}
+                        <div class="field-group {% if form.password2.errors %}has-error{% endif %}">
+                            <label for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}
+                                <span class="field-error">{{ form.password2.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="checkbox-group">
+                        {% if form.is_staff %}
+                        <label class="checkbox-item">
+                            {{ form.is_staff }}
+                            <span>{{ form.is_staff.label }}</span>
+                        </label>
+                        {% endif %}
+                        {% if form.is_employee %}
+                        <label class="checkbox-item">
+                            {{ form.is_employee }}
+                            <span>{{ form.is_employee.label }}</span>
+                        </label>
+                        {% endif %}
+                        {% if form.is_active %}
+                        <label class="checkbox-item">
+                            {{ form.is_active }}
+                            <span>{{ form.is_active.label }}</span>
+                        </label>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2 : DONNÉES PERSONNELLES -->
+            <section class="form-section" id="section-personnel">
+                <div class="section-header">
+                    <div class="section-header-left">
+                        <div class="section-icon">
+                            <i class="ph ph-identification-card"></i>
+                        </div>
+                        <div class="section-info">
+                            <h3>Données personnelles</h3>
+                            <p>État civil et localisation</p>
+                        </div>
+                    </div>
+                    <button type="button" class="section-toggle-btn">
+                        <i class="ph ph-caret-down"></i>
+                    </button>
+                </div>
+
+                <div class="section-body">
+                    <div class="fields-grid">
+                        {% if form.position %}
+                        <div class="field-group {% if form.position.errors %}has-error{% endif %}">
+                            <label for="{{ form.position.id_for_label }}">{{ form.position.label }}</label>
+                            {{ form.position }}
+                            {% if form.position.errors %}
+                                <span class="field-error">{{ form.position.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.gender %}
+                        <div class="field-group {% if form.gender.errors %}has-error{% endif %}">
+                            <label for="{{ form.gender.id_for_label }}">{{ form.gender.label }}</label>
+                            {{ form.gender }}
+                            {% if form.gender.errors %}
+                                <span class="field-error">{{ form.gender.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.date_of_birth %}
+                        <div class="field-group {% if form.date_of_birth.errors %}has-error{% endif %}">
+                            <label for="{{ form.date_of_birth.id_for_label }}">{{ form.date_of_birth.label }}</label>
+                            {{ form.date_of_birth }}
+                            {% if form.date_of_birth.errors %}
+                                <span class="field-error">{{ form.date_of_birth.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.city %}
+                        <div class="field-group {% if form.city.errors %}has-error{% endif %}">
+                            <label for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
+                            {{ form.city }}
+                            {% if form.city.errors %}
+                                <span class="field-error">{{ form.city.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.address %}
+                        <div class="field-group full-width {% if form.address.errors %}has-error{% endif %}">
+                            <label for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                                <span class="field-error">{{ form.address.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3 : CONTRAT -->
+            <section class="form-section" id="section-contrat">
+                <div class="section-header">
+                    <div class="section-header-left">
+                        <div class="section-icon">
+                            <i class="ph ph-briefcase"></i>
+                        </div>
+                        <div class="section-info">
+                            <h3>Informations contractuelles</h3>
+                            <p>Contrat, salaire et parcours</p>
+                        </div>
+                    </div>
+                    <button type="button" class="section-toggle-btn">
+                        <i class="ph ph-caret-down"></i>
+                    </button>
+                </div>
+
+                <div class="section-body">
+                    <div class="fields-grid">
+                        {% if form.contract_type %}
+                        <div class="field-group {% if form.contract_type.errors %}has-error{% endif %}">
+                            <label for="{{ form.contract_type.id_for_label }}">{{ form.contract_type.label }}</label>
+                            {{ form.contract_type }}
+                            {% if form.contract_type.errors %}
+                                <span class="field-error">{{ form.contract_type.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.salary %}
+                        <div class="field-group {% if form.salary.errors %}has-error{% endif %}">
+                            <label for="{{ form.salary.id_for_label }}">{{ form.salary.label }}</label>
+                            {{ form.salary }}
+                            {% if form.salary.errors %}
+                                <span class="field-error">{{ form.salary.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.years_of_experience %}
+                        <div class="field-group {% if form.years_of_experience.errors %}has-error{% endif %}">
+                            <label for="{{ form.years_of_experience.id_for_label }}">{{ form.years_of_experience.label }}</label>
+                            {{ form.years_of_experience }}
+                            {% if form.years_of_experience.errors %}
+                                <span class="field-error">{{ form.years_of_experience.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.education_level %}
+                        <div class="field-group {% if form.education_level.errors %}has-error{% endif %}">
+                            <label for="{{ form.education_level.id_for_label }}">{{ form.education_level.label }}</label>
+                            {{ form.education_level }}
+                            {% if form.education_level.errors %}
+                                <span class="field-error">{{ form.education_level.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.diploma %}
+                        <div class="field-group {% if form.diploma.errors %}has-error{% endif %}">
+                            <label for="{{ form.diploma.id_for_label }}">{{ form.diploma.label }}</label>
+                            {{ form.diploma }}
+                            {% if form.diploma.errors %}
+                                <span class="field-error">{{ form.diploma.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.contract_document %}
+                        <div class="field-group {% if form.contract_document.errors %}has-error{% endif %}">
+                            <label for="{{ form.contract_document.id_for_label }}">{{ form.contract_document.label }}</label>
+                            {{ form.contract_document }}
+                            {% if form.contract_document.errors %}
+                                <span class="field-error">{{ form.contract_document.errors|striptags }}</span>
+                            {% endif %}
+                            <span class="field-help">
+                                <i class="ph ph-info"></i>
+                                PDF, DOC ou image (optionnel)
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4 : RÉSEAUX SOCIAUX -->
+            <section class="form-section" id="section-contacts">
+                <div class="section-header">
+                    <div class="section-header-left">
+                        <div class="section-icon">
+                            <i class="ph ph-share-network"></i>
+                        </div>
+                        <div class="section-info">
+                            <h3>Réseaux sociaux</h3>
+                            <p>Profils et contacts en ligne</p>
+                        </div>
+                    </div>
+                    <button type="button" class="section-toggle-btn">
+                        <i class="ph ph-caret-down"></i>
+                    </button>
+                </div>
+
+                <div class="section-body">
+                    <div class="fields-grid">
+                        {% if form.linkedin_url %}
+                        <div class="field-group {% if form.linkedin_url.errors %}has-error{% endif %}">
+                            <label for="{{ form.linkedin_url.id_for_label }}">
+                                <i class="ph ph-linkedin-logo"></i> {{ form.linkedin_url.label }}
+                            </label>
+                            {{ form.linkedin_url }}
+                            {% if form.linkedin_url.errors %}
+                                <span class="field-error">{{ form.linkedin_url.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.facebook_url %}
+                        <div class="field-group {% if form.facebook_url.errors %}has-error{% endif %}">
+                            <label for="{{ form.facebook_url.id_for_label }}">
+                                <i class="ph ph-facebook-logo"></i> {{ form.facebook_url.label }}
+                            </label>
+                            {{ form.facebook_url }}
+                            {% if form.facebook_url.errors %}
+                                <span class="field-error">{{ form.facebook_url.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.twitter_url %}
+                        <div class="field-group {% if form.twitter_url.errors %}has-error{% endif %}">
+                            <label for="{{ form.twitter_url.id_for_label }}">
+                                <i class="ph ph-twitter-logo"></i> {{ form.twitter_url.label }}
+                            </label>
+                            {{ form.twitter_url }}
+                            {% if form.twitter_url.errors %}
+                                <span class="field-error">{{ form.twitter_url.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.instagram_url %}
+                        <div class="field-group {% if form.instagram_url.errors %}has-error{% endif %}">
+                            <label for="{{ form.instagram_url.id_for_label }}">
+                                <i class="ph ph-instagram-logo"></i> {{ form.instagram_url.label }}
+                            </label>
+                            {{ form.instagram_url }}
+                            {% if form.instagram_url.errors %}
+                                <span class="field-error">{{ form.instagram_url.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 5 : ADMIN -->
+            <section class="form-section" id="section-admin">
+                <div class="section-header">
+                    <div class="section-header-left">
+                        <div class="section-icon">
+                            <i class="ph ph-buildings"></i>
+                        </div>
+                        <div class="section-info">
+                            <h3>Données administratives</h3>
+                            <p>Dates et hiérarchie</p>
+                        </div>
+                    </div>
+                    <button type="button" class="section-toggle-btn">
+                        <i class="ph ph-caret-down"></i>
+                    </button>
+                </div>
+
+                <div class="section-body">
+                    <div class="fields-grid">
+                        {% if form.hire_date %}
+                        <div class="field-group {% if form.hire_date.errors %}has-error{% endif %}">
+                            <label for="{{ form.hire_date.id_for_label }}">{{ form.hire_date.label }}</label>
+                            {{ form.hire_date }}
+                            {% if form.hire_date.errors %}
+                                <span class="field-error">{{ form.hire_date.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.contract_end_date %}
+                        <div class="field-group {% if form.contract_end_date.errors %}has-error{% endif %}">
+                            <label for="{{ form.contract_end_date.id_for_label }}">{{ form.contract_end_date.label }}</label>
+                            {{ form.contract_end_date }}
+                            {% if form.contract_end_date.errors %}
+                                <span class="field-error">{{ form.contract_end_date.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.manager %}
+                        <div class="field-group full-width {% if form.manager.errors %}has-error{% endif %}">
+                            <label for="{{ form.manager.id_for_label }}">{{ form.manager.label }}</label>
+                            {{ form.manager }}
+                            {% if form.manager.errors %}
+                                <span class="field-error">{{ form.manager.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- ACTIONS -->
+            <div class="form-actions">
+                <div class="actions-hint">
+                    <i class="ph ph-keyboard"></i>
+                    <span>Raccourci : <kbd>Ctrl</kbd> + <kbd>Enter</kbd> pour sauvegarder</span>
+                </div>
+                <div class="actions-buttons">
+                    <a href="{% url 'dashboard:employees_list' %}" class="btn btn-cancel">
+                        <i class="ph ph-x"></i>
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn btn-submit">
+                        <i class="ph-bold {% if employee %}ph-check{% else %}ph-plus{% endif %}"></i>
+                        {% if employee %}Mettre à jour{% else %}Créer l'employé{% endif %}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Gestion des onglets
-    const tabs = document.querySelectorAll('.employee-form-tab');
-    const sections = document.querySelectorAll('.employee-section');
+    const form = document.getElementById('employeeForm');
+    const navItems = document.querySelectorAll('.form-nav-item');
+    const sections = document.querySelectorAll('.form-section');
+    const progressBar = document.getElementById('progressBar');
+    const progressValue = document.getElementById('progressValue');
 
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const target = document.querySelector(tab.dataset.target);
+    // ==================== NAVIGATION ====================
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const target = document.querySelector(item.dataset.target);
             if (!target) return;
 
-            tabs.forEach(t => t.classList.remove('active'));
-            sections.forEach(s => s.classList.remove('active'));
+            // Update nav
+            navItems.forEach(n => n.classList.remove('active'));
+            item.classList.add('active');
 
-            tab.classList.add('active');
+            // Update sections
+            sections.forEach(s => s.classList.remove('active'));
             target.classList.add('active');
 
-            // Scroll doux vers la section
-            const y = target.getBoundingClientRect().top + window.scrollY - 80;
+            // Scroll
+            const y = target.getBoundingClientRect().top + window.scrollY - 100;
             window.scrollTo({ top: y, behavior: 'smooth' });
         });
     });
 
-    // Highlight de la section contenant le champ focus
-    sections.forEach(section => {
-        section.addEventListener('focusin', () => {
+    // ==================== TOGGLE SECTIONS ====================
+    document.querySelectorAll('.section-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            btn.closest('.form-section').classList.toggle('collapsed');
+        });
+    });
+
+    // ==================== CLICK HEADER TO ACTIVATE ====================
+    document.querySelectorAll('.section-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const section = header.closest('.form-section');
             sections.forEach(s => s.classList.remove('active'));
             section.classList.add('active');
+
+            // Update nav
+            const sectionId = section.id;
+            navItems.forEach(n => {
+                if (n.dataset.target === '#' + sectionId) {
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    n.classList.add('active');
+                }
+            });
         });
+    });
+
+    // ==================== FOCUS TRACKING ====================
+    form.querySelectorAll('input, select, textarea').forEach(input => {
+        input.addEventListener('focus', () => {
+            const section = input.closest('.form-section');
+            if (section) {
+                sections.forEach(s => s.classList.remove('active'));
+                section.classList.add('active');
+
+                const sectionId = section.id;
+                navItems.forEach(n => {
+                    if (n.dataset.target === '#' + sectionId) {
+                        navItems.forEach(nav => nav.classList.remove('active'));
+                        n.classList.add('active');
+                    }
+                });
+            }
+        });
+    });
+
+    // ==================== PROGRESS ====================
+    function updateProgress() {
+        const inputs = form.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"]), select, textarea');
+        let filled = 0;
+
+        inputs.forEach(input => {
+            if (input.value && input.value.trim() !== '') {
+                filled++;
+            }
+        });
+
+        const percentage = Math.round((filled / inputs.length) * 100);
+        progressBar.style.width = percentage + '%';
+        progressValue.textContent = percentage + '%';
+
+        // Check section completion
+        navItems.forEach(navItem => {
+            const targetId = navItem.dataset.target;
+            const section = document.querySelector(targetId);
+            if (!section) return;
+
+            const sectionInputs = section.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"]), select, textarea');
+            let sectionFilled = 0;
+
+            sectionInputs.forEach(input => {
+                if (input.value && input.value.trim() !== '') {
+                    sectionFilled++;
+                }
+            });
+
+            if (sectionInputs.length > 0 && sectionFilled === sectionInputs.length) {
+                navItem.classList.add('completed');
+            } else {
+                navItem.classList.remove('completed');
+            }
+        });
+    }
+
+    form.addEventListener('input', updateProgress);
+    form.addEventListener('change', updateProgress);
+    updateProgress();
+
+    // ==================== KEYBOARD SHORTCUT ====================
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            form.submit();
+        }
     });
 });
 </script>
-
 {% endblock %}

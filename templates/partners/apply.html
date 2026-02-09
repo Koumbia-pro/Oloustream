@@ -1,0 +1,1386 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Postuler comme Partenaire - Oloustream{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================
+       FORMULAIRE PARFAIT - COMPLET
+       Simple • Lisible • Spacieux • Professionnel
+       ============================================ */
+    
+    .partner-application {
+        background: linear-gradient(180deg, var(--dark) 0%, #0a0a12 100%);
+        min-height: 100vh;
+        padding: 50px 0 100px;
+    }
+
+    /* ============================================
+       HEADER
+       ============================================ */
+    .page-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .page-icon {
+        width: 90px;
+        height: 90px;
+        background: linear-gradient(135deg, var(--red) 0%, var(--gold) 100%);
+        border-radius: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 25px;
+        box-shadow: 0 15px 40px rgba(230, 0, 0, 0.35);
+    }
+
+    .page-icon i {
+        font-size: 2.2rem;
+        color: white;
+    }
+
+    .page-title {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--white);
+        margin-bottom: 12px;
+    }
+
+    .page-subtitle {
+        color: var(--gray-400);
+        font-size: 1.05rem;
+        max-width: 450px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    /* ============================================
+       FORM CARD
+       ============================================ */
+    .form-card {
+        background: rgba(255, 255, 255, 0.025);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 28px;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+    }
+
+    .form-card-body {
+        padding: 55px 50px;
+    }
+
+    /* ============================================
+       SECTIONS
+       ============================================ */
+    .form-section {
+        margin-bottom: 50px;
+        padding-bottom: 45px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .form-section:last-of-type {
+        border-bottom: none;
+        margin-bottom: 35px;
+        padding-bottom: 0;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        margin-bottom: 30px;
+    }
+
+    .section-icon {
+        width: 52px;
+        height: 52px;
+        background: linear-gradient(135deg, rgba(230, 0, 0, 0.15) 0%, rgba(245, 158, 11, 0.08) 100%);
+        border: 1px solid rgba(230, 0, 0, 0.2);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .section-icon i {
+        font-size: 1.25rem;
+        color: var(--red);
+    }
+
+    .section-info {
+        flex: 1;
+    }
+
+    .section-title {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: var(--white);
+        margin: 0 0 4px 0;
+    }
+
+    .section-desc {
+        font-size: 0.9rem;
+        color: var(--gray-400);
+        margin: 0;
+    }
+
+    /* ============================================
+       FORM CONTROLS - BASE
+       ============================================ */
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        color: var(--white);
+        margin-bottom: 12px;
+        font-size: 0.95rem;
+    }
+
+    .form-label i {
+        color: var(--red);
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .form-label .required {
+        color: var(--gold);
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-left: 2px;
+    }
+
+    /* ============================================
+       INPUT TEXT - GRAND & LISIBLE
+       ============================================ */
+    .form-control {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.06) !important;
+        border: 2px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 14px !important;
+        padding: 16px 20px !important;
+        color: #ffffff !important;
+        font-size: 1rem !important;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.4) !important;
+        font-weight: 400;
+    }
+
+    .form-control:hover {
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .form-control:focus {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-color: var(--red) !important;
+        box-shadow: 0 0 0 4px rgba(230, 0, 0, 0.15) !important;
+        outline: none !important;
+    }
+
+    /* Textarea */
+    textarea.form-control {
+        min-height: 130px;
+        resize: vertical;
+        line-height: 1.7;
+    }
+
+    /* ============================================
+       SELECT - CORRIGÉ & TRÈS LISIBLE
+       ============================================ */
+    .select-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .select-wrapper::after {
+        content: '';
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 8px solid #ffffff;
+        pointer-events: none;
+        z-index: 2;
+    }
+
+    .form-select,
+    .select-wrapper select {
+        width: 100%;
+        padding: 16px 50px 16px 20px !important;
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+        color: #ffffff !important;
+        background-color: rgba(255, 255, 255, 0.06) !important;
+        border: 2px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 14px !important;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        
+        /* Supprimer apparence par défaut */
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        background-image: none !important;
+    }
+
+    .form-select:hover,
+    .select-wrapper select:hover {
+        border-color: rgba(255, 255, 255, 0.25) !important;
+        background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .form-select:focus,
+    .select-wrapper select:focus {
+        outline: none !important;
+        border-color: var(--red) !important;
+        background-color: rgba(255, 255, 255, 0.12) !important;
+        box-shadow: 0 0 0 4px rgba(230, 0, 0, 0.15) !important;
+    }
+
+    /* OPTIONS DU SELECT - TRÈS LISIBLES */
+    .form-select option,
+    .select-wrapper select option {
+        background-color: #1a1a2e !important;
+        color: #ffffff !important;
+        padding: 14px 20px !important;
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+        line-height: 1.5;
+    }
+
+    .form-select option:hover,
+    .select-wrapper select option:hover {
+        background-color: #2a2a3e !important;
+    }
+
+    .form-select option:checked,
+    .select-wrapper select option:checked {
+        background-color: var(--red) !important;
+        color: #ffffff !important;
+    }
+
+    .form-select option:disabled,
+    .select-wrapper select option:disabled,
+    .form-select option[value=""],
+    .select-wrapper select option[value=""] {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    /* Force la couleur du texte sur tous les navigateurs */
+    .form-select,
+    .select-wrapper select {
+        -webkit-text-fill-color: #ffffff !important;
+    }
+
+    .form-select option,
+    .select-wrapper select option {
+        -webkit-text-fill-color: #ffffff !important;
+    }
+
+    /* ============================================
+       FILE UPLOAD
+       ============================================ */
+    .file-upload {
+        position: relative;
+    }
+
+    .file-upload-area {
+        background: rgba(255, 255, 255, 0.04);
+        border: 2px dashed rgba(255, 255, 255, 0.15);
+        border-radius: 14px;
+        padding: 30px 25px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .file-upload-area:hover {
+        border-color: var(--red);
+        background: rgba(230, 0, 0, 0.05);
+    }
+
+    .file-upload-area i {
+        font-size: 2rem;
+        color: var(--red);
+        margin-bottom: 12px;
+        display: block;
+    }
+
+    .file-upload-text {
+        color: var(--gray-200);
+        font-size: 0.95rem;
+        margin-bottom: 5px;
+    }
+
+    .file-upload-text span {
+        color: var(--red);
+        font-weight: 600;
+    }
+
+    .file-upload-hint {
+        color: var(--gray-400);
+        font-size: 0.85rem;
+    }
+
+    .file-upload input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .file-upload-area.file-selected {
+        border-color: #22C55E;
+        border-style: solid;
+        background: rgba(34, 197, 94, 0.05);
+    }
+
+    .file-upload-area.file-selected i {
+        color: #22C55E;
+    }
+
+    /* ============================================
+       FORM HINT
+       ============================================ */
+    .form-hint {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-top: 10px;
+        padding: 10px 14px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 10px;
+        border-left: 3px solid rgba(245, 158, 11, 0.5);
+    }
+
+    .form-hint i {
+        color: var(--gold);
+        font-size: 0.85rem;
+        margin-top: 2px;
+    }
+
+    .form-hint span {
+        color: var(--gray-400);
+        font-size: 0.88rem;
+        line-height: 1.5;
+    }
+
+    /* ============================================
+       ERROR MESSAGES
+       ============================================ */
+    .error-message {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+        padding: 12px 15px;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 10px;
+        color: #FCA5A5;
+        font-size: 0.9rem;
+    }
+
+    .error-message i {
+        color: #EF4444;
+        font-size: 1rem;
+    }
+
+    .global-error {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 20px;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        border-radius: 14px;
+        margin-bottom: 35px;
+    }
+
+    .global-error i {
+        color: #EF4444;
+        font-size: 1.4rem;
+        margin-top: 2px;
+    }
+
+    .global-error span {
+        color: #FCA5A5;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    /* ============================================
+       TERMS SECTION
+       ============================================ */
+    .terms-section {
+        background: linear-gradient(135deg, rgba(230, 0, 0, 0.08) 0%, rgba(245, 158, 11, 0.04) 100%);
+        border: 1px solid rgba(230, 0, 0, 0.2);
+        border-radius: 18px;
+        padding: 28px;
+        margin: 40px 0 35px;
+    }
+
+    .terms-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+    .terms-header i {
+        color: var(--red);
+        font-size: 1.2rem;
+    }
+
+    .terms-header span {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--white);
+    }
+
+    .terms-check {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 18px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .terms-check:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .terms-check input[type="checkbox"] {
+        width: 24px;
+        height: 24px;
+        min-width: 24px;
+        margin: 0;
+        accent-color: var(--red);
+        cursor: pointer;
+        border-radius: 6px;
+    }
+
+    .terms-check-label {
+        color: var(--gray-200);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        cursor: pointer;
+    }
+
+    .terms-check-label a {
+        color: var(--red);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .terms-check-label a:hover {
+        color: var(--gold);
+        text-decoration: underline;
+    }
+
+    /* ============================================
+       SUBMIT BUTTON
+       ============================================ */
+    .submit-section {
+        text-align: center;
+    }
+
+    .btn-submit {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 100%;
+        max-width: 400px;
+        padding: 20px 40px;
+        background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+        border: none;
+        border-radius: 14px;
+        color: white;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 35px rgba(230, 0, 0, 0.35);
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 45px rgba(230, 0, 0, 0.45);
+    }
+
+    .btn-submit:active {
+        transform: translateY(-1px);
+    }
+
+    .btn-submit i {
+        font-size: 1.15rem;
+    }
+
+    .btn-submit.loading {
+        opacity: 0.8;
+        pointer-events: none;
+    }
+
+    .submit-note {
+        margin-top: 20px;
+        color: var(--gray-400);
+        font-size: 0.88rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .submit-note i {
+        color: #22C55E;
+    }
+
+    /* ============================================
+       HELP SECTION
+       ============================================ */
+    .help-section {
+        text-align: center;
+        margin-top: 45px;
+        padding: 25px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .help-section p {
+        color: var(--gray-400);
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
+    .help-section a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 12px;
+        padding: 12px 25px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50px;
+        color: var(--white);
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .help-section a i {
+        color: var(--red);
+    }
+
+    .help-section a:hover {
+        background: rgba(230, 0, 0, 0.1);
+        border-color: var(--red);
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 991px) {
+        .form-card-body {
+            padding: 40px 35px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .partner-application {
+            padding: 35px 0 70px;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+        }
+
+        .page-icon {
+            width: 75px;
+            height: 75px;
+        }
+
+        .page-icon i {
+            font-size: 1.8rem;
+        }
+
+        .form-card-body {
+            padding: 30px 22px;
+        }
+
+        .section-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 12px;
+        }
+
+        .section-info {
+            text-align: center;
+        }
+
+        .form-control,
+        .form-select,
+        .select-wrapper select {
+            padding: 14px 16px !important;
+            font-size: 0.95rem !important;
+        }
+
+        .select-wrapper select {
+            padding-right: 45px !important;
+        }
+
+        .btn-submit {
+            width: 100%;
+            max-width: none;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .form-card-body {
+            padding: 25px 18px;
+        }
+
+        .form-section {
+            margin-bottom: 35px;
+            padding-bottom: 30px;
+        }
+
+        .section-icon {
+            width: 48px;
+            height: 48px;
+        }
+
+        .section-icon i {
+            font-size: 1.1rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+        }
+
+        .terms-section {
+            padding: 22px 18px;
+        }
+
+        .terms-check {
+            padding: 14px;
+            gap: 12px;
+        }
+
+        .terms-check input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            min-width: 22px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="partner-application">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-xl-8">
+                
+                <!-- Header -->
+                <div class="page-header">
+                    <div class="page-icon">
+                        <i class="fa-solid fa-handshake"></i>
+                    </div>
+                    <h1 class="page-title">Candidature Partenaire</h1>
+                    <p class="page-subtitle">
+                        Rejoignez notre réseau et développez vos revenus avec Oloustream
+                    </p>
+                </div>
+
+                <!-- Form Card -->
+                <div class="form-card">
+                    <div class="form-card-body">
+                        <form method="post" enctype="multipart/form-data" id="partnerForm">
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                            <div class="global-error">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <div>
+                                    {% for error in form.non_field_errors %}
+                                        <span>{{ error }}</span><br>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- ==============================
+                                 SECTION 1: INFORMATIONS PERSONNELLES
+                                 ============================== -->
+                            <div class="form-section">
+                                <div class="section-header">
+                                    <div class="section-icon">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+                                    <div class="section-info">
+                                        <h4 class="section-title">Informations personnelles</h4>
+                                        <p class="section-desc">Vos coordonnées de contact</p>
+                                    </div>
+                                </div>
+
+                                <div class="row g-4">
+                                    <!-- Nom Complet -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label" for="{{ form.full_name.id_for_label }}">
+                                                <i class="fa-solid fa-user-pen"></i>
+                                                {{ form.full_name.label }}
+                                                {% if form.full_name.field.required %}<span class="required">*</span>{% endif %}
+                                            </label>
+                                            {{ form.full_name }}
+                                            {% if form.full_name.errors %}
+                                            <div class="error-message">
+                                                <i class="fa-solid fa-circle-exclamation"></i>
+                                                <span>{{ form.full_name.errors.0 }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Téléphone -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label" for="{{ form.phone.id_for_label }}">
+                                                <i class="fa-solid fa-phone"></i>
+                                                {{ form.phone.label }}
+                                                {% if form.phone.field.required %}<span class="required">*</span>{% endif %}
+                                            </label>
+                                            {{ form.phone }}
+                                            {% if form.phone.errors %}
+                                            <div class="error-message">
+                                                <i class="fa-solid fa-circle-exclamation"></i>
+                                                <span>{{ form.phone.errors.0 }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Email -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label" for="{{ form.email.id_for_label }}">
+                                                <i class="fa-solid fa-envelope"></i>
+                                                {{ form.email.label }}
+                                                {% if form.email.field.required %}<span class="required">*</span>{% endif %}
+                                            </label>
+                                            {{ form.email }}
+                                            {% if form.email.errors %}
+                                            <div class="error-message">
+                                                <i class="fa-solid fa-circle-exclamation"></i>
+                                                <span>{{ form.email.errors.0 }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <!-- WhatsApp -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label" for="{{ form.whatsapp.id_for_label }}">
+                                                <i class="fa-brands fa-whatsapp"></i>
+                                                {{ form.whatsapp.label }}
+                                                {% if form.whatsapp.field.required %}<span class="required">*</span>{% endif %}
+                                            </label>
+                                            {{ form.whatsapp }}
+                                            {% if form.whatsapp.errors %}
+                                            <div class="error-message">
+                                                <i class="fa-solid fa-circle-exclamation"></i>
+                                                <span>{{ form.whatsapp.errors.0 }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ==============================
+                                 SECTION 2: DOCUMENT D'IDENTITÉ
+                                 ============================== -->
+                            <div class="form-section">
+                                <div class="section-header">
+                                    <div class="section-icon">
+                                        <i class="fa-solid fa-id-card"></i>
+                                    </div>
+                                    <div class="section-info">
+                                        <h4 class="section-title">Document d'identité</h4>
+                                        <p class="section-desc">Pour vérification de votre identité</p>
+                                    </div>
+                                </div>
+
+                                <div class="row g-4">
+                                    <!-- Type de pièce -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label" for="{{ form.id_type.id_for_label }}">
+                                                <i class="fa-solid fa-file-lines"></i>
+                                                {{ form.id_type.label }}
+                                                {% if form.id_type.field.required %}<span class="required">*</span>{% endif %}
+                                            </label>
+                                            <div class="select-wrapper">
+                                                {{ form.id_type }}
+                                            </div>
+                                            {% if form.id_type.errors %}
+                                            <div class="error-message">
+                                                <i class="fa-solid fa-circle-exclamation"></i>
+                                                <span>{{ form.id_type.errors.0 }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Numéro de pièce -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label" for="{{ form.id_number.id_for_label }}">
+                                                <i class="fa-solid fa-hashtag"></i>
+                                                {{ form.id_number.label }}
+                                                {% if form.id_number.field.required %}<span class="required">*</span>{% endif %}
+                                            </label>
+                                            {{ form.id_number }}
+                                            {% if form.id_number.errors %}
+                                            <div class="error-message">
+                                                <i class="fa-solid fa-circle-exclamation"></i>
+                                                <span>{{ form.id_number.errors.0 }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Document uploadé -->
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label" for="{{ form.id_document.id_for_label }}">
+                                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                                {{ form.id_document.label }}
+                                                {% if not form.id_document.field.required %}(facultatif){% endif %}
+                                            </label>
+                                            <div class="file-upload" id="fileUpload">
+                                                <div class="file-upload-area">
+                                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                                    <p class="file-upload-text">
+                                                        Glissez votre fichier ici ou <span>cliquez pour parcourir</span>
+                                                    </p>
+                                                    <p class="file-upload-hint">PNG, JPG ou PDF • Maximum 5 Mo</p>
+                                                </div>
+                                                {{ form.id_document }}
+                                            </div>
+                                            {% if form.id_document.errors %}
+                                            <div class="error-message">
+                                                <i class="fa-solid fa-circle-exclamation"></i>
+                                                <span>{{ form.id_document.errors.0 }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ==============================
+                                 SECTION 3: LOCALISATION
+                                 ============================== -->
+                            <div class="form-section">
+                                <div class="section-header">
+                                    <div class="section-icon">
+                                        <i class="fa-solid fa-location-dot"></i>
+                                    </div>
+                                    <div class="section-info">
+                                        <h4 class="section-title">Localisation</h4>
+                                        <p class="section-desc">Votre zone géographique d'activité</p>
+                                    </div>
+                                </div>
+
+                                <div class="row g-4">
+                                    <!-- Ville -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label" for="{{ form.city.id_for_label }}">
+                                                <i class="fa-solid fa-city"></i>
+                                                {{ form.city.label }}
+                                                {% if form.city.field.required %}<span class="required">*</span>{% endif %}
+                                            </label>
+                                            <div class="select-wrapper">
+                                                {{ form.city }}
+                                            </div>
+                                            {% if form.city.errors %}
+                                            <div class="error-message">
+                                                <i class="fa-solid fa-circle-exclamation"></i>
+                                                <span>{{ form.city.errors.0 }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Adresse -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label" for="{{ form.address.id_for_label }}">
+                                                <i class="fa-solid fa-map-pin"></i>
+                                                {{ form.address.label }}
+                                                {% if form.address.field.required %}<span class="required">*</span>{% endif %}
+                                            </label>
+                                            {{ form.address }}
+                                            {% if form.address.errors %}
+                                            <div class="error-message">
+                                                <i class="fa-solid fa-circle-exclamation"></i>
+                                                <span>{{ form.address.errors.0 }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ==============================
+                                 SECTION 4: PROFIL PROFESSIONNEL
+                                 ============================== -->
+                            <div class="form-section">
+                                <div class="section-header">
+                                    <div class="section-icon">
+                                        <i class="fa-solid fa-briefcase"></i>
+                                    </div>
+                                    <div class="section-info">
+                                        <h4 class="section-title">Profil professionnel</h4>
+                                        <p class="section-desc">Votre parcours et expérience</p>
+                                    </div>
+                                </div>
+
+                                <div class="row g-4">
+                                    <!-- Activité actuelle -->
+                                    <div class="col-md-8">
+                                        <div class="form-group">
+                                            <label class="form-label" for="{{ form.current_activity.id_for_label }}">
+                                                <i class="fa-solid fa-user-tie"></i>
+                                                {{ form.current_activity.label }}
+                                                {% if form.current_activity.field.required %}<span class="required">*</span>{% endif %}
+                                            </label>
+                                            {{ form.current_activity }}
+                                            {% if form.current_activity.errors %}
+                                            <div class="error-message">
+                                                <i class="fa-solid fa-circle-exclamation"></i>
+                                                <span>{{ form.current_activity.errors.0 }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Années d'expérience -->
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="form-label" for="{{ form.experience_years.id_for_label }}">
+                                                <i class="fa-solid fa-calendar"></i>
+                                                {{ form.experience_years.label }}
+                                                {% if form.experience_years.field.required %}<span class="required">*</span>{% endif %}
+                                            </label>
+                                            {{ form.experience_years }}
+                                            {% if form.experience_years.errors %}
+                                            <div class="error-message">
+                                                <i class="fa-solid fa-circle-exclamation"></i>
+                                                <span>{{ form.experience_years.errors.0 }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ==============================
+                                 SECTION 5: RÉSEAU
+                                 ============================== -->
+                            <div class="form-section">
+                                <div class="section-header">
+                                    <div class="section-icon">
+                                        <i class="fa-solid fa-network-wired"></i>
+                                    </div>
+                                    <div class="section-info">
+                                        <h4 class="section-title">Réseau et compétences</h4>
+                                        <p class="section-desc">Votre force de prospection</p>
+                                    </div>
+                                </div>
+
+                                <!-- Force du réseau -->
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ form.network_strength.id_for_label }}">
+                                        <i class="fa-solid fa-chart-simple"></i>
+                                        {{ form.network_strength.label }}
+                                        {% if form.network_strength.field.required %}<span class="required">*</span>{% endif %}
+                                    </label>
+                                    <div class="select-wrapper">
+                                        {{ form.network_strength }}
+                                    </div>
+                                    {% if form.network_strength.errors %}
+                                    <div class="error-message">
+                                        <i class="fa-solid fa-circle-exclamation"></i>
+                                        <span>{{ form.network_strength.errors.0 }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Description du réseau -->
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ form.network_description.id_for_label }}">
+                                        <i class="fa-solid fa-diagram-project"></i>
+                                        {{ form.network_description.label }}
+                                        {% if form.network_description.field.required %}<span class="required">*</span>{% endif %}
+                                    </label>
+                                    {{ form.network_description }}
+                                    <div class="form-hint">
+                                        <i class="fa-solid fa-lightbulb"></i>
+                                        <span>Décrivez les institutions, entreprises et secteurs que vous connaissez bien</span>
+                                    </div>
+                                    {% if form.network_description.errors %}
+                                    <div class="error-message">
+                                        <i class="fa-solid fa-circle-exclamation"></i>
+                                        <span>{{ form.network_description.errors.0 }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Secteurs de compétence -->
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ form.sectors_knowledge.id_for_label }}">
+                                        <i class="fa-solid fa-layer-group"></i>
+                                        {{ form.sectors_knowledge.label }}
+                                        {% if form.sectors_knowledge.field.required %}<span class="required">*</span>{% endif %}
+                                    </label>
+                                    {{ form.sectors_knowledge }}
+                                    <div class="form-hint">
+                                        <i class="fa-solid fa-lightbulb"></i>
+                                        <span>Listez les secteurs d'activité dans lesquels vous avez des contacts</span>
+                                    </div>
+                                    {% if form.sectors_knowledge.errors %}
+                                    <div class="error-message">
+                                        <i class="fa-solid fa-circle-exclamation"></i>
+                                        <span>{{ form.sectors_knowledge.errors.0 }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- ==============================
+                                 SECTION 6: MOTIVATIONS
+                                 ============================== -->
+                            <div class="form-section">
+                                <div class="section-header">
+                                    <div class="section-icon">
+                                        <i class="fa-solid fa-heart"></i>
+                                    </div>
+                                    <div class="section-info">
+                                        <h4 class="section-title">Motivations</h4>
+                                        <p class="section-desc">Pourquoi souhaitez-vous nous rejoindre ?</p>
+                                    </div>
+                                </div>
+
+                                <!-- Pourquoi Oloustream -->
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ form.why_oloustream.id_for_label }}">
+                                        <i class="fa-solid fa-star"></i>
+                                        {{ form.why_oloustream.label }}
+                                        {% if form.why_oloustream.field.required %}<span class="required">*</span>{% endif %}
+                                    </label>
+                                    {{ form.why_oloustream }}
+                                    {% if form.why_oloustream.errors %}
+                                    <div class="error-message">
+                                        <i class="fa-solid fa-circle-exclamation"></i>
+                                        <span>{{ form.why_oloustream.errors.0 }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Disponibilité -->
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ form.availability.id_for_label }}">
+                                        <i class="fa-solid fa-clock"></i>
+                                        {{ form.availability.label }}
+                                        {% if form.availability.field.required %}<span class="required">*</span>{% endif %}
+                                    </label>
+                                    <div class="select-wrapper">
+                                        {{ form.availability }}
+                                    </div>
+                                    {% if form.availability.errors %}
+                                    <div class="error-message">
+                                        <i class="fa-solid fa-circle-exclamation"></i>
+                                        <span>{{ form.availability.errors.0 }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Références -->
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ form.references.id_for_label }}">
+                                        <i class="fa-solid fa-user-group"></i>
+                                        {{ form.references.label }}
+                                        {% if not form.references.field.required %}(facultatif){% endif %}
+                                    </label>
+                                    {{ form.references }}
+                                    <div class="form-hint">
+                                        <i class="fa-solid fa-lightbulb"></i>
+                                        <span>Ces informations nous aident à mieux vous connaître</span>
+                                    </div>
+                                    {% if form.references.errors %}
+                                    <div class="error-message">
+                                        <i class="fa-solid fa-circle-exclamation"></i>
+                                        <span>{{ form.references.errors.0 }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- ==============================
+                                 TERMS
+                                 ============================== -->
+                            <div class="terms-section">
+                                <div class="terms-header">
+                                    <i class="fa-solid fa-file-contract"></i>
+                                    <span>Conditions du programme</span>
+                                </div>
+                                <label class="terms-check" for="{{ form.terms_accepted.id_for_label }}">
+                                    {{ form.terms_accepted }}
+                                    <span class="terms-check-label">
+                                        {{ form.terms_accepted.label }}
+                                        et je m'engage à représenter dignement les valeurs d'Oloustream
+                                    </span>
+                                </label>
+                                {% if form.terms_accepted.errors %}
+                                <div class="error-message" style="margin-top: 12px;">
+                                    <i class="fa-solid fa-circle-exclamation"></i>
+                                    <span>{{ form.terms_accepted.errors.0 }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- ==============================
+                                 SUBMIT
+                                 ============================== -->
+                            <div class="submit-section">
+                                <button type="submit" class="btn-submit" id="submitBtn">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                    <span>Soumettre ma candidature</span>
+                                </button>
+                                <p class="submit-note">
+                                    <i class="fa-solid fa-shield-check"></i>
+                                    Vos données sont sécurisées et confidentielles
+                                </p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Help -->
+                <div class="help-section">
+                    <p>
+                        <i class="fa-solid fa-circle-question me-2"></i>
+                        Une question ? Besoin d'aide pour remplir le formulaire ?
+                    </p>
+                    <a href="tel:+22664093196">
+                        <i class="fa-solid fa-phone"></i>
+                        +226 64 09 31 96
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // ==============================
+    // FILE UPLOAD - Adapté pour Django
+    // ==============================
+    const fileUpload = document.getElementById('fileUpload');
+    if (fileUpload) {
+        const input = fileUpload.querySelector('input[type="file"]');
+        const area = fileUpload.querySelector('.file-upload-area');
+        const text = fileUpload.querySelector('.file-upload-text');
+        const hint = fileUpload.querySelector('.file-upload-hint');
+        const icon = fileUpload.querySelector('.file-upload-area > i');
+
+        // Style l'input file (caché mais fonctionnel)
+        input.style.position = 'absolute';
+        input.style.top = '0';
+        input.style.left = '0';
+        input.style.width = '100%';
+        input.style.height = '100%';
+        input.style.opacity = '0';
+        input.style.cursor = 'pointer';
+
+        input.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+                
+                area.classList.add('file-selected');
+                icon.className = 'fa-solid fa-file-circle-check';
+                text.innerHTML = '<strong>' + file.name + '</strong>';
+                hint.innerHTML = '<i class="fa-solid fa-check-circle" style="color: #22C55E; margin-right: 5px;"></i> Fichier sélectionné • ' + sizeMB + ' Mo';
+            } else {
+                // Reset si aucun fichier
+                area.classList.remove('file-selected');
+                icon.className = 'fa-solid fa-cloud-arrow-up';
+                text.innerHTML = 'Glissez votre fichier ici ou <span>cliquez pour parcourir</span>';
+                hint.innerHTML = 'PNG, JPG ou PDF • Maximum 5 Mo';
+            }
+        });
+
+        // Drag & Drop
+        ['dragenter', 'dragover'].forEach(event => {
+            area.addEventListener(event, function(e) {
+                e.preventDefault();
+                area.style.borderColor = 'var(--gold)';
+                area.style.background = 'rgba(245, 158, 11, 0.05)';
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(event => {
+            area.addEventListener(event, function(e) {
+                e.preventDefault();
+                if (!area.classList.contains('file-selected')) {
+                    area.style.borderColor = '';
+                    area.style.background = '';
+                }
+            });
+        });
+
+        area.addEventListener('drop', function(e) {
+            const files = e.dataTransfer.files;
+            if (files.length) {
+                input.files = files;
+                input.dispatchEvent(new Event('change'));
+            }
+        });
+    }
+
+    // ==============================
+    // FORM SUBMIT
+    // ==============================
+    const form = document.getElementById('partnerForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    if (form && submitBtn) {
+        form.addEventListener('submit', function(e) {
+            // Validation côté client (optionnel)
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                if (!field.value || (field.type === 'checkbox' && !field.checked)) {
+                    isValid = false;
+                }
+            });
+
+            if (isValid) {
+                submitBtn.classList.add('loading');
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Envoi en cours...</span>';
+                submitBtn.disabled = true;
+            } else {
+                e.preventDefault();
+                alert('Veuillez remplir tous les champs obligatoires.');
+            }
+        });
+    }
+
+    // ==============================
+    // SELECT PLACEHOLDER COLOR - Compatible Django
+    // ==============================
+    document.querySelectorAll('select.form-control, .form-select').forEach(function(select) {
+        // Couleur initiale
+        function updateColor() {
+            if (!select.value || select.value === '') {
+                select.style.color = 'rgba(255, 255, 255, 0.5)';
+                select.style.webkitTextFillColor = 'rgba(255, 255, 255, 0.5)';
+            } else {
+                select.style.color = '#ffffff';
+                select.style.webkitTextFillColor = '#ffffff';
+            }
+        }
+
+        updateColor(); // Au chargement
+        
+        // Au changement
+        select.addEventListener('change', updateColor);
+    });
+
+    // ==============================
+    // FORMAT AUTOMATIQUE DES NUMÉROS
+    // ==============================
+    const phoneFields = document.querySelectorAll('input[name="phone"], input[name="whatsapp"]');
+    phoneFields.forEach(input => {
+        input.addEventListener('input', function() {
+            let value = this.value.replace(/\s/g, '');
+            
+            // Format automatique: +226 XX XX XX XX
+            if (value.startsWith('+226')) {
+                value = value.substring(4);
+                if (value.length <= 8) {
+                    value = value.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
+                    this.value = '+226 ' + value;
+                }
+            } else if (value.length === 8) {
+                // Si l'utilisateur tape directement 8 chiffres
+                value = value.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
+                this.value = '+226 ' + value;
+            }
+        });
+
+        // Validation visuelle
+        input.addEventListener('blur', function() {
+            const regex = /^\+226\s?\d{2}\s?\d{2}\s?\d{2}\s?\d{2}$/;
+            if (this.value && !regex.test(this.value)) {
+                this.style.borderColor = '#EF4444';
+            } else if (this.value) {
+                this.style.borderColor = '#22C55E';
+            }
+        });
+    });
+
+    // ==============================
+    // CHECKBOX STYLE FIX
+    // ==============================
+    const termsCheckbox = document.querySelector('input[name="terms_accepted"]');
+    if (termsCheckbox) {
+        termsCheckbox.classList.add('form-check-input');
+        termsCheckbox.style.width = '24px';
+        termsCheckbox.style.height = '24px';
+        termsCheckbox.style.minWidth = '24px';
+        termsCheckbox.style.marginTop = '0';
+    }
+
+});
+</script>
+{% endblock %}

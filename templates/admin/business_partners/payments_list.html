@@ -1,0 +1,1148 @@
+{% extends 'admin/admin_base.html' %}
+{% load static %}
+
+{% block title %}Paiements Commissions - Oloustream Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ==================== VARIABLES LOCALES ==================== */
+    :root {
+        --payment-success: #10b981;
+        --payment-warning: #f59e0b;
+        --payment-info: #3b82f6;
+        --payment-secondary: #71717a;
+    }
+
+    /* ==================== PAGE WRAPPER ==================== */
+    .payments-wrapper {
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ==================== HEADER ==================== */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .header-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, var(--payment-success), #059669);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
+        flex-shrink: 0;
+    }
+
+    .header-text h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        margin: 0 0 0.25rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .header-text p {
+        font-size: 0.9375rem;
+        color: var(--surface-400);
+        margin: 0;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .btn-primary-modern {
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        color: white;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.25);
+    }
+
+    .btn-primary-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(147, 51, 234, 0.35);
+        color: white;
+    }
+
+    .btn-export {
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--surface-300);
+    }
+
+    .btn-export:hover {
+        background: var(--surface-700);
+        color: white;
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    /* ==================== STATS CARDS ==================== */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--stat-color, var(--primary-600)), transparent);
+    }
+
+    .stat-card.total-payments {
+        --stat-color: var(--primary-600);
+    }
+
+    .stat-card.total-amount {
+        --stat-color: var(--payment-success);
+    }
+
+    .stat-card.pending {
+        --stat-color: var(--payment-warning);
+    }
+
+    .stat-card.average {
+        --stat-color: var(--payment-info);
+    }
+
+    .stat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        background: rgba(var(--stat-color-rgb, 147, 51, 234), 0.15);
+        color: var(--stat-color, var(--primary-400));
+    }
+
+    .stat-trend {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--surface-400);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* ==================== FILTERS CARD ==================== */
+    .filters-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .filters-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .filters-header i {
+        font-size: 1.25rem;
+        color: var(--primary-400);
+    }
+
+    .filters-header span {
+        font-weight: 600;
+        color: var(--surface-200);
+        font-size: 0.9375rem;
+    }
+
+    .filters-form {
+        display: flex;
+        gap: 1rem;
+        align-items: end;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--surface-400);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+
+    .filter-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        color: var(--surface-100);
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+        font-family: inherit;
+        appearance: none;
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        padding-right: 2.5rem;
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--primary-500);
+        box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15);
+        background-color: var(--surface-850);
+    }
+
+    .filter-select option {
+        background: var(--surface-800);
+        color: var(--surface-100);
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-filter {
+        padding: 0.75rem 1.25rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-filter-primary {
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        color: white;
+    }
+
+    .btn-filter-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+    }
+
+    .btn-filter-reset {
+        background: transparent;
+        color: var(--surface-400);
+        border: 1px solid var(--surface-700);
+        text-decoration: none;
+    }
+
+    .btn-filter-reset:hover {
+        background: var(--surface-800);
+        color: var(--surface-200);
+    }
+
+    /* ==================== TABLE CARD ==================== */
+    .table-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .table-header {
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.25);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .table-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--surface-200);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .table-title i {
+        font-size: 1.25rem;
+        color: var(--primary-400);
+    }
+
+    .table-count {
+        background: var(--surface-700);
+        color: var(--surface-300);
+        padding: 0.25rem 0.625rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    /* ==================== TABLE MODERNE ==================== */
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .table-modern {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-modern thead {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .table-modern thead th {
+        padding: 1rem 1.25rem;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: var(--surface-400);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-align: left;
+        white-space: nowrap;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .table-modern thead th:last-child {
+        text-align: right;
+    }
+
+    .table-modern tbody tr {
+        transition: all 0.15s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .table-modern tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .table-modern tbody td {
+        padding: 1rem 1.25rem;
+        font-size: 0.875rem;
+        color: var(--surface-300);
+        vertical-align: middle;
+    }
+
+    /* ID Cell */
+    .id-cell {
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        font-size: 0.75rem;
+        color: var(--surface-500);
+        background: var(--surface-800);
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+    }
+
+    /* Partner Cell */
+    .partner-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+
+    .partner-code {
+        font-weight: 600;
+        color: var(--surface-100);
+        font-size: 0.9375rem;
+    }
+
+    .partner-name {
+        font-size: 0.75rem;
+        color: var(--surface-500);
+    }
+
+    /* Amount Cell */
+    .amount-cell {
+        text-align: right;
+    }
+
+    .amount-value {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--payment-success);
+    }
+
+    .amount-currency {
+        font-size: 0.75rem;
+        color: var(--surface-500);
+        margin-left: 0.25rem;
+    }
+
+    /* Method Badge */
+    .method-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .method-badge.orange-money {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .method-badge.bank-transfer {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .method-badge.check {
+        background: rgba(113, 113, 122, 0.15);
+        color: var(--surface-400);
+        border: 1px solid rgba(113, 113, 122, 0.3);
+    }
+
+    .method-badge.cash {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* Reference Cell */
+    .reference-code {
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        font-size: 0.8125rem;
+        color: var(--primary-400);
+        background: rgba(147, 51, 234, 0.1);
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        display: inline-block;
+    }
+
+    /* Date Cell */
+    .date-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+
+    .date-primary {
+        font-weight: 500;
+        color: var(--surface-200);
+    }
+
+    .date-time {
+        font-size: 0.6875rem;
+        color: var(--surface-500);
+    }
+
+    /* User Cell */
+    .user-cell {
+        font-size: 0.8125rem;
+        color: var(--surface-400);
+    }
+
+    /* Actions */
+    .actions-cell {
+        text-align: right;
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: var(--surface-800);
+        color: var(--surface-400);
+        text-decoration: none;
+        transition: all 0.15s ease;
+        position: relative;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    /* Tooltip */
+    .action-btn::before {
+        content: attr(title);
+        position: absolute;
+        bottom: calc(100% + 8px);
+        right: 0;
+        padding: 0.375rem 0.625rem;
+        background: var(--surface-700);
+        color: var(--surface-100);
+        font-size: 0.6875rem;
+        font-weight: 500;
+        border-radius: 6px;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.15s ease;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    .action-btn:hover::before {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 1.5rem;
+        background: var(--surface-800);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: var(--surface-500);
+    }
+
+    .empty-state h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--surface-300);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .empty-state p {
+        color: var(--surface-500);
+        font-size: 0.875rem;
+        margin: 0 0 1.5rem 0;
+    }
+
+    /* ==================== PAGINATION ==================== */
+    .table-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .pagination-info {
+        font-size: 0.8125rem;
+        color: var(--surface-400);
+    }
+
+    .pagination-modern {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .page-item-modern {
+        display: flex;
+    }
+
+    .page-link-modern {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 0.75rem;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 8px;
+        color: var(--surface-300);
+        text-decoration: none;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        transition: all 0.15s ease;
+    }
+
+    .page-link-modern:hover {
+        background: var(--surface-700);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+    .page-item-modern.active .page-link-modern {
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        border-color: transparent;
+        color: white;
+        box-shadow: 0 2px 8px rgba(147, 51, 234, 0.3);
+    }
+
+    .page-item-modern.disabled .page-link-modern {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1200px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+        }
+
+        .header-actions {
+            width: 100%;
+        }
+
+        .btn-modern {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filters-form {
+            flex-direction: column;
+        }
+
+        .filter-group {
+            width: 100%;
+        }
+
+        .table-footer {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Mobile table */
+        .table-modern thead {
+            display: none;
+        }
+
+        .table-modern tbody tr {
+            display: block;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            background: var(--surface-800);
+        }
+
+        .table-modern tbody td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .table-modern tbody td:last-child {
+            border-bottom: none;
+            justify-content: center;
+            padding-top: 1rem;
+        }
+
+        .table-modern tbody td::before {
+            content: attr(data-label);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: var(--surface-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+    }
+
+    /* ==================== ANIMATIONS ==================== */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .stat-card {
+        animation: fadeInUp 0.5s ease-out backwards;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.05s; }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.15s; }
+    .stat-card:nth-child(4) { animation-delay: 0.2s; }
+
+    .table-modern tbody tr {
+        animation: fadeIn 0.3s ease-out backwards;
+    }
+
+    .table-modern tbody tr:nth-child(1) { animation-delay: 0.05s; }
+    .table-modern tbody tr:nth-child(2) { animation-delay: 0.1s; }
+    .table-modern tbody tr:nth-child(3) { animation-delay: 0.15s; }
+    .table-modern tbody tr:nth-child(4) { animation-delay: 0.2s; }
+    .table-modern tbody tr:nth-child(5) { animation-delay: 0.25s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="payments-wrapper">
+    
+    <!-- HEADER -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="ph-bold ph-currency-circle-dollar"></i>
+            </div>
+            <div class="header-text">
+                <h1>Historique des paiements</h1>
+                <p>Suivi des commissions versées aux partenaires d'affaires</p>
+            </div>
+        </div>
+        
+        <div class="header-actions">
+            <button class="btn-modern btn-export">
+                <i class="ph ph-file-xls"></i>
+                <span>Exporter</span>
+            </button>
+            <a href="{% url 'dashboard:business_partners_list' %}" class="btn-modern btn-primary-modern">
+                <i class="ph-bold ph-users-three"></i>
+                <span>Voir les partenaires</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid">
+        <div class="stat-card total-payments">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="ph-bold ph-receipt"></i>
+                </div>
+                <span class="stat-trend">
+                    <i class="ph ph-arrow-up"></i>
+                    +12%
+                </span>
+            </div>
+            <div class="stat-value">{{ stats.total_payments|default:0 }}</div>
+            <div class="stat-label">Paiements effectués</div>
+        </div>
+
+        <div class="stat-card total-amount">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="ph-bold ph-wallet"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ stats.total_amount|floatformat:0|default:0 }}</div>
+            <div class="stat-label">Total payé (FCFA)</div>
+        </div>
+
+        <div class="stat-card pending">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="ph-bold ph-clock"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ pending_amount|default:0 }}</div>
+            <div class="stat-label">En attente (FCFA)</div>
+        </div>
+
+        <div class="stat-card average">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <i class="ph-bold ph-chart-line"></i>
+                </div>
+            </div>
+            <div class="stat-value">
+                {% if stats.total_payments > 0 %}
+                    {{ stats.total_amount|default:0|floatformat:0|divisibleby:stats.total_payments|floatformat:0 }}
+                {% else %}
+                    0
+                {% endif %}
+            </div>
+            <div class="stat-label">Moyenne par paiement</div>
+        </div>
+    </div>
+
+    <!-- FILTRES -->
+    <div class="filters-card">
+        <div class="filters-header">
+            <i class="ph ph-funnel"></i>
+            <span>Filtres de recherche</span>
+        </div>
+        
+        <form method="get" class="filters-form">
+            <div class="filter-group">
+                <label class="filter-label" for="partner">Partenaire</label>
+                <select name="partner" id="partner" class="filter-select">
+                    <option value="">Tous les partenaires</option>
+                    {% for p in partners %}
+                    <option value="{{ p.id }}" {% if current_partner == p.id|stringformat:"d" %}selected{% endif %}>
+                        {{ p.partner_code }} - {{ p.user.get_full_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label" for="method">Méthode de paiement</label>
+                <select name="method" id="method" class="filter-select">
+                    <option value="">Toutes les méthodes</option>
+                    {% for value, label in method_choices %}
+                    <option value="{{ value }}" {% if current_method == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter btn-filter-primary">
+                    <i class="ph ph-magnifying-glass"></i>
+                    Filtrer
+                </button>
+                <a href="{% url 'dashboard:partner_payments_list' %}" class="btn-filter btn-filter-reset">
+                    <i class="ph ph-arrow-counter-clockwise"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-card">
+        <div class="table-header">
+            <div class="table-title">
+                <i class="ph ph-list"></i>
+                Liste des paiements
+                <span class="table-count">{{ payments.paginator.count }}</span>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Partenaire</th>
+                        <th style="text-align: right;">Montant</th>
+                        <th>Méthode</th>
+                        <th>Référence</th>
+                        <th>Date</th>
+                        <th>Effectué par</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td data-label="ID">
+                            <span class="id-cell">#{{ payment.id }}</span>
+                        </td>
+                        
+                        <td data-label="Partenaire">
+                            <div class="partner-cell">
+                                <span class="partner-code">{{ payment.partner.partner_code }}</span>
+                                <span class="partner-name">{{ payment.partner.user.get_full_name }}</span>
+                            </div>
+                        </td>
+                        
+                        <td data-label="Montant" class="amount-cell">
+                            <span class="amount-value">{{ payment.amount|floatformat:0 }}</span>
+                            <span class="amount-currency">FCFA</span>
+                        </td>
+                        
+                        <td data-label="Méthode">
+                            {% if payment.payment_method == 'orange_money' %}
+                                <span class="method-badge orange-money">
+                                    <i class="ph ph-device-mobile"></i>
+                                    Orange Money
+                                </span>
+                            {% elif payment.payment_method == 'bank_transfer' %}
+                                <span class="method-badge bank-transfer">
+                                    <i class="ph ph-bank"></i>
+                                    Virement
+                                </span>
+                            {% elif payment.payment_method == 'check' %}
+                                <span class="method-badge check">
+                                    <i class="ph ph-note"></i>
+                                    Chèque
+                                </span>
+                            {% elif payment.payment_method == 'cash' %}
+                                <span class="method-badge cash">
+                                    <i class="ph ph-money"></i>
+                                    Espèces
+                                </span>
+                            {% endif %}
+                        </td>
+                        
+                        <td data-label="Référence">
+                            {% if payment.reference %}
+                                <span class="reference-code">{{ payment.reference }}</span>
+                            {% else %}
+                                <span style="color: var(--surface-600);">—</span>
+                            {% endif %}
+                        </td>
+                        
+                        <td data-label="Date">
+                            <div class="date-cell">
+                                <span class="date-primary">{{ payment.paid_at|date:"d/m/Y" }}</span>
+                                <span class="date-time">{{ payment.paid_at|date:"H:i" }}</span>
+                            </div>
+                        </td>
+                        
+                        <td data-label="Effectué par">
+                            {% if payment.created_by %}
+                                <span class="user-cell">{{ payment.created_by.get_full_name|default:payment.created_by.username }}</span>
+                            {% else %}
+                                <span style="color: var(--surface-600);">—</span>
+                            {% endif %}
+                        </td>
+                        
+                        <td data-label="Actions" class="actions-cell">
+                            {% if payment.receipt %}
+                            <a href="{{ payment.receipt.url }}" 
+                               target="_blank" 
+                               class="action-btn"
+                               title="Voir le reçu">
+                                <i class="ph ph-file-pdf"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="ph ph-currency-circle-dollar"></i>
+                                </div>
+                                <h3>Aucun paiement enregistré</h3>
+                                <p>Les paiements de commissions apparaîtront ici.</p>
+                                <a href="{% url 'dashboard:business_partners_list' %}" class="btn-modern btn-primary-modern">
+                                    <i class="ph ph-users-three"></i>
+                                    Voir les partenaires
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- PAGINATION -->
+        {% if payments.has_other_pages %}
+        <div class="table-footer">
+            <div class="pagination-info">
+                Affichage de {{ payments.start_index }} à {{ payments.end_index }} 
+                sur {{ payments.paginator.count }} paiements
+            </div>
+            
+            <nav aria-label="Pagination">
+                <ul class="pagination-modern">
+                    {% if payments.has_previous %}
+                    <li class="page-item-modern">
+                        <a class="page-link-modern" href="?page=1{% if request.GET.partner %}&partner={{ request.GET.partner }}{% endif %}{% if request.GET.method %}&method={{ request.GET.method }}{% endif %}">
+                            <i class="ph ph-caret-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item-modern">
+                        <a class="page-link-modern" href="?page={{ payments.previous_page_number }}{% if request.GET.partner %}&partner={{ request.GET.partner }}{% endif %}{% if request.GET.method %}&method={{ request.GET.method }}{% endif %}">
+                            <i class="ph ph-caret-left"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item-modern disabled">
+                        <span class="page-link-modern">
+                            <i class="ph ph-caret-double-left"></i>
+                        </span>
+                    </li>
+                    <li class="page-item-modern disabled">
+                        <span class="page-link-modern">
+                            <i class="ph ph-caret-left"></i>
+                        </span>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in payments.paginator.page_range %}
+                        {% if payments.number == num %}
+                        <li class="page-item-modern active">
+                            <span class="page-link-modern">{{ num }}</span>
+                        </li>
+                        {% elif num > payments.number|add:'-3' and num < payments.number|add:'3' %}
+                        <li class="page-item-modern">
+                            <a class="page-link-modern" href="?page={{ num }}{% if request.GET.partner %}&partner={{ request.GET.partner }}{% endif %}{% if request.GET.method %}&method={{ request.GET.method }}{% endif %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if payments.has_next %}
+                    <li class="page-item-modern">
+                        <a class="page-link-modern" href="?page={{ payments.next_page_number }}{% if request.GET.partner %}&partner={{ request.GET.partner }}{% endif %}{% if request.GET.method %}&method={{ request.GET.method }}{% endif %}">
+                            <i class="ph ph-caret-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item-modern">
+                        <a class="page-link-modern" href="?page={{ payments.paginator.num_pages }}{% if request.GET.partner %}&partner={{ request.GET.partner }}{% endif %}{% if request.GET.method %}&method={{ request.GET.method }}{% endif %}">
+                            <i class="ph ph-caret-double-right"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item-modern disabled">
+                        <span class="page-link-modern">
+                            <i class="ph ph-caret-right"></i>
+                        </span>
+                    </li>
+                    <li class="page-item-modern disabled">
+                        <span class="page-link-modern">
+                            <i class="ph ph-caret-double-right"></i>
+                        </span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des valeurs des stats
+    const animateValue = (element, start, end, duration) => {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            element.textContent = Math.floor(progress * (end - start) + start).toLocaleString('fr-FR');
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    };
+
+    // Animer les stats cards au chargement
+    document.querySelectorAll('.stat-value').forEach(element => {
+        const finalValue = parseInt(element.textContent.replace(/\s/g, ''));
+        if (!isNaN(finalValue)) {
+            animateValue(element, 0, finalValue, 1000);
+        }
+    });
+});
+</script>
+{% endblock %}

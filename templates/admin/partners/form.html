@@ -1,440 +1,1246 @@
 {% extends "admin/admin_base.html" %}
 {% block title %}Partenaire - Oloustream Admin{% endblock %}
 
-{% block content %}
-
+{% block extra_css %}
 <style>
 /* =========================================================
-   FORMULAIRE PARTENAIRE – STYLE ULTRA PRO (avec onglets)
+   FORMULAIRE PARTENAIRE - STYLE ULTRA PRO DARK PURPLE
+   (Identique au formulaire Employé)
    ========================================================= */
 
-.pt-wrapper {
-  {% comment %} max-width: 800px; {% endcomment %}
-  margin: 0 auto;
-  animation: pt-fadeInUp 0.4s ease-out;
+:root {
+    --primary-400: #c084fc;
+    --primary-500: #a855f7;
+    --primary-600: #9333ea;
+    --primary-700: #7c3aed;
+    --accent-400: #fbbf24;
+    --surface-100: #f4f4f5;
+    --surface-200: #e4e4e7;
+    --surface-300: #d4d4d8;
+    --surface-400: #a1a1aa;
+    --surface-500: #71717a;
+    --surface-600: #52525b;
+    --surface-700: #3f3f46;
+    --surface-800: #27272a;
+    --surface-850: #1f1f23;
+    --surface-900: #18181b;
+    --surface-950: #09090b;
+    --error-color: #f87171;
+    --success-color: #34d399;
 }
 
-.pt-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
+/* ==================== ANIMATIONS ==================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.pt-header h1 {
-  font-size: 1.6rem;
-  margin: 0;
+/* ==================== WRAPPER PRINCIPAL ==================== */
+.partner-form-wrapper {
+    width: 100%;
+    min-height: calc(100vh - var(--header-height, 70px) - 3rem);
+    animation: fadeInUp 0.4s ease-out;
 }
 
-.pt-header .subtitle {
-  font-size: 0.9rem;
-  color: #6b7280;
+/* ==================== HEADER ==================== */
+.form-page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Tabs */
-.pt-tabs {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
+.header-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
 }
 
-.pt-tab {
-  border-radius: 999px;
-  font-size: 0.8rem;
-  padding: 0.35rem 0.9rem;
-  border: 1px solid #e5e7eb;
-  background: #f9fafb;
-  color: #4b5563;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+.header-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #9333ea, #7c3aed);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    color: white;
+    box-shadow: 0 8px 25px rgba(147, 51, 234, 0.35);
+    flex-shrink: 0;
 }
 
-.pt-tab.active {
-  background: linear-gradient(135deg, #e60023, #b3001b);
-  border-color: transparent;
-  color: #ffffff;
-  box-shadow: 0 4px 10px rgba(230, 0, 35, 0.25);
-  transform: translateY(-1px);
+.header-text h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f4f4f5;
+    margin: 0 0 0.375rem 0;
+    line-height: 1.3;
 }
 
-/* Sections */
-.pt-section {
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
-  margin-bottom: 1.25rem;
-  padding: 1.25rem 1.5rem;
-  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+.header-text .subtitle {
+    font-size: 0.875rem;
+    color: #a1a1aa;
+    margin: 0;
+    line-height: 1.5;
 }
 
-.pt-section.active {
-  border-color: #e60023;
-  box-shadow: 0 8px 20px rgba(230, 0, 35, 0.12);
-  transform: translateY(-1px);
+.partner-id-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(147, 51, 234, 0.15);
+    border: 1px solid rgba(147, 51, 234, 0.3);
+    border-radius: 10px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #c084fc;
 }
 
-.pt-section-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
+.partner-id-badge i {
+    font-size: 1.125rem;
 }
 
-.pt-section-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
+/* ==================== LAYOUT 2 COLONNES ==================== */
+.form-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 1.5rem;
+    align-items: start;
 }
 
-.pt-section-title span.icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
-  background: #fee2e2;
-  color: #b91c1c;
-  font-size: 0.9rem;
+/* ==================== SIDEBAR NAVIGATION ==================== */
+.form-nav {
+    position: sticky;
+    top: calc(var(--header-height, 70px) + 1.5rem);
+    background: #1f1f23;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
 }
 
-.pt-section-desc {
-  font-size: 0.8rem;
-  color: #6b7280;
+.form-nav-title {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: #71717a;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.25rem;
 }
 
-/* Champs */
-.pt-field {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 0.9rem;
+.form-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #a1a1aa;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    width: 100%;
+    font-family: inherit;
 }
 
-.pt-field label {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: #4b5563;
-  margin-bottom: 0.2rem;
+.form-nav-item i {
+    font-size: 1.125rem;
+    width: 20px;
+    text-align: center;
 }
 
-.pt-field input,
-.pt-field select,
-.pt-field textarea {
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  padding: 0.5rem 0.7rem;
-  font-size: 0.85rem;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+.form-nav-item:hover {
+    background: rgba(255, 255, 255, 0.03);
+    color: #e4e4e7;
 }
 
-.pt-field input:focus,
-.pt-field select:focus,
-.pt-field textarea:focus {
-  border-color: #e60023;
-  box-shadow: 0 0 0 1px rgba(230, 0, 35, 0.35);
-  outline: none;
-  background: #fffafa;
+.form-nav-item.active {
+    background: linear-gradient(135deg, #9333ea, #7c3aed);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
 }
 
-.pt-field .error-text {
-  font-size: 0.75rem;
-  color: #b91c1c;
-  margin-top: 0.15rem;
+.form-nav-item .nav-badge {
+    margin-left: auto;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #34d399;
+    opacity: 0;
+    transition: opacity 0.2s ease;
 }
 
-.pt-field .help-text {
-  font-size: 0.75rem;
-  color: #9ca3af;
-  margin-top: 0.15rem;
+.form-nav-item.completed .nav-badge {
+    opacity: 1;
 }
 
-/* Logo preview */
-.pt-logo-preview {
-  width: 120px;
-  height: 80px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  background: #f9fafb;
-  object-fit: contain;
-  padding: 0.3rem;
+/* Progress dans la nav */
+.form-nav-progress {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Toggle */
-.pt-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.8rem;
-  color: #4b5563;
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
 }
 
-.pt-toggle input {
-  width: 18px;
-  height: 18px;
+.progress-label {
+    font-size: 0.75rem;
+    color: #71717a;
 }
 
-/* Footer */
-.pt-form-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 1rem;
+.progress-value {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #c084fc;
 }
 
-/* Animation */
-@keyframes pt-fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+.progress-bar-container {
+    height: 6px;
+    background: #27272a;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #9333ea, #fbbf24);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+/* ==================== ZONE FORMULAIRE ==================== */
+.form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* ==================== ALERT MESSAGES ==================== */
+.alert-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 12px;
+    color: #fca5a5;
+}
+
+.alert-box i {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.alert-box-content {
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+/* ==================== SECTIONS ==================== */
+.form-section {
+    background: #1f1f23;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.25s ease;
+}
+
+.form-section:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.form-section.active {
+    border-color: rgba(147, 51, 234, 0.4);
+    box-shadow: 0 0 0 1px rgba(147, 51, 234, 0.1),
+                0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    background: rgba(0, 0, 0, 0.25);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.section-header:hover {
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.section-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.section-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    background: rgba(147, 51, 234, 0.15);
+    color: #c084fc;
+    transition: all 0.2s ease;
+}
+
+.form-section.active .section-icon {
+    background: linear-gradient(135deg, #9333ea, #7c3aed);
+    color: white;
+    box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+}
+
+.section-info h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #f4f4f5;
+    margin: 0 0 0.25rem 0;
+}
+
+.section-info p {
+    font-size: 0.75rem;
+    color: #71717a;
+    margin: 0;
+}
+
+.section-toggle-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #27272a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #a1a1aa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.section-toggle-btn:hover {
+    background: #3f3f46;
+    color: white;
+}
+
+.section-toggle-btn i {
+    font-size: 1rem;
+    transition: transform 0.25s ease;
+}
+
+.form-section.collapsed .section-toggle-btn i {
+    transform: rotate(-90deg);
+}
+
+.section-body {
+    padding: 1.5rem;
+    transition: all 0.25s ease;
+}
+
+.form-section.collapsed .section-body {
+    display: none;
+}
+
+/* ==================== GRILLE DE CHAMPS ==================== */
+.fields-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+}
+
+.field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.field-group.full-width {
+    grid-column: span 2;
+}
+
+/* Labels */
+.field-group label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #a1a1aa;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.field-group label .required-mark {
+    color: #f87171;
+}
+
+/* Inputs */
+.field-group input,
+.field-group select,
+.field-group textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: #27272a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #f4f4f5;
+    font-size: 0.875rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.field-group input::placeholder,
+.field-group textarea::placeholder {
+    color: #71717a;
+}
+
+.field-group input:hover,
+.field-group select:hover,
+.field-group textarea:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+    background: #2a2a2e;
+}
+
+.field-group input:focus,
+.field-group select:focus,
+.field-group textarea:focus {
+    outline: none;
+    border-color: #9333ea;
+    box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.2);
+    background: rgba(147, 51, 234, 0.05);
+}
+
+/* Select */
+.field-group select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+}
+
+.field-group select option {
+    background: #27272a;
+    color: #f4f4f5;
+}
+
+/* Textarea */
+.field-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* File input */
+.field-group input[type="file"] {
+    padding: 0.5rem;
+}
+
+.field-group input[type="file"]::file-selector-button {
+    padding: 0.5rem 1rem;
+    margin-right: 1rem;
+    background: linear-gradient(135deg, #9333ea, #7c3aed);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.field-group input[type="file"]::file-selector-button:hover {
+    box-shadow: 0 4px 12px rgba(147, 51, 234, 0.4);
+}
+
+/* Help text */
+.field-help {
+    font-size: 0.6875rem;
+    color: #71717a;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+/* Error */
+.field-error {
+    font-size: 0.75rem;
+    color: #f87171;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.field-error::before {
+    content: '•';
+}
+
+.field-group.has-error input,
+.field-group.has-error select,
+.field-group.has-error textarea {
+    border-color: #f87171;
+    background: rgba(239, 68, 68, 0.05);
+}
+
+/* ==================== LOGO PREVIEW ==================== */
+.logo-preview-container {
+    margin-top: 0.75rem;
+}
+
+.logo-preview {
+    width: 120px;
+    height: 80px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #27272a;
+    object-fit: contain;
+    padding: 0.5rem;
+}
+
+/* ==================== CHECKBOX / TOGGLE ==================== */
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-top: 1.25rem;
+    margin-top: 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.75rem 1rem;
+    background: #27272a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.checkbox-item:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+    background: #2a2a2e;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    appearance: none;
+    background: #3f3f46;
+    border: 2px solid #52525b;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.checkbox-item input[type="checkbox"]:checked {
+    background: linear-gradient(135deg, #9333ea, #7c3aed);
+    border-color: #9333ea;
+}
+
+.checkbox-item input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    width: 5px;
+    height: 9px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-item span {
+    font-size: 0.8125rem;
+    color: #d4d4d8;
+    font-weight: 500;
+}
+
+.checkbox-item:has(input:checked) {
+    border-color: rgba(147, 51, 234, 0.4);
+    background: rgba(147, 51, 234, 0.08);
+}
+
+.checkbox-item:has(input:checked) span {
+    color: #f4f4f5;
+}
+
+/* ==================== FOOTER ACTIONS ==================== */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    background: #1f1f23;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    margin-top: 0.5rem;
+}
+
+.actions-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: #71717a;
+}
+
+.actions-hint i {
+    font-size: 1rem;
+}
+
+.actions-hint kbd {
+    background: #27272a;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.6875rem;
+    color: #a1a1aa;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.actions-buttons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    font-family: inherit;
+}
+
+.btn i {
+    font-size: 1.125rem;
+}
+
+.btn-cancel {
+    background: #27272a;
+    color: #d4d4d8;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-cancel:hover {
+    background: #3f3f46;
+    color: white;
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, #9333ea, #7c3aed);
+    color: white;
+    box-shadow: 0 4px 15px rgba(147, 51, 234, 0.35);
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(147, 51, 234, 0.45);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1024px) {
+    .form-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .form-nav {
+        position: static;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .form-nav-title {
+        width: 100%;
+    }
+
+    .form-nav-item {
+        flex: 1 1 auto;
+        min-width: fit-content;
+        justify-content: center;
+        padding: 0.625rem 1rem;
+    }
+
+    .form-nav-item span:not(.nav-badge) {
+        display: none;
+    }
+
+    .form-nav-progress {
+        width: 100%;
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .form-page-header {
+        flex-direction: column;
+    }
+
+    .fields-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .field-group.full-width {
+        grid-column: span 1;
+    }
+
+    .section-header {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .section-toggle-btn {
+        margin-left: auto;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .actions-buttons {
+        width: 100%;
+    }
+
+    .actions-buttons .btn {
+        flex: 1;
+    }
+
+    .checkbox-group {
+        flex-direction: column;
+    }
+
+    .checkbox-item {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-left {
+        flex-direction: column;
+    }
+
+    .header-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.5rem;
+    }
+
+    .header-text h1 {
+        font-size: 1.25rem;
+    }
+
+    .section-body {
+        padding: 1rem;
+    }
+
+    .form-nav-item {
+        padding: 0.625rem 0.75rem;
+    }
 }
 </style>
+{% endblock %}
 
-<div class="pt-wrapper">
-    <div class="pt-header">
-        <div>
-            <h1>
-                {% if partner %}
-                    Modifier le partenaire : {{ partner.name }}
-                {% else %}
-                    Créer un nouveau partenaire
-                {% endif %}
-            </h1>
-            <p class="subtitle">
-                Informations complètes sur l’identité, les contacts et le type de partenariat.
-            </p>
-        </div>
-    </div>
-
-    <!-- Onglets -->
-    <div class="pt-tabs">
-        <button type="button" class="pt-tab active" data-target="#pt-section-identite">
-            <i class="ph ph-identification-card"></i> Identité
-        </button>
-        <button type="button" class="pt-tab" data-target="#pt-section-contact">
-            <i class="ph ph-user-circle"></i> Contact
-        </button>
-        <button type="button" class="pt-tab" data-target="#pt-section-type">
-            <i class="ph ph-handshake"></i> Type & adresse
-        </button>
-        <button type="button" class="pt-tab" data-target="#pt-section-notes">
-            <i class="ph ph-clipboard-text"></i> Notes & statut
-        </button>
-    </div>
-
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-
-        {% if form.non_field_errors %}
-            <div class="alert alert-danger">
-                {{ form.non_field_errors }}
+{% block content %}
+<div class="partner-form-wrapper">
+    <!-- HEADER -->
+    <div class="form-page-header">
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="ph-bold {% if partner %}ph-handshake{% else %}ph-user-plus{% endif %}"></i>
             </div>
+            <div class="header-text">
+                <h1>
+                    {% if partner %}
+                        Modifier le partenaire
+                    {% else %}
+                        Créer un nouveau partenaire
+                    {% endif %}
+                </h1>
+                <p class="subtitle">
+                    {% if partner %}
+                        {{ partner.name }} • Modifiez les informations ci-dessous
+                    {% else %}
+                        Remplissez le formulaire pour ajouter un nouveau partenaire
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        {% if partner %}
+            <span class="partner-id-badge">
+                <i class="ph ph-identification-badge"></i>
+                ID #{{ partner.id }}
+            </span>
         {% endif %}
+    </div>
 
-        <!-- SECTION IDENTITÉ -->
-        <section class="pt-section active" id="pt-section-identite">
-            <div class="pt-section-header">
-                <h2 class="pt-section-title">
-                    <span class="icon"><i class="ph ph-identification-card"></i></span>
-                    Identité du partenaire
-                </h2>
-                <p class="pt-section-desc">
-                    Nom, logo et site web officiel du partenaire.
-                </p>
-            </div>
-
-            <div class="pt-field">
-                <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
-                {{ form.name }}
-                {% if form.name.errors %}
-                    <div class="error-text">{{ form.name.errors|striptags }}</div>
-                {% endif %}
-            </div>
-
-            <div class="pt-field">
-                <label for="{{ form.website.id_for_label }}">{{ form.website.label }}</label>
-                {{ form.website }}
-                {% if form.website.errors %}
-                    <div class="error-text">{{ form.website.errors|striptags }}</div>
-                {% endif %}
-                <div class="help-text">Exemple : https://www.exemple.com</div>
-            </div>
-
-            <div class="pt-field">
-                <label for="{{ form.logo.id_for_label }}">{{ form.logo.label }}</label>
-                {{ form.logo }}
-                {% if form.logo.errors %}
-                    <div class="error-text">{{ form.logo.errors|striptags }}</div>
-                {% endif %}
-                {% if partner and partner.logo %}
-                    <div class="mt-2">
-                        <span class="help-text d-block mb-1">Logo actuel :</span>
-                        <img src="{{ partner.logo.url }}" alt="Logo partenaire" class="pt-logo-preview">
-                    </div>
-                {% endif %}
-            </div>
-        </section>
-
-        <!-- SECTION CONTACT -->
-        <section class="pt-section" id="pt-section-contact">
-            <div class="pt-section-header">
-                <h2 class="pt-section-title">
-                    <span class="icon"><i class="ph ph-user-circle"></i></span>
-                    Contact principal
-                </h2>
-                <p class="pt-section-desc">
-                    Coordonnées de la personne de référence chez le partenaire.
-                </p>
-            </div>
-
-            <div class="pt-field">
-                <label for="{{ form.contact_name.id_for_label }}">{{ form.contact_name.label }}</label>
-                {{ form.contact_name }}
-                {% if form.contact_name.errors %}
-                    <div class="error-text">{{ form.contact_name.errors|striptags }}</div>
-                {% endif %}
-            </div>
-
-            <div class="pt-field">
-                <label for="{{ form.contact_email.id_for_label }}">{{ form.contact_email.label }}</label>
-                {{ form.contact_email }}
-                {% if form.contact_email.errors %}
-                    <div class="error-text">{{ form.contact_email.errors|striptags }}</div>
-                {% endif %}
-            </div>
-
-            <div class="pt-field">
-                <label for="{{ form.contact_phone.id_for_label }}">{{ form.contact_phone.label }}</label>
-                {{ form.contact_phone }}
-                {% if form.contact_phone.errors %}
-                    <div class="error-text">{{ form.contact_phone.errors|striptags }}</div>
-                {% endif %}
-            </div>
-        </section>
-
-        <!-- SECTION TYPE & ADRESSE -->
-        <section class="pt-section" id="pt-section-type">
-            <div class="pt-section-header">
-                <h2 class="pt-section-title">
-                    <span class="icon"><i class="ph ph-handshake"></i></span>
-                    Type de partenariat & adresse
-                </h2>
-                <p class="pt-section-desc">
-                    Nature de la relation commerciale et informations de localisation.
-                </p>
-            </div>
-
-            <div class="pt-field">
-                <label for="{{ form.partnership_type.id_for_label }}">{{ form.partnership_type.label }}</label>
-                {{ form.partnership_type }}
-                {% if form.partnership_type.errors %}
-                    <div class="error-text">{{ form.partnership_type.errors|striptags }}</div>
-                {% endif %}
-            </div>
-
-            <div class="pt-field">
-                <label for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
-                {{ form.address }}
-                {% if form.address.errors %}
-                    <div class="error-text">{{ form.address.errors|striptags }}</div>
-                {% endif %}
-                <div class="help-text">Adresse postale ou siège du partenaire (optionnel).</div>
-            </div>
-        </section>
-
-        <!-- SECTION NOTES & STATUT -->
-        <section class="pt-section" id="pt-section-notes">
-            <div class="pt-section-header">
-                <h2 class="pt-section-title">
-                    <span class="icon"><i class="ph ph-clipboard-text"></i></span>
-                    Notes internes & statut
-                </h2>
-                <p class="pt-section-desc">
-                    Informations internes pour l’équipe et état d’activation.
-                </p>
-            </div>
-
-            <div class="pt-field">
-                <label for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
-                {{ form.notes }}
-                {% if form.notes.errors %}
-                    <div class="error-text">{{ form.notes.errors|striptags }}</div>
-                {% endif %}
-                <div class="help-text">Ces notes ne sont pas visibles côté client.</div>
-            </div>
-
-            <div class="pt-field">
-                <label>{{ form.active.label }}</label>
-                <label class="pt-toggle">
-                    {{ form.active }}
-                    <span>Partenaire actif (affiché et utilisé dans les opérations)</span>
-                </label>
-                {% if form.active.errors %}
-                    <div class="error-text">{{ form.active.errors|striptags }}</div>
-                {% endif %}
-            </div>
-        </section>
-
-        <div class="pt-form-footer">
-            <a href="{% url 'dashboard:partners_list' %}" class="btn btn-secondary">
-                Annuler
-            </a>
-            <button type="submit" class="btn btn-primary">
-                {% if partner %}Mettre à jour{% else %}Créer le partenaire{% endif %}
+    <!-- LAYOUT 2 COLONNES -->
+    <div class="form-layout">
+        <!-- NAVIGATION SIDEBAR -->
+        <nav class="form-nav">
+            <div class="form-nav-title">Sections</div>
+            
+            <button type="button" class="form-nav-item active" data-target="#section-identite">
+                <i class="ph ph-identification-card"></i>
+                <span>Identité</span>
+                <span class="nav-badge"></span>
             </button>
-        </div>
-    </form>
-</div>
+            <button type="button" class="form-nav-item" data-target="#section-contact">
+                <i class="ph ph-user-circle"></i>
+                <span>Contact</span>
+                <span class="nav-badge"></span>
+            </button>
+            <button type="button" class="form-nav-item" data-target="#section-type">
+                <i class="ph ph-handshake"></i>
+                <span>Type & adresse</span>
+                <span class="nav-badge"></span>
+            </button>
+            <button type="button" class="form-nav-item" data-target="#section-notes">
+                <i class="ph ph-clipboard-text"></i>
+                <span>Notes & statut</span>
+                <span class="nav-badge"></span>
+            </button>
 
+            <!-- Progress -->
+            <div class="form-nav-progress">
+                <div class="progress-header">
+                    <span class="progress-label">Progression</span>
+                    <span class="progress-value" id="progressValue">0%</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progressBar" style="width: 0%;"></div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- FORMULAIRE -->
+        <form method="post" enctype="multipart/form-data" class="form-content" id="partnerForm">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert-box">
+                    <i class="ph ph-warning-circle"></i>
+                    <div class="alert-box-content">
+                        {{ form.non_field_errors }}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- SECTION 1 : IDENTITÉ -->
+            <section class="form-section active" id="section-identite">
+                <div class="section-header">
+                    <div class="section-header-left">
+                        <div class="section-icon">
+                            <i class="ph ph-identification-card"></i>
+                        </div>
+                        <div class="section-info">
+                            <h3>Identité du partenaire</h3>
+                            <p>Nom, logo et site web officiel</p>
+                        </div>
+                    </div>
+                    <button type="button" class="section-toggle-btn">
+                        <i class="ph ph-caret-down"></i>
+                    </button>
+                </div>
+
+                <div class="section-body">
+                    <div class="fields-grid">
+                        {% if form.name %}
+                        <div class="field-group full-width {% if form.name.errors %}has-error{% endif %}">
+                            <label for="{{ form.name.id_for_label }}">
+                                {{ form.name.label }} <span class="required-mark">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <span class="field-error">{{ form.name.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.website %}
+                        <div class="field-group full-width {% if form.website.errors %}has-error{% endif %}">
+                            <label for="{{ form.website.id_for_label }}">
+                                {{ form.website.label }}
+                            </label>
+                            {{ form.website }}
+                            {% if form.website.errors %}
+                                <span class="field-error">{{ form.website.errors|striptags }}</span>
+                            {% endif %}
+                            <span class="field-help">
+                                <i class="ph ph-info"></i>
+                                Exemple : https://www.exemple.com
+                            </span>
+                        </div>
+                        {% endif %}
+
+                        {% if form.logo %}
+                        <div class="field-group full-width {% if form.logo.errors %}has-error{% endif %}">
+                            <label for="{{ form.logo.id_for_label }}">
+                                {{ form.logo.label }}
+                            </label>
+                            {{ form.logo }}
+                            {% if form.logo.errors %}
+                                <span class="field-error">{{ form.logo.errors|striptags }}</span>
+                            {% endif %}
+                            {% if partner and partner.logo %}
+                                <div class="logo-preview-container">
+                                    <span class="field-help" style="margin-bottom: 0.5rem; display: block;">
+                                        <i class="ph ph-image"></i>
+                                        Logo actuel
+                                    </span>
+                                    <img src="{{ partner.logo.url }}" alt="Logo partenaire" class="logo-preview">
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2 : CONTACT -->
+            <section class="form-section" id="section-contact">
+                <div class="section-header">
+                    <div class="section-header-left">
+                        <div class="section-icon">
+                            <i class="ph ph-user-circle"></i>
+                        </div>
+                        <div class="section-info">
+                            <h3>Contact principal</h3>
+                            <p>Coordonnées de la personne de référence</p>
+                        </div>
+                    </div>
+                    <button type="button" class="section-toggle-btn">
+                        <i class="ph ph-caret-down"></i>
+                    </button>
+                </div>
+
+                <div class="section-body">
+                    <div class="fields-grid">
+                        {% if form.contact_name %}
+                        <div class="field-group full-width {% if form.contact_name.errors %}has-error{% endif %}">
+                            <label for="{{ form.contact_name.id_for_label }}">{{ form.contact_name.label }}</label>
+                            {{ form.contact_name }}
+                            {% if form.contact_name.errors %}
+                                <span class="field-error">{{ form.contact_name.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.contact_email %}
+                        <div class="field-group {% if form.contact_email.errors %}has-error{% endif %}">
+                            <label for="{{ form.contact_email.id_for_label }}">{{ form.contact_email.label }}</label>
+                            {{ form.contact_email }}
+                            {% if form.contact_email.errors %}
+                                <span class="field-error">{{ form.contact_email.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.contact_phone %}
+                        <div class="field-group {% if form.contact_phone.errors %}has-error{% endif %}">
+                            <label for="{{ form.contact_phone.id_for_label }}">{{ form.contact_phone.label }}</label>
+                            {{ form.contact_phone }}
+                            {% if form.contact_phone.errors %}
+                                <span class="field-error">{{ form.contact_phone.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3 : TYPE & ADRESSE -->
+            <section class="form-section" id="section-type">
+                <div class="section-header">
+                    <div class="section-header-left">
+                        <div class="section-icon">
+                            <i class="ph ph-handshake"></i>
+                        </div>
+                        <div class="section-info">
+                            <h3>Type de partenariat & adresse</h3>
+                            <p>Nature de la relation et localisation</p>
+                        </div>
+                    </div>
+                    <button type="button" class="section-toggle-btn">
+                        <i class="ph ph-caret-down"></i>
+                    </button>
+                </div>
+
+                <div class="section-body">
+                    <div class="fields-grid">
+                        {% if form.partnership_type %}
+                        <div class="field-group {% if form.partnership_type.errors %}has-error{% endif %}">
+                            <label for="{{ form.partnership_type.id_for_label }}">{{ form.partnership_type.label }}</label>
+                            {{ form.partnership_type }}
+                            {% if form.partnership_type.errors %}
+                                <span class="field-error">{{ form.partnership_type.errors|striptags }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.address %}
+                        <div class="field-group {% if form.address.errors %}has-error{% endif %}">
+                            <label for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                                <span class="field-error">{{ form.address.errors|striptags }}</span>
+                            {% endif %}
+                            <span class="field-help">
+                                <i class="ph ph-info"></i>
+                                Adresse postale ou siège (optionnel)
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4 : NOTES & STATUT -->
+            <section class="form-section" id="section-notes">
+                <div class="section-header">
+                    <div class="section-header-left">
+                        <div class="section-icon">
+                            <i class="ph ph-clipboard-text"></i>
+                        </div>
+                        <div class="section-info">
+                            <h3>Notes internes & statut</h3>
+                            <p>Informations internes et état d'activation</p>
+                        </div>
+                    </div>
+                    <button type="button" class="section-toggle-btn">
+                        <i class="ph ph-caret-down"></i>
+                    </button>
+                </div>
+
+                <div class="section-body">
+                    <div class="fields-grid">
+                        {% if form.notes %}
+                        <div class="field-group full-width {% if form.notes.errors %}has-error{% endif %}">
+                            <label for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <span class="field-error">{{ form.notes.errors|striptags }}</span>
+                            {% endif %}
+                            <span class="field-help">
+                                <i class="ph ph-info"></i>
+                                Ces notes ne sont pas visibles côté client
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="checkbox-group">
+                        {% if form.active %}
+                        <label class="checkbox-item">
+                            {{ form.active }}
+                            <span>{{ form.active.label }}</span>
+                        </label>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- ACTIONS -->
+            <div class="form-actions">
+                <div class="actions-hint">
+                    <i class="ph ph-keyboard"></i>
+                    <span>Raccourci : <kbd>Ctrl</kbd> + <kbd>Enter</kbd> pour sauvegarder</span>
+                </div>
+                <div class="actions-buttons">
+                    <a href="{% url 'dashboard:partners_list' %}" class="btn btn-cancel">
+                        <i class="ph ph-x"></i>
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn btn-submit">
+                        <i class="ph-bold {% if partner %}ph-check{% else %}ph-plus{% endif %}"></i>
+                        {% if partner %}Mettre à jour{% else %}Créer le partenaire{% endif %}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Gestion des onglets
-    const tabs = document.querySelectorAll('.pt-tab');
-    const sections = document.querySelectorAll('.pt-section');
+    const form = document.getElementById('partnerForm');
+    const navItems = document.querySelectorAll('.form-nav-item');
+    const sections = document.querySelectorAll('.form-section');
+    const progressBar = document.getElementById('progressBar');
+    const progressValue = document.getElementById('progressValue');
 
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const target = document.querySelector(tab.dataset.target);
+    // ==================== NAVIGATION ====================
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const target = document.querySelector(item.dataset.target);
             if (!target) return;
 
-            tabs.forEach(t => t.classList.remove('active'));
-            sections.forEach(s => s.classList.remove('active'));
+            // Update nav
+            navItems.forEach(n => n.classList.remove('active'));
+            item.classList.add('active');
 
-            tab.classList.add('active');
+            // Update sections
+            sections.forEach(s => s.classList.remove('active'));
             target.classList.add('active');
 
-            const y = target.getBoundingClientRect().top + window.scrollY - 80;
+            // Scroll
+            const y = target.getBoundingClientRect().top + window.scrollY - 100;
             window.scrollTo({ top: y, behavior: 'smooth' });
         });
     });
 
-    sections.forEach(section => {
-        section.addEventListener('focusin', () => {
-            sections.forEach(s => s.classList.remove('active'));
-            section.classList.add('active');
+    // ==================== TOGGLE SECTIONS ====================
+    document.querySelectorAll('.section-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            btn.closest('.form-section').classList.toggle('collapsed');
         });
     });
 
-    // Validation simple de l'URL du site web
-    const websiteInput = document.getElementById('{{ form.website.id_for_label }}');
+    // ==================== CLICK HEADER TO ACTIVATE ====================
+    document.querySelectorAll('.section-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const section = header.closest('.form-section');
+            sections.forEach(s => s.classList.remove('active'));
+            section.classList.add('active');
 
+            // Update nav
+            const sectionId = section.id;
+            navItems.forEach(n => {
+                if (n.dataset.target === '#' + sectionId) {
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    n.classList.add('active');
+                }
+            });
+        });
+    });
+
+    // ==================== FOCUS TRACKING ====================
+    form.querySelectorAll('input, select, textarea').forEach(input => {
+        input.addEventListener('focus', () => {
+            const section = input.closest('.form-section');
+            if (section) {
+                sections.forEach(s => s.classList.remove('active'));
+                section.classList.add('active');
+
+                const sectionId = section.id;
+                navItems.forEach(n => {
+                    if (n.dataset.target === '#' + sectionId) {
+                        navItems.forEach(nav => nav.classList.remove('active'));
+                        n.classList.add('active');
+                    }
+                });
+            }
+        });
+    });
+
+    // ==================== PROGRESS ====================
+    function updateProgress() {
+        const inputs = form.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"]), select, textarea');
+        let filled = 0;
+
+        inputs.forEach(input => {
+            if (input.value && input.value.trim() !== '') {
+                filled++;
+            }
+        });
+
+        const percentage = Math.round((filled / inputs.length) * 100);
+        progressBar.style.width = percentage + '%';
+        progressValue.textContent = percentage + '%';
+
+        // Check section completion
+        navItems.forEach(navItem => {
+            const targetId = navItem.dataset.target;
+            const section = document.querySelector(targetId);
+            if (!section) return;
+
+            const sectionInputs = section.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"]), select, textarea');
+            let sectionFilled = 0;
+
+            sectionInputs.forEach(input => {
+                if (input.value && input.value.trim() !== '') {
+                    sectionFilled++;
+                }
+            });
+
+            if (sectionInputs.length > 0 && sectionFilled === sectionInputs.length) {
+                navItem.classList.add('completed');
+            } else {
+                navItem.classList.remove('completed');
+            }
+        });
+    }
+
+    form.addEventListener('input', updateProgress);
+    form.addEventListener('change', updateProgress);
+    updateProgress();
+
+    // ==================== VALIDATION URL WEBSITE ====================
+    const websiteInput = document.getElementById('{{ form.website.id_for_label }}');
+    
     function showFieldError(input, message) {
         if (!input) return;
-        const container = input.closest('.pt-field');
+        const container = input.closest('.field-group');
         if (!container) return;
         let oldError = container.querySelector('.pt-js-error');
         if (oldError) oldError.remove();
         if (message) {
-            const err = document.createElement('div');
-            err.className = 'error-text pt-js-error';
+            container.classList.add('has-error');
+            const err = document.createElement('span');
+            err.className = 'field-error pt-js-error';
             err.textContent = message;
             container.appendChild(err);
+        } else {
+            container.classList.remove('has-error');
         }
     }
 
@@ -448,7 +1254,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // ==================== KEYBOARD SHORTCUT ====================
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            form.submit();
+        }
+    });
 });
 </script>
-
 {% endblock %}

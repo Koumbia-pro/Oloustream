@@ -1,89 +1,717 @@
 {% extends "admin/admin_base.html" %}
 {% block title %}Notifications - Oloustream{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* ==================== VARIABLES ==================== */
+    :root {
+        --primary-400: #c084fc;
+        --primary-500: #a855f7;
+        --primary-600: #9333ea;
+        --primary-700: #7c3aed;
+        --accent-400: #fbbf24;
+        --surface-100: #f4f4f5;
+        --surface-200: #e4e4e7;
+        --surface-300: #d4d4d8;
+        --surface-400: #a1a1aa;
+        --surface-500: #71717a;
+        --surface-600: #52525b;
+        --surface-700: #3f3f46;
+        --surface-800: #27272a;
+        --surface-850: #1f1f23;
+        --surface-900: #18181b;
+        --error-color: #f87171;
+        --success-color: #34d399;
+        --info-color: #60a5fa;
+        --warning-color: #fbbf24;
+    }
+
+    /* ==================== WRAPPER ==================== */
+    .notifications-wrapper {
+        width: 100%;
+        animation: fadeInUp 0.4s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ==================== HEADER ==================== */
+    .notifications-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .header-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+        box-shadow: 0 8px 25px rgba(147, 51, 234, 0.35);
+        position: relative;
+    }
+
+    .unread-count {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        min-width: 24px;
+        height: 24px;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: white;
+        padding: 0 0.375rem;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        animation: pulse-badge 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-badge {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.1);
+        }
+    }
+
+    .header-text h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .header-text p {
+        font-size: 0.875rem;
+        color: #71717a;
+        margin: 0;
+    }
+
+    /* ==================== TOOLBAR ==================== */
+    .notifications-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Filter Form */
+    .filter-form {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-label {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #a1a1aa;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .filter-select {
+        padding: 0.625rem 2.5rem 0.625rem 1rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: #f4f4f5;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+    }
+
+    .filter-select:hover {
+        border-color: rgba(255, 255, 255, 0.18);
+        background-color: #2a2a2e;
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: #9333ea;
+        box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.2);
+    }
+
+    .filter-select option {
+        background: #27272a;
+        color: #f4f4f5;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        font-family: inherit;
+    }
+
+    .btn i {
+        font-size: 1.125rem;
+    }
+
+    .btn-apply {
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        color: white;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+    }
+
+    .btn-apply:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(147, 51, 234, 0.4);
+        color: white;
+    }
+
+    .btn-mark-all {
+        background: #27272a;
+        color: #d4d4d8;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-mark-all:hover {
+        background: #3f3f46;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* ==================== NOTIFICATIONS LIST ==================== */
+    .notifications-list {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .notification-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .notification-item:last-child {
+        border-bottom: none;
+    }
+
+    .notification-item:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .notification-item.unread {
+        background: rgba(147, 51, 234, 0.05);
+        border-left: 3px solid #9333ea;
+    }
+
+    .notification-item.unread::before {
+        content: '';
+        position: absolute;
+        top: 1.5rem;
+        left: 0.5rem;
+        width: 8px;
+        height: 8px;
+        background: #9333ea;
+        border-radius: 50%;
+        box-shadow: 0 0 10px rgba(147, 51, 234, 0.6);
+    }
+
+    /* Notification Icon */
+    .notification-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .notification-icon.info {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+    }
+
+    .notification-icon.success {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+    }
+
+    .notification-icon.warning {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+    }
+
+    .notification-icon.error {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+    }
+
+    /* Notification Content */
+    .notification-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .notification-title {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: #f4f4f5;
+        margin: 0 0 0.375rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .notification-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.625rem;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        border-radius: 12px;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: white;
+        animation: pulse-new 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-new {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+        }
+        50% {
+            box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+        }
+    }
+
+    .notification-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.75rem;
+        color: #71717a;
+        margin-bottom: 0.5rem;
+    }
+
+    .notification-meta i {
+        font-size: 0.875rem;
+    }
+
+    .notification-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .notification-type-badge {
+        padding: 0.25rem 0.625rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 6px;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: #a1a1aa;
+    }
+
+    .notification-message {
+        font-size: 0.875rem;
+        color: #d4d4d8;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* Notification Action */
+    .notification-action {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .btn-view {
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        color: white;
+        border-radius: 8px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .btn-view:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
+        color: white;
+    }
+
+    .btn-view i {
+        font-size: 1rem;
+    }
+
+    /* Empty State */
+    .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: rgba(147, 51, 234, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: #71717a;
+    }
+
+    .empty-state-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #a1a1aa;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .empty-state-text {
+        font-size: 0.875rem;
+        color: #71717a;
+        margin: 0;
+    }
+
+    /* ==================== PAGINATION ==================== */
+    .pagination-wrapper {
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.375rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .pagination-item {
+        display: flex;
+    }
+
+    .pagination-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 0.75rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        color: #d4d4d8;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .pagination-link:hover {
+        background: #3f3f46;
+        border-color: rgba(147, 51, 234, 0.3);
+        color: #c084fc;
+        transform: translateY(-2px);
+    }
+
+    .pagination-item.active .pagination-link {
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        border-color: transparent;
+        color: white;
+        box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+    }
+
+    .pagination-item.disabled .pagination-link {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 768px) {
+        .notifications-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .notifications-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-select,
+        .btn {
+            width: 100%;
+        }
+
+        .notification-item {
+            flex-direction: column;
+        }
+
+        .notification-action {
+            width: 100%;
+        }
+
+        .btn-view {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .pagination {
+            flex-wrap: wrap;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
+        }
+
+        .header-text h1 {
+            font-size: 1.25rem;
+        }
+
+        .notification-item {
+            padding: 1rem;
+        }
+
+        .pagination-link {
+            min-width: 32px;
+            height: 32px;
+            padding: 0 0.5rem;
+            font-size: 0.8125rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Notifications</h1>
-    <div>
-        <a href="{% url 'notifications:mark_all_read' %}" class="btn btn-outline-secondary btn-sm">
+<div class="notifications-wrapper">
+    <!-- HEADER -->
+    <div class="notifications-header">
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="ph-bold ph-bell"></i>
+                {% if unread_count %}
+                    <span class="unread-count">{{ unread_count }}</span>
+                {% endif %}
+            </div>
+            <div class="header-text">
+                <h1>Notifications</h1>
+                <p>
+                    {% if unread_count %}
+                        Vous avez {{ unread_count }} notification{{ unread_count|pluralize }} non lue{{ unread_count|pluralize }}
+                    {% else %}
+                        Toutes vos notifications sont à jour
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="notifications-toolbar">
+        <!-- Filter Form -->
+        <form method="get" class="filter-form">
+            <label for="id_status" class="filter-label">Filtrer par :</label>
+            <select name="status" id="id_status" class="filter-select">
+                <option value="">Toutes les notifications</option>
+                <option value="unread" {% if filter_status == "unread" %}selected{% endif %}>Non lues uniquement</option>
+            </select>
+            <button type="submit" class="btn btn-apply">
+                <i class="ph ph-funnel"></i>
+                Appliquer
+            </button>
+        </form>
+
+        <!-- Mark All Read -->
+        {% if unread_count %}
+        <a href="{% url 'notifications:mark_all_read' %}" class="btn btn-mark-all">
+            <i class="ph ph-check-circle"></i>
             Tout marquer comme lu
         </a>
+        {% endif %}
     </div>
-</div>
 
-<form method="get" class="mb-3">
-    <div class="d-flex align-items-center gap-2">
-        <label for="id_status" class="form-label mb-0">Filtre :</label>
-        <select name="status" id="id_status" class="form-select form-select-sm" style="width:auto;">
-            <option value="">Toutes</option>
-            <option value="unread" {% if filter_status == "unread" %}selected{% endif %}>Non lues</option>
-        </select>
-        <button type="submit" class="btn btn-primary btn-sm">Appliquer</button>
-    </div>
-</form>
+    <!-- NOTIFICATIONS LIST -->
+    <div class="notifications-list">
+        {% for n in page_obj %}
+            <div class="notification-item {% if not n.is_read %}unread{% endif %}">
+                <!-- Icon -->
+                <div class="notification-icon {{ n.notification_type|default:'info' }}">
+                    {% if n.notification_type == 'success' %}
+                        <i class="ph-bold ph-check-circle"></i>
+                    {% elif n.notification_type == 'warning' %}
+                        <i class="ph-bold ph-warning"></i>
+                    {% elif n.notification_type == 'error' %}
+                        <i class="ph-bold ph-x-circle"></i>
+                    {% else %}
+                        <i class="ph-bold ph-info"></i>
+                    {% endif %}
+                </div>
 
-<div class="card shadow-sm">
-    <div class="card-body p-0">
-        <ul class="list-group list-group-flush">
-            {% for n in page_obj %}
-                <li class="list-group-item d-flex justify-content-between align-items-start {% if not n.is_read %}bg-light{% endif %}">
-                    <div class="me-3">
-                        <div class="fw-semibold">
-                            {{ n.title }}
-                            {% if not n.is_read %}
-                                <span class="badge bg-danger ms-1">Nouveau</span>
-                            {% endif %}
-                        </div>
-                        <div class="small text-muted">
-                            {{ n.created_at|date:"d/m/Y H:i" }} • {{ n.get_notification_type_display }}
-                        </div>
-                        <div class="mt-1">
-                            {{ n.message|linebreaksbr }}
-                        </div>
+                <!-- Content -->
+                <div class="notification-content">
+                    <div class="notification-title">
+                        {{ n.title }}
+                        {% if not n.is_read %}
+                            <span class="notification-badge">
+                                <i class="ph-bold ph-dot"></i>
+                                Nouveau
+                            </span>
+                        {% endif %}
                     </div>
-                    <div class="text-end">
-                        <a href="{% url 'notifications:mark_read' n.id %}" class="btn btn-sm btn-outline-primary">
-                            Voir / Marquer comme lue
-                        </a>
+
+                    <div class="notification-meta">
+                        <span class="notification-meta-item">
+                            <i class="ph ph-clock"></i>
+                            {{ n.created_at|date:"d/m/Y à H:i" }}
+                        </span>
+                        <span class="notification-type-badge">
+                            {{ n.get_notification_type_display }}
+                        </span>
                     </div>
-                </li>
-            {% empty %}
-                <li class="list-group-item text-center text-muted py-4">
-                    Aucune notification à afficher.
-                </li>
-            {% endfor %}
-        </ul>
+
+                    <p class="notification-message">{{ n.message|linebreaksbr }}</p>
+                </div>
+
+                <!-- Action -->
+                <div class="notification-action">
+                    <a href="{% url 'notifications:mark_read' n.id %}" class="btn-view">
+                        <i class="ph ph-eye"></i>
+                        {% if not n.is_read %}Marquer comme lue{% else %}Voir{% endif %}
+                    </a>
+                </div>
+            </div>
+        {% empty %}
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="ph ph-bell-slash"></i>
+                </div>
+                <h3 class="empty-state-title">Aucune notification</h3>
+                <p class="empty-state-text">
+                    {% if filter_status == 'unread' %}
+                        Vous n'avez aucune notification non lue pour le moment.
+                    {% else %}
+                        Vous n'avez aucune notification à afficher.
+                    {% endif %}
+                </p>
+            </div>
+        {% endfor %}
     </div>
 
+    <!-- PAGINATION -->
     {% if page_obj.paginator.num_pages > 1 %}
-        <div class="card-footer bg-white">
-            <nav aria-label="Pagination notifications">
-                <ul class="pagination justify-content-center mb-0">
+        <div class="pagination-wrapper">
+            <nav aria-label="Pagination des notifications">
+                <ul class="pagination">
                     {% if page_obj.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1{% if filter_status %}&status={{ filter_status }}{% endif %}">« Première</a>
+                        <li class="pagination-item">
+                            <a class="pagination-link" href="?page=1{% if filter_status %}&status={{ filter_status }}{% endif %}" title="Première page">
+                                <i class="ph ph-caret-double-left"></i>
+                            </a>
                         </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if filter_status %}&status={{ filter_status }}{% endif %}">‹ Précédente</a>
+                        <li class="pagination-item">
+                            <a class="pagination-link" href="?page={{ page_obj.previous_page_number }}{% if filter_status %}&status={{ filter_status }}{% endif %}" title="Page précédente">
+                                <i class="ph ph-caret-left"></i>
+                            </a>
                         </li>
                     {% endif %}
 
                     {% for num in page_obj.paginator.page_range %}
                         {% if num == page_obj.number %}
-                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            <li class="pagination-item active">
+                                <span class="pagination-link">{{ num }}</span>
+                            </li>
                         {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ num }}{% if filter_status %}&status={{ filter_status }}{% endif %}">{{ num }}</a>
+                            <li class="pagination-item">
+                                <a class="pagination-link" href="?page={{ num }}{% if filter_status %}&status={{ filter_status }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                            <li class="pagination-item">
+                                <a class="pagination-link" href="?page={{ num }}{% if filter_status %}&status={{ filter_status }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+                            <li class="pagination-item disabled">
+                                <span class="pagination-link">...</span>
                             </li>
                         {% endif %}
                     {% endfor %}
 
                     {% if page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if filter_status %}&status={{ filter_status }}{% endif %}">Suivante ›</a>
+                        <li class="pagination-item">
+                            <a class="pagination-link" href="?page={{ page_obj.next_page_number }}{% if filter_status %}&status={{ filter_status }}{% endif %}" title="Page suivante">
+                                <i class="ph ph-caret-right"></i>
+                            </a>
                         </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if filter_status %}&status={{ filter_status }}{% endif %}">Dernière »</a>
+                        <li class="pagination-item">
+                            <a class="pagination-link" href="?page={{ page_obj.paginator.num_pages }}{% if filter_status %}&status={{ filter_status }}{% endif %}" title="Dernière page">
+                                <i class="ph ph-caret-double-right"></i>
+                            </a>
                         </li>
                     {% endif %}
                 </ul>
@@ -91,4 +719,41 @@
         </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit filter on change
+    const filterSelect = document.getElementById('id_status');
+    if (filterSelect) {
+        filterSelect.addEventListener('change', function() {
+            this.form.submit();
+        });
+    }
+
+    // Mark notification as read on click
+    const notificationItems = document.querySelectorAll('.notification-item.unread');
+    notificationItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            // Only if not clicking the action button
+            if (!e.target.closest('.btn-view')) {
+                this.classList.remove('unread');
+                this.style.opacity = '0.6';
+            }
+        });
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // M = Mark all as read
+        if (e.key === 'm' || e.key === 'M') {
+            const markAllBtn = document.querySelector('.btn-mark-all');
+            if (markAllBtn) {
+                markAllBtn.click();
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

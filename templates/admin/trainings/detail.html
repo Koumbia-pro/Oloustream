@@ -1,366 +1,1100 @@
 {% extends "admin/admin_base.html" %}
 {% block title %}Détail Formation - {{ training.title }} - Oloustream Admin{% endblock %}
 
-{% block content %}
+{% block extra_css %}
 <style>
-/* =========================================================
-   DÉTAIL FORMATION – STYLE ULTRA PRO
-   ========================================================= */
+    /* ==================== VARIABLES LOCALES ==================== */
+    :root {
+        --primary-400: #c084fc;
+        --primary-500: #a855f7;
+        --primary-600: #9333ea;
+        --primary-700: #7c3aed;
+        --surface-100: #f4f4f5;
+        --surface-200: #e4e4e7;
+        --surface-300: #d4d4d8;
+        --surface-400: #a1a1aa;
+        --surface-500: #71717a;
+        --surface-600: #52525b;
+        --surface-700: #3f3f46;
+        --surface-800: #27272a;
+        --surface-850: #1f1f23;
+        --surface-900: #18181b;
+        --error-color: #f87171;
+        --success-color: #34d399;
+        --info-color: #60a5fa;
+        --warning-color: #fbbf24;
+    }
 
-.trnD-wrapper {
-  max-width: 1100px;
-  margin: 0 auto;
-  animation: trnD-fadeInUp 0.4s ease-out;
-}
+    /* ==================== WRAPPER ==================== */
+    .training-detail-wrapper {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        animation: fadeInUp 0.4s ease-out;
+    }
 
-.trnD-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-}
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
-.trnD-header h1 {
-  font-size: 1.6rem;
-  margin: 0;
-}
+    /* ==================== HEADER ==================== */
+    .detail-page-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
 
-.trnD-header .subtitle {
-  font-size: 0.9rem;
-  color: #6b7280;
-}
+    .header-left {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        flex: 1;
+    }
 
-/* Badges */
-.trnD-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
+    .header-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+        box-shadow: 0 8px 25px rgba(147, 51, 234, 0.35);
+        flex-shrink: 0;
+        animation: pulse 2s ease-in-out infinite;
+    }
 
-.trnD-badge-level {
-  background: #eef2ff;
-  color: #4338ca;
-}
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 8px 25px rgba(147, 51, 234, 0.35); }
+        50% { box-shadow: 0 8px 35px rgba(147, 51, 234, 0.45); }
+    }
 
-.trnD-badge-mode {
-  background: #e0f2fe;
-  color: #0369a1;
-}
+    .header-text h1 {
+        font-size: 1.625rem;
+        font-weight: 700;
+        color: #f4f4f5;
+        margin: 0 0 0.5rem 0;
+        line-height: 1.3;
+    }
 
-.trnD-badge-period-current { background: #dbeafe; color: #1d4ed8; }
-.trnD-badge-period-upcoming { background: #fef3c7; color: #92400e; }
-.trnD-badge-period-past { background: #fee2e2; color: #b91c1c; }
-.trnD-badge-period-none { background: #e5e7eb; color: #6b7280; }
+    .header-subtitle {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
 
-.trnD-badge-active-yes { background: #dcfce7; color: #166534; }
-.trnD-badge-active-no { background: #e5e7eb; color: #6b7280; }
+    .header-info-line {
+        font-size: 0.875rem;
+        color: #a1a1aa;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
 
-/* Carte image */
-.trnD-image-card {
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
-  padding: 1rem;
-  text-align: center;
-}
+    .header-info-line i {
+        color: #71717a;
+    }
 
-.trnD-image-preview {
-  width: 100%;
-  max-height: 220px;
-  object-fit: cover;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-}
+    .header-info-line strong {
+        color: #d4d4d8;
+    }
 
-/* Sections */
-.trnD-section {
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
-  margin-bottom: 1.25rem;
-  padding: 1.25rem 1.5rem;
-}
+    /* Header Right */
+    .header-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.75rem;
+    }
 
-.trnD-section-header {
-  margin-bottom: 0.75rem;
-}
+    .status-badges-group {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
 
-.trnD-section-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.4375rem 0.875rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
 
-.trnD-section-title span.icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
-  background: #fee2e2;
-  color: #b91c1c;
-  font-size: 0.9rem;
-}
+    .status-badge i { font-size: 0.875rem; }
 
-.trnD-section-desc {
-  font-size: 0.8rem;
-  color: #6b7280;
-}
+    .status-badge.level {
+        background: rgba(99, 102, 241, 0.15);
+        color: #818cf8;
+        border: 1px solid rgba(99, 102, 241, 0.3);
+    }
 
-/* Grille */
-.trnD-grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem 1.25rem;
-}
+    .status-badge.mode {
+        background: rgba(6, 182, 212, 0.15);
+        color: #22d3ee;
+        border: 1px solid rgba(6, 182, 212, 0.3);
+    }
 
-.trnD-label {
-  font-size: 0.8rem;
-  color: #6b7280;
-}
+    .status-badge.current {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
 
-.trnD-value {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #111827;
-}
+    .status-badge.upcoming {
+        background: rgba(234, 179, 8, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(234, 179, 8, 0.3);
+    }
 
-/* Responsive */
-@media (max-width: 992px) {
-  .trnD-grid-2 {
-    grid-template-columns: 1fr;
-  }
-}
+    .status-badge.past {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
 
-/* Animation */
-@keyframes trnD-fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+    .status-badge.none {
+        background: rgba(82, 82, 91, 0.2);
+        color: #a1a1aa;
+        border: 1px solid rgba(82, 82, 91, 0.4);
+    }
+
+    .status-badge.active {
+        background: rgba(34, 197, 94, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .status-badge.inactive {
+        background: rgba(82, 82, 91, 0.2);
+        color: #a1a1aa;
+        border: 1px solid rgba(82, 82, 91, 0.4);
+    }
+
+    /* Action Buttons */
+    .action-buttons-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .btn-action i { font-size: 1rem; }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #9333ea, #7c3aed);
+        color: white;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.35);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(147, 51, 234, 0.45);
+        color: white;
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(239, 68, 68, 0.45);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #27272a;
+        color: #d4d4d8;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary:hover {
+        background: #3f3f46;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* ==================== LAYOUT 2 COLONNES ==================== */
+    .detail-layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    /* ==================== SIDEBAR ==================== */
+    .detail-sidebar {
+        position: sticky;
+        top: calc(var(--header-height, 70px) + 1.5rem);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /* Image Card */
+    .image-card {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .image-preview-container {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        background: #27272a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .image-preview-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .image-placeholder {
+        font-size: 3rem;
+        color: #52525b;
+    }
+
+    .image-card-body {
+        padding: 1.25rem;
+    }
+
+    .image-info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        padding: 0.625rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .image-info-item:last-child {
+        border-bottom: none;
+    }
+
+    .image-info-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .image-info-value {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: #f4f4f5;
+    }
+
+    .image-info-value.price {
+        font-size: 1.25rem;
+        color: #34d399;
+    }
+
+    .image-info-value.duration {
+        color: #60a5fa;
+    }
+
+    /* Stats Card */
+    .stats-card {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 1.25rem;
+    }
+
+    .stats-card-title {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 0.75rem;
+        background: #27272a;
+        border-radius: 10px;
+    }
+
+    .stat-item-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #f4f4f5;
+    }
+
+    .stat-item-label {
+        font-size: 0.6875rem;
+        color: #71717a;
+        margin-top: 0.25rem;
+    }
+
+    /* Quick Actions */
+    .quick-actions-card {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 1.25rem;
+    }
+
+    .quick-actions-title {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.875rem;
+    }
+
+    .quick-action-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: #a1a1aa;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-bottom: 0.375rem;
+        text-align: left;
+        text-decoration: none;
+    }
+
+    .quick-action-btn:last-child { margin-bottom: 0; }
+
+    .quick-action-btn i {
+        font-size: 1rem;
+        width: 16px;
+        text-align: center;
+    }
+
+    .quick-action-btn:hover {
+        background: rgba(255, 255, 255, 0.03);
+        color: #e4e4e7;
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .quick-action-btn.primary:hover {
+        background: rgba(147, 51, 234, 0.1);
+        color: #c084fc;
+        border-color: rgba(147, 51, 234, 0.3);
+    }
+
+    .quick-action-btn.danger:hover {
+        background: rgba(239, 68, 68, 0.1);
+        color: #f87171;
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    /* ==================== CONTENT AREA ==================== */
+    .detail-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    /* ==================== DETAIL SECTIONS ==================== */
+    .detail-section {
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.25s ease;
+        animation: fadeInUp 0.4s ease forwards;
+    }
+
+    .detail-section:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .detail-section:nth-child(1) { animation-delay: 0.1s; }
+    .detail-section:nth-child(2) { animation-delay: 0.15s; }
+    .detail-section:nth-child(3) { animation-delay: 0.2s; }
+    .detail-section:nth-child(4) { animation-delay: 0.25s; }
+    .detail-section:nth-child(5) { animation-delay: 0.3s; }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        padding: 1.25rem 1.5rem;
+        background: rgba(0, 0, 0, 0.25);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .section-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.125rem;
+        background: rgba(147, 51, 234, 0.15);
+        color: #c084fc;
+    }
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #f4f4f5;
+        margin: 0;
+    }
+
+    .section-body {
+        padding: 1.5rem;
+    }
+
+    /* Info Grid */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .info-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .info-value {
+        font-size: 0.9375rem;
+        font-weight: 500;
+        color: #f4f4f5;
+        line-height: 1.6;
+    }
+
+    .info-value.empty {
+        color: #52525b;
+        font-style: italic;
+    }
+
+    /* Content Text */
+    .content-text {
+        font-size: 0.9375rem;
+        line-height: 1.7;
+        color: #d4d4d8;
+    }
+
+    .content-text.summary {
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .content-text strong {
+        color: #f4f4f5;
+    }
+
+    .content-empty {
+        color: #52525b;
+        font-style: italic;
+    }
+
+    /* Brochure Link */
+    .brochure-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1rem;
+        background: #27272a;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #d4d4d8;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .brochure-link:hover {
+        background: #3f3f46;
+        color: white;
+    }
+
+    .brochure-link i {
+        color: #ef4444;
+        font-size: 1.125rem;
+    }
+
+    /* ==================== FOOTER ==================== */
+    .detail-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        background: #1f1f23;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        margin-top: 0.5rem;
+    }
+
+    .footer-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8125rem;
+        color: #71717a;
+    }
+
+    .footer-info i { font-size: 1rem; }
+
+    .footer-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1024px) {
+        .detail-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .detail-sidebar {
+            position: static;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .image-card {
+            grid-column: span 2;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .detail-page-header {
+            flex-direction: column;
+        }
+
+        .header-actions {
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .action-buttons-group {
+            width: 100%;
+            flex-direction: column;
+        }
+
+        .btn-action { width: 100%; justify-content: center; }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .detail-sidebar {
+            grid-template-columns: 1fr;
+        }
+
+        .image-card {
+            grid-column: 1;
+        }
+
+        .detail-footer {
+            flex-direction: column;
+        }
+
+        .footer-actions {
+            width: 100%;
+        }
+
+        .footer-actions .btn-action { flex: 1; }
+    }
+
+    @media (max-width: 480px) {
+        .header-left { flex-direction: column; }
+
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
+        }
+
+        .header-text h1 { font-size: 1.25rem; }
+
+        .section-body { padding: 1rem; }
+
+        .stats-grid { grid-template-columns: 1fr; }
+    }
 </style>
+{% endblock %}
 
-<div class="trnD-wrapper">
-    <div class="trnD-header">
-        <div>
-            <h1>{{ training.title }}</h1>
-            <p class="subtitle">
-                {% if training.category %}
-                    Catégorie : {{ training.category.name }}<br>
-                {% endif %}
-                Créée le {{ training.created_at|date:"d/m/Y H:i" }} – 
-                Mise à jour le {{ training.updated_at|date:"d/m/Y H:i" }}
-            </p>
+{% block content %}
+<div class="training-detail-wrapper">
+    <!-- ==================== HEADER ==================== -->
+    <div class="detail-page-header">
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="ph-bold ph-graduation-cap"></i>
+            </div>
+            <div class="header-text">
+                <h1>{{ training.title }}</h1>
+                <div class="header-subtitle">
+                    {% if training.category %}
+                    <span class="header-info-line">
+                        <i class="ph ph-folder"></i>
+                        Catégorie : <strong>{{ training.category.name }}</strong>
+                    </span>
+                    {% endif %}
+                    <span class="header-info-line">
+                        <i class="ph ph-clock"></i>
+                        Créée le {{ training.created_at|date:"d/m/Y" }} • Mise à jour le {{ training.updated_at|date:"d/m/Y" }}
+                    </span>
+                </div>
+            </div>
         </div>
-        <div class="text-end">
-            <div class="mb-2">
-                <span class="trnD-badge trnD-badge-level">
+
+        <div class="header-actions">
+            <div class="status-badges-group">
+                <span class="status-badge level">
                     <i class="ph ph-graduation-cap"></i>
                     {{ training.get_level_display }}
                 </span>
-                <span class="trnD-badge trnD-badge-mode ms-1">
+                <span class="status-badge mode">
                     <i class="ph ph-monitor-play"></i>
                     {{ training.get_mode_display }}
                 </span>
-
+                
                 {% if period_label == "En cours" %}
-                    <span class="trnD-badge trnD-badge-period-current ms-1">
-                        <i class="ph ph-calendar-check"></i> En cours
+                    <span class="status-badge current">
+                        <i class="ph ph-play-circle"></i>
+                        En cours
                     </span>
                 {% elif period_label == "À venir" %}
-                    <span class="trnD-badge trnD-badge-period-upcoming ms-1">
-                        <i class="ph ph-calendar-plus"></i> À venir
+                    <span class="status-badge upcoming">
+                        <i class="ph ph-clock-countdown"></i>
+                        À venir
                     </span>
                 {% elif period_label == "Terminée" %}
-                    <span class="trnD-badge trnD-badge-period-past ms-1">
-                        <i class="ph ph-calendar-x"></i> Terminée
+                    <span class="status-badge past">
+                        <i class="ph ph-check-circle"></i>
+                        Terminée
                     </span>
                 {% else %}
-                    <span class="trnD-badge trnD-badge-period-none ms-1">
-                        <i class="ph ph-calendar-dots"></i> Non planifiée
+                    <span class="status-badge none">
+                        <i class="ph ph-calendar-x"></i>
+                        Non planifiée
                     </span>
                 {% endif %}
 
                 {% if training.is_active %}
-                    <span class="trnD-badge trnD-badge-active-yes ms-1">
-                        <i class="ph ph-check-circle"></i> Active
+                    <span class="status-badge active">
+                        <i class="ph ph-check-circle"></i>
+                        Active
                     </span>
                 {% else %}
-                    <span class="trnD-badge trnD-badge-active-no ms-1">
-                        <i class="ph ph-x-circle"></i> Inactive
+                    <span class="status-badge inactive">
+                        <i class="ph ph-x-circle"></i>
+                        Inactive
                     </span>
                 {% endif %}
             </div>
-            <div class="btn-group btn-group-sm" role="group">
-                <a href="{% url 'dashboard:trainings_edit' training.id %}" class="btn btn-primary">
-                    <i class="ph ph-pencil-simple"></i> Modifier
+
+            <div class="action-buttons-group">
+                <a href="{% url 'dashboard:trainings_edit' training.id %}" class="btn-action btn-primary">
+                    <i class="ph ph-pencil-simple"></i>
+                    Modifier
                 </a>
-                <a href="{% url 'dashboard:trainings_delete' training.id %}" class="btn btn-danger">
-                    <i class="ph ph-trash"></i> Supprimer
+                <a href="{% url 'dashboard:trainings_delete' training.id %}" class="btn-action btn-danger">
+                    <i class="ph ph-trash"></i>
+                    Supprimer
                 </a>
-                <a href="{% url 'dashboard:trainings_list' %}" class="btn btn-secondary">
-                    Retour à la liste
+                <a href="{% url 'dashboard:trainings_list' %}" class="btn-action btn-secondary">
+                    <i class="ph ph-arrow-left"></i>
+                    Retour
                 </a>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Colonne gauche : image + infos clefs -->
-        <div class="col-lg-4 mb-4">
-            <div class="trnD-image-card mb-3">
-                {% if training.image %}
-                    <img src="{{ training.image.url }}" alt="Image formation" class="trnD-image-preview mb-2">
-                {% else %}
-                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded mb-2"
-                         style="width: 100%; height: 180px; font-size: 2rem;">
-                        <i class="ph ph-image-square"></i>
+    <!-- ==================== LAYOUT 2 COLONNES ==================== -->
+    <div class="detail-layout">
+        <!-- ==================== SIDEBAR ==================== -->
+        <div class="detail-sidebar">
+            <!-- Image Card -->
+            <div class="image-card">
+                <div class="image-preview-container">
+                    {% if training.image %}
+                        <img src="{{ training.image.url }}" alt="{{ training.title }}">
+                    {% else %}
+                        <i class="ph ph-image-square image-placeholder"></i>
+                    {% endif %}
+                </div>
+                <div class="image-card-body">
+                    <div class="image-info-item">
+                        <span class="image-info-label">Slug (URL)</span>
+                        <span class="image-info-value">{{ training.slug }}</span>
                     </div>
-                {% endif %}
-                <p class="mb-0 trnD-label">Slug (URL) :</p>
-                <p class="trnD-value">{{ training.slug }}</p>
-
-                {% if training.duration_hours %}
-                    <p class="mb-0 trnD-label">Durée totale :</p>
-                    <p class="trnD-value">{{ training.duration_hours }} h</p>
-                {% endif %}
-                {% if training.price %}
-                    <p class="mb-0 trnD-label">Prix :</p>
-                    <p class="trnD-value">{{ training.price }} F CFA</p>
-                {% endif %}
+                    {% if training.duration_hours %}
+                    <div class="image-info-item">
+                        <span class="image-info-label">Durée totale</span>
+                        <span class="image-info-value duration">{{ training.duration_hours }} heures</span>
+                    </div>
+                    {% endif %}
+                    <div class="image-info-item">
+                        <span class="image-info-label">Prix</span>
+                        <span class="image-info-value price">
+                            {% if training.price %}
+                                {{ training.price|floatformat:0 }} F CFA
+                            {% else %}
+                                Gratuit
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
             </div>
 
-            <div class="trnD-section">
-                <div class="trnD-section-header">
-                    <h2 class="trnD-section-title">
-                        Informations logistiques
-                    </h2>
+            <!-- Stats Card -->
+            <div class="stats-card">
+                <div class="stats-card-title">
+                    <i class="ph ph-chart-bar"></i>
+                    Informations
                 </div>
-                <div class="trnD-grid-2">
-                    <div>
-                        <p class="mb-0 trnD-label">Lieu :</p>
-                        <p class="trnD-value">{{ training.location|default:"-" }}</p>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-item-value">{{ training.max_seats|default:"∞" }}</div>
+                        <div class="stat-item-label">Places max</div>
                     </div>
-                    <div>
-                        <p class="mb-0 trnD-label">Certification :</p>
-                        <p class="trnD-value">
-                            {% if training.certification %}Oui{% else %}Non{% endif %}
-                        </p>
-                    </div>
-                    <div>
-                        <p class="mb-0 trnD-label">Places max :</p>
-                        <p class="trnD-value">{{ training.max_seats|default:"-" }}</p>
-                    </div>
-                    <div>
-                        <p class="mb-0 trnD-label">Période :</p>
-                        <p class="trnD-value">
-                            {% if training.start_date %}
-                                {{ training.start_date|date:"d/m/Y" }}
-                                {% if training.end_date %} – {{ training.end_date|date:"d/m/Y" }}{% endif %}
-                            {% else %}
-                                <span class="text-muted">Non définie</span>
-                            {% endif %}
-                        </p>
+                    <div class="stat-item">
+                        <div class="stat-item-value">{% if training.certification %}✓{% else %}✗{% endif %}</div>
+                        <div class="stat-item-label">Certification</div>
                     </div>
                 </div>
-                {% if training.schedule %}
-                    <hr class="my-2">
-                    <p class="mb-0 trnD-label">Horaires / planning :</p>
-                    <p class="trnD-value">{{ training.schedule|linebreaksbr }}</p>
-                {% endif %}
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions-card">
+                <div class="quick-actions-title">Actions rapides</div>
+                <a href="{% url 'dashboard:trainings_edit' training.id %}" class="quick-action-btn primary">
+                    <i class="ph ph-pencil-simple"></i>
+                    Modifier la formation
+                </a>
+                <a href="#" class="quick-action-btn">
+                    <i class="ph ph-copy"></i>
+                    Dupliquer
+                </a>
+                <a href="#" class="quick-action-btn">
+                    <i class="ph ph-share-network"></i>
+                    Partager
+                </a>
+                <a href="{% url 'dashboard:trainings_delete' training.id %}" class="quick-action-btn danger">
+                    <i class="ph ph-trash"></i>
+                    Supprimer
+                </a>
             </div>
         </div>
 
-        <!-- Colonne droite : contenu pédagogique -->
-        <div class="col-lg-8 mb-4">
-            <div class="trnD-section mb-3">
-                <div class="trnD-section-header">
-                    <h2 class="trnD-section-title">
-                        <span class="icon"><i class="ph ph-text-align-left"></i></span>
-                        Description
-                    </h2>
-                </div>
-                {% if training.short_description %}
-                    <p class="mb-2"><strong>Résumé :</strong> {{ training.short_description }}</p>
-                {% endif %}
-                <p class="mb-0">{{ training.description|linebreaksbr }}</p>
-            </div>
-
-            <div class="trnD-section mb-3">
-                <div class="trnD-section-header">
-                    <h2 class="trnD-section-title">
-                        <span class="icon"><i class="ph ph-target"></i></span>
-                        Objectifs & prérequis
-                    </h2>
-                </div>
-                <div class="trnD-grid-2">
-                    <div>
-                        <p class="mb-0 trnD-label">Objectifs pédagogiques :</p>
-                        <p class="trnD-value">
-                            {{ training.objectives|linebreaksbr|default:"Non renseignés." }}
-                        </p>
+        <!-- ==================== CONTENT ==================== -->
+        <div class="detail-content">
+            <!-- Section: Description -->
+            <section class="detail-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="ph ph-text-align-left"></i>
                     </div>
-                    <div>
-                        <p class="mb-0 trnD-label">Prérequis :</p>
-                        <p class="trnD-value">
-                            {{ training.prerequisites|linebreaksbr|default:"Aucun prérequis indiqué." }}
+                    <h2 class="section-title">Description</h2>
+                </div>
+                <div class="section-body">
+                    {% if training.short_description %}
+                        <p class="content-text summary">
+                            <strong>Résumé :</strong> {{ training.short_description }}
                         </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="trnD-section mb-3">
-                <div class="trnD-section-header">
-                    <h2 class="trnD-section-title">
-                        <span class="icon"><i class="ph ph-users-three"></i></span>
-                        Public cible
-                    </h2>
-                </div>
-                <p class="mb-0 trnD-value">
-                    {{ training.target_audience|linebreaksbr|default:"Non spécifié." }}
-                </p>
-            </div>
-
-            <div class="trnD-section">
-                <div class="trnD-section-header">
-                    <h2 class="trnD-section-title">
-                        <span class="icon"><i class="ph ph-list-numbers"></i></span>
-                        Programme détaillé
-                    </h2>
-                </div>
-                <p class="mb-0 trnD-value">
-                    {{ training.program|linebreaksbr|default:"Programme non renseigné." }}
-                </p>
-            </div>
-
-            <div class="trnD-section">
-                <div class="trnD-section-header">
-                    <h2 class="trnD-section-title">
-                        <span class="icon"><i class="ph ph-file-pdf"></i></span>
-                        Documents
-                    </h2>
-                </div>
-                <p class="mb-2">
-                    <span class="trnD-label">Brochure PDF :</span><br>
-                    {% if training.brochure %}
-                        <a href="{{ training.brochure.url }}" target="_blank" class="btn btn-outline-secondary btn-sm">
-                            <i class="ph ph-file-pdf"></i> Voir la brochure
-                        </a>
-                    {% else %}
-                        <span class="text-muted">Aucune brochure disponible.</span>
                     {% endif %}
-                </p>
-            </div>
+                    <div class="content-text">
+                        {% if training.description %}
+                            {{ training.description|linebreaksbr }}
+                        {% else %}
+                            <span class="content-empty">Aucune description disponible.</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Objectifs & Prérequis -->
+            <section class="detail-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="ph ph-target"></i>
+                    </div>
+                    <h2 class="section-title">Objectifs & Prérequis</h2>
+                </div>
+                <div class="section-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Objectifs pédagogiques</span>
+                            <span class="info-value {% if not training.objectives %}empty{% endif %}">
+                                {% if training.objectives %}
+                                    {{ training.objectives|linebreaksbr }}
+                                {% else %}
+                                    Non renseignés
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Prérequis</span>
+                            <span class="info-value {% if not training.prerequisites %}empty{% endif %}">
+                                {% if training.prerequisites %}
+                                    {{ training.prerequisites|linebreaksbr }}
+                                {% else %}
+                                    Aucun prérequis
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Public cible -->
+            <section class="detail-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="ph ph-users-three"></i>
+                    </div>
+                    <h2 class="section-title">Public cible</h2>
+                </div>
+                <div class="section-body">
+                    <div class="content-text {% if not training.target_audience %}content-empty{% endif %}">
+                        {% if training.target_audience %}
+                            {{ training.target_audience|linebreaksbr }}
+                        {% else %}
+                            Non spécifié
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Programme -->
+            <section class="detail-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="ph ph-list-numbers"></i>
+                    </div>
+                    <h2 class="section-title">Programme détaillé</h2>
+                </div>
+                <div class="section-body">
+                    <div class="content-text {% if not training.program %}content-empty{% endif %}">
+                        {% if training.program %}
+                            {{ training.program|linebreaksbr }}
+                        {% else %}
+                            Programme non renseigné
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Logistique -->
+            <section class="detail-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="ph ph-map-trifold"></i>
+                    </div>
+                    <h2 class="section-title">Informations logistiques</h2>
+                </div>
+                <div class="section-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Lieu</span>
+                            <span class="info-value {% if not training.location %}empty{% endif %}">
+                                {{ training.location|default:"Non défini" }}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Période</span>
+                            <span class="info-value {% if not training.start_date %}empty{% endif %}">
+                                {% if training.start_date %}
+                                    {{ training.start_date|date:"d/m/Y" }}
+                                    {% if training.end_date %} → {{ training.end_date|date:"d/m/Y" }}{% endif %}
+                                {% else %}
+                                    Non planifiée
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% if training.schedule %}
+                        <div class="info-item" style="grid-column: span 2;">
+                            <span class="info-label">Horaires / Planning</span>
+                            <span class="info-value">{{ training.schedule|linebreaksbr }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Documents -->
+            <section class="detail-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="ph ph-file-pdf"></i>
+                    </div>
+                    <h2 class="section-title">Documents</h2>
+                </div>
+                <div class="section-body">
+                    <div class="info-item">
+                        <span class="info-label">Brochure PDF</span>
+                        {% if training.brochure %}
+                            <a href="{{ training.brochure.url }}" target="_blank" class="brochure-link">
+                                <i class="ph ph-file-pdf"></i>
+                                Télécharger la brochure
+                            </a>
+                        {% else %}
+                            <span class="info-value empty">Aucune brochure disponible</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- ==================== FOOTER ==================== -->
+    <div class="detail-footer">
+        <div class="footer-info">
+            <i class="ph ph-info"></i>
+            <span>
+                Dernière modification : {{ training.updated_at|date:"d/m/Y à H:i" }}
+            </span>
+        </div>
+        <div class="footer-actions">
+            <a href="{% url 'dashboard:trainings_edit' training.id %}" class="btn-action btn-primary">
+                <i class="ph ph-pencil-simple"></i>
+                Modifier
+            </a>
+            <a href="{% url 'dashboard:trainings_list' %}" class="btn-action btn-secondary">
+                <i class="ph ph-list"></i>
+                Toutes les formations
+            </a>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add ripple effect on buttons
+    document.querySelectorAll('.btn-action, .quick-action-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            const ripple = document.createElement('span');
+            ripple.style.cssText = `
+                position: absolute;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                transform: scale(0);
+                animation: ripple 0.6s ease-out;
+                pointer-events: none;
+            `;
+            
+            this.style.position = 'relative';
+            this.style.overflow = 'hidden';
+            this.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 600);
+        });
+    });
+
+    // Animate sections on scroll
+    const sections = document.querySelectorAll('.detail-section');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }, index * 50);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    sections.forEach(section => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(20px)';
+        section.style.transition = 'all 0.5s ease';
+        observer.observe(section);
+    });
+
+    // Add keyframes
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes ripple {
+            to {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+});
+</script>
 {% endblock %}

@@ -57,3 +57,85 @@ def send_reservation_status_changed_email(request, reservation, old_status_label
     )
     msg.attach_alternative(html, "text/html")
     msg.send(fail_silently=False)
+
+
+
+
+# AJOUTER ces fonctions dans ton fichier emailing.py existant
+#==================================================== pour la partie business partners ====================================
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
+
+
+def send_partner_application_notification(application):
+    """Notifie l'équipe d'une nouvelle candidature partenaire"""
+    subject = f"🤝 Nouvelle candidature partenaire - {application.full_name}"
+    
+    message = f"""
+    Nouvelle candidature partenaire reçue :
+    
+    Nom : {application.full_name}
+    Ville : {application.city}
+    Téléphone : {application.phone}
+    Réseau : {application.get_network_strength_display()}
+    
+    👉 Voir la candidature : {settings.SITE_URL}/admin/partners/applications/{application.id}/
+    """
+    
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [settings.ADMIN_EMAIL],  # À définir dans settings.py
+        fail_silently=True,
+    )
+
+
+def send_partner_activation_email(partner, password):
+    """Envoie les identifiants au nouveau partenaire"""
+    subject = f"🎉 Bienvenue chez Oloustream - Votre code partenaire : {partner.partner_code}"
+    
+    context = {
+        'partner': partner,
+        'password': password,
+        'login_url': f"{settings.SITE_URL}/partners/login/",
+    }
+    
+    html_message = render_to_string('emails/partner_activation.html', context)
+    
+    send_mail(
+        subject,
+        f"Votre code partenaire : {partner.partner_code}\nMot de passe : {password}",
+        settings.DEFAULT_FROM_EMAIL,
+        [partner.user.email],
+        html_message=html_message,
+        fail_silently=False,
+    )
+
+
+def notify_contract_validated(contract):
+    """Notifie le partenaire qu'un contrat est validé"""
+    subject = f"✅ Contrat validé - Commission : {contract.commission_amount:,.0f} FCFA"
+    
+    message = f"""
+    Félicitations {contract.partner.user.get_full_name()} !
+    
+    Votre contrat a été validé :
+    
+    Client : {contract.client_name}
+    Montant : {contract.contract_amount:,.0f} FCFA
+    Commission : {contract.commission_amount:,.0f} FCFA ({contract.commission_rate}%)
+    
+    Votre commission sera versée prochainement.
+    
+    Merci pour votre collaboration !
+    """
+    
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [contract.partner.user.email],
+        fail_silently=True,
+    )

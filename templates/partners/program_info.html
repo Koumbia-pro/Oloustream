@@ -1,0 +1,1513 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Programme Partenaires d'Affaires - Oloustream{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================
+       🎨 DESIGN SYSTEM - PROGRAMME PARTENAIRES
+       Style unifié avec votre base.html
+       ============================================ */
+    
+    .partner-program {
+        background: var(--dark);
+        color: var(--gray-200);
+    }
+
+    /* ============================================
+       🚀 HERO SECTION
+       ============================================ */
+    .hero-partner {
+        background: linear-gradient(135deg, 
+            rgba(2, 6, 23, 0.95) 0%, 
+            rgba(230, 0, 0, 0.15) 50%,
+            rgba(2, 6, 23, 0.95) 100%
+        );
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        padding: 120px 0;
+        overflow: hidden;
+    }
+
+    .hero-partner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    .hero-partner .container {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-title {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.2;
+        color: var(--white);
+        text-shadow: 2px 4px 20px rgba(0, 0, 0, 0.5);
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .hero-title .icon-wrapper {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--red), var(--gold));
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 30px rgba(230, 0, 0, 0.4);
+    }
+
+    .hero-title .icon-wrapper i {
+        font-size: 2.2rem;
+        color: white;
+    }
+
+    .hero-partner .lead {
+        font-size: 1.2rem;
+        color: var(--gray-200);
+        line-height: 1.7;
+        margin-bottom: 30px;
+    }
+
+    /* Boutons Hero */
+    .btn-hero-primary {
+        background: linear-gradient(135deg, var(--red), var(--red-dark));
+        border: none;
+        padding: 16px 40px;
+        font-weight: 600;
+        border-radius: 50px;
+        box-shadow: 0 10px 30px rgba(230, 0, 0, 0.4);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        color: white;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1rem;
+    }
+
+    .btn-hero-primary:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 15px 40px rgba(230, 0, 0, 0.5);
+        background: linear-gradient(135deg, #FF3333, var(--red));
+        color: white;
+    }
+
+    .btn-hero-primary i {
+        font-size: 1.1rem;
+    }
+
+    .btn-hero-outline {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        padding: 14px 40px;
+        border-radius: 50px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        color: var(--white);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-hero-outline:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: var(--white);
+        transform: translateY(-3px);
+        color: var(--white);
+    }
+
+    /* Stats Box */
+    .stats-box {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 24px;
+        padding: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .stats-box-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .stats-box-header .icon-circle {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, rgba(230, 0, 0, 0.2), rgba(245, 158, 11, 0.1));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(230, 0, 0, 0.3);
+    }
+
+    .stats-box-header .icon-circle i {
+        color: var(--red);
+        font-size: 1.2rem;
+    }
+
+    .stats-box-header h4 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        color: var(--white);
+        margin: 0;
+        font-size: 1.2rem;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 15px 10px;
+    }
+
+    .stat-item h2 {
+        font-size: 2.8rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--red), var(--gold));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 8px;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .stat-item small {
+        font-size: 0.85rem;
+        color: var(--gray-400);
+        font-weight: 500;
+    }
+
+    /* ============================================
+       SECTIONS COMMUNES
+       ============================================ */
+    .section-partner {
+        padding: 100px 0;
+        position: relative;
+    }
+
+    .section-partner.bg-dark-alt {
+        background: linear-gradient(180deg, 
+            rgba(2, 6, 23, 0.8) 0%, 
+            rgba(2, 6, 23, 0.95) 100%
+        );
+    }
+
+    .section-partner.bg-dark {
+        background: linear-gradient(180deg, 
+            rgba(2, 6, 23, 0.95) 0%, 
+            rgba(2, 6, 23, 0.8) 100%
+        );
+    }
+
+    /* Section Header */
+    .section-header {
+        text-align: center;
+        margin-bottom: 60px;
+    }
+
+    .section-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, rgba(230, 0, 0, 0.15), rgba(245, 158, 11, 0.05));
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 25px;
+        border: 1px solid rgba(230, 0, 0, 0.2);
+    }
+
+    .section-icon i {
+        font-size: 2rem;
+        color: var(--red);
+    }
+
+    .section-title {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 800;
+        font-size: 2.5rem;
+        color: var(--white);
+        margin-bottom: 15px;
+    }
+
+    .section-title::after {
+        content: '';
+        display: block;
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--red), var(--gold));
+        border-radius: 2px;
+        margin: 20px auto 0;
+    }
+
+    .section-subtitle {
+        color: var(--gray-400);
+        font-size: 1.1rem;
+    }
+
+    /* ============================================
+       BENEFIT CARDS
+       ============================================ */
+    .benefit-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        position: relative;
+        padding: 40px 30px;
+        text-align: center;
+    }
+
+    .benefit-card:hover {
+        transform: translateY(-10px);
+        border-color: rgba(230, 0, 0, 0.3);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .benefit-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, 
+            rgba(230, 0, 0, 0.05) 0%, 
+            rgba(245, 158, 11, 0.02) 50%,
+            transparent 100%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        pointer-events: none;
+    }
+
+    .benefit-card:hover::before {
+        opacity: 1;
+    }
+
+    .benefit-icon {
+        width: 90px;
+        height: 90px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, 
+            rgba(230, 0, 0, 0.15), 
+            rgba(245, 158, 11, 0.05)
+        );
+        border-radius: 24px;
+        margin: 0 auto 25px;
+        border: 1px solid rgba(230, 0, 0, 0.2);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        z-index: 1;
+    }
+
+    .benefit-icon i {
+        font-size: 2.2rem;
+        color: var(--red);
+        transition: all 0.4s ease;
+    }
+
+    .benefit-card:hover .benefit-icon {
+        transform: scale(1.1) rotate(5deg);
+        background: linear-gradient(135deg, var(--red), var(--gold));
+        box-shadow: 0 15px 40px rgba(230, 0, 0, 0.4);
+    }
+
+    .benefit-card:hover .benefit-icon i {
+        color: white;
+    }
+
+    .benefit-card h4 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        color: var(--white);
+        margin-bottom: 15px;
+        font-size: 1.25rem;
+    }
+
+    .benefit-card p {
+        color: var(--gray-400);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .benefit-card .highlight {
+        color: var(--red);
+        font-weight: 700;
+    }
+
+    /* ============================================
+       STEP CARDS
+       ============================================ */
+    .step-container {
+        position: relative;
+    }
+
+    .step-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        padding: 40px 25px;
+        text-align: center;
+        position: relative;
+    }
+
+    .step-card:hover {
+        transform: translateY(-10px);
+        border-color: rgba(230, 0, 0, 0.3);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .step-number {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, var(--red), var(--red-dark));
+        color: white;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: 800;
+        font-family: 'Montserrat', sans-serif;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(230, 0, 0, 0.3);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        z-index: 1;
+    }
+
+    .step-card:hover .step-number {
+        transform: scale(1.1);
+        box-shadow: 0 15px 40px rgba(230, 0, 0, 0.5);
+    }
+
+    .step-card h5 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        color: var(--white);
+        margin-bottom: 12px;
+        font-size: 1.15rem;
+    }
+
+    .step-card p {
+        color: var(--gray-400);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* Ligne de connexion entre steps */
+    @media (min-width: 768px) {
+        .step-container:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 75px;
+            right: -15px;
+            width: 30px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--red), var(--gold));
+            border-radius: 2px;
+            z-index: 1;
+        }
+    }
+
+    /* ============================================
+       REGION CARDS
+       ============================================ */
+    .region-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(230, 0, 0, 0.2);
+        border-radius: 16px;
+        padding: 20px 15px;
+        text-align: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .region-card:hover {
+        background: linear-gradient(135deg, 
+            rgba(230, 0, 0, 0.15), 
+            rgba(245, 158, 11, 0.05)
+        );
+        border-color: var(--red);
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 15px 40px rgba(230, 0, 0, 0.3);
+    }
+
+    .region-card i {
+        color: var(--gold);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .region-card:hover i {
+        transform: rotate(15deg) scale(1.2);
+    }
+
+    .region-card h5 {
+        font-weight: 600;
+        color: var(--white);
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    /* ============================================
+       PROFILE LIST
+       ============================================ */
+    .profile-list {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(15px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .profile-item {
+        padding: 25px 30px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: all 0.3s ease;
+        background: transparent;
+    }
+
+    .profile-item:last-child {
+        border-bottom: none;
+    }
+
+    .profile-item:hover {
+        background: linear-gradient(90deg, 
+            rgba(230, 0, 0, 0.05) 0%, 
+            transparent 100%
+        );
+        padding-left: 40px;
+    }
+
+    .profile-icon {
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, 
+            rgba(34, 197, 94, 0.2), 
+            rgba(34, 197, 94, 0.05)
+        );
+        border-radius: 50%;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .profile-icon i {
+        color: #22C55E;
+        font-size: 1.1rem;
+    }
+
+    .profile-item-text {
+        color: var(--gray-200);
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    .profile-item-text strong {
+        color: var(--white);
+        font-weight: 600;
+    }
+
+    /* ============================================
+       REMUNERATION SECTION
+       ============================================ */
+    .remuneration-title {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 800;
+        font-size: 2.2rem;
+        color: var(--white);
+        margin-bottom: 40px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .remuneration-title .title-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, rgba(230, 0, 0, 0.15), rgba(245, 158, 11, 0.05));
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(230, 0, 0, 0.2);
+    }
+
+    .remuneration-title .title-icon i {
+        font-size: 1.5rem;
+        color: var(--red);
+    }
+
+    .benefit-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .benefit-list li {
+        padding: 18px 0;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-size: 1.05rem;
+        color: var(--gray-200);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .benefit-list li:last-child {
+        border-bottom: none;
+    }
+
+    .benefit-list li .list-icon {
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, 
+            rgba(230, 0, 0, 0.15), 
+            rgba(245, 158, 11, 0.05)
+        );
+        border-radius: 50%;
+        border: 1px solid rgba(230, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .benefit-list li .list-icon i {
+        font-size: 1.1rem;
+        color: var(--red);
+    }
+
+    .benefit-list li:hover .list-icon {
+        background: linear-gradient(135deg, var(--red), var(--gold));
+        transform: scale(1.1);
+    }
+
+    .benefit-list li:hover .list-icon i {
+        color: white;
+    }
+
+    .benefit-list li strong {
+        color: var(--white);
+        font-weight: 600;
+    }
+
+    /* Commission Card */
+    .commission-card {
+        background: linear-gradient(135deg, var(--red), var(--red-dark));
+        border-radius: 30px;
+        padding: 50px 40px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(230, 0, 0, 0.4);
+    }
+
+    .commission-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, 
+            rgba(255,255,255,0.1) 0%, 
+            transparent 70%
+        );
+        pointer-events: none;
+    }
+
+    .commission-card::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -30%;
+        width: 60%;
+        height: 60%;
+        background: radial-gradient(circle, 
+            rgba(245, 158, 11, 0.2) 0%, 
+            transparent 70%
+        );
+        pointer-events: none;
+    }
+
+    .commission-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 35px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .commission-header i {
+        font-size: 1.5rem;
+        color: var(--gold);
+    }
+
+    .commission-header h3 {
+        font-weight: 700;
+        font-size: 1.3rem;
+        color: white;
+        margin: 0;
+    }
+
+    .commission-block {
+        text-align: center;
+        margin-bottom: 25px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .commission-label {
+        font-size: 1rem;
+        color: rgba(255,255,255,0.85);
+        margin-bottom: 10px;
+    }
+
+    .commission-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        font-family: 'Montserrat', sans-serif;
+        color: white;
+        text-shadow: 2px 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .commission-value.big {
+        font-size: 3rem;
+    }
+
+    .commission-divider {
+        width: 80px;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.3);
+        margin: 25px auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    .commission-note {
+        font-size: 0.85rem;
+        opacity: 0.7;
+        color: white;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* ============================================
+       CTA FINAL
+       ============================================ */
+    .cta-final {
+        padding: 120px 0;
+        background: linear-gradient(135deg, 
+            rgba(2, 6, 23, 0.95) 0%, 
+            rgba(230, 0, 0, 0.2) 50%,
+            rgba(2, 6, 23, 0.95) 100%
+        );
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .cta-final::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7z' fill='%23ffffff' fill-opacity='0.02' fill-rule='evenodd'/%3E%3C/svg%3E");
+        pointer-events: none;
+    }
+
+    .cta-icon {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, var(--red), var(--gold));
+        border-radius: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 30px;
+        box-shadow: 0 15px 50px rgba(230, 0, 0, 0.4);
+        animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+        0%, 100% {
+            box-shadow: 0 15px 50px rgba(230, 0, 0, 0.4);
+        }
+        50% {
+            box-shadow: 0 20px 60px rgba(230, 0, 0, 0.6);
+        }
+    }
+
+    .cta-icon i {
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .cta-title {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 800;
+        font-size: 2.8rem;
+        color: var(--white);
+        text-shadow: 2px 4px 20px rgba(0, 0, 0, 0.5);
+        margin-bottom: 20px;
+    }
+
+    .cta-subtitle {
+        color: var(--gray-200);
+        font-size: 1.2rem;
+        margin-bottom: 40px;
+        opacity: 0.9;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .btn-cta {
+        background: white;
+        color: var(--red);
+        font-weight: 700;
+        padding: 18px 50px;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+    }
+
+    .btn-cta:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        background: #fff;
+        color: var(--red);
+    }
+
+    .btn-cta i {
+        font-size: 1.2rem;
+    }
+
+    .cta-contact {
+        margin-top: 50px;
+        padding-top: 30px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .cta-contact p {
+        color: var(--gray-400);
+        font-size: 0.95rem;
+        margin-bottom: 15px;
+    }
+
+    .cta-contact-links {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 30px;
+        flex-wrap: wrap;
+    }
+
+    .cta-contact-links a {
+        color: var(--white);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .cta-contact-links a i {
+        color: var(--red);
+        font-size: 1rem;
+    }
+
+    .cta-contact-links a:hover {
+        color: var(--gold);
+    }
+
+    .cta-contact-links a:hover i {
+        color: var(--gold);
+    }
+
+    /* ============================================
+       ANIMATIONS
+       ============================================ */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .animate-on-scroll.animated {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Delay animations */
+    .animate-delay-1 { transition-delay: 0.1s; }
+    .animate-delay-2 { transition-delay: 0.2s; }
+    .animate-delay-3 { transition-delay: 0.3s; }
+    .animate-delay-4 { transition-delay: 0.4s; }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 1200px) {
+        .hero-title {
+            font-size: 3rem;
+        }
+        
+        .section-title {
+            font-size: 2.2rem;
+        }
+    }
+
+    @media (max-width: 991px) {
+        .hero-partner {
+            min-height: auto;
+            padding: 80px 0;
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+        }
+
+        .hero-title .icon-wrapper {
+            width: 60px;
+            height: 60px;
+        }
+
+        .hero-title .icon-wrapper i {
+            font-size: 1.8rem;
+        }
+
+        .section-partner {
+            padding: 70px 0;
+        }
+
+        .section-title {
+            font-size: 2rem;
+        }
+
+        .stats-box {
+            margin-top: 40px;
+        }
+
+        .remuneration-title {
+            font-size: 1.8rem;
+            justify-content: center;
+            text-align: center;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2rem;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .hero-partner .lead {
+            text-align: center;
+        }
+
+        .hero-partner .d-flex {
+            justify-content: center;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+        }
+
+        .stat-item h2 {
+            font-size: 2.2rem;
+        }
+
+        .step-container:not(:last-child)::after {
+            display: none;
+        }
+
+        .commission-value {
+            font-size: 2rem;
+        }
+
+        .commission-value.big {
+            font-size: 2.5rem;
+        }
+
+        .cta-title {
+            font-size: 2rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .hero-title {
+            font-size: 1.8rem;
+            gap: 15px;
+        }
+
+        .hero-title .icon-wrapper {
+            width: 50px;
+            height: 50px;
+        }
+
+        .hero-title .icon-wrapper i {
+            font-size: 1.5rem;
+        }
+
+        .btn-hero-primary,
+        .btn-hero-outline {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .section-partner {
+            padding: 50px 0;
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+        }
+
+        .benefit-card,
+        .step-card {
+            padding: 30px 20px;
+        }
+
+        .profile-item {
+            padding: 20px;
+        }
+
+        .profile-item:hover {
+            padding-left: 25px;
+        }
+
+        .commission-card {
+            padding: 40px 25px;
+        }
+
+        .cta-final {
+            padding: 80px 0;
+        }
+
+        .cta-icon {
+            width: 80px;
+            height: 80px;
+        }
+
+        .cta-icon i {
+            font-size: 2rem;
+        }
+
+        .cta-title {
+            font-size: 1.8rem;
+        }
+
+        .cta-contact-links {
+            flex-direction: column;
+            gap: 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="partner-program">
+    <!-- ============================================
+         HERO SECTION
+         ============================================ -->
+    <section class="hero-partner">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-7">
+                    <h1 class="hero-title">
+                        <span class="icon-wrapper">
+                            <i class="fa-solid fa-handshake"></i>
+                        </span>
+                        Devenez Partenaire d'Affaires
+                    </h1>
+                    <p class="lead">
+                        Rejoignez le réseau de partenaires du leader du live streaming 
+                        au Burkina Faso et développez vos revenus.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="{% url 'partners:apply' %}" class="btn-hero-primary">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            Postuler maintenant
+                        </a>
+                        <a href="#comment-ca-marche" class="btn-hero-outline">
+                            <i class="fa-solid fa-circle-info"></i>
+                            En savoir plus
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="stats-box">
+                        <div class="stats-box-header">
+                            <div class="icon-circle">
+                                <i class="fa-solid fa-chart-pie"></i>
+                            </div>
+                            <h4>Nos partenaires en chiffres</h4>
+                        </div>
+                        <div class="row g-0">
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <h2>{{ stats.total_partners }}</h2>
+                                    <small>Partenaires actifs</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <h2>{{ stats.total_contracts }}</h2>
+                                    <small>Contrats signés</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <h2>{{ stats.regions_covered }}</h2>
+                                    <small>Régions couvertes</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         POURQUOI REJOINDRE
+         ============================================ -->
+    <section class="section-partner bg-dark-alt">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fa-solid fa-bullseye"></i>
+                </div>
+                <h2 class="section-title">Pourquoi rejoindre Oloustream ?</h2>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="benefit-card animate-on-scroll animate-delay-1">
+                        <div class="benefit-icon">
+                            <i class="fa-solid fa-coins"></i>
+                        </div>
+                        <h4>Commissions attractives</h4>
+                        <p>
+                            Jusqu'à <span class="highlight">20%</span> 
+                            sur chaque contrat apporté
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="benefit-card animate-on-scroll animate-delay-2">
+                        <div class="benefit-icon">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <h4>Marque reconnue</h4>
+                        <p>
+                            Représentez le leader du live streaming 
+                            avec +796 projets réalisés
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="benefit-card animate-on-scroll animate-delay-3">
+                        <div class="benefit-icon">
+                            <i class="fa-solid fa-rocket"></i>
+                        </div>
+                        <h4>Indépendance totale</h4>
+                        <p>
+                            Travaillez à votre rythme, 
+                            développez votre réseau librement
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         COMMENT ÇA MARCHE
+         ============================================ -->
+    <section id="comment-ca-marche" class="section-partner bg-dark">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                </div>
+                <h2 class="section-title">Comment ça marche ?</h2>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-3 col-6">
+                    <div class="step-container">
+                        <div class="step-card animate-on-scroll animate-delay-1">
+                            <div class="step-number">1</div>
+                            <h5>Postulez</h5>
+                            <p>Remplissez le formulaire de candidature en 5 minutes</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="step-container">
+                        <div class="step-card animate-on-scroll animate-delay-2">
+                            <div class="step-number">2</div>
+                            <h5>Validation</h5>
+                            <p>Notre équipe examine votre profil sous 48-72h</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="step-container">
+                        <div class="step-card animate-on-scroll animate-delay-3">
+                            <div class="step-number">3</div>
+                            <h5>Activation</h5>
+                            <p>Recevez vos identifiants et votre code partenaire</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="step-card animate-on-scroll animate-delay-4">
+                        <div class="step-number">4</div>
+                        <h5>Commencez</h5>
+                        <p>Prospectez et apportez vos premiers contrats</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         ZONES PRIORITAIRES
+         ============================================ -->
+    <section class="section-partner bg-dark-alt">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
+                <h2 class="section-title">Zones prioritaires</h2>
+                <p class="section-subtitle">
+                    Nous recherchons activement des partenaires dans ces villes
+                </p>
+            </div>
+            <div class="row g-3 justify-content-center">
+                {% for region in priority_regions %}
+                <div class="col-lg-3 col-md-4 col-6">
+                    <div class="region-card animate-on-scroll">
+                        <i class="fa-solid fa-star"></i>
+                        <h5>{{ region.name }}</h5>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <p class="text-center mt-4" style="color: var(--gray-400); font-size: 0.9rem;">
+                <i class="fa-solid fa-circle-info me-2"></i>
+                Autres villes également acceptées
+            </p>
+        </div>
+    </section>
+
+    <!-- ============================================
+         PROFIL RECHERCHÉ
+         ============================================ -->
+    <section class="section-partner bg-dark">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fa-solid fa-user-check"></i>
+                </div>
+                <h2 class="section-title">Profil recherché</h2>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="profile-list">
+                        <div class="profile-item animate-on-scroll">
+                            <div class="profile-icon">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                            <div class="profile-item-text">
+                                <strong>Majeur(e)</strong> avec CNIB ou passeport valide
+                            </div>
+                        </div>
+                        <div class="profile-item animate-on-scroll">
+                            <div class="profile-icon">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                            <div class="profile-item-text">
+                                <strong>Bon carnet d'adresses</strong> (institutions, entreprises, ONG, événementiel)
+                            </div>
+                        </div>
+                        <div class="profile-item animate-on-scroll">
+                            <div class="profile-icon">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                            <div class="profile-item-text">
+                                <strong>Compréhension des enjeux</strong> de la communication et de l'événementiel
+                            </div>
+                        </div>
+                        <div class="profile-item animate-on-scroll">
+                            <div class="profile-icon">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                            <div class="profile-item-text">
+                                <strong>Rigoureux(se) et orienté(e) résultats</strong>
+                            </div>
+                        </div>
+                        <div class="profile-item animate-on-scroll">
+                            <div class="profile-icon">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                            <div class="profile-item-text">
+                                Respect des <strong>règles et valeurs</strong> du Groupe
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         RÉMUNÉRATION
+         ============================================ -->
+    <section class="section-partner bg-dark-alt">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <h2 class="remuneration-title">
+                        <span class="title-icon">
+                            <i class="fa-solid fa-money-bill-trend-up"></i>
+                        </span>
+                        Rémunération motivante
+                    </h2>
+                    <ul class="benefit-list">
+                        <li class="animate-on-scroll">
+                            <span class="list-icon">
+                                <i class="fa-solid fa-hand-holding-dollar"></i>
+                            </span>
+                            <div>
+                                Commission jusqu'à <strong>20%</strong> sur chaque contrat
+                            </div>
+                        </li>
+                        <li class="animate-on-scroll">
+                            <span class="list-icon">
+                                <i class="fa-solid fa-credit-card"></i>
+                            </span>
+                            <div>
+                                Paiement par Orange Money, virement bancaire ou chèque
+                            </div>
+                        </li>
+                        <li class="animate-on-scroll">
+                            <span class="list-icon">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </span>
+                            <div>
+                                Revenus proportionnels à vos performances
+                            </div>
+                        </li>
+                        <li class="animate-on-scroll">
+                            <span class="list-icon">
+                                <i class="fa-solid fa-infinity"></i>
+                            </span>
+                            <div>
+                                <strong>Sans plafond</strong> - Plus vous apportez, plus vous gagnez
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-6">
+                    <div class="commission-card animate-on-scroll">
+                        <div class="commission-header">
+                            <i class="fa-solid fa-lightbulb"></i>
+                            <h3>Exemple de calcul</h3>
+                        </div>
+                        <div class="commission-block">
+                            <p class="commission-label">Contrat apporté :</p>
+                            <div class="commission-value">5 000 000 FCFA</div>
+                        </div>
+                        <div class="commission-divider"></div>
+                        <div class="commission-block">
+                            <p class="commission-label">Votre commission (20%) :</p>
+                            <div class="commission-value big">1 000 000 FCFA</div>
+                        </div>
+                        <p class="commission-note">
+                            <i class="fa-solid fa-circle-info me-1"></i>
+                            Montant indicatif, selon le type de contrat
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         CTA FINAL
+         ============================================ -->
+    <section class="cta-final">
+        <div class="container">
+            <div class="cta-icon">
+                <i class="fa-solid fa-rocket"></i>
+            </div>
+            <h2 class="cta-title">Prêt(e) à nous rejoindre ?</h2>
+            <p class="cta-subtitle">
+                Monétisez votre réseau intelligemment et participez 
+                à la croissance d'un groupe africain ambitieux
+            </p>
+            <a href="{% url 'partners:apply' %}" class="btn-cta">
+                <i class="fa-solid fa-pen-to-square"></i>
+                Postuler maintenant
+            </a>
+            <div class="cta-contact">
+                <p>Des questions ? Contactez-nous :</p>
+                <div class="cta-contact-links">
+                    <a href="tel:+22664093196">
+                        <i class="fa-solid fa-phone"></i>
+                        +226 64 09 31 96
+                    </a>
+                    <a href="mailto:info@oloustream.com">
+                        <i class="fa-solid fa-envelope"></i>
+                        info@oloustream.com
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animation au scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animated');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Animation compteur pour les stats
+        const animateCounter = (el, target) => {
+            let current = 0;
+            const increment = target / 50;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    el.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    el.textContent = Math.floor(current);
+                }
+            }, 30);
+        };
+
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.classList.contains('counted')) {
+                    const target = parseInt(entry.target.textContent) || 0;
+                    if (target > 0) {
+                        animateCounter(entry.target, target);
+                    }
+                    entry.target.classList.add('counted');
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.stat-item h2').forEach(stat => {
+            statsObserver.observe(stat);
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                if (this.getAttribute('href') === '#') return;
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 70,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

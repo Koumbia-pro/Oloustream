@@ -2,255 +2,950 @@
 
 {% block title %}Studios - Oloustream Admin{% endblock %}
 
-{% block content %}
-
+{% block extra_css %}
 <style>
-    .studio-list-wrapper {
-        margin: 0 auto 1.5rem;
-        animation: fadeInUp 0.3s ease-out;
+    /* ==================== VARIABLES ==================== */
+    :root {
+        --primary-400: #c084fc;
+        --primary-500: #a855f7;
+        --primary-600: #9333ea;
+        --primary-700: #7c3aed;
+        --accent-400: #fbbf24;
+        --accent-500: #f59e0b;
+        --surface-100: #f4f4f5;
+        --surface-200: #e4e4e7;
+        --surface-300: #d4d4d8;
+        --surface-400: #a1a1aa;
+        --surface-500: #71717a;
+        --surface-600: #52525b;
+        --surface-700: #3f3f46;
+        --surface-800: #27272a;
+        --surface-850: #1f1f23;
+        --surface-900: #18181b;
+        --error-color: #f87171;
+        --success-color: #34d399;
+        --info-color: #60a5fa;
+        --warning-color: #fbbf24;
     }
 
-    .studio-list-header {
+    /* ==================== PAGE HEADER ==================== */
+    .page-header {
         display: flex;
+        flex-wrap: wrap;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-start;
+        gap: 1rem;
         margin-bottom: 1.5rem;
     }
 
-    .studio-list-header h1 {
-        font-size: 1.6rem;
+    .page-header-left {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--surface-100);
         margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
     }
 
-    .studio-list-header .subtitle {
-        font-size: 0.9rem;
-        color: #6b7280;
+    .page-title-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
     }
 
-    .studio-badge {
+    .page-subtitle {
+        color: var(--surface-400);
+        font-size: 0.875rem;
+        margin-left: 3.75rem;
+    }
+
+    .page-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    /* ==================== BUTTONS ==================== */
+    .btn-modern {
         display: inline-flex;
         align-items: center;
-        gap: 0.35rem;
-        padding: 0.3rem 0.75rem;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        font-weight: 500;
-        background: #eef2ff;
-        color: #4338ca;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        white-space: nowrap;
     }
 
-    .studio-list-filters {
-        margin-bottom: 1rem;
+    .btn-modern i {
+        font-size: 1.125rem;
     }
 
-    .studio-list-card {
-        background: #ffffff;
+    .btn-primary-modern {
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        color: white;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.25);
+    }
+
+    .btn-primary-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(147, 51, 234, 0.35);
+        color: white;
+    }
+
+    /* ==================== STATS CARDS ==================== */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
         border-radius: 12px;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .stat-card:hover {
+        border-color: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .stat-icon.purple {
+        background: rgba(147, 51, 234, 0.15);
+        color: var(--primary-400);
+    }
+
+    .stat-icon.green {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--success-color);
+    }
+
+    .stat-icon.orange {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--warning-color);
+    }
+
+    .stat-icon.red {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--error-color);
+    }
+
+    .stat-info h4 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        margin: 0;
+        line-height: 1;
+    }
+
+    .stat-info p {
+        font-size: 0.75rem;
+        color: var(--surface-500);
+        margin: 0.25rem 0 0 0;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* ==================== SEARCH CARD ==================== */
+    .search-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .search-input-wrapper {
+        flex: 1;
+        position: relative;
+    }
+
+    .search-input-wrapper i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--surface-500);
+        font-size: 1.125rem;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 2.75rem;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        color: var(--surface-100);
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+    }
+
+    .search-input::placeholder {
+        color: var(--surface-500);
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary-500);
+        box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15);
+    }
+
+    .search-hint {
+        font-size: 0.75rem;
+        color: var(--surface-500);
+        white-space: nowrap;
+    }
+
+    /* ==================== TABLE CARD ==================== */
+    .table-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
         overflow: hidden;
     }
 
-    .studio-list-table thead th {
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: #6b7280;
-        background: #f9fafb;
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .studio-list-table tbody td {
-        font-size: 0.86rem;
+    .table-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--surface-200);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .table-title .count {
+        background: var(--surface-700);
+        color: var(--surface-300);
+        padding: 0.25rem 0.625rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    /* ==================== TABLE ==================== */
+    .table-responsive-modern {
+        overflow-x: auto;
+    }
+
+    .table-modern {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-modern thead {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .table-modern thead th {
+        padding: 1rem 1.25rem;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: var(--surface-400);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-align: left;
+        white-space: nowrap;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .table-modern thead th:first-child {
+        padding-left: 1.5rem;
+    }
+
+    .table-modern thead th:last-child {
+        padding-right: 1.5rem;
+        text-align: right;
+    }
+
+    .table-modern tbody tr {
+        transition: all 0.15s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .table-modern tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .table-modern tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .table-modern tbody td {
+        padding: 1rem 1.25rem;
+        font-size: 0.875rem;
+        color: var(--surface-300);
         vertical-align: middle;
     }
 
-    .studio-status-badge {
-        padding: 0.15rem 0.5rem;
-        border-radius: 999px;
+    .table-modern tbody td:first-child {
+        padding-left: 1.5rem;
+    }
+
+    .table-modern tbody td:last-child {
+        padding-right: 1.5rem;
+    }
+
+    /* Studio Image Cell */
+    .studio-image {
+        width: 56px;
+        height: 56px;
+        border-radius: 10px;
+        object-fit: cover;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .studio-image-placeholder {
+        width: 56px;
+        height: 56px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: white;
+    }
+
+    /* Studio Name Cell */
+    .studio-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .studio-name {
+        font-weight: 600;
+        color: var(--surface-100);
+        font-size: 0.9375rem;
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    .studio-name:hover {
+        color: var(--primary-400);
+    }
+
+    .studio-code {
         font-size: 0.75rem;
+        color: var(--surface-500);
+        font-family: 'SF Mono', 'Fira Code', monospace;
     }
 
-    .studio-status-badge.available {
-        background: #dcfce7;
-        color: #15803d;
+    /* Location Cell */
+    .location-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
-    .studio-status-badge.unavailable {
-        background: #fee2e2;
-        color: #b91c1c;
+    .location-cell i {
+        color: var(--surface-500);
+        font-size: 1rem;
     }
 
-    .studio-status-badge.maintenance {
-        background: #fef3c7;
-        color: #92400e;
+    /* Price Cell */
+    .price-cell {
+        font-weight: 600;
+        color: var(--success-color);
+        font-size: 0.9375rem;
     }
 
-    .studio-active-badge {
-        padding: 0.1rem 0.45rem;
-        border-radius: 999px;
+    .price-currency {
         font-size: 0.75rem;
-        background: #e5e7eb;
-        color: #374151;
+        color: var(--surface-500);
+        font-weight: 400;
     }
 
-    .studio-active-badge.on {
-        background: #d1fae5;
-        color: #047857;
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
     }
 
-    .studio-search-input {
-        font-size: 0.85rem;
+    .status-badge i {
+        font-size: 0.875rem;
     }
 
+    .status-available {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--success-color);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-maintenance {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--warning-color);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .status-unavailable {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--error-color);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* Active Badge */
+    .active-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.625rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .active-badge.on {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--success-color);
+    }
+
+    .active-badge.off {
+        background: rgba(113, 113, 122, 0.15);
+        color: var(--surface-500);
+    }
+
+    /* Reservation Count */
+    .reservation-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--surface-200);
+    }
+
+    /* Actions Cell */
+    .actions-cell {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: var(--surface-800);
+        color: var(--surface-400);
+        text-decoration: none;
+        transition: all 0.15s ease;
+        cursor: pointer;
+    }
+
+    .action-btn i {
+        font-size: 1.125rem;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .action-btn.view:hover {
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--info-color);
+        border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    .action-btn.edit:hover {
+        background: rgba(147, 51, 234, 0.15);
+        color: var(--primary-400);
+        border-color: rgba(147, 51, 234, 0.3);
+    }
+
+    .action-btn.delete:hover {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--error-color);
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    /* Tooltip */
+    .action-btn {
+        position: relative;
+    }
+
+    .action-btn::before {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.375rem 0.625rem;
+        background: var(--surface-700);
+        color: var(--surface-100);
+        font-size: 0.6875rem;
+        font-weight: 500;
+        border-radius: 6px;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.15s ease;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    .action-btn::after {
+        content: '';
+        position: absolute;
+        bottom: calc(100% + 2px);
+        left: 50%;
+        transform: translateX(-50%);
+        border: 6px solid transparent;
+        border-top-color: var(--surface-700);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.15s ease;
+    }
+
+    .action-btn:hover::before,
+    .action-btn:hover::after {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: var(--surface-800);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: var(--surface-500);
+    }
+
+    .empty-state h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--surface-300);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .empty-state p {
+        color: var(--surface-500);
+        font-size: 0.875rem;
+        margin: 0 0 1.5rem 0;
+    }
+
+    /* ==================== ANIMATIONS ==================== */
     @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(10px); }
-        to   { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in-up {
+        animation: fadeInUp 0.4s ease-out forwards;
+    }
+
+    .table-modern tbody tr {
+        animation: fadeInUp 0.3s ease-out forwards;
+        opacity: 0;
+    }
+
+    .table-modern tbody tr:nth-child(1) { animation-delay: 0.05s; }
+    .table-modern tbody tr:nth-child(2) { animation-delay: 0.1s; }
+    .table-modern tbody tr:nth-child(3) { animation-delay: 0.15s; }
+    .table-modern tbody tr:nth-child(4) { animation-delay: 0.2s; }
+    .table-modern tbody tr:nth-child(5) { animation-delay: 0.25s; }
+    .table-modern tbody tr:nth-child(6) { animation-delay: 0.3s; }
+    .table-modern tbody tr:nth-child(7) { animation-delay: 0.35s; }
+    .table-modern tbody tr:nth-child(8) { animation-delay: 0.4s; }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1200px) {
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .page-actions {
+            width: 100%;
+        }
+
+        .page-actions .btn-modern {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .stats-row {
+            grid-template-columns: 1fr;
+        }
+
+        .search-card {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-hint {
+            text-align: center;
+        }
+
+        /* Mobile table */
+        .table-modern thead {
+            display: none;
+        }
+
+        .table-modern tbody tr {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            background: var(--surface-800);
+        }
+
+        .table-modern tbody td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .table-modern tbody td:last-child {
+            border-bottom: none;
+            padding-top: 1rem;
+            justify-content: center;
+        }
+
+        .table-modern tbody td::before {
+            content: attr(data-label);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: var(--surface-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .actions-cell {
+            justify-content: center;
+            width: 100%;
+        }
+
+        .action-btn {
+            flex: 1;
+            max-width: 100px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-title {
+            font-size: 1.25rem;
+        }
+
+        .page-title-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.25rem;
+        }
+
+        .page-subtitle {
+            margin-left: 3.25rem;
+            font-size: 0.75rem;
+        }
+
+        .btn-modern {
+            padding: 0.5rem 1rem;
+            font-size: 0.8125rem;
+        }
     }
 </style>
+{% endblock %}
 
-<div class="studio-list-wrapper">
-    <div class="studio-list-header">
-        <div>
-            <h1>Studios</h1>
-            <p class="subtitle">
-                Gérez les studios disponibles pour les réservations (type, lieu, tarifs, statut).
-            </p>
-        </div>
-        <div>
-            <span class="studio-badge me-2">
-                <i class="fa-solid fa-video"></i> Total : {{ studios|length }}
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-left">
+        <h1 class="page-title">
+            <span class="page-title-icon">
+                <i class="ph-bold ph-video-camera"></i>
             </span>
-            <a href="{% url 'dashboard:studios_create' %}" class="btn btn-primary">
-                <i class="fa-solid fa-plus me-1"></i> Nouveau studio
-            </a>
+            Studios
+        </h1>
+        <p class="page-subtitle">Gérez les studios disponibles pour les réservations</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'dashboard:studios_create' %}" class="btn-modern btn-primary-modern">
+            <i class="ph-bold ph-plus"></i>
+            <span>Nouveau studio</span>
+        </a>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-icon purple">
+            <i class="ph ph-video-camera"></i>
+        </div>
+        <div class="stat-info">
+            <h4>{{ studios|length }}</h4>
+            <p>Total Studios</p>
         </div>
     </div>
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="ph ph-check-circle"></i>
+        </div>
+        <div class="stat-info">
+            <h4>{{ available_count|default:"-" }}</h4>
+            <p>Disponibles</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">
+            <i class="ph ph-wrench"></i>
+        </div>
+        <div class="stat-info">
+            <h4>{{ maintenance_count|default:"-" }}</h4>
+            <p>En maintenance</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red">
+            <i class="ph ph-x-circle"></i>
+        </div>
+        <div class="stat-info">
+            <h4>{{ unavailable_count|default:"-" }}</h4>
+            <p>Indisponibles</p>
+        </div>
+    </div>
+</div>
 
-    <!-- Barre de recherche front-end -->
-    <div class="studio-list-filters card mb-3">
-        <div class="card-body py-2">
-            <div class="row align-items-center">
-                <div class="col-md-6 mb-2 mb-md-0">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-light">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                        </span>
-                        <input type="text"
-                               id="studio-search-input"
-                               class="form-control studio-search-input"
-                               placeholder="Rechercher un studio (nom, ville, pays…)">
-                    </div>
-                </div>
-                <div class="col-md-6 text-md-end" style="font-size:0.8rem;">
-                    <span class="text-muted">
-                        Filtrage instantané côté interface, sans recharger la page.
-                    </span>
-                </div>
-            </div>
+<!-- Search Card -->
+<div class="search-card animate-fade-in-up">
+    <div class="search-input-wrapper">
+        <i class="ph ph-magnifying-glass"></i>
+        <input type="text" 
+               id="studio-search-input"
+               class="search-input"
+               placeholder="Rechercher un studio (nom, ville, pays...)">
+    </div>
+    <span class="search-hint">
+        <i class="ph ph-info"></i>
+        Filtrage instantané
+    </span>
+</div>
+
+<!-- Table Card -->
+<div class="table-card animate-fade-in-up" style="animation-delay: 0.1s;">
+    <div class="table-header">
+        <div class="table-title">
+            <i class="ph ph-list"></i>
+            Liste des studios
+            <span class="count">{{ studios|length }}</span>
         </div>
     </div>
 
     {% if studios %}
-        <div class="studio-list-card">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0 studio-list-table" id="studio-table">
-                    <thead>
-                        <tr>
-                            <th>Image</th>
-                            <th>Nom</th>
-                            <th>Type</th>
-                            <th>Localisation</th>
-                            <th>Prix / heure</th>
-                            <th>Statut</th>
-                            <th>Actif</th>
-                            <th>Réservations</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for studio in studios %}
-                            <tr class="studio-row">
-                                <td>
-                                    {% if studio.image %}
-                                        <img src="{{ studio.image.url }}"
-                                            alt="{{ studio.name }}"
-                                            style="width:48px;height:48px;object-fit:cover;border-radius:8px;">
-                                    {% else %}
-                                        <span class="text-muted" style="font-size:0.75rem;">—</span>
-                                    {% endif %}
-                                </td>
-                                <td class="studio-name">
-                                    <a href="{% url 'dashboard:studios_detail' studio.pk %}">
+        <div class="table-responsive-modern">
+            <table class="table-modern" id="studio-table">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Studio</th>
+                        <th>Type</th>
+                        <th>Localisation</th>
+                        <th>Prix / heure</th>
+                        <th>Statut</th>
+                        <th>Actif</th>
+                        <th>Réservations</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for studio in studios %}
+                        <tr class="studio-row">
+                            <td data-label="Image">
+                                {% if studio.image %}
+                                    <img src="{{ studio.image.url }}" alt="{{ studio.name }}" class="studio-image">
+                                {% else %}
+                                    <div class="studio-image-placeholder">
+                                        <i class="ph ph-video-camera"></i>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td data-label="Studio">
+                                <div class="studio-cell">
+                                    <a href="{% url 'dashboard:studios_detail' studio.pk %}" class="studio-name">
                                         {{ studio.name }}
                                     </a>
                                     {% if studio.code %}
-                                        <div class="text-muted" style="font-size:0.75rem;">
-                                            Code : {{ studio.code }}
-                                        </div>
+                                        <span class="studio-code">Code: {{ studio.code }}</span>
                                     {% endif %}
-                                </td>
-                                <td>
-                                    {{ studio.get_studio_type_display }}
-                                </td>
-                                <td class="studio-location">
-                                    {% if studio.city or studio.country %}
-                                        {{ studio.city|default:"" }}{% if studio.city and studio.country %}, {% endif %}{{ studio.country|default:"" }}
-                                    {% else %}
-                                        —
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if studio.price_per_hour %}
-                                        {{ studio.price_per_hour }} FCFA
-                                    {% else %}
-                                        —
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if studio.status == "AVAILABLE" %}
-                                        <span class="studio-status-badge available">Disponible</span>
-                                    {% elif studio.status == "MAINTENANCE" %}
-                                        <span class="studio-status-badge maintenance">En maintenance</span>
-                                    {% else %}
-                                        <span class="studio-status-badge unavailable">Indisponible</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <span class="studio-active-badge {% if studio.is_active %}on{% endif %}">
-                                        {% if studio.is_active %}Oui{% else %}Non{% endif %}
+                                </div>
+                            </td>
+                            <td data-label="Type">
+                                <span>{{ studio.get_studio_type_display }}</span>
+                            </td>
+                            <td data-label="Localisation" class="studio-location">
+                                {% if studio.city or studio.country %}
+                                    <div class="location-cell">
+                                        <i class="ph ph-map-pin"></i>
+                                        <span>{{ studio.city|default:"" }}{% if studio.city and studio.country %}, {% endif %}{{ studio.country|default:"" }}</span>
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td data-label="Prix">
+                                {% if studio.price_per_hour %}
+                                    <span class="price-cell">
+                                        {{ studio.price_per_hour|floatformat:0 }}
+                                        <span class="price-currency">FCFA</span>
                                     </span>
-                                </td>
-                                <td>
-                                    {{ studio.reservation_set.count }}
-                                </td>
-                                <td class="text-end">
-                                    <a href="{% url 'dashboard:studios_detail' studio.pk %}"
-                                       class="btn btn-sm btn-outline-secondary">
-                                        Détails
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td data-label="Statut">
+                                {% if studio.status == "AVAILABLE" %}
+                                    <span class="status-badge status-available">
+                                        <i class="ph ph-check-circle"></i>
+                                        Disponible
+                                    </span>
+                                {% elif studio.status == "MAINTENANCE" %}
+                                    <span class="status-badge status-maintenance">
+                                        <i class="ph ph-wrench"></i>
+                                        Maintenance
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge status-unavailable">
+                                        <i class="ph ph-x-circle"></i>
+                                        Indisponible
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td data-label="Actif">
+                                <span class="active-badge {% if studio.is_active %}on{% else %}off{% endif %}">
+                                    {% if studio.is_active %}Oui{% else %}Non{% endif %}
+                                </span>
+                            </td>
+                            <td data-label="Réservations">
+                                <span class="reservation-count">{{ studio.reservation_set.count }}</span>
+                            </td>
+                            <td data-label="Actions">
+                                <div class="actions-cell">
+                                    <a href="{% url 'dashboard:studios_detail' studio.pk %}" 
+                                       class="action-btn view" 
+                                       data-tooltip="Voir détails">
+                                        <i class="ph ph-eye"></i>
                                     </a>
-                                    <a href="{% url 'dashboard:studios_edit' studio.pk %}"
-                                       class="btn btn-sm btn-outline-primary">
-                                        Modifier
+                                    <a href="{% url 'dashboard:studios_edit' studio.pk %}" 
+                                       class="action-btn edit"
+                                       data-tooltip="Modifier">
+                                        <i class="ph ph-pencil-simple"></i>
                                     </a>
-                                    <a href="{% url 'dashboard:studios_delete' studio.pk %}"
-                                       class="btn btn-sm btn-outline-danger">
-                                        Supprimer
+                                    <a href="{% url 'dashboard:studios_delete' studio.pk %}" 
+                                       class="action-btn delete"
+                                       data-tooltip="Supprimer">
+                                        <i class="ph ph-trash"></i>
                                     </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     {% else %}
-        <div class="alert alert-info mt-3">
-            Aucun studio n'a encore été créé. Utilisez le bouton
-            <strong>“Nouveau studio”</strong> pour en ajouter un.
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="ph ph-video-camera"></i>
+            </div>
+            <h3>Aucun studio trouvé</h3>
+            <p>Créez votre premier studio pour commencer à gérer les réservations.</p>
+            <a href="{% url 'dashboard:studios_create' %}" class="btn-modern btn-primary-modern">
+                <i class="ph-bold ph-plus"></i>
+                Nouveau studio
+            </a>
         </div>
     {% endif %}
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const input = document.getElementById("studio-search-input");
@@ -262,12 +957,18 @@ document.addEventListener("DOMContentLoaded", function () {
         const term = input.value.toLowerCase();
         rows.forEach(function (row) {
             const name = (row.querySelector(".studio-name")?.textContent || "").toLowerCase();
-            const loc  = (row.querySelector(".studio-location")?.textContent || "").toLowerCase();
-            const text = name + " " + loc;
-            row.style.display = text.includes(term) ? "" : "none";
+            const code = (row.querySelector(".studio-code")?.textContent || "").toLowerCase();
+            const loc = (row.querySelector(".studio-location")?.textContent || "").toLowerCase();
+            const text = name + " " + code + " " + loc;
+            
+            if (text.includes(term)) {
+                row.style.display = "";
+                row.style.animation = "fadeInUp 0.3s ease-out forwards";
+            } else {
+                row.style.display = "none";
+            }
         });
     });
 });
 </script>
-
 {% endblock %}

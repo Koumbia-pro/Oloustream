@@ -1,159 +1,1151 @@
 {% extends "admin/admin_base.html" %}
 {% block title %}Services - Oloustream Admin{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* ==================== VARIABLES ==================== */
+    :root {
+        --primary-400: #c084fc;
+        --primary-500: #a855f7;
+        --primary-600: #9333ea;
+        --primary-700: #7c3aed;
+        --accent-400: #fbbf24;
+        --accent-500: #f59e0b;
+        --surface-100: #f4f4f5;
+        --surface-200: #e4e4e7;
+        --surface-300: #d4d4d8;
+        --surface-400: #a1a1aa;
+        --surface-500: #71717a;
+        --surface-600: #52525b;
+        --surface-700: #3f3f46;
+        --surface-800: #27272a;
+        --surface-850: #1f1f23;
+        --surface-900: #18181b;
+        --error-color: #f87171;
+        --success-color: #34d399;
+        --info-color: #60a5fa;
+        --warning-color: #fbbf24;
+    }
+
+    /* ==================== PAGE HEADER ==================== */
+    .page-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .page-header-left {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .page-title-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+    }
+
+    .page-subtitle {
+        color: var(--surface-400);
+        font-size: 0.875rem;
+        margin-left: 3.75rem;
+    }
+
+    .page-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    /* ==================== BUTTONS ==================== */
+    .btn-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .btn-modern i {
+        font-size: 1.125rem;
+    }
+
+    .btn-primary-modern {
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        color: white;
+        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.25);
+    }
+
+    .btn-primary-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(147, 51, 234, 0.35);
+        color: white;
+    }
+
+    .btn-success-modern {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-success-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+        color: white;
+    }
+
+    /* ==================== STATS CARDS ==================== */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .stat-card:hover {
+        border-color: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .stat-icon.purple {
+        background: rgba(147, 51, 234, 0.15);
+        color: var(--primary-400);
+    }
+
+    .stat-icon.green {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+    }
+
+    .stat-icon.gray {
+        background: rgba(113, 113, 122, 0.15);
+        color: var(--surface-400);
+    }
+
+    .stat-info h4 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--surface-100);
+        margin: 0;
+        line-height: 1;
+    }
+
+    .stat-info p {
+        font-size: 0.75rem;
+        color: var(--surface-500);
+        margin: 0.25rem 0 0 0;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* ==================== FILTERS CARD ==================== */
+    .filters-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .filters-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .filters-header i {
+        font-size: 1.25rem;
+        color: var(--primary-400);
+    }
+
+    .filters-header span {
+        font-weight: 600;
+        color: var(--surface-200);
+        font-size: 0.9375rem;
+    }
+
+    .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .filter-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--surface-400);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .filter-input,
+    .filter-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        color: var(--surface-100);
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+        font-family: inherit;
+    }
+
+    .filter-input::placeholder {
+        color: var(--surface-500);
+    }
+
+    .filter-input:focus,
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--primary-500);
+        box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15);
+        background: var(--surface-850);
+    }
+
+    .filter-select {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        padding-right: 2.5rem;
+    }
+
+    .filter-select option {
+        background: var(--surface-800);
+        color: var(--surface-100);
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-filter {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-filter-primary {
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        color: white;
+    }
+
+    .btn-filter-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+    }
+
+    .btn-filter-reset {
+        background: transparent;
+        color: var(--surface-400);
+        border: 1px solid var(--surface-700);
+        text-decoration: none;
+    }
+
+    .btn-filter-reset:hover {
+        background: var(--surface-800);
+        color: var(--surface-200);
+    }
+
+    /* ==================== TABLE CARD ==================== */
+    .table-card {
+        background: var(--surface-850);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .table-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--surface-200);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .table-title .count {
+        background: var(--surface-700);
+        color: var(--surface-300);
+        padding: 0.25rem 0.625rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    /* ==================== TABLE ==================== */
+    .table-responsive-modern {
+        overflow-x: auto;
+    }
+
+    .table-modern {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-modern thead {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .table-modern thead th {
+        padding: 1rem 1.25rem;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        color: var(--surface-400);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        text-align: left;
+        white-space: nowrap;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .table-modern thead th:first-child {
+        padding-left: 1.5rem;
+    }
+
+    .table-modern thead th:last-child {
+        padding-right: 1.5rem;
+        text-align: right;
+    }
+
+    .table-modern tbody tr {
+        transition: all 0.15s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .table-modern tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .table-modern tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .table-modern tbody td {
+        padding: 1rem 1.25rem;
+        font-size: 0.875rem;
+        color: var(--surface-300);
+        vertical-align: middle;
+    }
+
+    .table-modern tbody td:first-child {
+        padding-left: 1.5rem;
+    }
+
+    .table-modern tbody td:last-child {
+        padding-right: 1.5rem;
+    }
+
+    /* ID Cell */
+    .id-cell {
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        font-size: 0.75rem;
+        color: var(--surface-500);
+        background: var(--surface-800);
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+    }
+
+    /* Service Name Cell */
+    .service-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .service-name {
+        font-weight: 600;
+        color: var(--surface-100);
+        font-size: 0.9375rem;
+    }
+
+    .service-description {
+        font-size: 0.75rem;
+        color: var(--surface-500);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 300px;
+    }
+
+    /* Category Badge */
+    .category-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        background: rgba(147, 51, 234, 0.15);
+        color: var(--primary-400);
+        border: 1px solid rgba(147, 51, 234, 0.3);
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    /* Type Badge */
+    .type-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.375rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .type-badge.studio {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .type-badge.remote {
+        background: rgba(236, 72, 153, 0.15);
+        color: #f472b6;
+        border: 1px solid rgba(236, 72, 153, 0.3);
+    }
+
+    .type-badge.hybrid {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--warning-color);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    /* Price Cell */
+    .price-cell {
+        font-weight: 600;
+        color: #34d399;
+        font-size: 0.9375rem;
+    }
+
+    .price-currency {
+        font-size: 0.75rem;
+        color: var(--surface-500);
+        font-weight: 400;
+    }
+
+    /* Duration Cell */
+    .duration-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        color: var(--surface-300);
+    }
+
+    .duration-cell i {
+        color: var(--surface-500);
+        font-size: 1rem;
+    }
+
+    /* Complexity Badge */
+    .complexity-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .complexity-badge.easy {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+    }
+
+    .complexity-badge.medium {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--warning-color);
+    }
+
+    .complexity-badge.hard {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--error-color);
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-badge.active {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-badge.active i {
+        font-size: 0.875rem;
+    }
+
+    .status-badge.inactive {
+        background: rgba(113, 113, 122, 0.15);
+        color: var(--surface-400);
+        border: 1px solid rgba(113, 113, 122, 0.3);
+    }
+
+    /* Actions Cell */
+    .actions-cell {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: var(--surface-800);
+        color: var(--surface-400);
+        text-decoration: none;
+        transition: all 0.15s ease;
+        cursor: pointer;
+    }
+
+    .action-btn i {
+        font-size: 1.125rem;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .action-btn.view:hover {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    .action-btn.edit:hover {
+        background: rgba(147, 51, 234, 0.15);
+        color: #c084fc;
+        border-color: rgba(147, 51, 234, 0.3);
+    }
+
+    .action-btn.delete:hover {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    /* Tooltip */
+    .action-btn {
+        position: relative;
+    }
+
+    .action-btn::before {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.375rem 0.625rem;
+        background: var(--surface-700);
+        color: var(--surface-100);
+        font-size: 0.6875rem;
+        font-weight: 500;
+        border-radius: 6px;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.15s ease;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    .action-btn::after {
+        content: '';
+        position: absolute;
+        bottom: calc(100% + 2px);
+        left: 50%;
+        transform: translateX(-50%);
+        border: 6px solid transparent;
+        border-top-color: var(--surface-700);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.15s ease;
+    }
+
+    .action-btn:hover::before,
+    .action-btn:hover::after {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: var(--surface-800);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: var(--surface-500);
+    }
+
+    .empty-state h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--surface-300);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .empty-state p {
+        color: var(--surface-500);
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    /* ==================== PAGINATION ==================== */
+    .table-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .pagination-info {
+        font-size: 0.8125rem;
+        color: var(--surface-400);
+    }
+
+    .pagination-info strong {
+        color: var(--surface-200);
+    }
+
+    .pagination-modern {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .page-item-modern {
+        display: flex;
+    }
+
+    .page-link-modern {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 0.75rem;
+        background: var(--surface-800);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 8px;
+        color: var(--surface-300);
+        text-decoration: none;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        transition: all 0.15s ease;
+    }
+
+    .page-link-modern:hover {
+        background: var(--surface-700);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+    .page-item-modern.active .page-link-modern {
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        border-color: transparent;
+        color: white;
+        box-shadow: 0 2px 8px rgba(147, 51, 234, 0.3);
+    }
+
+    .page-item-modern.disabled .page-link-modern {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .page-ellipsis {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        color: var(--surface-500);
+        font-size: 0.875rem;
+    }
+
+    /* ==================== ANIMATIONS ==================== */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in-up {
+        animation: fadeInUp 0.4s ease-out forwards;
+    }
+
+    .table-modern tbody tr {
+        animation: fadeInUp 0.3s ease-out forwards;
+        opacity: 0;
+    }
+
+    .table-modern tbody tr:nth-child(1) { animation-delay: 0.05s; }
+    .table-modern tbody tr:nth-child(2) { animation-delay: 0.1s; }
+    .table-modern tbody tr:nth-child(3) { animation-delay: 0.15s; }
+    .table-modern tbody tr:nth-child(4) { animation-delay: 0.2s; }
+    .table-modern tbody tr:nth-child(5) { animation-delay: 0.25s; }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1200px) {
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .page-actions {
+            width: 100%;
+        }
+
+        .page-actions .btn-modern {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .filters-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-actions {
+            flex-direction: column;
+        }
+
+        .stats-row {
+            grid-template-columns: 1fr;
+        }
+
+        .table-footer {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .pagination-info {
+            order: 2;
+        }
+
+        /* Mobile table */
+        .table-modern thead {
+            display: none;
+        }
+
+        .table-modern tbody tr {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            background: var(--surface-800);
+        }
+
+        .table-modern tbody td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .table-modern tbody td:last-child {
+            border-bottom: none;
+            padding-top: 1rem;
+            justify-content: center;
+        }
+
+        .table-modern tbody td::before {
+            content: attr(data-label);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: var(--surface-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .actions-cell {
+            justify-content: center;
+            width: 100%;
+        }
+
+        .action-btn {
+            flex: 1;
+            max-width: 100px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-title {
+            font-size: 1.25rem;
+        }
+
+        .page-title-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.25rem;
+        }
+
+        .page-subtitle {
+            margin-left: 3.25rem;
+            font-size: 0.75rem;
+        }
+
+        .btn-modern {
+            padding: 0.5rem 1rem;
+            font-size: 0.8125rem;
+        }
+
+        .filters-card {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Services</h1>
-    <div class="d-flex gap-2">
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-left">
+        <h1 class="page-title">
+            <span class="page-title-icon">
+                <i class="ph-bold ph-star"></i>
+            </span>
+            Services
+        </h1>
+        <p class="page-subtitle">Gérez vos services et prestations</p>
+    </div>
+    <div class="page-actions">
         <a href="{% url 'dashboard:services_export_excel' %}{% if base_querystring %}?{{ base_querystring }}{% endif %}"
-           class="btn btn-success btn-sm">
-            <i class="ph ph-download-simple"></i> Export Excel
+           class="btn-modern btn-success-modern">
+            <i class="ph ph-file-xls"></i>
+            <span>Export Excel</span>
         </a>
-        <a href="{% url 'dashboard:services_create' %}" class="btn btn-primary btn-sm">
-            <i class="ph ph-plus"></i> Nouveau service
+        <a href="{% url 'dashboard:services_create' %}" class="btn-modern btn-primary-modern">
+            <i class="ph-bold ph-plus"></i>
+            <span>Nouveau service</span>
         </a>
     </div>
 </div>
 
-<!-- Statistiques -->
-<div class="row g-3 mb-3">
-    <div class="col-md-4 col-6">
-        <div class="card shadow-sm border-0">
-            <div class="card-body py-2">
-                <p class="text-muted mb-1">Total</p>
-                <h5 class="mb-0">{{ total_count }}</h5>
-            </div>
+<!-- Statistics Cards -->
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-icon purple">
+            <i class="ph ph-stack"></i>
+        </div>
+        <div class="stat-info">
+            <h4>{{ total_count }}</h4>
+            <p>Total Services</p>
         </div>
     </div>
-    <div class="col-md-4 col-6">
-        <div class="card shadow-sm border-0">
-            <div class="card-body py-2">
-                <p class="text-muted mb-1">Actifs</p>
-                <h5 class="mb-0 text-success">{{ active_count }}</h5>
-            </div>
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="ph ph-check-circle"></i>
+        </div>
+        <div class="stat-info">
+            <h4>{{ active_count }}</h4>
+            <p>Actifs</p>
         </div>
     </div>
-    <div class="col-md-4 col-6">
-        <div class="card shadow-sm border-0">
-            <div class="card-body py-2">
-                <p class="text-muted mb-1">Inactifs</p>
-                <h5 class="mb-0 text-muted">{{ inactive_count }}</h5>
-            </div>
+    <div class="stat-card">
+        <div class="stat-icon gray">
+            <i class="ph ph-x-circle"></i>
+        </div>
+        <div class="stat-info">
+            <h4>{{ inactive_count }}</h4>
+            <p>Inactifs</p>
         </div>
     </div>
 </div>
 
-<!-- Recherche & filtres -->
-<form method="get" class="row g-3 mb-3 align-items-end">
-    <div class="col-md-4">
-        <label class="form-label" for="id_q">Recherche</label>
-        <input type="text" name="q" id="id_q" class="form-control"
-               placeholder="Nom, description, catégorie..."
-               value="{{ q }}">
+<!-- Filters Card -->
+<div class="filters-card animate-fade-in-up">
+    <div class="filters-header">
+        <i class="ph ph-funnel"></i>
+        <span>Filtres & Recherche</span>
+    </div>
+    <form method="get">
+        <div class="filters-grid">
+            <div class="filter-group">
+                <label class="filter-label" for="id_q">Recherche</label>
+                <input type="text" 
+                       name="q" 
+                       id="id_q" 
+                       class="filter-input"
+                       placeholder="Nom, description, catégorie..."
+                       value="{{ q }}">
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label" for="id_category">Catégorie</label>
+                <select name="category" id="id_category" class="filter-select">
+                    <option value="">Toutes les catégories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if selected_category|add:'' == cat.id|add:'' %}selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label" for="id_service_type">Type de service</label>
+                <select name="service_type" id="id_service_type" class="filter-select">
+                    <option value="">Tous les types</option>
+                    {% for value, label in service_type_choices %}
+                        <option value="{{ value }}" {% if selected_service_type == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label" for="id_active">Statut</label>
+                <select name="active" id="id_active" class="filter-select">
+                    <option value="">Tous les statuts</option>
+                    <option value="yes" {% if selected_active == "yes" %}selected{% endif %}>✅ Actif</option>
+                    <option value="no" {% if selected_active == "no" %}selected{% endif %}>⛔ Inactif</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">&nbsp;</label>
+                <div class="filter-actions">
+                    <button type="submit" class="btn-filter btn-filter-primary">
+                        <i class="ph ph-magnifying-glass"></i>
+                        Rechercher
+                    </button>
+                    <a href="{% url 'dashboard:services_list' %}" class="btn-filter btn-filter-reset">
+                        <i class="ph ph-arrow-counter-clockwise"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Table Card -->
+<div class="table-card animate-fade-in-up" style="animation-delay: 0.1s;">
+    <div class="table-header">
+        <div class="table-title">
+            <i class="ph ph-list"></i>
+            Liste des services
+            <span class="count">{{ page_obj.paginator.count }}</span>
+        </div>
     </div>
 
-    <div class="col-md-3">
-        <label class="form-label" for="id_category">Catégorie</label>
-        <select name="category" id="id_category" class="form-select">
-            <option value="">Toutes</option>
-            {% for cat in categories %}
-                <option value="{{ cat.id }}" {% if selected_category|add:'' == cat.id|add:'' %}selected{% endif %}>
-                    {{ cat.name }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <div class="col-md-3">
-        <label class="form-label" for="id_service_type">Type de service</label>
-        <select name="service_type" id="id_service_type" class="form-select">
-            <option value="">Tous</option>
-            {% for value, label in service_type_choices %}
-                <option value="{{ value }}" {% if selected_service_type == value %}selected{% endif %}>
-                    {{ label }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <div class="col-md-2">
-        <label class="form-label" for="id_active">Statut</label>
-        <select name="active" id="id_active" class="form-select">
-            <option value="">Tous</option>
-            <option value="yes" {% if selected_active == "yes" %}selected{% endif %}>Actif</option>
-            <option value="no" {% if selected_active == "no" %}selected{% endif %}>Inactif</option>
-        </select>
-    </div>
-
-    <div class="col-md-2 d-flex gap-2">
-        <button type="submit" class="btn btn-primary w-100">
-            <i class="ph ph-magnifying-glass"></i> Filtrer
-        </button>
-        <a href="{% url 'dashboard:services_list' %}" class="btn btn-outline-secondary">
-            <i class="ph ph-arrow-counter-clockwise"></i>
-        </a>
-    </div>
-</form>
-
-<div class="card shadow-sm">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+    <div class="table-responsive-modern">
+        <table class="table-modern">
+            <thead>
                 <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Nom</th>
-                    <th scope="col">Catégorie</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Prix de base</th>
-                    <th scope="col">Durée (min–max)</th>
-                    <th scope="col">Lieu</th>
-                    <th scope="col">Complexité</th>
-                    <th scope="col">Actif</th>
-                    <th scope="col" class="text-end">Actions</th>
+                    <th>ID</th>
+                    <th>Service</th>
+                    <th>Catégorie</th>
+                    <th>Type</th>
+                    <th>Prix</th>
+                    <th>Durée</th>
+                    <th>Lieu</th>
+                    <th>Complexité</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
                 </tr>
-                </thead>
-                <tbody>
+            </thead>
+            <tbody>
                 {% for s in page_obj %}
                     <tr>
-                        <td>{{ s.id }}</td>
-                        <td>
-                            <strong>{{ s.name }}</strong><br>
-                            <small class="text-muted">
-                                {{ s.short_description|default:"" }}
-                            </small>
+                        <td data-label="ID">
+                            <span class="id-cell">#{{ s.id }}</span>
                         </td>
-                        <td>{{ s.category.name|default:"-" }}</td>
-                        <td>{{ s.get_service_type_display }}</td>
-                        <td>{{ s.base_price }} F CFA</td>
-                        <td>
+                        <td data-label="Service">
+                            <div class="service-cell">
+                                <span class="service-name">{{ s.name }}</span>
+                                {% if s.short_description %}
+                                    <span class="service-description">{{ s.short_description }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td data-label="Catégorie">
+                            {% if s.category %}
+                                <span class="category-badge">
+                                    <i class="ph ph-tag"></i>
+                                    {{ s.category.name }}
+                                </span>
+                            {% else %}
+                                <span class="empty-placeholder">—</span>
+                            {% endif %}
+                        </td>
+                        <td data-label="Type">
+                            <span class="type-badge {% if s.service_type == 'STUDIO' %}studio{% elif s.service_type == 'REMOTE' %}remote{% else %}hybrid{% endif %}">
+                                {{ s.get_service_type_display }}
+                            </span>
+                        </td>
+                        <td data-label="Prix">
+                            <span class="price-cell">
+                                {{ s.base_price|floatformat:0 }}
+                                <span class="price-currency">FCFA</span>
+                            </span>
+                        </td>
+                        <td data-label="Durée">
                             {% if s.duration_min_minutes or s.duration_max_minutes %}
-                                {{ s.duration_min_minutes|default:"-" }} – {{ s.duration_max_minutes|default:"-" }} min
+                                <div class="duration-cell">
+                                    <i class="ph ph-clock"></i>
+                                    {{ s.duration_min_minutes|default:"?" }}–{{ s.duration_max_minutes|default:"?" }} min
+                                </div>
                             {% else %}
-                                <span class="text-muted">-</span>
+                                <span class="empty-placeholder">—</span>
                             {% endif %}
                         </td>
-                        <td>{{ s.get_location_type_display }}</td>
-                        <td>{{ s.get_difficulty_level_display }}</td>
-                        <td>
+                        <td data-label="Lieu">
+                            <span>{{ s.get_location_type_display }}</span>
+                        </td>
+                        <td data-label="Complexité">
+                            <span class="complexity-badge {% if 'Facile' in s.get_difficulty_level_display %}easy{% elif 'Moyen' in s.get_difficulty_level_display %}medium{% else %}hard{% endif %}">
+                                {{ s.get_difficulty_level_display }}
+                            </span>
+                        </td>
+                        <td data-label="Statut">
                             {% if s.is_active %}
-                                <span class="badge bg-success">Oui</span>
+                                <span class="status-badge active">
+                                    <i class="ph ph-check-circle"></i>
+                                    Actif
+                                </span>
                             {% else %}
-                                <span class="badge bg-secondary">Non</span>
+                                <span class="status-badge inactive">
+                                    <i class="ph ph-x-circle"></i>
+                                    Inactif
+                                </span>
                             {% endif %}
                         </td>
-                        <td class="text-end">
-                            <div class="btn-group btn-group-sm" role="group">
-                                <a href="{% url 'dashboard:services_detail' s.id %}"
-                                class="btn btn-outline-secondary" title="Détails">
+                        <td data-label="Actions">
+                            <div class="actions-cell">
+                                <a href="{% url 'dashboard:services_detail' s.id %}" 
+                                   class="action-btn view" 
+                                   data-tooltip="Voir détails">
                                     <i class="ph ph-eye"></i>
                                 </a>
-                                <a href="{% url 'dashboard:services_edit' s.id %}"
-                                class="btn btn-outline-primary" title="Modifier">
+                                <a href="{% url 'dashboard:services_edit' s.id %}" 
+                                   class="action-btn edit"
+                                   data-tooltip="Modifier">
                                     <i class="ph ph-pencil-simple"></i>
                                 </a>
-                                <a href="{% url 'dashboard:services_delete' s.id %}"
-                                class="btn btn-outline-danger" title="Supprimer">
+                                <a href="{% url 'dashboard:services_delete' s.id %}" 
+                                   class="action-btn delete"
+                                   data-tooltip="Supprimer">
                                     <i class="ph ph-trash"></i>
                                 </a>
                             </div>
@@ -161,62 +1153,98 @@
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="10" class="text-center text-muted py-4">
-                            Aucun service ne correspond à la recherche.
+                        <td colspan="10">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="ph ph-star"></i>
+                                </div>
+                                <h3>Aucun service trouvé</h3>
+                                <p>Aucun service ne correspond à vos critères de recherche.</p>
+                            </div>
                         </td>
                     </tr>
                 {% endfor %}
-                </tbody>
-            </table>
-        </div>
+            </tbody>
+        </table>
     </div>
 
     {% if page_obj.paginator.num_pages > 1 %}
-        <div class="card-footer bg-white">
+        <div class="table-footer">
+            <div class="pagination-info">
+                Affichage de <strong>{{ page_obj.start_index }}</strong> à <strong>{{ page_obj.end_index }}</strong> 
+                sur <strong>{{ page_obj.paginator.count }}</strong> services
+            </div>
             <nav aria-label="Pagination services">
-                <ul class="pagination justify-content-center mb-0">
+                <ul class="pagination-modern">
                     {% if page_obj.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link"
-                               href="?page=1{% if base_querystring %}&{{ base_querystring }}{% endif %}">
-                                « Première
+                        <li class="page-item-modern">
+                            <a class="page-link-modern" 
+                               href="?page=1{% if base_querystring %}&{{ base_querystring }}{% endif %}"
+                               title="Première page">
+                                <i class="ph ph-caret-double-left"></i>
                             </a>
                         </li>
-                        <li class="page-item">
-                            <a class="page-link"
-                               href="?page={{ page_obj.previous_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
-                                ‹ Précédente
+                        <li class="page-item-modern">
+                            <a class="page-link-modern" 
+                               href="?page={{ page_obj.previous_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}"
+                               title="Page précédente">
+                                <i class="ph ph-caret-left"></i>
                             </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item-modern disabled">
+                            <span class="page-link-modern"><i class="ph ph-caret-double-left"></i></span>
+                        </li>
+                        <li class="page-item-modern disabled">
+                            <span class="page-link-modern"><i class="ph ph-caret-left"></i></span>
                         </li>
                     {% endif %}
 
                     {% for num in page_obj.paginator.page_range %}
                         {% if num == page_obj.number %}
-                            <li class="page-item active" aria-current="page">
-                                <span class="page-link">{{ num }}</span>
+                            <li class="page-item-modern active">
+                                <span class="page-link-modern">{{ num }}</span>
                             </li>
                         {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
-                            <li class="page-item">
-                                <a class="page-link"
+                            <li class="page-item-modern">
+                                <a class="page-link-modern" 
                                    href="?page={{ num }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
                                     {{ num }}
                                 </a>
                             </li>
+                        {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                            <li class="page-item-modern">
+                                <a class="page-link-modern" 
+                                   href="?page={{ num }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
+                                    {{ num }}
+                                </a>
+                            </li>
+                        {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+                            <li class="page-ellipsis">...</li>
                         {% endif %}
                     {% endfor %}
 
                     {% if page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link"
-                               href="?page={{ page_obj.next_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
-                                Suivante ›
+                        <li class="page-item-modern">
+                            <a class="page-link-modern" 
+                               href="?page={{ page_obj.next_page_number }}{% if base_querystring %}&{{ base_querystring }}{% endif %}"
+                               title="Page suivante">
+                                <i class="ph ph-caret-right"></i>
                             </a>
                         </li>
-                        <li class="page-item">
-                            <a class="page-link"
-                               href="?page={{ page_obj.paginator.num_pages }}{% if base_querystring %}&{{ base_querystring }}{% endif %}">
-                                Dernière »
+                        <li class="page-item-modern">
+                            <a class="page-link-modern" 
+                               href="?page={{ page_obj.paginator.num_pages }}{% if base_querystring %}&{{ base_querystring }}{% endif %}"
+                               title="Dernière page">
+                                <i class="ph ph-caret-double-right"></i>
                             </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item-modern disabled">
+                            <span class="page-link-modern"><i class="ph ph-caret-right"></i></span>
+                        </li>
+                        <li class="page-item-modern disabled">
+                            <span class="page-link-modern"><i class="ph ph-caret-double-right"></i></span>
                         </li>
                     {% endif %}
                 </ul>
