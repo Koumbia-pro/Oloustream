@@ -52,6 +52,10 @@ ALLOWED_HOSTS = env_list(
     "localhost,127.0.0.1,oloustream.com,www.oloustream.com",
 )
 
+if not IS_PRODUCTION:
+    # En local, toujours accepter la machine de développement
+    ALLOWED_HOSTS += [h for h in ("localhost", "127.0.0.1", "[::1]") if h not in ALLOWED_HOSTS]
+
 CSRF_TRUSTED_ORIGINS = env_list(
     "DJANGO_CSRF_TRUSTED_ORIGINS",
     "https://oloustream.com,https://www.oloustream.com",
