@@ -1,33 +1,56 @@
 {% extends "base.html" %}
 
-{% block title %}Nouvelle réservation - Oloustream{% endblock %}
+{% block title %}Nouvelle réservation — Oloustream{% endblock %}
+
 
 {% block content %}
-<h1 class="h3 mb-3">Nouvelle réservation</h1>
-
-<form method="post">
-    {% csrf_token %}
-
-    {% if form.non_field_errors %}
-        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-    {% endif %}
-
-    <div class="row">
-        {% for field in form %}
-            <div class="col-md-6 mb-3">
-                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                {{ field }}
-                {% if field.help_text %}
-                    <div class="form-text">{{ field.help_text }}</div>
-                {% endif %}
-                {% if field.errors %}
-                    <div class="text-danger small">{{ field.errors|striptags }}</div>
-                {% endif %}
-            </div>
-        {% endfor %}
+<section class="page-hero page-hero-light">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item"><a href="{% url 'studio:user_reservations_list' %}">Mes réservations</a></li><li class="breadcrumb-item active" aria-current="page">Nouvelle réservation</li></ol></nav>
+        <h1>Nouvelle réservation</h1>
+        <p>Réservez un studio, un service et / ou du matériel sur un créneau précis. Votre demande sera validée par notre équipe.</p>
     </div>
+</section>
 
-    <button type="submit" class="btn btn-primary">Envoyer la demande</button>
-    <a href="{% url 'studio:user_reservations_list' %}" class="btn btn-secondary">Annuler</a>
-</form>
+<section class="section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="ol-card ol-card-body p-lg-5">
+                    <form method="post" class="ol-form" novalidate>
+                        {% csrf_token %}
+                        {% include "partials/form_errors.html" %}
+                        <section class="ol-form-section">
+                            <h2 class="ol-form-section-title"><span class="step">1</span> Que souhaitez-vous réserver ?</h2>
+                            <p class="ol-form-section-desc">Choisissez au moins un studio, un service ou du matériel.</p>
+                            <div class="row g-3">
+                                <div class="col-md-6">{% include "partials/field.html" with field=form.studio %}</div>
+                                <div class="col-md-6">{% include "partials/field.html" with field=form.service %}</div>
+                                <div class="col-12">{% include "partials/field.html" with field=form.equipments help="Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs équipements." %}</div>
+                            </div>
+                        </section>
+                        <section class="ol-form-section">
+                            <h2 class="ol-form-section-title"><span class="step">2</span> Créneau</h2>
+                            <div class="row g-3">
+                                <div class="col-md-6">{% include "partials/field.html" with field=form.start_datetime %}</div>
+                                <div class="col-md-6">{% include "partials/field.html" with field=form.end_datetime %}</div>
+                            </div>
+                        </section>
+                        <div class="ol-form-actions">
+                            <a href="{% url 'studio:user_reservations_list' %}" class="btn btn-light">Annuler</a>
+                            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Envoyer la demande</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="ol-card ol-card-body">
+                    <h2 class="h6 mb-3">Un projet plus complet ?</h2>
+                    <p class="small text-muted">Podcast, émission, interview, captation : décrivez votre projet (format, accompagnement, budget) et nous vous proposons la meilleure configuration.</p>
+                    <a href="{% url 'studio:user_project_reservation_create' %}" class="btn btn-light btn-sm">Décrire mon projet <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

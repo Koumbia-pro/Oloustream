@@ -1,116 +1,82 @@
 {% extends "base.html" %}
 
-{% block title %}{{ equipment.name }} - Matériel{% endblock %}
+{% block title %}{{ equipment.name }} — Location de matériel Oloustream{% endblock %}
+{% block meta_description %}Louez {{ equipment.name }}{% if equipment.brand %} ({{ equipment.brand }} {{ equipment.model }}){% endif %} chez Oloustream pour vos tournages et événements.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .equipment-cover { aspect-ratio: 4 / 3; background: var(--ol-surface-2); border-radius: var(--ol-radius); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .equipment-cover img { width: 100%; height: 100%; object-fit: contain; background: var(--ol-white); }
+    .equipment-cover .placeholder-icon { color: var(--ol-subtle); font-size: 3rem; }
+</style>
+{% endblock %}
 
 {% block content %}
-
-<style>
-    .equipment-detail {
-        display: grid;
-        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.5fr);
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-    .equipment-detail-media {
-        border-radius: 1rem;
-        overflow: hidden;
-        background: #020617;
-        min-height: 260px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .equipment-detail-media img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    .equipment-detail-card {
-        border-radius: 1rem;
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 10px 25px rgba(15,23,42,0.09);
-        padding: 1.2rem 1.4rem;
-    }
-    .equipment-detail-title {
-        font-size: 1.3rem;
-        font-weight: 600;
-    }
-    .equipment-detail-meta {
-        font-size: 0.9rem;
-        color: #6b7280;
-        margin-top: 0.3rem;
-    }
-    .equipment-section-title {
-        font-size: 0.95rem;
-        font-weight: 600;
-        margin-top: 0.9rem;
-        margin-bottom: 0.2rem;
-    }
-    .equipment-section-body {
-        font-size: 0.87rem;
-        color: #4b5563;
-        white-space: pre-line;
-    }
-    @media (max-width: 768px) {
-        .equipment-detail {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-
-<a href="{% url 'studio:user_equipment_list' %}" class="btn btn-sm btn-outline-secondary mb-3">
-    ← Retour à la liste du matériel
-</a>
-
-<div class="equipment-detail">
-    <div class="equipment-detail-media">
-        {% if equipment.photo %}
-            <img src="{{ equipment.photo.url }}" alt="{{ equipment.name }}">
-        {% else %}
-            <span class="text-light" style="font-size:0.9rem;">
-                Aucune image disponible
-            </span>
-        {% endif %}
+<section class="page-hero page-hero-light">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item"><a href="{% url 'studio:user_equipment_list' %}">Matériel</a></li><li class="breadcrumb-item active" aria-current="page">{{ equipment.name }}</li></ol></nav>
+        <h1>{{ equipment.name }}</h1>
+        <p>{% if equipment.category %}{{ equipment.category.name }}{% if equipment.brand or equipment.model %} · {% endif %}{% endif %}{{ equipment.brand }} {{ equipment.model }}</p>
     </div>
+</section>
 
-    <div class="equipment-detail-card">
-        <div class="equipment-detail-title">
-            {{ equipment.name }}
-        </div>
-        <div class="equipment-detail-meta">
-            {% if equipment.category %}
-                {{ equipment.category.name }} ·
-            {% endif %}
-            {% if equipment.brand or equipment.model %}
-                {{ equipment.brand }} {{ equipment.model }}
-            {% endif %}
-        </div>
-
-        {% if equipment.accessories_included %}
-            <div class="equipment-section-title">Accessoires inclus</div>
-            <div class="equipment-section-body">
-                {{ equipment.accessories_included }}
+<section class="section">
+    <div class="container">
+        <div class="row g-4 g-lg-5">
+            <div class="col-lg-6">
+                <div class="equipment-cover ol-card">
+                    {% if equipment.photo %}
+                    <img src="{{ equipment.photo.url }}" alt="{{ equipment.name }}">
+                    {% else %}
+                    <i class="fa-solid fa-camera placeholder-icon" aria-hidden="true"></i>
+                    {% endif %}
+                </div>
             </div>
-        {% endif %}
+            <div class="col-lg-6">
+                <div class="ol-card mb-4">
+                    <div class="ol-card-header">
+                        <h2>Informations</h2>
+                        <span class="ol-badge status-{{ equipment.status }}">{{ equipment.get_status_display }}</span>
+                    </div>
+                    <div class="ol-card-body">
+                        <dl class="ol-meta">
+                            <dt>Catégorie</dt><dd>{{ equipment.category.name|default:"—" }}</dd>
+                            <dt>Marque</dt><dd>{{ equipment.brand|default:"—" }}</dd>
+                            <dt>Modèle</dt><dd>{{ equipment.model|default:"—" }}</dd>
+                        </dl>
+                    </div>
+                    <div class="ol-card-footer d-flex flex-wrap gap-2">
+                        {% if equipment.status == "AVAILABLE" %}
+                            {% if user.is_authenticated %}
+                            <a href="{% url 'studio:user_equipment_reserve' equipment.pk %}" class="btn btn-primary"><i class="fa-regular fa-calendar-check" aria-hidden="true"></i> Réserver ce matériel</a>
+                            {% else %}
+                            {% url 'studio:user_equipment_reserve' equipment.pk as reserve_url %}
+                            <a href="{% url 'accounts:login' %}?next={{ reserve_url|urlencode }}" class="btn btn-primary"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Se connecter pour réserver</a>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted small align-self-center">Ce matériel n'est pas réservable pour le moment.</span>
+                        {% endif %}
+                        <a href="{% url 'core:contact' %}" class="btn btn-light">Poser une question</a>
+                    </div>
+                </div>
 
-        {% if equipment.technical_specs %}
-            <div class="equipment-section-title">Caractéristiques techniques</div>
-            <div class="equipment-section-body">
-                {{ equipment.technical_specs }}
+                {% if equipment.technical_specs %}
+                <div class="ol-card mb-4">
+                    <div class="ol-card-header"><h2>Caractéristiques techniques</h2></div>
+                    <div class="ol-card-body"><p class="mb-0">{{ equipment.technical_specs|linebreaksbr }}</p></div>
+                </div>
+                {% endif %}
+
+                {% if equipment.accessories_included %}
+                <div class="ol-card mb-4">
+                    <div class="ol-card-header"><h2>Accessoires inclus</h2></div>
+                    <div class="ol-card-body"><p class="mb-0">{{ equipment.accessories_included|linebreaksbr }}</p></div>
+                </div>
+                {% endif %}
+
+                <a href="{% url 'studio:user_equipment_list' %}" class="link-arrow"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Retour au matériel</a>
             </div>
-        {% endif %}
-
-        <div class="mt-3 d-flex justify-content-between align-items-center">
-            <span class="text-success" style="font-size:0.85rem;">
-                Disponible à la location
-            </span>
-            <a href="{% url 'studio:user_equipment_reserve' equipment.pk %}"
-               class="btn btn-primary btn-sm">
-                Réserver ce matériel
-            </a>
         </div>
     </div>
-</div>
-
+</section>
 {% endblock %}

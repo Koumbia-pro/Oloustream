@@ -1,0 +1,20 @@
+{% comment %}
+Navigation de l'espace partenaire (colonne gauche de .account-layout).
+Usage : {% include "partners/_partner_nav.html" %}  — nécessite `partner` dans le contexte.
+{% endcomment %}
+{% with url_name=request.resolver_match.url_name %}
+<nav class="ol-card account-nav" aria-label="Espace partenaire">
+    <div class="who">
+        <span class="ol-avatar">{{ partner.user.first_name|default:partner.user.username|slice:":1"|upper }}</span>
+        <div>
+            <strong>{{ partner.user.get_full_name|default:partner.user.username }}</strong>
+            <small>{{ partner.partner_code }}</small>
+        </div>
+    </div>
+    <a href="{% url 'partners:dashboard' %}" class="{% if url_name == 'dashboard' %}active{% endif %}"{% if url_name == 'dashboard' %} aria-current="page"{% endif %}><i class="fa-solid fa-gauge-high"></i> Tableau de bord</a>
+    <a href="{% url 'partners:contracts_list' %}" class="{% if url_name == 'contracts_list' or url_name == 'contract_detail' %}active{% endif %}"{% if url_name == 'contracts_list' %} aria-current="page"{% endif %}><i class="fa-solid fa-file-contract"></i> Mes contrats</a>
+    <a href="{% url 'partners:submit_contract' %}" class="{% if url_name == 'submit_contract' %}active{% endif %}"{% if url_name == 'submit_contract' %} aria-current="page"{% endif %}><i class="fa-solid fa-file-circle-plus"></i> Soumettre un contrat</a>
+    <a href="{% url 'partners:payments_history' %}" class="{% if url_name == 'payments_history' %}active{% endif %}"{% if url_name == 'payments_history' %} aria-current="page"{% endif %}><i class="fa-solid fa-money-bill-transfer"></i> Paiements</a>
+    <a href="{% url 'accounts:profile' %}"><i class="fa-regular fa-user"></i> Mon profil</a>
+</nav>
+{% endwith %}

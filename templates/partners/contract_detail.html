@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Contrat {{ contract.client_name }} — Espace partenaire Oloustream{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero-light">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'partners:dashboard' %}">Espace partenaire</a></li><li class="breadcrumb-item"><a href="{% url 'partners:contracts_list' %}">Mes contrats</a></li><li class="breadcrumb-item active" aria-current="page">Contrat n° {{ contract.pk }}</li></ol></nav>
+        <div class="d-flex flex-wrap align-items-center gap-3">
+            <h1 class="mb-0">{{ contract.client_name }}</h1>
+            <span class="ol-badge status-{{ contract.status }}">{{ contract.get_status_display }}</span>
+        </div>
+        <p class="mt-2">Contrat n° {{ contract.pk }} · soumis le {{ contract.created_at|date:"d/m/Y à H:i" }}</p>
+    </div>
+</section>
+
+<section class="section-sm">
+    <div class="container">
+        <div class="account-layout">
+            {% include "partners/_partner_nav.html" %}
+
+            <div class="row g-4">
+                <div class="col-xl-8 d-grid gap-4 align-content-start">
+                    <div class="ol-card">
+                        <div class="ol-card-header"><h2>Client</h2></div>
+                        <div class="ol-card-body">
+                            <dl class="ol-meta">
+                                <dt>Nom du client</dt><dd>{{ contract.client_name }}</dd>
+                                <dt>Type de client</dt><dd>{{ contract.get_client_type_display }}</dd>
+                                <dt>Contact</dt><dd>{{ contract.client_contact }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <div class="ol-card">
+                        <div class="ol-card-header"><h2>Projet</h2></div>
+                        <div class="ol-card-body">
+                            <dl class="ol-meta mb-3">
+                                <dt>Type de service</dt><dd>{{ contract.service_type }}</dd>
+                            </dl>
+                            <h3 class="small-caps text-muted mb-2">Description</h3>
+                            <p class="mb-0">{{ contract.description|linebreaksbr }}</p>
+                        </div>
+                    </div>
+
+                    <div class="ol-card">
+                        <div class="ol-card-header"><h2>Paiements liés à ce contrat</h2></div>
+                        {% if payments %}
+                        <div class="ol-table-wrap">
+                            <table class="ol-table">
+                                <thead><tr><th>Date</th><th>Montant</th><th>Méthode</th><th>Référence</th><th class="cell-actions">Reçu</th></tr></thead>
+                                <tbody>
+                                    {% for payment in payments %}
+                                    <tr>
+                                        <td class="text-nowrap">{{ payment.paid_at|date:"d/m/Y" }}</td>
+                                        <td class="text-nowrap fw-semibold text-ink">{{ payment.amount|floatformat:0|intcomma }} FCFA</td>
+                                        <td>{{ payment.get_payment_method_display }}</td>
+                                        <td>{{ payment.reference|default:"—" }}</td>
+                                        <td class="cell-actions">
+                                            {% if payment.receipt %}
+                                            <a href="{% url 'core:protected_file' 'recu' payment.pk %}" class="btn btn-light btn-sm" target="_blank" rel="noopener"><i class="fa-solid fa-download"></i> Reçu</a>
+                                            {% else %}<span class="text-muted">—</span>{% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="ol-empty py-4">
+                            <div class="ol-empty-icon"><i class="fa-solid fa-money-bill-transfer"></i></div>
+                            <h3>Aucun paiement pour ce contrat</h3>
+                            <p class="mb-0">La commission est versée après validation du contrat.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-xl-4">
+                    <div class="d-grid gap-4">
+                        <div class="ol-card">
+                            <div class="ol-card-header"><h2>Montants</h2></div>
+                            <div class="ol-card-body">
+                                <dl class="ol-meta">
+                                    <dt>Montant du contrat</dt><dd class="ol-price">{{ contract.contract_amount|floatformat:0|intcomma }} FCFA</dd>
+                                    <dt>Taux appliqué</dt><dd>{{ contract.commission_rate|floatformat:"-2" }} %</dd>
+                                    <dt>Commission</dt><dd class="ol-price text-red">{{ contract.commission_amount|floatformat:0|intcomma }} FCFA</dd>
+                                </dl>
+                            </div>
+                        </div>
+
+                        <div class="ol-card">
+                            <div class="ol-card-header"><h2>Suivi</h2></div>
+                            <div class="ol-card-body">
+                                <ul class="ol-timeline">
+                                    <li><div class="fw-semibold text-ink">Contrat soumis</div><div class="when">{{ contract.created_at|date:"d/m/Y H:i" }}</div></li>
+                                    {% if contract.validated_at %}<li><div class="fw-semibold text-ink">Contrat validé</div><div class="when">{{ contract.validated_at|date:"d/m/Y H:i" }}</div></li>{% endif %}
+                                    {% if contract.completed_at %}<li><div class="fw-semibold text-ink">Contrat terminé</div><div class="when">{{ contract.completed_at|date:"d/m/Y H:i" }}</div></li>{% endif %}
+                                    {% if contract.status == 'pending' %}<li><div class="text-muted">En attente de validation par l'équipe Oloustream</div></li>{% endif %}
+                                    {% if contract.status == 'cancelled' %}<li><div class="text-muted">Contrat annulé</div></li>{% endif %}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="ol-card ol-card-body">
+                            <h2 class="h6 mb-2">Document</h2>
+                            {% if contract.contract_file %}
+                            <a href="{% url 'core:protected_file' 'contrat-partenaire' contract.pk %}" class="btn btn-light w-100" target="_blank" rel="noopener"><i class="fa-solid fa-file-arrow-down"></i> Télécharger le contrat</a>
+                            {% else %}
+                            <p class="small text-muted mb-0">Aucun document joint à ce contrat.</p>
+                            {% endif %}
+                        </div>
+
+                        <a href="{% url 'partners:contracts_list' %}" class="btn btn-ghost"><i class="fa-solid fa-arrow-left"></i> Retour à mes contrats</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

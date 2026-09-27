@@ -20,18 +20,18 @@ class Region(models.Model):
         ordering = ['-is_priority', 'name']
     
     def __str__(self):
-        return f"{self.name} {'⭐' if self.is_priority else ''}"
+        return f"{self.name} (prioritaire)" if self.is_priority else self.name
 
 
 class PartnerApplication(models.Model):
     """Candidature pour devenir partenaire d'affaires"""
     
     STATUS_CHOICES = [
-        ('pending', '⏳ En attente'),
-        ('reviewing', '🔍 En cours d\'examen'),
-        ('interview', '📞 Entretien planifié'),
-        ('approved', '✅ Approuvée'),
-        ('rejected', '❌ Rejetée'),
+        ('pending', 'En attente'),
+        ('reviewing', 'En cours d\'examen'),
+        ('interview', 'Entretien planifié'),
+        ('approved', 'Approuvée'),
+        ('rejected', 'Rejetée'),
     ]
     
     NETWORK_STRENGTH = [
@@ -239,13 +239,13 @@ class Contract(models.Model):
     """Contrat apporté par un partenaire"""
     
     STATUS_CHOICES = [
-        ('draft', '📝 Brouillon'),
-        ('pending', '⏳ En attente validation'),
-        ('validated', '✅ Validé'),
-        ('signed', '🖊️ Signé'),
-        ('in_progress', '🔄 En cours'),
-        ('completed', '✔️ Terminé'),
-        ('cancelled', '❌ Annulé'),
+        ('draft', 'Brouillon'),
+        ('pending', 'En attente de validation'),
+        ('validated', 'Validé'),
+        ('signed', 'Signé'),
+        ('in_progress', 'En cours'),
+        ('completed', 'Terminé'),
+        ('cancelled', 'Annulé'),
     ]
     
     # Partenaire

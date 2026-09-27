@@ -1,161 +1,153 @@
 {% extends "base.html" %}
-{% block title %}Mon profil - Oloustream{% endblock %}
+
+{% block title %}Mon profil — Oloustream{% endblock %}
 
 {% block content %}
-<div class="row">
-    <!-- Colonne gauche : résumé du profil -->
-    <div class="col-md-4 mb-4">
-        <div class="card shadow-sm">
-            <div class="card-body text-center">
-                <h5 class="card-title mb-3">Mon profil</h5>
-
-                {% if request.user.avatar %}
-                    <img src="{{ request.user.avatar.url }}" alt="Avatar"
-                         class="img-thumbnail mb-3" style="width: 140px; height: 140px; object-fit: cover;">
-                {% else %}
-                    <div class="d-flex align-items-center justify-content-center rounded-circle bg-secondary text-white mb-3"
-                         style="width: 140px; height: 140px; font-size: 3rem;">
-                        {{ request.user.first_name|default:request.user.username|first|upper }}
-                    </div>
-                {% endif %}
-
-                <h6 class="mb-0">{{ request.user.get_full_name|default:request.user.username }}</h6>
-                <p class="text-muted mb-1">{{ request.user.email }}</p>
-                {% if request.user.is_employee %}
-                    <span class="badge bg-primary">Employé</span>
-                {% else %}
-                    <span class="badge bg-secondary">Client</span>
-                {% endif %}
-            </div>
-        </div>
+<section class="page-hero page-hero-light">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item active" aria-current="page">Mon profil</li></ol></nav>
+        <h1>Mon profil</h1>
+        <p>Gérez vos informations personnelles, votre photo et votre mot de passe.</p>
     </div>
+</section>
 
-    <!-- Colonne droite : édition des infos de base -->
-    <div class="col-md-8 mb-4">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title mb-3">Informations de compte</h5>
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="row">
-                        {% for field in form %}
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                {{ field }}
-                                {% if field.help_text %}
-                                    <div class="form-text">{{ field.help_text }}</div>
-                                {% endif %}
-                                {% if field.errors %}
-                                    <div class="text-danger small">{{ field.errors|striptags }}</div>
-                                {% endif %}
+<section class="section-sm">
+    <div class="container">
+        <div class="account-layout">
+            {% include "user/_account_nav.html" with active="profile" %}
+
+            <div class="d-grid gap-4">
+                {# ---------- Résumé ---------- #}
+                <div class="ol-card ol-card-body d-flex flex-wrap align-items-center gap-3">
+                    {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" alt="Photo de profil" class="ol-avatar ol-avatar-lg">
+                    {% else %}
+                    <span class="ol-avatar ol-avatar-lg" aria-hidden="true">{{ user.first_name|default:user.username|slice:":1"|upper }}</span>
+                    {% endif %}
+                    <div class="flex-grow-1">
+                        <h2 class="h5 mb-1">{{ user.get_full_name|default:user.username }}</h2>
+                        <div class="text-muted small mb-2">{{ user.email|default:"Aucun email renseigné" }} · Membre depuis {{ user.date_joined|date:"F Y" }}</div>
+                        <span class="ol-badge {% if user.is_employee %}ol-badge-gold{% endif %} no-dot">{% if user.is_employee %}Employé{% else %}Client{% endif %}</span>
+                    </div>
+                    <a href="{% url 'studio:user_reservations_list' %}" class="ol-card ol-card-hover text-center px-4 py-3 text-decoration-none">
+                        <div class="ol-stat-value">{{ reservations_count }}</div>
+                        <div class="ol-stat-label">Réservation{{ reservations_count|pluralize }}</div>
+                    </a>
+                </div>
+
+                {# ---------- Informations du compte ---------- #}
+                <div class="ol-card">
+                    <div class="ol-card-header"><h2>Informations du compte</h2></div>
+                    <div class="ol-card-body">
+                        <form method="post" action="{% url 'accounts:profile' %}" enctype="multipart/form-data" class="ol-form" novalidate>
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="profile">
+                            {% include "partials/form_errors.html" %}
+
+                            <section class="ol-form-section">
+                                <h3 class="ol-form-section-title"><span class="step">1</span> Photo de profil</h3>
+                                <div class="d-flex flex-wrap align-items-center gap-3">
+                                    <img id="avatar-preview" {% if user.avatar %}src="{{ user.avatar.url }}"{% endif %} alt="Aperçu de la photo" class="ol-avatar ol-avatar-lg" {% if not user.avatar %}hidden{% endif %}>
+                                    <div class="ol-field flex-grow-1 mb-0{% if form.avatar.errors %} has-error{% endif %}">
+                                        <label class="form-label" for="{{ form.avatar.id_for_label }}">{{ form.avatar.label }}</label>
+                                        <input type="file" name="{{ form.avatar.html_name }}" id="{{ form.avatar.id_for_label }}" class="form-control" accept="image/*" data-preview="#avatar-preview">
+                                        <div class="form-text">Image JPG, PNG ou WebP. Laissez vide pour conserver la photo actuelle.</div>
+                                        {% for error in form.avatar.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="ol-form-section">
+                                <h3 class="ol-form-section-title"><span class="step">2</span> Coordonnées</h3>
+                                <div class="row g-3">
+                                    <div class="col-md-6">{% include "partials/field.html" with field=form.first_name %}</div>
+                                    <div class="col-md-6">{% include "partials/field.html" with field=form.last_name %}</div>
+                                    <div class="col-md-6">{% include "partials/field.html" with field=form.email %}</div>
+                                    <div class="col-md-6">{% include "partials/field.html" with field=form.phone help="Ex. +226 70 00 00 00" %}</div>
+                                </div>
+                            </section>
+
+                            <div class="ol-form-actions">
+                                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Enregistrer les modifications</button>
                             </div>
-                        {% endfor %}
+                        </form>
                     </div>
-                    <button type="submit" class="btn btn-primary">Mettre à jour</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-{% if employee_profile %}
-    <!-- Informations spécifiques employé -->
-    <div class="row">
-        <!-- Données personnelles -->
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">Données personnelles</h5>
-                    <p class="mb-1"><strong>Poste :</strong> {{ employee_profile.position|default:"-" }}</p>
-                    <p class="mb-1"><strong>Genre :</strong> {{ employee_profile.get_gender_display|default:"-" }}</p>
-                    <p class="mb-1"><strong>Date de naissance :</strong> {{ employee_profile.date_of_birth|date:"d/m/Y"|default:"-" }}</p>
-                    <p class="mb-1"><strong>Adresse :</strong> {{ employee_profile.address|default:"-" }}</p>
-                    <p class="mb-1"><strong>Ville :</strong> {{ employee_profile.city|default:"-" }}</p>
-                    <p class="mb-1"><strong>Téléphone :</strong> {{ request.user.phone|default:"-" }}</p>
                 </div>
-            </div>
-        </div>
 
-        <!-- Infos professionnelles & administratives -->
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm mb-3">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">Informations professionnelles</h5>
-                    <p class="mb-1"><strong>Années d'expérience :</strong> {{ employee_profile.years_of_experience|default:"-" }}</p>
-                    <p class="mb-1"><strong>Niveau d'études :</strong> {{ employee_profile.get_education_level_display|default:"-" }}</p>
-                    <p class="mb-1"><strong>Diplômes :</strong> {{ employee_profile.diploma|default:"-" }}</p>
-                    <p class="mb-1"><strong>Type de contrat :</strong> {{ employee_profile.get_contract_type_display|default:"-" }}</p>
-                    <p class="mb-1"><strong>Salaire (confidentiel) :</strong>
-                        {% if employee_profile.salary %}
-                            ******
-                        {% else %}
-                            -
-                        {% endif %}
-                    </p>
+                {# ---------- Mot de passe ---------- #}
+                <div class="ol-card" id="mot-de-passe">
+                    <div class="ol-card-header"><h2>Changer de mot de passe</h2></div>
+                    <div class="ol-card-body">
+                        <form method="post" action="{% url 'accounts:profile' %}#mot-de-passe" class="ol-form" novalidate>
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="password">
+                            {% include "partials/form_errors.html" with form=password_form %}
+                            {% include "user/auth/_password_field.html" with field=password_form.old_password %}
+                            <div class="row g-3">
+                                <div class="col-md-6">{% include "user/auth/_password_field.html" with field=password_form.new_password1 %}</div>
+                                <div class="col-md-6">{% include "user/auth/_password_field.html" with field=password_form.new_password2 %}</div>
+                            </div>
+                            <div class="ol-form-actions">
+                                <button type="submit" class="btn btn-dark"><i class="fa-solid fa-lock"></i> Mettre à jour le mot de passe</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </div>
 
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">Données administratives</h5>
-                    <p class="mb-1"><strong>Date d'embauche :</strong> {{ employee_profile.hire_date|date:"d/m/Y"|default:"-" }}</p>
-                    <p class="mb-1"><strong>Fin de contrat :</strong> {{ employee_profile.contract_end_date|date:"d/m/Y"|default:"-" }}</p>
-                    <p class="mb-1"><strong>Manager :</strong>
-                        {% if employee_profile.manager %}
-                            {{ employee_profile.manager.get_full_name|default:employee_profile.manager.username }}
-                        {% else %}
-                            -
-                        {% endif %}
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Réseaux sociaux -->
-    <div class="row">
-        <div class="col-md-12 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">Réseaux professionnels</h5>
-                    <div class="row">
-                        <div class="col-md-3 mb-2">
-                            <strong>LinkedIn :</strong><br>
-                            {% if employee_profile.linkedin_url %}
-                                <a href="{{ employee_profile.linkedin_url }}" target="_blank">Voir le profil</a>
-                            {% else %}
-                                <span class="text-muted">Non renseigné</span>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <strong>Facebook :</strong><br>
-                            {% if employee_profile.facebook_url %}
-                                <a href="{{ employee_profile.facebook_url }}" target="_blank">Voir le profil</a>
-                            {% else %}
-                                <span class="text-muted">Non renseigné</span>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <strong>Twitter / X :</strong><br>
-                            {% if employee_profile.twitter_url %}
-                                <a href="{{ employee_profile.twitter_url }}" target="_blank">Voir le profil</a>
-                            {% else %}
-                                <span class="text-muted">Non renseigné</span>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <strong>Instagram :</strong><br>
-                            {% if employee_profile.instagram_url %}
-                                <a href="{{ employee_profile.instagram_url }}" target="_blank">Voir le profil</a>
-                            {% else %}
-                                <span class="text-muted">Non renseigné</span>
-                            {% endif %}
+                {# ---------- Dossier employé (lecture seule) ---------- #}
+                {% if employee_profile %}
+                <div class="ol-card">
+                    <div class="ol-card-header">
+                        <h2>Dossier employé</h2>
+                        <span class="small text-muted">Géré par l'administration</span>
+                    </div>
+                    <div class="ol-card-body">
+                        <div class="row g-4">
+                            <div class="col-lg-6">
+                                <h3 class="small-caps text-muted mb-3">Données personnelles</h3>
+                                <dl class="ol-meta">
+                                    <dt>Poste</dt><dd>{{ employee_profile.position|default:"—" }}</dd>
+                                    <dt>Genre</dt><dd>{{ employee_profile.get_gender_display|default:"—" }}</dd>
+                                    <dt>Date de naissance</dt><dd>{{ employee_profile.date_of_birth|date:"d/m/Y"|default:"—" }}</dd>
+                                    <dt>Adresse</dt><dd>{{ employee_profile.address|default:"—" }}</dd>
+                                    <dt>Ville</dt><dd>{{ employee_profile.city|default:"—" }}</dd>
+                                    <dt>Téléphone</dt><dd>{{ user.phone|default:"—" }}</dd>
+                                </dl>
+                            </div>
+                            <div class="col-lg-6">
+                                <h3 class="small-caps text-muted mb-3">Informations professionnelles</h3>
+                                <dl class="ol-meta">
+                                    <dt>Expérience</dt><dd>{% if employee_profile.years_of_experience is not None %}{{ employee_profile.years_of_experience }} an{{ employee_profile.years_of_experience|pluralize }}{% else %}—{% endif %}</dd>
+                                    <dt>Niveau d'études</dt><dd>{{ employee_profile.get_education_level_display|default:"—" }}</dd>
+                                    <dt>Diplômes</dt><dd>{{ employee_profile.diploma|default:"—" }}</dd>
+                                    <dt>Type de contrat</dt><dd>{{ employee_profile.get_contract_type_display|default:"—" }}</dd>
+                                    <dt>Salaire</dt><dd>{% if employee_profile.salary %}<span class="text-muted">Confidentiel</span>{% else %}—{% endif %}</dd>
+                                    <dt>Contrat</dt><dd>{% if employee_profile.contract_document %}<a href="{% url 'core:protected_file' 'contrat-employe' employee_profile.pk %}" target="_blank" rel="noopener"><i class="fa-regular fa-file-lines me-1"></i>Consulter le document</a>{% else %}—{% endif %}</dd>
+                                </dl>
+                            </div>
+                            <div class="col-lg-6">
+                                <h3 class="small-caps text-muted mb-3">Données administratives</h3>
+                                <dl class="ol-meta">
+                                    <dt>Date d'embauche</dt><dd>{{ employee_profile.hire_date|date:"d/m/Y"|default:"—" }}</dd>
+                                    <dt>Fin de contrat</dt><dd>{{ employee_profile.contract_end_date|date:"d/m/Y"|default:"—" }}</dd>
+                                    <dt>Manager</dt><dd>{% if employee_profile.manager %}{{ employee_profile.manager.get_full_name|default:employee_profile.manager.username }}{% else %}—{% endif %}</dd>
+                                </dl>
+                            </div>
+                            <div class="col-lg-6">
+                                <h3 class="small-caps text-muted mb-3">Réseaux professionnels</h3>
+                                <dl class="ol-meta">
+                                    <dt>LinkedIn</dt><dd>{% if employee_profile.linkedin_url %}<a href="{{ employee_profile.linkedin_url }}" target="_blank" rel="noopener noreferrer">Voir le profil</a>{% else %}<span class="text-muted">Non renseigné</span>{% endif %}</dd>
+                                    <dt>Facebook</dt><dd>{% if employee_profile.facebook_url %}<a href="{{ employee_profile.facebook_url }}" target="_blank" rel="noopener noreferrer">Voir le profil</a>{% else %}<span class="text-muted">Non renseigné</span>{% endif %}</dd>
+                                    <dt>Twitter / X</dt><dd>{% if employee_profile.twitter_url %}<a href="{{ employee_profile.twitter_url }}" target="_blank" rel="noopener noreferrer">Voir le profil</a>{% else %}<span class="text-muted">Non renseigné</span>{% endif %}</dd>
+                                    <dt>Instagram</dt><dd>{% if employee_profile.instagram_url %}<a href="{{ employee_profile.instagram_url }}" target="_blank" rel="noopener noreferrer">Voir le profil</a>{% else %}<span class="text-muted">Non renseigné</span>{% endif %}</dd>
+                                </dl>
+                            </div>
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>
-
-{% endif %}
+</section>
 {% endblock %}

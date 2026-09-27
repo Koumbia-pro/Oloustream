@@ -1,33 +1,26 @@
-<!doctype html>
-<html>
-  <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-    <h2>Votre demande de réservation a bien été reçue ✅</h2>
-
-    <p>Bonjour {{ user_name }},</p>
-
-    <p>
-      Merci d’avoir contacté <strong>Oloustream</strong>.
-      Nous avons bien reçu votre demande de réservation <strong>#{{ reservation_id }}</strong>.
-    </p>
-
-    <p>
-      <strong>Créneau demandé :</strong><br>
-      Du {{ start|date:"d/m/Y H:i" }} au {{ end|date:"d/m/Y H:i" }}
-    </p>
-
-    {% if studio_name %}
-      <p><strong>Studio :</strong> {{ studio_name }}</p>
-    {% endif %}
-
-    <p>
-      Statut actuel : <strong>{{ status_label }}</strong><br>
-      Notre équipe va examiner votre demande et vous recontactera si nécessaire.
-    </p>
-
-    <hr>
-    <p style="font-size: 13px; color: #555;">
-      Oloustream – Creative Audio-Video Experiences<br>
-      📞 +226 64 09 31 96 · ✉️ info@oloustream.com
-    </p>
-  </body>
-</html>
+{% extends "emails/_base_email.html" %}
+{% block title %}Demande de réservation reçue{% endblock %}
+{% block preheader %}Nous avons bien reçu votre demande de réservation n° {{ reservation_id }}.{% endblock %}
+{% block content %}
+<h1 style="margin:0 0 16px;font-size:20px;line-height:28px;color:#0F172A;">Votre demande de réservation a bien été reçue</h1>
+<p style="margin:0 0 16px;">Bonjour {{ user_name }},</p>
+<p style="margin:0 0 20px;">Merci d'avoir choisi Oloustream. Nous avons bien reçu votre demande de réservation <strong>n° {{ reservation_id }}</strong>.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;margin:0 0 20px;">
+<tr><td style="padding:16px 20px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:22px;color:#334155;">
+{% if studio_name %}<strong style="color:#0F172A;">Studio :</strong> {{ studio_name }}<br>
+{% endif %}
+<strong style="color:#0F172A;">Créneau demandé :</strong> du {{ start|date:"d/m/Y H:i" }} au {{ end|date:"d/m/Y H:i" }}<br>
+<strong style="color:#0F172A;">Statut actuel :</strong> {{ status_label }}
+</td></tr>
+</table>
+<p style="margin:0 0 24px;">Notre équipe examine votre demande et reviendra vers vous rapidement pour la confirmer.</p>
+{% if reservations_url %}
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;">
+<tr><td align="center" bgcolor="#E60000" style="border-radius:6px;">
+<a href="{{ reservations_url }}" style="display:inline-block;padding:12px 24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#FFFFFF;text-decoration:none;border-radius:6px;">Suivre mes réservations</a>
+</td></tr>
+</table>
+{% endif %}
+<p style="margin:0;">À très bientôt,<br>
+L'équipe Oloustream</p>
+{% endblock %}

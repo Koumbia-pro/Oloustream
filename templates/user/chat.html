@@ -1,290 +1,88 @@
 {% extends "base.html" %}
 
-{% block title %}Chat - Oloustream{% endblock %}
+{% block title %}Messagerie — Oloustream{% endblock %}
 
 {% block content %}
+<section class="page-hero page-hero-light">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item"><a href="{% url 'accounts:profile' %}">Mon compte</a></li><li class="breadcrumb-item active" aria-current="page">Messagerie</li></ol></nav>
+        <h1>Messagerie</h1>
+        <p>Échangez directement avec l'équipe Oloustream au sujet de vos projets et réservations.</p>
+    </div>
+</section>
 
-<style>
-  /* ====== Layout chat ====== */
-  #chat-messages{
-    height: 420px !important;               /* garde ton inline style, on harmonise */
-    background: linear-gradient(180deg, #fbfcff 0%, #f6f8ff 100%);
-    border: 1px solid rgba(17,24,39,.10) !important;
-    border-radius: 16px !important;
-    box-shadow: 0 16px 40px rgba(17,24,39,.08);
-    padding: 16px !important;
-  }
+<section class="section-sm">
+    <div class="container">
+        <div class="account-layout">
+            {% include "user/_account_nav.html" with active="chat" %}
 
-  /* Scrollbar (Chrome/Edge/Safari) */
-  #chat-messages::-webkit-scrollbar{ width: 10px; }
-  #chat-messages::-webkit-scrollbar-track{ background: transparent; }
-  #chat-messages::-webkit-scrollbar-thumb{
-    background: rgba(17,24,39,.20);
-    border-radius: 999px;
-    border: 3px solid rgba(255,255,255,.85);
-  }
+            <div class="ol-card chat-box">
+                <div class="ol-card-header">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="ol-avatar" aria-hidden="true"><i class="fa-solid fa-headset"></i></span>
+                        <div>
+                            <h2>Équipe Oloustream</h2>
+                            <small class="text-muted">
+                                {% if conversation.admin %}Suivi par {{ conversation.admin.get_full_name|default:conversation.admin.username }} · {% endif %}Réponse habituelle sous 24 h ouvrées
+                            </small>
+                        </div>
+                    </div>
+                </div>
 
-  /* ====== Messages ====== */
-  #chat-messages > .mb-2{
-    margin-bottom: 14px !important;
-  }
+                <div class="chat-scroll" id="chat-scroll" role="log" aria-live="polite" aria-label="Historique des messages">
+                    {% for msg in chat_messages %}
+                    {% ifchanged msg.sent_at.date %}
+                    <div class="text-center small text-muted my-1">{{ msg.sent_at|date:"l j F Y" }}</div>
+                    {% endifchanged %}
+                    <div class="chat-msg {% if msg.sender_id == user.id %}me{% else %}them{% endif %}">
+                        <div class="bubble">{{ msg.content }}</div>
+                        <div class="meta">
+                            {% if msg.sender_id == user.id %}Vous{% else %}{{ msg.sender.get_full_name|default:msg.sender.username }} · Oloustream{% endif %}
+                            · {{ msg.sent_at|date:"H:i" }}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="ol-empty my-auto">
+                        <div class="ol-empty-icon"><i class="fa-regular fa-comments"></i></div>
+                        <h3>Aucun message pour le moment</h3>
+                        <p class="mb-0">Posez votre question ci-dessous : un conseiller vous répondra rapidement.</p>
+                    </div>
+                    {% endfor %}
+                </div>
 
-  /* Meta (nom + date) */
-  #chat-messages .small.text-muted{
-    font-size: .78rem;
-    color: rgba(17,24,39,.55) !important;
-    margin-bottom: 6px;
-  }
-
-  /* Bulle */
-  #chat-messages .d-inline-block{
-    max-width: min(760px, 88%);
-    padding: 10px 12px !important;
-    border-radius: 16px !important;
-    line-height: 1.35;
-    word-break: break-word;
-    white-space: pre-wrap;
-    position: relative;
-    box-shadow: 0 10px 24px rgba(17,24,39,.08);
-    border: 1px solid rgba(17,24,39,.06);
-  }
-
-  /* Bulle "moi" */
-  #chat-messages .text-end .bg-primary{
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 45%, #0b5ed7 100%) !important;
-    border: 1px solid rgba(37,99,235,.25) !important;
-  }
-
-  /* Bulle "support" */
-  #chat-messages .bg-light{
-    background: rgba(255,255,255,.85) !important;
-    border: 1px solid rgba(17,24,39,.08) !important;
-    color: #111827 !important;
-    backdrop-filter: blur(6px);
-  }
-
-  /* Petit "tail" (pointe) */
-  #chat-messages .text-end .d-inline-block::after{
-    content: "";
-    position: absolute;
-    right: -6px;
-    bottom: 10px;
-    width: 12px;
-    height: 12px;
-    background: inherit;
-    transform: rotate(45deg);
-    border-right: 1px solid rgba(17,24,39,.06);
-    border-bottom: 1px solid rgba(17,24,39,.06);
-  }
-  #chat-messages .mb-2:not(.text-end) .d-inline-block::after{
-    content: "";
-    position: absolute;
-    left: -6px;
-    bottom: 10px;
-    width: 12px;
-    height: 12px;
-    background: inherit;
-    transform: rotate(45deg);
-    border-left: 1px solid rgba(17,24,39,.06);
-    border-bottom: 1px solid rgba(17,24,39,.06);
-  }
-
-  /* ====== Formulaire ====== */
-  form.d-flex{
-    margin-top: 10px;
-    background: rgba(255,255,255,.75);
-    border: 1px solid rgba(17,24,39,.08);
-    border-radius: 16px;
-    padding: 10px;
-    box-shadow: 0 12px 28px rgba(17,24,39,.06);
-    gap: 10px;
-  }
-
-  form.d-flex .form-control{
-    border-radius: 14px;
-    border: 1px solid rgba(17,24,39,.14);
-    padding: 12px 12px;
-    background: #fff;
-  }
-
-  form.d-flex .form-control:focus{
-    border-color: rgba(37,99,235,.55);
-    box-shadow: 0 0 0 .2rem rgba(37,99,235,.15);
-  }
-
-  form.d-flex .btn.btn-primary{
-    border-radius: 14px;
-    padding: 12px 14px;
-    font-weight: 800;
-    letter-spacing: .2px;
-    background: linear-gradient(135deg, #2563eb, #0b5ed7) !important;
-    border: none !important;
-    box-shadow: 0 12px 26px rgba(37,99,235,.25);
-    white-space: nowrap;
-  }
-
-  form.d-flex .btn.btn-primary:disabled{
-    opacity: .6;
-    box-shadow: none;
-    cursor: not-allowed;
-  }
-
-  /* Animation nouveau message */
-  .chat-pop{
-    animation: chatPop .18s ease-out;
-  }
-  @keyframes chatPop{
-    from{ transform: translateY(6px); opacity: .65; }
-    to{ transform: translateY(0); opacity: 1; }
-  }
-
-  /* Responsive */
-  @media (max-width: 576px){
-    #chat-messages{ height: 380px !important; padding: 12px !important; }
-    #chat-messages .d-inline-block{ max-width: 92%; }
-    form.d-flex{ padding: 8px; border-radius: 14px; }
-  }
-</style>
-
-{% comment %} <h1 class="h3 mb-1">Chat avec l'équipe Oloustream</h1> {% endcomment %}
-{% comment %} <p class="text-muted">ID conversation (user) : {{ conversation.id }}</p> {% endcomment %}
-
-<div class="border rounded p-3 mb-3" style="height: 400px; overflow-y: auto;" id="chat-messages">
-    {% for msg in messages %}
-        <div class="mb-2 {% if msg.sender == request.user %}text-end{% endif %}">
-            <div class="small text-muted">
-                {% if msg.sender == request.user %}
-                    Vous
-                {% else %}
-                    {{ msg.sender.get_full_name|default:msg.sender.username }}
-                {% endif %}
-                • {{ msg.sent_at|date:"d/m/Y H:i" }}
-            </div>
-            <div class="d-inline-block px-2 py-1 rounded 
-                        {% if msg.sender == request.user %}
-                            bg-primary text-white
-                        {% else %}
-                            bg-light
-                        {% endif %}">
-                {{ msg.content }}
+                <form method="post" action="{% url 'messaging:user_chat' %}" class="chat-compose" id="chat-form">
+                    {% csrf_token %}
+                    <label for="chat-input" class="visually-hidden">Votre message</label>
+                    <textarea name="message" id="chat-input" class="form-control" rows="2" maxlength="4000" required
+                              placeholder="Écrivez votre message… (Entrée pour envoyer, Maj + Entrée pour aller à la ligne)"></textarea>
+                    <button type="submit" class="btn btn-primary align-self-end" aria-label="Envoyer le message">
+                        <i class="fa-solid fa-paper-plane"></i><span class="d-none d-sm-inline ms-1">Envoyer</span>
+                    </button>
+                </form>
             </div>
         </div>
-    {% empty %}
-        <p class="text-muted">Aucun message pour le moment. Envoyez un message pour commencer la conversation.</p>
-    {% endfor %}
-</div>
+    </div>
+</section>
+{% endblock %}
 
-<form method="post" class="d-flex" id="chat-form">
-    {% csrf_token %}
-    <input type="text" name="message" class="form-control me-2" placeholder="Écrivez votre message..." id="chat-input">
-    <button type="submit" class="btn btn-primary" id="chat-send">Envoyer</button>
-</form>
-
+{% block extra_js %}
 <script>
-    (function() {
-        const conversationId = {{ conversation.id }};
-        const currentUserId = {{ request.user.id }};
-        const chatMessages = document.getElementById('chat-messages');
+(function () {
+    var scroller = document.getElementById("chat-scroll");
+    if (scroller) scroller.scrollTop = scroller.scrollHeight;
 
-        const form = document.getElementById('chat-form');
-        const input = document.getElementById('chat-input');
-        const sendBtn = document.getElementById('chat-send');
+    var form = document.getElementById("chat-form");
+    var input = document.getElementById("chat-input");
+    if (!form || !input) return;
 
-        const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
-        const chatSocket = new WebSocket(
-            wsScheme + '://' + window.location.host + '/ws/chat/' + conversationId + '/'
-        );
-
-        function scrollBottom(force) {
-            // Si l'utilisateur est déjà en bas, on suit automatiquement.
-            // Si force=true, on scroll (ex: au chargement).
-            const nearBottom = (chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight) < 80;
-            if (force || nearBottom) chatMessages.scrollTop = chatMessages.scrollHeight;
+    input.focus();
+    input.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+            event.preventDefault();
+            if (!input.value.trim()) return;
+            if (form.requestSubmit) { form.requestSubmit(); } else { form.submit(); }
         }
-
-        function appendMessage(message, fromCurrentUser, authorLabel) {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'mb-2 ' + (fromCurrentUser ? 'text-end' : '');
-            wrapper.classList.add('chat-pop');
-
-            const meta = document.createElement('div');
-            meta.className = 'small text-muted';
-            meta.textContent = authorLabel || (fromCurrentUser ? 'Vous' : 'Support');
-
-            const bubble = document.createElement('div');
-            bubble.className = 'd-inline-block px-2 py-1 rounded ' +
-                (fromCurrentUser ? 'bg-primary text-white' : 'bg-light');
-            bubble.textContent = message;
-
-            wrapper.appendChild(meta);
-            wrapper.appendChild(bubble);
-            chatMessages.appendChild(wrapper);
-
-            scrollBottom(false);
-            setTimeout(() => wrapper.classList.remove('chat-pop'), 220);
-        }
-
-        function updateSendState() {
-            const v = (input.value || '').trim();
-            sendBtn.disabled = (v.length === 0);
-        }
-
-        // Empêche l'envoi vide + Enter pour envoyer
-        form.addEventListener('submit', function(e){
-            const v = (input.value || '').trim();
-            if (!v) {
-                e.preventDefault();
-                input.focus();
-                return;
-            }
-            // petit état "envoi"
-            sendBtn.disabled = true;
-            sendBtn.dataset.label = sendBtn.textContent;
-            sendBtn.textContent = "Envoi...";
-            // Le backend renverra via WS; on réactive vite pour UX
-            setTimeout(() => {
-                sendBtn.disabled = false;
-                sendBtn.textContent = sendBtn.dataset.label || "Envoyer";
-                updateSendState();
-            }, 600);
-        });
-
-        input.addEventListener('input', updateSendState);
-        input.addEventListener('keydown', function(ev){
-            if (ev.key === 'Enter' && !ev.shiftKey) {
-                ev.preventDefault();
-                if (!sendBtn.disabled) form.requestSubmit();
-            }
-        });
-
-        chatSocket.onopen = function() {
-            scrollBottom(true);
-            input.focus({ preventScroll: true });
-            updateSendState();
-        };
-
-        chatSocket.onmessage = function(e) {
-            const data = JSON.parse(e.data);
-            const fromCurrentUser = (data.user_id === currentUserId);
-
-            // Si ton serveur envoie user_name, on l'utilise, sinon Support/Vous
-            const label = data.user_name ? data.user_name : (fromCurrentUser ? 'Vous' : 'Support');
-            appendMessage(data.message, fromCurrentUser, label);
-
-            // Optionnel: vider le champ si c'est nous
-            if (fromCurrentUser) {
-                input.value = '';
-                updateSendState();
-            }
-        };
-
-        chatSocket.onclose = function(e) {
-            console.log('WebSocket utilisateur fermé.', e);
-        };
-
-        // Scroll en bas au chargement (messages existants)
-        scrollBottom(true);
-    })();
+    });
+})();
 </script>
-
 {% endblock %}

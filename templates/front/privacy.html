@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Politique de confidentialité — Oloustream{% endblock %}
+{% block meta_description %}Comment Oloustream collecte, utilise et protège vos données personnelles : finalités, durées de conservation, sécurité et droits.{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item active" aria-current="page">Politique de confidentialité</li></ol></nav>
+        <h1>Politique de confidentialité</h1>
+        <p>Nous collectons uniquement les données nécessaires à nos services et nous les protégeons avec soin.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-8">
+                <article class="prose">
+                    <p class="mt-0">
+                        La présente politique explique comment {{ SITE.name }} S.A.S. (ci-après « {{ SITE.name }} »,
+                        « nous »), dont le siège est situé {{ SITE.address_lines|join:", " }}, traite les données
+                        personnelles des utilisateurs de son site. {{ SITE.name }} est responsable de ces traitements.
+                    </p>
+
+                    <h2>1. Données que nous collectons</h2>
+                    <p>Nous collectons les données que vous nous transmettez directement, selon le service utilisé :</p>
+                    <ul>
+                        <li><strong>Compte utilisateur</strong> : nom, prénom, nom d'utilisateur, adresse email, téléphone, photo de profil (facultative) et mot de passe (conservé sous forme chiffrée, jamais en clair).</li>
+                        <li><strong>Réservations</strong> : studio, matériel ou service réservé, dates et horaires, coordonnées de contact (nom, société, téléphone, email, ville, pays), description du projet et préférences d'échange.</li>
+                        <li><strong>Demandes de contact et de devis</strong> : nom, société, email, téléphone, objet, date de l'événement, budget indicatif et message. L'adresse IP est enregistrée afin de lutter contre les envois abusifs.</li>
+                        <li><strong>Candidatures à nos offres d'emploi</strong> : nom, email, téléphone, CV, lettre de motivation et lien vers un portfolio.</li>
+                        <li><strong>Candidatures au programme partenaires</strong> : identité et coordonnées (dont WhatsApp), ville et adresse, activité et expérience, informations sur votre réseau, motivations, disponibilités et références, ainsi que le type, le numéro et la copie d'une <strong>pièce d'identité</strong>.</li>
+                        <li><strong>Espace partenaire</strong> : contrats apportés (client, montant, document de contrat), commissions et justificatifs de paiement.</li>
+                        <li><strong>Messagerie</strong> : contenu des messages échangés avec notre équipe.</li>
+                    </ul>
+
+                    <h2>2. Pourquoi nous les utilisons</h2>
+                    <ul>
+                        <li>créer et gérer votre compte et vous authentifier de façon sécurisée ;</li>
+                        <li>traiter vos réservations, vos demandes de devis et vous répondre ;</li>
+                        <li>vous envoyer les notifications et emails liés à vos démarches (confirmation, changement de statut, réinitialisation du mot de passe) ;</li>
+                        <li>étudier les candidatures à nos offres d'emploi et au programme partenaires, vérifier l'identité des partenaires et calculer leurs commissions ;</li>
+                        <li>assurer la sécurité du site et prévenir la fraude et les abus ;</li>
+                        <li>respecter nos obligations légales, comptables et fiscales.</li>
+                    </ul>
+                    <p>Vos données ne sont jamais vendues, louées ni utilisées à des fins publicitaires par des tiers.</p>
+
+                    <h2>3. Durée de conservation</h2>
+                    <ul>
+                        <li><strong>Compte</strong> : tant que votre compte est actif, puis supprimé sur demande ou après 3 ans d'inactivité.</li>
+                        <li><strong>Réservations et documents contractuels ou comptables</strong> : pendant la durée de la relation, puis pendant la durée imposée par les obligations légales (jusqu'à 10 ans pour les pièces comptables).</li>
+                        <li><strong>Demandes de contact et de devis</strong> : 3 ans à compter du dernier échange.</li>
+                        <li><strong>Candidatures à un emploi</strong> : 2 ans maximum après la fin du recrutement, sauf opposition de votre part.</li>
+                        <li><strong>Candidatures partenaires non retenues</strong> : 1 an ; la copie de la pièce d'identité est supprimée dès qu'elle n'est plus nécessaire à la vérification.</li>
+                        <li><strong>Messagerie</strong> : pendant la durée de vie du compte.</li>
+                    </ul>
+
+                    <h2>4. Qui a accès à vos données</h2>
+                    <p>
+                        Vos données sont destinées exclusivement aux membres habilités de l'équipe {{ SITE.name }}, chacun
+                        dans la limite de ses fonctions (gestion des réservations, relation client, recrutement, programme partenaires).
+                        Elles sont stockées chez notre hébergeur (O2Switch, France), qui agit pour notre compte et n'a pas vocation à les exploiter.
+                        Elles ne sont communiquées à aucun autre tiers, sauf obligation légale ou demande d'une autorité compétente.
+                    </p>
+
+                    <h2>5. Sécurité</h2>
+                    <ul>
+                        <li>connexion chiffrée (HTTPS) et mots de passe stockés de façon irréversible ;</li>
+                        <li>limitation des tentatives de connexion et protection des formulaires contre les soumissions frauduleuses ;</li>
+                        <li>documents sensibles (pièces d'identité, CV, contrats, reçus) non accessibles publiquement : ils ne peuvent être consultés que par la personne concernée et par l'équipe habilitée, après authentification ;</li>
+                        <li>accès à l'administration réservé au personnel autorisé.</li>
+                    </ul>
+
+                    <h2>6. Vos droits</h2>
+                    <p>
+                        Vous disposez d'un droit d'accès, de rectification et de suppression de vos données, ainsi que du droit
+                        de vous opposer à leur traitement ou d'en demander la limitation. Vous pouvez modifier directement
+                        une partie de vos informations depuis votre <a href="{% url 'accounts:profile' %}">profil</a>.
+                    </p>
+                    <p>
+                        Pour exercer vos droits, écrivez-nous à <a href="mailto:{{ SITE.email }}">{{ SITE.email }}</a>
+                        en précisant votre demande. Nous vous répondrons dans un délai d'un mois. Une preuve d'identité
+                        pourra vous être demandée pour protéger vos données.
+                    </p>
+
+                    <h2>7. Cookies</h2>
+                    <p>
+                        Le site utilise uniquement des <strong>cookies techniques</strong>, indispensables à son fonctionnement :
+                    </p>
+                    <ul>
+                        <li><strong>cookie de session</strong> : maintient votre connexion à votre compte ;</li>
+                        <li><strong>cookie CSRF</strong> : protège les formulaires contre les soumissions frauduleuses.</li>
+                    </ul>
+                    <p>
+                        Aucun cookie publicitaire ni de mesure d'audience n'est déposé. Les vidéos YouTube sont présentées
+                        sous forme de liens : YouTube n'intervient qu'au moment où vous choisissez d'ouvrir une vidéo.
+                    </p>
+
+                    <h2>8. Modifications</h2>
+                    <p>
+                        Cette politique peut être mise à jour pour refléter l'évolution de nos services ou de la réglementation.
+                        La date de dernière mise à jour figure ci-dessous.
+                    </p>
+
+                    <p class="text-muted small mt-5 mb-0">Dernière mise à jour : septembre 2026.</p>
+                </article>
+            </div>
+            <div class="col-lg-4">
+                <div class="ol-card ol-card-body side-sticky">
+                    <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h2 class="h6 mb-2">Exercer vos droits</h2>
+                    <p class="small text-muted">Accès, rectification ou suppression de vos données : une simple demande par email suffit.</p>
+                    <div class="d-grid gap-2">
+                        <a href="mailto:{{ SITE.email }}" class="btn btn-primary btn-sm"><i class="fa-solid fa-envelope"></i> {{ SITE.email }}</a>
+                        <a href="{% url 'core:legal' %}" class="link-arrow mt-2">Mentions légales <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

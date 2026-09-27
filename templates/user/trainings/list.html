@@ -1,210 +1,85 @@
 {% extends "base.html" %}
+{% load humanize %}
 
-{% block title %}Formations - Oloustream{% endblock %}
-
-{% block extra_css %}
-<style>
-    /* Styles professionnels pour la page des formations
-       (même style que la page des offres) */
-    
-    /* Style général pour les cartes */
-    .card {
-        border: none;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        overflow: hidden;
-    }
-    
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-    }
-    
-    .card-body {
-        padding: 1.5rem;
-    }
-    
-    .card-title {
-        color: #2c3e50;
-        font-weight: 600;
-        font-size: 1.25rem;
-        margin-bottom: 1rem;
-        line-height: 1.4;
-    }
-    
-    .card-text {
-        color: #5a6c7d;
-        font-size: 0.95rem;
-        line-height: 1.5;
-        margin-bottom: 1.5rem;
-        min-height: 70px;
-    }
-    
-    /* Amélioration des détails */
-    .card-body p {
-        margin-bottom: 0.5rem;
-        font-size: 0.9rem;
-        color: #546e7a;
-    }
-    
-    .card-body p strong {
-        color: #2c3e50;
-        font-weight: 600;
-    }
-    
-    /* Style amélioré pour le badge */
-    .badge.bg-success {
-        background-color: #27ae60 !important;
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 500;
-    }
-    
-    /* Style amélioré pour les boutons */
-    .btn-primary.btn-sm {
-        background-color: #3498db;
-        border: none;
-        color: white;
-        font-weight: 500;
-        padding: 0.5rem 1.5rem;
-        border-radius: 6px;
-        transition: all 0.3s ease;
-        font-size: 0.9rem;
-    }
-    
-    .btn-primary.btn-sm:hover {
-        background-color: #2980b9;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
-    }
-    
-    .btn-outline-primary.btn-sm {
-        background-color: transparent;
-        border: 1px solid #3498db;
-        color: #3498db;
-        font-weight: 500;
-        padding: 0.5rem 1.5rem;
-        border-radius: 6px;
-        transition: all 0.3s ease;
-        font-size: 0.9rem;
-    }
-    
-    .btn-outline-primary.btn-sm:hover {
-        background-color: #3498db;
-        color: white;
-        border-color: #3498db;
-    }
-    
-    /* Style pour le titre principal */
-    h1.h3.mb-3 {
-        font-weight: 600;
-        color: #2c3e50;
-        font-size: 1.8rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #eaeaea;
-        margin-bottom: 2rem !important;
-    }
-    
-    /* Style pour le message vide */
-    p.text-muted {
-        text-align: center;
-        padding: 3rem 1rem;
-        color: #7f8c8d;
-        font-style: italic;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        margin: 2rem auto;
-        max-width: 600px;
-        font-size: 1.1rem;
-    }
-    
-    /* Animation pour les cartes */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .col-md-4 {
-        animation: fadeInUp 0.5s ease forwards;
-        opacity: 0;
-    }
-    
-    .col-md-4:nth-child(1) { animation-delay: 0.1s; }
-    .col-md-4:nth-child(2) { animation-delay: 0.2s; }
-    .col-md-4:nth-child(3) { animation-delay: 0.3s; }
-    .col-md-4:nth-child(4) { animation-delay: 0.4s; }
-    .col-md-4:nth-child(5) { animation-delay: 0.5s; }
-    .col-md-4:nth-child(6) { animation-delay: 0.6s; }
-    
-    /* Responsive */
-    @media (max-width: 768px) {
-        .card {
-            margin-bottom: 1.5rem;
-        }
-        
-        .card-title {
-            font-size: 1.1rem;
-        }
-        
-        .card-body p {
-            font-size: 0.85rem;
-        }
-        
-        .btn-primary.btn-sm, 
-        .btn-outline-primary.btn-sm {
-            padding: 0.4rem 1.2rem;
-            font-size: 0.85rem;
-        }
-    }
-</style>
-{% endblock %}
+{% block title %}Formations audiovisuelles — Oloustream{% endblock %}
+{% block meta_description %}Formations Oloustream : tournage, montage, prise de son, live streaming. Sessions en présentiel, en ligne ou hybrides, avec certification.{% endblock %}
 
 {% block content %}
-<h1 class="h3 mb-3">Formations</h1>
+<section class="page-hero">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item active" aria-current="page">Formations</li></ol></nav>
+        <h1>Nos formations</h1>
+        <p>Montez en compétences avec nos formateurs : tournage, montage, son, lumière et diffusion en direct. Sessions pratiques, en petits groupes.</p>
+    </div>
+</section>
 
-<div class="row">
-    {% for t in trainings %}
-        <div class="col-md-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">{{ t.title }}</h5>
-                    <p class="card-text">
-                        {{ t.description|truncatewords:25 }}
-                    </p>
-                    <p class="mb-1"><strong>Durée :</strong> {{ t.duration_hours }} h</p>
-                    <p class="mb-1"><strong>Prix :</strong> {{ t.price }} F CFA</p>
-                    <p class="mb-1"><strong>Certification :</strong> {{ t.certification|yesno:"Oui,Non" }}</p>
-                </div>
-                <div class="card-footer bg-white border-0">
-                    {% if user.is_authenticated %}
-                        {% if t.id in user_training_ids %}
-                            <span class="badge bg-success">Déjà inscrit</span>
+<section class="section">
+    <div class="container">
+        {% if trainings %}
+        <div class="row g-4">
+            {% for t in trainings %}
+            <div class="col-md-6 col-lg-4">
+                <article class="ol-card ol-media-card">
+                    <div class="ol-media">
+                        {% if t.image %}
+                        <img src="{{ t.image.url }}" alt="{{ t.title }}" loading="lazy">
                         {% else %}
-                            <a href="{% url 'services_app:user_training_enroll' t.id %}"
-                               class="btn btn-primary btn-sm">
-                                S'inscrire
-                            </a>
+                        <div class="ol-media-placeholder"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i></div>
                         {% endif %}
-                    {% else %}
-                        <a href="{% url 'accounts:login' %}?next={% url 'services_app:user_trainings_list' %}"
-                           class="btn btn-outline-primary btn-sm">
-                            Se connecter pour s'inscrire
-                        </a>
-                    {% endif %}
-                </div>
+                        {% if t.category %}<span class="badge-float ol-badge no-dot bg-white">{{ t.category.name }}</span>{% endif %}
+                    </div>
+                    <div class="ol-card-body">
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            <span class="ol-badge no-dot">{{ t.get_level_display }}</span>
+                            <span class="ol-badge no-dot">{{ t.get_mode_display }}</span>
+                            {% if t.certification %}<span class="ol-badge ol-badge-gold no-dot"><i class="fa-solid fa-award" aria-hidden="true"></i> Certifiante</span>{% endif %}
+                        </div>
+                        <h2 class="ol-card-title h5">{{ t.title }}</h2>
+                        <p class="ol-card-text">{{ t.short_description|default:t.description|truncatechars:140 }}</p>
+                        <ul class="ol-icon-list small mb-3">
+                            {% if t.start_date %}
+                            <li><i class="fa-regular fa-calendar" aria-hidden="true"></i><span>{% if t.end_date and t.end_date != t.start_date %}Du {{ t.start_date|date:"d/m/Y" }} au {{ t.end_date|date:"d/m/Y" }}{% else %}Le {{ t.start_date|date:"d/m/Y" }}{% endif %}</span></li>
+                            {% else %}
+                            <li><i class="fa-regular fa-calendar" aria-hidden="true"></i><span>Prochaine session à venir</span></li>
+                            {% endif %}
+                            {% if t.duration_hours %}<li><i class="fa-regular fa-clock" aria-hidden="true"></i><span>{{ t.duration_hours }} heure{{ t.duration_hours|pluralize }} de formation</span></li>{% endif %}
+                            {% if t.schedule %}<li><i class="fa-solid fa-business-time" aria-hidden="true"></i><span>{{ t.schedule|truncatechars:80 }}</span></li>{% endif %}
+                            {% if t.location %}<li><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>{{ t.location }}</span></li>{% endif %}
+                            {% if t.max_seats %}<li><i class="fa-solid fa-users" aria-hidden="true"></i><span>{{ t.max_seats }} place{{ t.max_seats|pluralize }} maximum</span></li>{% endif %}
+                            <li><i class="fa-solid fa-certificate" aria-hidden="true"></i><span>Certification : {{ t.certification|yesno:"délivrée,non" }}</span></li>
+                        </ul>
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-auto">
+                            <div class="ol-price">{% if t.price %}{{ t.price|floatformat:0|intcomma }} FCFA{% else %}<small>Tarif sur demande</small>{% endif %}</div>
+                            {% if t.brochure %}<a href="{{ t.brochure.url }}" class="small" target="_blank" rel="noopener"><i class="fa-regular fa-file-pdf me-1" aria-hidden="true"></i>Brochure</a>{% endif %}
+                        </div>
+                    </div>
+                    <div class="ol-card-footer">
+                        {% if user.is_authenticated %}
+                            {% if t.id in user_training_ids %}
+                            <span class="ol-badge status-confirmed"><i class="fa-solid fa-check" aria-hidden="true"></i> Déjà inscrit</span>
+                            {% else %}
+                            <form method="post" action="{% url 'services_app:user_training_enroll' t.id %}" data-confirm="Confirmer votre inscription à cette formation ?">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary btn-sm w-100">S'inscrire à la formation</button>
+                            </form>
+                            {% endif %}
+                        {% else %}
+                            {% url 'services_app:user_trainings_list' as trainings_url %}
+                            <a href="{% url 'accounts:login' %}?next={{ trainings_url|urlencode }}" class="btn btn-outline-primary btn-sm w-100">Se connecter pour s'inscrire</a>
+                        {% endif %}
+                    </div>
+                </article>
             </div>
+            {% endfor %}
         </div>
-    {% empty %}
-        <p class="text-muted">Aucune formation disponible pour le moment.</p>
-    {% endfor %}
-</div>
+        {% else %}
+        <div class="ol-card ol-empty">
+            <div class="ol-empty-icon"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i></div>
+            <h3>Aucune formation programmée pour le moment</h3>
+            <p class="mb-3">Vous souhaitez une formation sur mesure pour votre équipe ? Parlons-en.</p>
+            <a href="{% url 'core:contact' %}" class="btn btn-primary btn-sm">Nous contacter</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
 {% endblock %}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="x-apple-disable-message-reformatting">
+<title>{% block title %}Oloustream{% endblock %}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#F1F5F9;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#F1F5F9;opacity:0;">{% block preheader %}{% endblock %}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F1F5F9;">
+<tr>
+<td align="center" style="padding:24px 12px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background-color:#FFFFFF;border:1px solid #E2E8F0;border-radius:10px;">
+<tr>
+<td align="left" style="background-color:#0B1220;padding:22px 32px;border-radius:10px 10px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:bold;letter-spacing:1px;color:#FFFFFF;">
+OLOU<span style="color:#E60000;">STREAM</span>
+</td>
+</tr>
+<tr>
+<td style="padding:32px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:24px;color:#334155;">
+{% block content %}{% endblock %}
+</td>
+</tr>
+<tr>
+<td style="background-color:#F8FAFC;border-top:1px solid #E2E8F0;padding:20px 32px;border-radius:0 0 10px 10px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#64748B;">
+<strong style="color:#334155;">Oloustream</strong> · Studios, production audiovisuelle et live streaming<br>
+Secteur 15, Ouaga 2000 · Ouagadougou, Burkina Faso<br>
++226 64 09 31 96 · <a href="mailto:info@oloustream.com" style="color:#64748B;text-decoration:underline;">info@oloustream.com</a>{% if site_url %} · <a href="{{ site_url }}" style="color:#64748B;text-decoration:underline;">{{ site_url }}</a>{% endif %}
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</body>
+</html>

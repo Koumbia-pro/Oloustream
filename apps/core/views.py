@@ -2,7 +2,9 @@
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import send_mail
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.views.decorators.http import require_GET
 from django.views.generic import TemplateView
 
 from apps.services_app.models import Partner, Service, Training
@@ -124,3 +126,19 @@ class LegalView(TemplateView):
 
 class PrivacyView(TemplateView):
     template_name = "front/privacy.html"
+
+
+@require_GET
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Disallow: /dashboard/",
+        "Disallow: /admin/",
+        "Disallow: /accounts/",
+        "Disallow: /messaging/",
+        "Disallow: /notifications/",
+        "Disallow: /fichiers/",
+        "Disallow: /partenaires/dashboard/",
+        "Disallow: /studio/my/",
+    ]
+    return HttpResponse("\n".join(lines) + "\n", content_type="text/plain")

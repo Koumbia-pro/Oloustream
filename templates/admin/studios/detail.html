@@ -1,1112 +1,143 @@
 {% extends "admin/admin_base.html" %}
-{% block title %}Studio {{ studio.name }} - Détail - Oloustream Admin{% endblock %}
+{% load humanize %}
 
-{% block extra_css %}
-<style>
-    /* ==================== VARIABLES ==================== */
-    :root {
-        --primary-400: #c084fc;
-        --primary-500: #a855f7;
-        --primary-600: #9333ea;
-        --primary-700: #7c3aed;
-        --accent-400: #fbbf24;
-        --accent-500: #f59e0b;
-        --surface-100: #f4f4f5;
-        --surface-200: #e4e4e7;
-        --surface-300: #d4d4d8;
-        --surface-400: #a1a1aa;
-        --surface-500: #71717a;
-        --surface-600: #52525b;
-        --surface-700: #3f3f46;
-        --surface-800: #27272a;
-        --surface-850: #1f1f23;
-        --surface-900: #18181b;
-        --error-color: #f87171;
-        --success-color: #34d399;
-        --info-color: #60a5fa;
-        --warning-color: #fbbf24;
-    }
-
-    /* ==================== WRAPPER ==================== */
-    .studio-detail-wrapper {
-        width: 100%;
-        animation: fadeIn 0.4s ease-out;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(15px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ==================== PAGE HEADER ==================== */
-    .page-header {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    .header-left {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .back-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 42px;
-        height: 42px;
-        background: var(--surface-800);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-        color: var(--surface-400);
-        text-decoration: none;
-        transition: all 0.2s ease;
-    }
-
-    .back-btn:hover {
-        background: var(--surface-700);
-        color: white;
-        transform: translateX(-3px);
-    }
-
-    .back-btn i {
-        font-size: 1.25rem;
-    }
-
-    .header-info h1 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--surface-100);
-        margin: 0 0 0.25rem 0;
-    }
-
-    .header-info p {
-        font-size: 0.875rem;
-        color: var(--surface-500);
-        margin: 0;
-    }
-
-    .header-actions {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    .btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.625rem 1.25rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        border-radius: 10px;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        text-decoration: none;
-        font-family: inherit;
-    }
-
-    .btn i {
-        font-size: 1.125rem;
-    }
-
-    .btn-edit {
-        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
-        color: white;
-        box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
-    }
-
-    .btn-edit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(147, 51, 234, 0.4);
-        color: white;
-    }
-
-    .btn-delete {
-        background: rgba(239, 68, 68, 0.15);
-        color: var(--error-color);
-        border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-
-    .btn-delete:hover {
-        background: rgba(239, 68, 68, 0.25);
-        color: #fca5a5;
-    }
-
-    /* ==================== MAIN GRID ==================== */
-    .detail-grid {
-        display: grid;
-        grid-template-columns: 380px 1fr;
-        gap: 1.5rem;
-        align-items: start;
-    }
-
-    /* ==================== PROFILE CARD ==================== */
-    .profile-card {
-        background: var(--surface-850);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 20px;
-        overflow: hidden;
-        position: sticky;
-        top: calc(70px + 1.5rem);
-    }
-
-    .profile-cover {
-        height: 120px;
-        background: linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #3b82f6 100%);
-        position: relative;
-    }
-
-    .profile-cover::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 50%;
-        background: linear-gradient(to top, var(--surface-850), transparent);
-    }
-
-    .profile-body {
-        padding: 0 1.5rem 1.5rem;
-        text-align: center;
-        margin-top: -50px;
-        position: relative;
-        z-index: 1;
-    }
-
-    .profile-image {
-        width: 100px;
-        height: 100px;
-        border-radius: 20px;
-        border: 4px solid var(--surface-850);
-        margin-bottom: 1rem;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        overflow: hidden;
-        display: inline-block;
-    }
-
-    .profile-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .profile-image-placeholder {
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, #9333ea, #7c3aed);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.5rem;
-        color: white;
-    }
-
-    .profile-name {
-        font-size: 1.375rem;
-        font-weight: 700;
-        color: var(--surface-100);
-        margin: 0 0 0.25rem 0;
-    }
-
-    .profile-code {
-        font-size: 0.8125rem;
-        color: var(--surface-500);
-        margin: 0 0 1rem 0;
-        font-family: 'SF Mono', 'Fira Code', monospace;
-    }
-
-    /* Status Badges */
-    .status-badges {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .badge-item {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.375rem;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.8125rem;
-        font-weight: 600;
-    }
-
-    .badge-type {
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
-        color: var(--info-color);
-        border: 1px solid rgba(59, 130, 246, 0.3);
-    }
-
-    .badge-available {
-        background: rgba(16, 185, 129, 0.15);
-        color: var(--success-color);
-        border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    .badge-maintenance {
-        background: rgba(245, 158, 11, 0.15);
-        color: var(--warning-color);
-        border: 1px solid rgba(245, 158, 11, 0.3);
-    }
-
-    .badge-unavailable {
-        background: rgba(239, 68, 68, 0.15);
-        color: var(--error-color);
-        border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-
-    .badge-active {
-        background: rgba(16, 185, 129, 0.15);
-        color: var(--success-color);
-        border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    .badge-inactive {
-        background: rgba(113, 113, 122, 0.15);
-        color: var(--surface-400);
-        border: 1px solid rgba(113, 113, 122, 0.3);
-    }
-
-    /* Quick Stats */
-    .profile-stats {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.75rem;
-        margin-top: 1.5rem;
-    }
-
-    .stat-box {
-        background: var(--surface-800);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 12px;
-        padding: 1rem;
-        text-align: center;
-    }
-
-    .stat-box-value {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--surface-100);
-        margin-bottom: 0.25rem;
-    }
-
-    .stat-box-label {
-        font-size: 0.6875rem;
-        color: var(--surface-500);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    /* Dimensions display */
-    .dimensions-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.75rem;
-        padding-top: 1.5rem;
-        margin-top: 1.5rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .dimension-item {
-        background: var(--surface-800);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 10px;
-        padding: 0.75rem;
-        text-align: center;
-    }
-
-    .dimension-value {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--surface-100);
-    }
-
-    .dimension-label {
-        font-size: 0.6875rem;
-        color: var(--surface-500);
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
-    }
-
-    /* ==================== INFO CARDS ==================== */
-    .info-section {
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-    }
-
-    .info-card {
-        background: var(--surface-850);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 16px;
-        overflow: hidden;
-        transition: all 0.2s ease;
-    }
-
-    .info-card:hover {
-        border-color: rgba(255, 255, 255, 0.12);
-    }
-
-    .info-card-header {
-        display: flex;
-        align-items: center;
-        gap: 0.875rem;
-        padding: 1.25rem 1.5rem;
-        background: rgba(0, 0, 0, 0.2);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .info-card-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.25rem;
-    }
-
-    .info-card-icon.purple {
-        background: rgba(147, 51, 234, 0.15);
-        color: var(--primary-400);
-    }
-
-    .info-card-icon.blue {
-        background: rgba(59, 130, 246, 0.15);
-        color: var(--info-color);
-    }
-
-    .info-card-icon.green {
-        background: rgba(16, 185, 129, 0.15);
-        color: var(--success-color);
-    }
-
-    .info-card-icon.orange {
-        background: rgba(245, 158, 11, 0.15);
-        color: var(--warning-color);
-    }
-
-    .info-card-icon.cyan {
-        background: rgba(6, 182, 212, 0.15);
-        color: #22d3ee;
-    }
-
-    .info-card-icon.pink {
-        background: rgba(236, 72, 153, 0.15);
-        color: #f472b6;
-    }
-
-    .info-card-icon.gray {
-        background: rgba(113, 113, 122, 0.15);
-        color: var(--surface-400);
-    }
-
-    .info-card-title {
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--surface-100);
-        margin: 0;
-    }
-
-    .info-card-body {
-        padding: 1.5rem;
-    }
-
-    .info-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.25rem;
-    }
-
-    .info-item {
-        display: flex;
-        flex-direction: column;
-        gap: 0.375rem;
-    }
-
-    .info-item.full-width {
-        grid-column: span 2;
-    }
-
-    .info-label {
-        font-size: 0.6875rem;
-        font-weight: 600;
-        color: var(--surface-500);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        display: flex;
-        align-items: center;
-        gap: 0.375rem;
-    }
-
-    .info-label i {
-        font-size: 0.875rem;
-    }
-
-    .info-value {
-        font-size: 0.9375rem;
-        color: var(--surface-200);
-        font-weight: 500;
-        line-height: 1.5;
-    }
-
-    .info-value.empty {
-        color: var(--surface-600);
-        font-style: italic;
-    }
-
-    /* Price display */
-    .price-display {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        background: rgba(16, 185, 129, 0.1);
-        border: 1px solid rgba(16, 185, 129, 0.2);
-        border-radius: 8px;
-        color: var(--success-color);
-        font-weight: 600;
-    }
-
-    .price-display i {
-        font-size: 1rem;
-    }
-
-    /* Equipment list */
-    .equipment-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .equipment-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.875rem 1rem;
-        background: var(--surface-800);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 10px;
-        transition: all 0.2s ease;
-    }
-
-    .equipment-item:hover {
-        background: var(--surface-700);
-        border-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .equipment-icon {
-        width: 36px;
-        height: 36px;
-        background: rgba(6, 182, 212, 0.15);
-        border: 1px solid rgba(6, 182, 212, 0.2);
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #22d3ee;
-        font-size: 1rem;
-        flex-shrink: 0;
-    }
-
-    .equipment-info {
-        flex: 1;
-    }
-
-    .equipment-name {
-        font-weight: 600;
-        color: var(--surface-200);
-        font-size: 0.875rem;
-    }
-
-    .equipment-value {
-        font-size: 0.8125rem;
-        color: var(--surface-500);
-    }
-
-    /* Availability display */
-    .availability-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-    }
-
-    .availability-item {
-        padding: 1rem;
-        background: var(--surface-800);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 10px;
-    }
-
-    .availability-label {
-        font-size: 0.6875rem;
-        font-weight: 600;
-        color: var(--surface-500);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 0.375rem;
-    }
-
-    .availability-value {
-        font-size: 0.9375rem;
-        color: var(--surface-200);
-        font-weight: 500;
-    }
-
-    /* ==================== RESPONSIVE ==================== */
-    @media (max-width: 1024px) {
-        .detail-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .profile-card {
-            position: static;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .page-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .header-actions {
-            width: 100%;
-        }
-
-        .header-actions .btn {
-            flex: 1;
-            justify-content: center;
-        }
-
-        .info-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .info-item.full-width {
-            grid-column: span 1;
-        }
-
-        .profile-stats,
-        .dimensions-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .availability-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .header-left {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .back-btn {
-            align-self: flex-start;
-        }
-
-        .header-info h1 {
-            font-size: 1.25rem;
-        }
-
-        .profile-body {
-            padding: 0 1rem 1rem;
-        }
-
-        .info-card-body {
-            padding: 1rem;
-        }
-    }
-</style>
-{% endblock %}
+{% block title %}{{ studio.name }} · Studios{% endblock %}
 
 {% block content %}
-<div class="studio-detail-wrapper">
-    <!-- PAGE HEADER -->
-    <div class="page-header">
-        <div class="header-left">
-            <a href="{% url 'dashboard:studios_list' %}" class="back-btn" title="Retour à la liste">
-                <i class="ph ph-arrow-left"></i>
-            </a>
-            <div class="header-info">
-                <h1>Profil studio</h1>
-                <p>Consultez les informations détaillées de {{ studio.name }}</p>
+<div class="page-header">
+    <div>
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Tableau de bord</a></li><li class="breadcrumb-item"><a href="{% url 'dashboard:studios_list' %}">Studios</a></li><li class="breadcrumb-item active">{{ studio.name|truncatechars:40 }}</li></ol></nav>
+        <h1>{{ studio.name }}</h1>
+        <p class="subtitle">
+            <span class="ol-badge status-{{ studio.status }}">{{ studio.get_status_display }}</span>
+            {% if studio.is_active %}<span class="ol-badge status-active ms-1">Visible</span>{% else %}<span class="ol-badge status-inactive ms-1">Masqué</span>{% endif %}
+            <span class="ms-2">{{ studio.get_studio_type_display }}{% if studio.city %} · {{ studio.city }}{% endif %}</span>
+        </p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'dashboard:studios_list' %}" class="btn btn-light"><i class="fa-solid fa-arrow-left"></i> Retour</a>
+        {% if studio.is_active %}<a href="{% url 'studio:user_studio_detail' studio.pk %}" class="btn btn-light" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> Voir sur le site</a>{% endif %}
+        <a href="{% url 'dashboard:studios_edit' studio.pk %}" class="btn btn-primary"><i class="fa-regular fa-pen-to-square"></i> Modifier</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="ol-card mb-4">
+            <div class="ol-card-header"><h2>Description</h2></div>
+            <div class="ol-card-body">
+                <div class="text-muted">{{ studio.description|default:"Aucune description fournie."|linebreaks }}</div>
             </div>
         </div>
-        <div class="header-actions">
-            <a href="{% url 'dashboard:studios_edit' studio.pk %}" class="btn btn-edit">
-                <i class="ph ph-pencil-simple"></i>
-                Modifier
-            </a>
-            <a href="{% url 'dashboard:studios_delete' studio.pk %}" class="btn btn-delete">
-                <i class="ph ph-trash"></i>
-                Supprimer
-            </a>
+
+        <div class="ol-card mb-4">
+            <div class="ol-card-header"><h2>Tarifs</h2></div>
+            <div class="ol-card-body">
+                <dl class="ol-meta">
+                    <dt>Par heure</dt><dd>{% if studio.price_per_hour is not None %}<span class="fw-semibold">{{ studio.price_per_hour|floatformat:0|intcomma }} FCFA</span>{% else %}—{% endif %}</dd>
+                    <dt>Demi-journée</dt><dd>{% if studio.price_half_day is not None %}<span class="fw-semibold">{{ studio.price_half_day|floatformat:0|intcomma }} FCFA</span>{% else %}—{% endif %}</dd>
+                    <dt>Journée</dt><dd>{% if studio.price_day is not None %}<span class="fw-semibold">{{ studio.price_day|floatformat:0|intcomma }} FCFA</span>{% else %}—{% endif %}</dd>
+                    <dt>Réduction</dt><dd>{% if studio.discount_percent %}-{{ studio.discount_percent }} %{% else %}Aucune{% endif %}</dd>
+                    {% if studio.extra_options %}<dt>Options</dt><dd>{{ studio.extra_options|linebreaksbr }}</dd>{% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <div class="ol-card mb-4">
+            <div class="ol-card-header"><h2>Éclairage & équipements inclus</h2></div>
+            <div class="ol-card-body">
+                <dl class="ol-meta">
+                    <dt>Éclairage intégré</dt><dd>{{ studio.lighting_included|yesno:"Oui,Non" }}</dd>
+                    {% if studio.lighting_type %}<dt>Type de lumières</dt><dd>{{ studio.lighting_type|linebreaksbr }}</dd>{% endif %}
+                    <dt>Caméras</dt><dd>{{ studio.equip_cameras|default:"—"|linebreaksbr }}</dd>
+                    <dt>Micros</dt><dd>{{ studio.equip_microphones|default:"—"|linebreaksbr }}</dd>
+                    <dt>Lumières</dt><dd>{{ studio.equip_lights|default:"—"|linebreaksbr }}</dd>
+                    <dt>Écrans</dt><dd>{{ studio.equip_screens|default:"—"|linebreaksbr }}</dd>
+                    <dt>Régie</dt><dd>{{ studio.equip_control_room|default:"—"|linebreaksbr }}</dd>
+                    <dt>Accessoires</dt><dd>{{ studio.equip_accessories|default:"—"|linebreaksbr }}</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="ol-card">
+            <div class="ol-card-header">
+                <h2>Prochaines réservations</h2>
+                <a href="{% url 'dashboard:reservations_list' %}" class="btn btn-light btn-sm">Toutes les réservations</a>
+            </div>
+            {% if upcoming_reservations %}
+            <div class="ol-table-wrap">
+                <table class="ol-table">
+                    <thead><tr><th>Réservation</th><th>Client</th><th>Créneau</th><th>Statut</th></tr></thead>
+                    <tbody>
+                    {% for r in upcoming_reservations %}
+                    <tr>
+                        <td><a href="{% url 'dashboard:reservations_detail' r.id %}" class="cell-title">#{{ r.id }}</a></td>
+                        <td>{{ r.user.get_full_name|default:r.user.username }}</td>
+                        <td>{{ r.start_datetime|date:"d/m/Y H:i" }}<div class="cell-sub">→ {{ r.end_datetime|date:"d/m/Y H:i" }}</div></td>
+                        <td><span class="ol-badge status-{{ r.status }}">{{ r.get_status_display }}</span></td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="ol-empty py-4"><p class="mb-0">Aucune réservation à venir pour ce studio.</p></div>
+            {% endif %}
         </div>
     </div>
 
-    <!-- MAIN GRID -->
-    <div class="detail-grid">
-        <!-- PROFILE CARD (gauche) -->
-        <aside class="profile-card">
-            <div class="profile-cover"></div>
-            <div class="profile-body">
-                <div class="profile-image">
-                    {% if studio.image %}
-                        <img src="{{ studio.image.url }}" alt="{{ studio.name }}">
-                    {% else %}
-                        <div class="profile-image-placeholder">
-                            <i class="ph ph-video-camera"></i>
-                        </div>
-                    {% endif %}
-                </div>
-
-                <h2 class="profile-name">{{ studio.name }}</h2>
-                
-                {% if studio.code %}
-                    <p class="profile-code">Code: {{ studio.code }}</p>
-                {% endif %}
-
-                <!-- Status Badges -->
-                <div class="status-badges">
-                    <span class="badge-item badge-type">
-                        <i class="ph ph-buildings"></i>
-                        {{ studio.get_studio_type_display }}
-                    </span>
-                    {% if studio.status == "AVAILABLE" %}
-                        <span class="badge-item badge-available">
-                            <i class="ph ph-check-circle"></i>
-                            Disponible
-                        </span>
-                    {% elif studio.status == "MAINTENANCE" %}
-                        <span class="badge-item badge-maintenance">
-                            <i class="ph ph-wrench"></i>
-                            Maintenance
-                        </span>
-                    {% else %}
-                        <span class="badge-item badge-unavailable">
-                            <i class="ph ph-x-circle"></i>
-                            Indisponible
-                        </span>
-                    {% endif %}
-                    {% if studio.is_active %}
-                        <span class="badge-item badge-active">
-                            <i class="ph ph-power"></i>
-                            Actif
-                        </span>
-                    {% else %}
-                        <span class="badge-item badge-inactive">
-                            <i class="ph ph-power"></i>
-                            Inactif
-                        </span>
-                    {% endif %}
-                </div>
-
-                <!-- Quick Stats -->
-                <div class="profile-stats">
-                    <div class="stat-box">
-                        <div class="stat-box-value">{{ studio.reservation_set.count }}</div>
-                        <div class="stat-box-label">Réservations</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-box-value">{{ studio.capacity|default:"-" }}</div>
-                        <div class="stat-box-label">Capacité</div>
-                    </div>
-                </div>
-
-                <!-- Dimensions -->
-                <div class="dimensions-grid">
-                    <div class="dimension-item">
-                        <div class="dimension-value">{{ studio.length_m|default:"-" }} m</div>
-                        <div class="dimension-label">Longueur</div>
-                    </div>
-                    <div class="dimension-item">
-                        <div class="dimension-value">{{ studio.width_m|default:"-" }} m</div>
-                        <div class="dimension-label">Largeur</div>
-                    </div>
-                    <div class="dimension-item">
-                        <div class="dimension-value">{{ studio.height_m|default:"-" }} m</div>
-                        <div class="dimension-label">Hauteur</div>
-                    </div>
-                    <div class="dimension-item">
-                        <div class="dimension-value">{{ studio.area_m2|default:"-" }} m²</div>
-                        <div class="dimension-label">Superficie</div>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-        <!-- INFO SECTION (droite) -->
-        <div class="info-section">
-            <!-- Informations de base -->
-            <div class="info-card">
-                <div class="info-card-header">
-                    <div class="info-card-icon purple">
-                        <i class="ph ph-info"></i>
-                    </div>
-                    <h3 class="info-card-title">Informations de base</h3>
-                </div>
-                <div class="info-card-body">
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <span class="info-label">
-                                <i class="ph ph-text-aa"></i>
-                                Nom du studio
-                            </span>
-                            <span class="info-value">{{ studio.name }}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">
-                                <i class="ph ph-hash"></i>
-                                Code
-                            </span>
-                            <span class="info-value {% if not studio.code %}empty{% endif %}">
-                                {{ studio.code|default:"Non défini" }}
-                            </span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">
-                                <i class="ph ph-buildings"></i>
-                                Type de studio
-                            </span>
-                            <span class="info-value">{{ studio.get_studio_type_display }}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">
-                                <i class="ph ph-toggle-right"></i>
-                                Statut
-                            </span>
-                            <span class="info-value">{{ studio.get_status_display }}</span>
-                        </div>
-                        <div class="info-item full-width">
-                            <span class="info-label">
-                                <i class="ph ph-article"></i>
-                                Description
-                            </span>
-                            <span class="info-value {% if not studio.description %}empty{% endif %}">
-                                {{ studio.description|default:"Aucune description fournie."|linebreaksbr }}
-                            </span>
-                        </div>
-                    </div>
+    <div class="col-lg-4">
+        <div class="side-sticky d-grid gap-4">
+            <div class="ol-card">
+                {% if studio.image %}<img src="{{ studio.image.url }}" alt="{{ studio.name }}" class="detail-cover" style="border-radius: var(--ol-radius) var(--ol-radius) 0 0">{% endif %}
+                <div class="ol-card-body">
+                    <dl class="ol-meta">
+                        <dt>Code</dt><dd>{% if studio.code %}<code>{{ studio.code }}</code>{% else %}—{% endif %}</dd>
+                        <dt>Type</dt><dd>{{ studio.get_studio_type_display }}</dd>
+                        <dt>Réservations</dt><dd>{{ studio.reservation_set.count }}</dd>
+                    </dl>
                 </div>
             </div>
 
-            <!-- Localisation -->
-            <div class="info-card">
-                <div class="info-card-header">
-                    <div class="info-card-icon blue">
-                        <i class="ph ph-map-pin"></i>
-                    </div>
-                    <h3 class="info-card-title">Localisation</h3>
-                </div>
-                <div class="info-card-body">
-                    <div class="info-grid">
-                        <div class="info-item full-width">
-                            <span class="info-label">
-                                <i class="ph ph-house"></i>
-                                Adresse
-                            </span>
-                            <span class="info-value {% if not studio.address %}empty{% endif %}">
-                                {{ studio.address|default:"Non renseignée" }}
-                            </span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">
-                                <i class="ph ph-buildings"></i>
-                                Ville
-                            </span>
-                            <span class="info-value {% if not studio.city %}empty{% endif %}">
-                                {{ studio.city|default:"Non renseignée" }}
-                            </span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">
-                                <i class="ph ph-globe"></i>
-                                Pays
-                            </span>
-                            <span class="info-value {% if not studio.country %}empty{% endif %}">
-                                {{ studio.country|default:"Non renseigné" }}
-                            </span>
-                        </div>
-                    </div>
+            <div class="ol-card">
+                <div class="ol-card-header"><h2>Localisation</h2></div>
+                <div class="ol-card-body">
+                    <dl class="ol-meta">
+                        <dt>Adresse</dt><dd>{{ studio.address|default:"—" }}</dd>
+                        <dt>Ville</dt><dd>{{ studio.city|default:"—" }}</dd>
+                        <dt>Pays</dt><dd>{{ studio.country|default:"—" }}</dd>
+                    </dl>
                 </div>
             </div>
 
-            <!-- Tarification -->
-            <div class="info-card">
-                <div class="info-card-header">
-                    <div class="info-card-icon green">
-                        <i class="ph ph-currency-circle-dollar"></i>
-                    </div>
-                    <h3 class="info-card-title">Tarification</h3>
-                </div>
-                <div class="info-card-body">
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <span class="info-label">
-                                <i class="ph ph-clock"></i>
-                                Prix par heure
-                            </span>
-                            <span class="info-value">
-                                {% if studio.price_per_hour %}
-                                    <span class="price-display">
-                                        <i class="ph ph-money"></i>
-                                        {{ studio.price_per_hour|floatformat:0 }} FCFA
-                                    </span>
-                                {% else %}
-                                    <span class="empty">Non défini</span>
-                                {% endif %}
-                            </span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">
-                                <i class="ph ph-sun-horizon"></i>
-                                Prix demi-journée
-                            </span>
-                            <span class="info-value">
-                                {% if studio.price_half_day %}
-                                    <span class="price-display">
-                                        <i class="ph ph-money"></i>
-                                        {{ studio.price_half_day|floatformat:0 }} FCFA
-                                    </span>
-                                {% else %}
-                                    <span class="empty">Non défini</span>
-                                {% endif %}
-                            </span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">
-                                <i class="ph ph-sun"></i>
-                                Prix journée
-                            </span>
-                            <span class="info-value">
-                                {% if studio.price_day %}
-                                    <span class="price-display">
-                                        <i class="ph ph-money"></i>
-                                        {{ studio.price_day|floatformat:0 }} FCFA
-                                    </span>
-                                {% else %}
-                                    <span class="empty">Non défini</span>
-                                {% endif %}
-                            </span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">
-                                <i class="ph ph-percent"></i>
-                                Réduction
-                            </span>
-                            <span class="info-value {% if not studio.discount_percent %}empty{% endif %}">
-                                {% if studio.discount_percent %}{{ studio.discount_percent }}%{% else %}Aucune{% endif %}
-                            </span>
-                        </div>
-                        {% if studio.extra_options %}
-                        <div class="info-item full-width">
-                            <span class="info-label">
-                                <i class="ph ph-plus-circle"></i>
-                                Options supplémentaires
-                            </span>
-                            <span class="info-value">{{ studio.extra_options|linebreaksbr }}</span>
-                        </div>
-                        {% endif %}
-                    </div>
+            <div class="ol-card">
+                <div class="ol-card-header"><h2>Espace & capacité</h2></div>
+                <div class="ol-card-body">
+                    <dl class="ol-meta">
+                        <dt>Dimensions</dt><dd>{% if studio.length_m or studio.width_m or studio.height_m %}{{ studio.length_m|floatformat:"-2"|default:"?" }} × {{ studio.width_m|floatformat:"-2"|default:"?" }} × {{ studio.height_m|floatformat:"-2"|default:"?" }} m{% else %}—{% endif %}</dd>
+                        <dt>Superficie</dt><dd>{% if studio.area_m2 %}{{ studio.area_m2|floatformat:"-2" }} m²{% else %}—{% endif %}</dd>
+                        <dt>Capacité</dt><dd>{% if studio.capacity %}{{ studio.capacity }} personne{{ studio.capacity|pluralize }}{% else %}—{% endif %}</dd>
+                        <dt>Techniciens</dt><dd>{{ studio.technicians_required|default:"—" }}</dd>
+                    </dl>
                 </div>
             </div>
 
-            <!-- Équipements -->
-            <div class="info-card">
-                <div class="info-card-header">
-                    <div class="info-card-icon cyan">
-                        <i class="ph ph-devices"></i>
-                    </div>
-                    <h3 class="info-card-title">Éclairage & équipements</h3>
-                </div>
-                <div class="info-card-body">
-                    <div class="equipment-list">
-                        <div class="equipment-item">
-                            <div class="equipment-icon">
-                                <i class="ph ph-sun"></i>
-                            </div>
-                            <div class="equipment-info">
-                                <div class="equipment-name">Éclairage intégré</div>
-                                <div class="equipment-value">{% if studio.lighting_included %}Oui{% else %}Non{% endif %}</div>
-                            </div>
-                        </div>
-
-                        {% if studio.lighting_type %}
-                        <div class="equipment-item">
-                            <div class="equipment-icon">
-                                <i class="ph ph-lightbulb"></i>
-                            </div>
-                            <div class="equipment-info">
-                                <div class="equipment-name">Type de lumières</div>
-                                <div class="equipment-value">{{ studio.lighting_type }}</div>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        {% if studio.equip_cameras %}
-                        <div class="equipment-item">
-                            <div class="equipment-icon">
-                                <i class="ph ph-video-camera"></i>
-                            </div>
-                            <div class="equipment-info">
-                                <div class="equipment-name">Caméras</div>
-                                <div class="equipment-value">{{ studio.equip_cameras }}</div>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        {% if studio.equip_microphones %}
-                        <div class="equipment-item">
-                            <div class="equipment-icon">
-                                <i class="ph ph-microphone"></i>
-                            </div>
-                            <div class="equipment-info">
-                                <div class="equipment-name">Micros</div>
-                                <div class="equipment-value">{{ studio.equip_microphones }}</div>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        {% if studio.equip_lights %}
-                        <div class="equipment-item">
-                            <div class="equipment-icon">
-                                <i class="ph ph-lamp"></i>
-                            </div>
-                            <div class="equipment-info">
-                                <div class="equipment-name">Lumières additionnelles</div>
-                                <div class="equipment-value">{{ studio.equip_lights }}</div>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        {% if studio.equip_screens %}
-                        <div class="equipment-item">
-                            <div class="equipment-icon">
-                                <i class="ph ph-monitor"></i>
-                            </div>
-                            <div class="equipment-info">
-                                <div class="equipment-name">Écrans</div>
-                                <div class="equipment-value">{{ studio.equip_screens }}</div>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        {% if studio.equip_control_room %}
-                        <div class="equipment-item">
-                            <div class="equipment-icon">
-                                <i class="ph ph-sliders-horizontal"></i>
-                            </div>
-                            <div class="equipment-info">
-                                <div class="equipment-name">Régie</div>
-                                <div class="equipment-value">{{ studio.equip_control_room }}</div>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        {% if studio.equip_accessories %}
-                        <div class="equipment-item">
-                            <div class="equipment-icon">
-                                <i class="ph ph-toolbox"></i>
-                            </div>
-                            <div class="equipment-info">
-                                <div class="equipment-name">Accessoires</div>
-                                <div class="equipment-value">{{ studio.equip_accessories }}</div>
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
+            <div class="ol-card">
+                <div class="ol-card-header"><h2>Disponibilités</h2></div>
+                <div class="ol-card-body">
+                    <dl class="ol-meta">
+                        <dt>Horaires</dt><dd>{{ studio.opening_hours|default:"—" }}</dd>
+                        <dt>Jours</dt><dd>{{ studio.opening_days|default:"—" }}</dd>
+                        {% if studio.unavailable_dates %}<dt>Indisponible</dt><dd>{{ studio.unavailable_dates|linebreaksbr }}</dd>{% endif %}
+                    </dl>
                 </div>
             </div>
 
-            <!-- Disponibilités & Capacité -->
-            <div class="info-card">
-                <div class="info-card-header">
-                    <div class="info-card-icon orange">
-                        <i class="ph ph-clock"></i>
-                    </div>
-                    <h3 class="info-card-title">Disponibilités & capacité</h3>
-                </div>
-                <div class="info-card-body">
-                    <div class="availability-grid">
-                        <div class="availability-item">
-                            <div class="availability-label">Heures d'ouverture</div>
-                            <div class="availability-value {% if not studio.opening_hours %}empty{% endif %}">
-                                {{ studio.opening_hours|default:"Non définies" }}
-                            </div>
-                        </div>
-                        <div class="availability-item">
-                            <div class="availability-label">Jours d'ouverture</div>
-                            <div class="availability-value {% if not studio.opening_days %}empty{% endif %}">
-                                {{ studio.opening_days|default:"Non définis" }}
-                            </div>
-                        </div>
-                        <div class="availability-item">
-                            <div class="availability-label">Capacité maximale</div>
-                            <div class="availability-value {% if not studio.capacity %}empty{% endif %}">
-                                {% if studio.capacity %}{{ studio.capacity }} personne(s){% else %}Non définie{% endif %}
-                            </div>
-                        </div>
-                        <div class="availability-item">
-                            <div class="availability-label">Techniciens requis</div>
-                            <div class="availability-value {% if not studio.technicians_required %}empty{% endif %}">
-                                {% if studio.technicians_required %}{{ studio.technicians_required }}{% else %}Non défini{% endif %}
-                            </div>
-                        </div>
-                    </div>
-
-                    {% if studio.unavailable_dates %}
-                    <div class="info-item full-width" style="margin-top: 1.25rem;">
-                        <span class="info-label">
-                            <i class="ph ph-calendar-x"></i>
-                            Dates indisponibles
-                        </span>
-                        <span class="info-value">{{ studio.unavailable_dates|linebreaksbr }}</span>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Statistiques -->
-            <div class="info-card">
-                <div class="info-card-header">
-                    <div class="info-card-icon gray">
-                        <i class="ph ph-chart-line"></i>
-                    </div>
-                    <h3 class="info-card-title">Statistiques</h3>
-                </div>
-                <div class="info-card-body">
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <span class="info-label">
-                                <i class="ph ph-calendar-check"></i>
-                                Total réservations
-                            </span>
-                            <span class="info-value" style="font-size: 1.5rem; font-weight: 700; color: var(--primary-400);">
-                                {{ studio.reservation_set.count }}
-                            </span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">
-                                <i class="ph ph-identification-badge"></i>
-                                ID Studio
-                            </span>
-                            <span class="info-value">#{{ studio.id }}</span>
-                        </div>
-                    </div>
+            <div class="ol-card danger-zone">
+                <div class="ol-card-header"><h2>Zone sensible</h2></div>
+                <div class="ol-card-body">
+                    <p class="small text-muted">Les réservations existantes sont conservées, sans studio associé.</p>
+                    <a href="{% url 'dashboard:studios_delete' studio.pk %}" class="btn btn-outline-danger btn-sm"><i class="fa-regular fa-trash-can"></i> Supprimer ce studio</a>
                 </div>
             </div>
         </div>

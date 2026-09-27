@@ -1,209 +1,57 @@
 {% extends "base.html" %}
 
-{% block title %}Offres - Oloustream{% endblock %}
-
-{% block extra_css %}
-<style>
-    /* Styles professionnels pour la page des offres */
-    
-    /* Style général pour les cartes */
-    .card {
-        border: none;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        overflow: hidden;
-    }
-    
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-    }
-    
-    .card-body {
-        padding: 1.5rem;
-    }
-    
-    .card-title {
-        color: #2c3e50;
-        font-weight: 600;
-        font-size: 1.25rem;
-        margin-bottom: 1rem;
-        line-height: 1.4;
-    }
-    
-    .card-text {
-        color: #5a6c7d;
-        font-size: 0.95rem;
-        line-height: 1.5;
-        margin-bottom: 1.5rem;
-        min-height: 70px;
-    }
-    
-    /* Amélioration des détails */
-    .card-body p {
-        margin-bottom: 0.5rem;
-        font-size: 0.9rem;
-        color: #546e7a;
-    }
-    
-    .card-body p strong {
-        color: #2c3e50;
-        font-weight: 600;
-    }
-    
-    /* Style amélioré pour le badge */
-    .badge.bg-success {
-        background-color: #27ae60 !important;
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 500;
-    }
-    
-    /* Style amélioré pour les boutons */
-    .btn-primary.btn-sm {
-        background-color: #3498db;
-        border: none;
-        color: white;
-        font-weight: 500;
-        padding: 0.5rem 1.5rem;
-        border-radius: 6px;
-        transition: all 0.3s ease;
-        font-size: 0.9rem;
-    }
-    
-    .btn-primary.btn-sm:hover {
-        background-color: #2980b9;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
-    }
-    
-    .btn-outline-primary.btn-sm {
-        background-color: transparent;
-        border: 1px solid #3498db;
-        color: #3498db;
-        font-weight: 500;
-        padding: 0.5rem 1.5rem;
-        border-radius: 6px;
-        transition: all 0.3s ease;
-        font-size: 0.9rem;
-    }
-    
-    .btn-outline-primary.btn-sm:hover {
-        background-color: #3498db;
-        color: white;
-        border-color: #3498db;
-    }
-    
-    /* Style pour le titre principal */
-    h1.h3.mb-3 {
-        font-weight: 600;
-        color: #2c3e50;
-        font-size: 1.8rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #eaeaea;
-        margin-bottom: 2rem !important;
-    }
-    
-    /* Style pour le message vide */
-    p.text-muted {
-        text-align: center;
-        padding: 3rem 1rem;
-        color: #7f8c8d;
-        font-style: italic;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        margin: 2rem auto;
-        max-width: 600px;
-        font-size: 1.1rem;
-    }
-    
-    /* Animation pour les cartes */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .col-md-4 {
-        animation: fadeInUp 0.5s ease forwards;
-        opacity: 0;
-    }
-    
-    .col-md-4:nth-child(1) { animation-delay: 0.1s; }
-    .col-md-4:nth-child(2) { animation-delay: 0.2s; }
-    .col-md-4:nth-child(3) { animation-delay: 0.3s; }
-    .col-md-4:nth-child(4) { animation-delay: 0.4s; }
-    .col-md-4:nth-child(5) { animation-delay: 0.5s; }
-    .col-md-4:nth-child(6) { animation-delay: 0.6s; }
-    
-    /* Responsive */
-    @media (max-width: 768px) {
-        .card {
-            margin-bottom: 1.5rem;
-        }
-        
-        .card-title {
-            font-size: 1.1rem;
-        }
-        
-        .card-body p {
-            font-size: 0.85rem;
-        }
-        
-        .btn-primary.btn-sm, 
-        .btn-outline-primary.btn-sm {
-            padding: 0.4rem 1.2rem;
-            font-size: 0.85rem;
-        }
-    }
-</style>
-{% endblock %}
+{% block title %}Offres et promotions — Oloustream{% endblock %}
+{% block meta_description %}Profitez des offres promotionnelles Oloustream sur nos services : live streaming, captation vidéo, location de studio et plus encore.{% endblock %}
 
 {% block content %}
-<h1 class="h3 mb-3">Offres</h1>
+<section class="page-hero">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item active" aria-current="page">Offres</li></ol></nav>
+        <h1>Offres du moment</h1>
+        <p>Des conditions préférentielles sur nos services, pour une durée limitée. Manifestez votre intérêt : notre équipe revient vers vous.</p>
+    </div>
+</section>
 
-<div class="row">
-    {% for o in offers %}
-        <div class="col-md-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">{{ o.title }}</h5>
-                    <p class="card-text">
-                        {{ o.description|truncatewords:25 }}
-                    </p>
-                    <p class="mb-1"><strong>Service :</strong> {{ o.service.name }}</p>
-                    <p class="mb-1"><strong>Réduction :</strong> {{ o.discount_percent }} %</p>
-                    <p class="mb-1"><strong>Période :</strong> du {{ o.start_date }} au {{ o.end_date }}</p>
-                </div>
-                <div class="card-footer bg-white border-0">
-                    {% if user.is_authenticated %}
-                        {% if o.id in user_offer_ids %}
-                            <span class="badge bg-success">Déjà postulé</span>
+<section class="section">
+    <div class="container">
+        {% if offers %}
+        <div class="row g-4">
+            {% for o in offers %}
+            <div class="col-md-6 col-lg-4">
+                <article class="ol-card ol-media-card">
+                    <div class="ol-card-body">
+                        <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                            <span class="ol-badge no-dot">{{ o.service.name }}</span>
+                            {% if o.discount_percent %}<span class="ol-badge ol-badge-red no-dot">-{{ o.discount_percent }} %</span>{% endif %}
+                        </div>
+                        <h2 class="ol-card-title h5">{{ o.title }}</h2>
+                        {% if o.description %}<p class="ol-card-text">{{ o.description|truncatechars:180 }}</p>{% endif %}
+                        <p class="small text-muted mb-0 mt-auto"><i class="fa-regular fa-calendar me-1" aria-hidden="true"></i>Du {{ o.start_date|date:"d/m/Y" }} au {{ o.end_date|date:"d/m/Y" }}</p>
+                    </div>
+                    <div class="ol-card-footer">
+                        {% if user.is_authenticated %}
+                            {% if o.id in user_offer_ids %}
+                            <span class="ol-badge status-confirmed"><i class="fa-solid fa-check" aria-hidden="true"></i> Demande envoyée</span>
+                            {% else %}
+                            <a href="{% url 'services_app:user_offer_apply' o.id %}" class="btn btn-primary btn-sm w-100">Profiter de l'offre</a>
+                            {% endif %}
                         {% else %}
-                            <a href="{% url 'services_app:user_offer_apply' o.id %}"
-                               class="btn btn-primary btn-sm">
-                                Postuler
-                            </a>
+                            {% url 'services_app:user_offer_apply' o.id as apply_url %}
+                            <a href="{% url 'accounts:login' %}?next={{ apply_url|urlencode }}" class="btn btn-outline-primary btn-sm w-100">Se connecter pour en profiter</a>
                         {% endif %}
-                    {% else %}
-                        <a href="{% url 'accounts:login' %}?next={% url 'services_app:user_offers_list' %}"
-                           class="btn btn-outline-primary btn-sm">
-                            Se connecter pour postuler
-                        </a>
-                    {% endif %}
-                </div>
+                    </div>
+                </article>
             </div>
+            {% endfor %}
         </div>
-    {% empty %}
-        <p class="text-muted">Aucune offre disponible pour le moment.</p>
-    {% endfor %}
-</div>
+        {% else %}
+        <div class="ol-card ol-empty">
+            <div class="ol-empty-icon"><i class="fa-solid fa-tags" aria-hidden="true"></i></div>
+            <h3>Aucune offre en cours</h3>
+            <p class="mb-3">Revenez bientôt ou demandez-nous un devis personnalisé.</p>
+            <a href="{% url 'core:contact' %}" class="btn btn-primary btn-sm">Demander un devis</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
 {% endblock %}

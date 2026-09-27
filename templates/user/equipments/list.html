@@ -1,134 +1,107 @@
 {% extends "base.html" %}
 
-{% block title %}Matériel disponible - Oloustream{% endblock %}
+{% block title %}Location de matériel audiovisuel — Oloustream{% endblock %}
+{% block meta_description %}Caméras, micros, lumières et accessoires disponibles à la location chez Oloustream pour vos tournages, podcasts et événements.{% endblock %}
 
 {% block content %}
-
-<style>
-    .equipment-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-    .equipment-card {
-        border-radius: 1rem;
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 8px 20px rgba(15,23,42,0.08);
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-    .equipment-card-media {
-        height: 160px;
-        background: #020617;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .equipment-card-media img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    .equipment-card-body {
-        padding: 0.9rem 1rem 1rem;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
-    .equipment-name {
-        font-weight: 600;
-        font-size: 0.98rem;
-        margin-bottom: 0.1rem;
-    }
-    .equipment-meta {
-        font-size: 0.8rem;
-        color: #6b7280;
-        margin-bottom: 0.4rem;
-    }
-    .equipment-category {
-        font-size: 0.78rem;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: #9ca3af;
-        margin-bottom: 0.2rem;
-    }
-    .equipment-actions {
-        margin-top: auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 0.4rem;
-    }
-    .equipment-status {
-        font-size: 0.78rem;
-        color: #16a34a;
-    }
-    .btn-eq {
-        border-radius: 999px;
-        font-size: 0.8rem;
-        padding: 0.4rem 0.9rem;
-    }
-</style>
-
-<h1 class="mb-3">Matériel disponible à la location</h1>
-<p class="text-muted mb-4">
-    Découvrez notre parc de caméras, micros, lumières et accessoires disponibles pour vos productions.
-</p>
-
-{% if equipments %}
-    <div class="equipment-grid">
-        {% for equipment in equipments %}
-            <div class="equipment-card">
-                <div class="equipment-card-media">
-                    {% if equipment.photo %}
-                        <img src="{{ equipment.photo.url }}" alt="{{ equipment.name }}">
-                    {% else %}
-                        <span class="text-light" style="font-size:0.85rem;">
-                            Aucune image disponible
-                        </span>
-                    {% endif %}
-                </div>
-                <div class="equipment-card-body">
-                    {% if equipment.category %}
-                        <div class="equipment-category">
-                            {{ equipment.category.name }}
-                        </div>
-                    {% endif %}
-                    <div class="equipment-name">
-                        {{ equipment.name }}
-                    </div>
-                    <div class="equipment-meta">
-                        {% if equipment.brand or equipment.model %}
-                            {{ equipment.brand }} {{ equipment.model }}
-                        {% else %}
-                            &nbsp;
-                        {% endif %}
-                    </div>
-                    <div class="equipment-actions">
-                        <span class="equipment-status">
-                            Disponible
-                        </span>
-                        <div>
-                            <a href="{% url 'studio:user_equipment_detail' equipment.pk %}"
-                               class="btn btn-outline-secondary btn-eq">
-                                Détails
-                            </a>
-                            <a href="{% url 'studio:user_equipment_reserve' equipment.pk %}"
-                               class="btn btn-primary btn-eq">
-                                Réserver
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
+<section class="page-hero">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item active" aria-current="page">Matériel</li></ol></nav>
+        <h1>Location de matériel</h1>
+        <p>Caméras, micros, lumières et accessoires entretenus par notre équipe, disponibles pour vos productions.</p>
     </div>
-{% else %}
-    <p class="text-muted">Aucun matériel n'est disponible pour le moment.</p>
-{% endif %}
+</section>
 
+<section class="section">
+    <div class="container">
+        {% if equipments %}
+        {% regroup equipments by category as category_groups %}
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            {% if category_groups|length > 1 %}
+            <div class="d-flex flex-wrap gap-2" role="group" aria-label="Filtrer par catégorie">
+                <button type="button" class="ol-chip active" data-filter="" aria-pressed="true">Toutes les catégories</button>
+                {% for group in category_groups %}
+                <button type="button" class="ol-chip" data-filter="{{ group.grouper.pk|default:'none' }}" aria-pressed="false">{{ group.grouper.name|default:"Autres" }}</button>
+                {% endfor %}
+            </div>
+            {% else %}<div></div>{% endif %}
+            <small class="text-muted" id="items-count" aria-live="polite">{{ equipments|length }} article{{ equipments|length|pluralize }}</small>
+        </div>
+
+        <div class="row g-4">
+            {% for equipment in equipments %}
+            <div class="col-sm-6 col-lg-4 col-xl-3" data-item data-category="{{ equipment.category_id|default:'none' }}">
+                <article class="ol-card ol-card-hover ol-media-card">
+                    <a href="{% url 'studio:user_equipment_detail' equipment.pk %}" class="ol-media" aria-label="Voir {{ equipment.name }}">
+                        {% if equipment.photo %}
+                        <img src="{{ equipment.photo.url }}" alt="{{ equipment.name }}" loading="lazy">
+                        {% else %}
+                        <div class="ol-media-placeholder"><i class="fa-solid fa-camera" aria-hidden="true"></i></div>
+                        {% endif %}
+                        {% if equipment.category %}<span class="badge-float ol-badge no-dot bg-white">{{ equipment.category.name }}</span>{% endif %}
+                    </a>
+                    <div class="ol-card-body">
+                        <h2 class="ol-card-title h6"><a href="{% url 'studio:user_equipment_detail' equipment.pk %}" class="text-ink">{{ equipment.name }}</a></h2>
+                        <p class="ol-card-text">{% if equipment.brand or equipment.model %}{{ equipment.brand }} {{ equipment.model }}{% else %}Matériel professionnel{% endif %}</p>
+                        <p class="mb-3"><span class="ol-badge status-available">Disponible</span></p>
+                        <div class="ol-card-actions">
+                            <a href="{% url 'studio:user_equipment_detail' equipment.pk %}" class="btn btn-light btn-sm">Détails</a>
+                            {% if user.is_authenticated %}
+                            <a href="{% url 'studio:user_equipment_reserve' equipment.pk %}" class="btn btn-primary btn-sm">Réserver</a>
+                            {% else %}
+                            {% url 'studio:user_equipment_reserve' equipment.pk as reserve_url %}
+                            <a href="{% url 'accounts:login' %}?next={{ reserve_url|urlencode }}" class="btn btn-outline-primary btn-sm">Se connecter pour réserver</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="ol-card ol-empty mt-4" id="filter-empty" hidden>
+            <div class="ol-empty-icon"><i class="fa-solid fa-filter" aria-hidden="true"></i></div>
+            <h3>Aucun matériel dans cette catégorie</h3>
+            <p class="mb-0">Choisissez une autre catégorie.</p>
+        </div>
+        {% else %}
+        <div class="ol-card ol-empty">
+            <div class="ol-empty-icon"><i class="fa-solid fa-camera" aria-hidden="true"></i></div>
+            <h3>Aucun matériel disponible pour le moment</h3>
+            <p class="mb-3">Notre parc est actuellement en tournage. Contactez-nous pour connaître les prochaines disponibilités.</p>
+            <a href="{% url 'core:contact' %}" class="btn btn-primary btn-sm">Nous contacter</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{% if equipments %}
+<script>
+(function () {
+    var chips = document.querySelectorAll("[data-filter]");
+    var items = document.querySelectorAll("[data-item]");
+    var empty = document.getElementById("filter-empty");
+    var count = document.getElementById("items-count");
+    chips.forEach(function (chip) {
+        chip.addEventListener("click", function () {
+            var value = chip.getAttribute("data-filter");
+            var visible = 0;
+            chips.forEach(function (c) {
+                c.classList.toggle("active", c === chip);
+                c.setAttribute("aria-pressed", c === chip ? "true" : "false");
+            });
+            items.forEach(function (item) {
+                var show = !value || item.getAttribute("data-category") === value;
+                item.hidden = !show;
+                if (show) visible++;
+            });
+            if (empty) empty.hidden = visible > 0;
+            if (count) count.textContent = visible + " article" + (visible > 1 ? "s" : "");
+        });
+    });
+})();
+</script>
+{% endif %}
 {% endblock %}

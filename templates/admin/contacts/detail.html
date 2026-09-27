@@ -1,0 +1,113 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Demande de {{ contact.full_name }}{% endblock %}
+
+{% block content %}
+{% with wa=contact.phone|cut:" "|cut:"+"|cut:"-"|cut:"."|cut:"("|cut:")" %}
+<div class="page-header">
+    <div>
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Tableau de bord</a></li><li class="breadcrumb-item"><a href="{% url 'dashboard:contacts_list' %}">Demandes & devis</a></li><li class="breadcrumb-item active">{{ contact.full_name|truncatechars:40 }}</li></ol></nav>
+        <h1>{{ contact.get_subject_display }}</h1>
+        <p class="subtitle">
+            <span class="ol-badge status-{{ contact.status }}">{{ contact.get_status_display }}</span>
+            <span class="ms-2">{{ contact.full_name }}{% if contact.company %} · {{ contact.company }}{% endif %} — reçue le {{ contact.created_at|date:"d/m/Y à H:i" }}</span>
+        </p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'dashboard:contacts_list' %}" class="btn btn-light"><i class="fa-solid fa-arrow-left"></i> Retour</a>
+        <a href="mailto:{{ contact.email }}?subject=Re%C2%A0%3A%20votre%20demande%20Oloustream" class="btn btn-primary"><i class="fa-regular fa-envelope"></i> Répondre par email</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8 d-grid gap-4 align-content-start">
+        <div class="ol-card">
+            <div class="ol-card-header"><h2>Message</h2></div>
+            <div class="ol-card-body">
+                <div class="text-ink" style="white-space: pre-line; word-break: break-word">{{ contact.message }}</div>
+            </div>
+        </div>
+
+        <div class="ol-card">
+            <div class="ol-card-header"><h2>Détails de la demande</h2></div>
+            <div class="ol-card-body">
+                <dl class="ol-meta">
+                    <dt>Objet</dt><dd>{{ contact.get_subject_display }}</dd>
+                    <dt>Date souhaitée</dt><dd>{{ contact.event_date|date:"d/m/Y"|default:"—" }}</dd>
+                    <dt>Budget indicatif</dt><dd>{{ contact.budget|default:"—" }}</dd>
+                    <dt>Reçue le</dt><dd>{{ contact.created_at|date:"d/m/Y H:i" }}</dd>
+                    {% if contact.ip_address %}<dt>Adresse IP</dt><dd><code>{{ contact.ip_address }}</code></dd>{% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <form method="post" action="{% url 'dashboard:contact_update' contact.pk %}" class="ol-form ol-card ol-card-body" novalidate>
+            {% csrf_token %}
+            <section class="ol-form-section">
+                <h2 class="ol-form-section-title"><span class="step">1</span> Suivi interne</h2>
+                <p class="ol-form-section-desc">Ces informations ne sont visibles que par l'équipe.</p>
+                <div class="ol-field">
+                    <label class="form-label" for="id_status">Statut</label>
+                    <select name="status" id="id_status" class="form-select">
+                        {% for value, label in status_choices %}<option value="{{ value }}" {% if contact.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="ol-field">
+                    <label class="form-label" for="id_internal_notes">Notes internes</label>
+                    <textarea name="internal_notes" id="id_internal_notes" rows="5" class="form-control" placeholder="Échanges, devis envoyé, relances…">{{ contact.internal_notes }}</textarea>
+                </div>
+            </section>
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Enregistrer</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="side-sticky d-grid gap-4">
+            <div class="ol-card">
+                <div class="ol-card-header"><h2>Coordonnées</h2></div>
+                <div class="ol-card-body">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <span class="ol-avatar">{{ contact.full_name|slice:":1"|upper }}</span>
+                        <div>
+                            <strong class="text-ink d-block">{{ contact.full_name }}</strong>
+                            {% if contact.company %}<small class="text-muted">{{ contact.company }}</small>{% endif %}
+                        </div>
+                    </div>
+                    <dl class="ol-meta">
+                        <dt>Email</dt><dd><a href="mailto:{{ contact.email }}">{{ contact.email }}</a></dd>
+                        <dt>Téléphone</dt><dd>{% if contact.phone %}<a href="tel:{{ contact.phone|cut:' ' }}">{{ contact.phone }}</a>{% else %}—{% endif %}</dd>
+                    </dl>
+                    <div class="d-grid gap-2 mt-3">
+                        <a href="mailto:{{ contact.email }}" class="btn btn-light btn-sm"><i class="fa-regular fa-envelope"></i> Envoyer un email</a>
+                        {% if contact.phone %}
+                        <a href="tel:{{ contact.phone|cut:' ' }}" class="btn btn-light btn-sm"><i class="fa-solid fa-phone"></i> Appeler</a>
+                        {% if wa %}<a href="https://wa.me/{{ wa }}" class="btn btn-light btn-sm" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>{% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if contact.internal_notes %}
+            <div class="ol-card">
+                <div class="ol-card-header"><h2><i class="fa-solid fa-lock text-muted me-1"></i> Notes internes</h2></div>
+                <div class="ol-card-body small">{{ contact.internal_notes|linebreaksbr }}</div>
+            </div>
+            {% endif %}
+
+            <div class="ol-card danger-zone">
+                <div class="ol-card-header"><h2>Zone sensible</h2></div>
+                <div class="ol-card-body">
+                    <p class="small text-muted">La suppression de cette demande est définitive.</p>
+                    <form method="post" action="{% url 'dashboard:contact_delete' contact.pk %}" data-confirm="Supprimer définitivement cette demande ?">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fa-regular fa-trash-can"></i> Supprimer la demande</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endwith %}
+{% endblock %}

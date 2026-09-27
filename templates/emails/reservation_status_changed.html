@@ -1,37 +1,35 @@
-<!doctype html>
-<html>
-  <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-    <h2>Mise à jour de votre réservation #{{ reservation_id }}</h2>
-
-    <p>Bonjour {{ user_name }},</p>
-
-    <p>
-      Le statut de votre réservation a été mis à jour :
-      <strong>{{ old_status }}</strong> → <strong>{{ new_status }}</strong>
-    </p>
-
-    <p>
-      <strong>Créneau :</strong><br>
-      Du {{ start|date:"d/m/Y H:i" }} au {{ end|date:"d/m/Y H:i" }}
-    </p>
-
-    {% if studio_name %}
-      <p><strong>Studio :</strong> {{ studio_name }}</p>
-    {% endif %}
-
-    {% if admin_note %}
-      <p><strong>Message de l’équipe :</strong><br>{{ admin_note|linebreaksbr }}</p>
-    {% endif %}
-
-    <p>
-      Vous pouvez suivre vos réservations depuis votre espace :
-      <a href="{{ user_reservations_url }}">Mes réservations</a>
-    </p>
-
-    <hr>
-    <p style="font-size: 13px; color: #555;">
-      Oloustream – Creative Audio-Video Experiences<br>
-      📞 +226 64 09 31 96 · ✉️ info@oloustream.com
-    </p>
-  </body>
-</html>
+{% extends "emails/_base_email.html" %}
+{% block title %}Mise à jour de votre réservation{% endblock %}
+{% block preheader %}Réservation n° {{ reservation_id }} : {{ new_status }}.{% endblock %}
+{% block content %}
+<h1 style="margin:0 0 16px;font-size:20px;line-height:28px;color:#0F172A;">Mise à jour de votre réservation n° {{ reservation_id }}</h1>
+<p style="margin:0 0 16px;">Bonjour {{ user_name }},</p>
+<p style="margin:0 0 20px;">Le statut de votre réservation a été mis à jour :</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;margin:0 0 20px;">
+<tr><td style="padding:16px 20px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:22px;color:#334155;">
+<strong style="color:#0F172A;">Ancien statut :</strong> {{ old_status }}<br>
+<strong style="color:#0F172A;">Nouveau statut :</strong> <span style="color:#C40000;font-weight:bold;">{{ new_status }}</span><br>
+{% if studio_name %}<strong style="color:#0F172A;">Studio :</strong> {{ studio_name }}<br>
+{% endif %}
+<strong style="color:#0F172A;">Créneau :</strong> du {{ start|date:"d/m/Y H:i" }} au {{ end|date:"d/m/Y H:i" }}
+</td></tr>
+</table>
+{% if admin_note %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px;">
+<tr><td style="border-left:3px solid #B7861B;padding:4px 0 4px 16px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:22px;color:#334155;">
+<strong style="color:#0F172A;">Message de l'équipe :</strong><br>
+{{ admin_note|linebreaksbr }}
+</td></tr>
+</table>
+{% endif %}
+<p style="margin:0 0 24px;">Vous pouvez suivre toutes vos réservations depuis votre espace client.</p>
+{% if user_reservations_url %}
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;">
+<tr><td align="center" bgcolor="#E60000" style="border-radius:6px;">
+<a href="{{ user_reservations_url }}" style="display:inline-block;padding:12px 24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#FFFFFF;text-decoration:none;border-radius:6px;">Voir mes réservations</a>
+</td></tr>
+</table>
+{% endif %}
+<p style="margin:0;">Cordialement,<br>
+L'équipe Oloustream</p>
+{% endblock %}

@@ -155,6 +155,12 @@ def record_commission_payment(partner, *, amount, method, admin_user, reference=
         raise PartnerActionError("Méthode de paiement invalide.")
 
     with transaction.atomic():
+        partner = BusinessPartner.objects.select_for_update().get(pk=partner.pk)
+        if amount > partner.pending_commission:
+            raise PartnerActionError(
+                f"Le montant dépasse la commission restant due "
+                f"({partner.pending_commission:,.0f} FCFA).".replace(",", " ")
+            )
         payment = CommissionPayment.objects.create(
             partner=partner,
             amount=amount,

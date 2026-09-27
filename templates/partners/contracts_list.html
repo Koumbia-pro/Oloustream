@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Mes contrats — Espace partenaire Oloustream{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero-light">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'partners:dashboard' %}">Espace partenaire</a></li><li class="breadcrumb-item active" aria-current="page">Mes contrats</li></ol></nav>
+        <div class="d-flex flex-wrap align-items-end justify-content-between gap-3">
+            <div>
+                <h1>Mes contrats</h1>
+                <p>Tous les contrats que vous avez apportés à Oloustream et leur état d'avancement.</p>
+            </div>
+            <a href="{% url 'partners:submit_contract' %}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nouveau contrat</a>
+        </div>
+    </div>
+</section>
+
+<section class="section-sm">
+    <div class="container">
+        <div class="account-layout">
+            {% include "partners/_partner_nav.html" %}
+
+            <div>
+                <div class="d-flex flex-wrap gap-2 mb-3" role="navigation" aria-label="Filtrer par statut">
+                    <a href="{% url 'partners:contracts_list' %}" class="ol-chip{% if not current_status %} active{% endif %}"{% if not current_status %} aria-current="true"{% endif %}>Tous</a>
+                    {% for value, label in status_choices %}
+                    <a href="{% url 'partners:contracts_list' %}?status={{ value }}" class="ol-chip{% if current_status == value %} active{% endif %}"{% if current_status == value %} aria-current="true"{% endif %}>{{ label }}</a>
+                    {% endfor %}
+                </div>
+
+                <div class="ol-card">
+                    {% if contracts %}
+                    <div class="ol-table-wrap">
+                        <table class="ol-table">
+                            <thead>
+                                <tr><th>Client</th><th>Service</th><th>Montant</th><th>Commission</th><th>Statut</th><th>Soumis le</th><th class="cell-actions"><span class="visually-hidden">Actions</span></th></tr>
+                            </thead>
+                            <tbody>
+                                {% for contract in contracts %}
+                                <tr>
+                                    <td><a href="{% url 'partners:contract_detail' contract.pk %}" class="cell-title">{{ contract.client_name }}</a><div class="cell-sub">{{ contract.get_client_type_display }}</div></td>
+                                    <td>{{ contract.service_type|truncatechars:30 }}</td>
+                                    <td class="text-nowrap">{{ contract.contract_amount|floatformat:0|intcomma }} FCFA</td>
+                                    <td class="text-nowrap"><span class="fw-semibold text-ink">{{ contract.commission_amount|floatformat:0|intcomma }} FCFA</span><div class="cell-sub">{{ contract.commission_rate|floatformat:"-2" }} %</div></td>
+                                    <td><span class="ol-badge status-{{ contract.status }}">{{ contract.get_status_display }}</span></td>
+                                    <td class="text-nowrap">{{ contract.created_at|date:"d/m/Y" }}</td>
+                                    <td class="cell-actions"><a href="{% url 'partners:contract_detail' contract.pk %}" class="btn btn-light btn-sm">Détails</a></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if contracts.paginator.num_pages > 1 %}
+                    <div class="ol-card-footer">
+                        {% if current_status %}{% with qs="status="|add:current_status %}{% include "partials/pagination.html" with page_obj=contracts querystring=qs %}{% endwith %}{% else %}{% include "partials/pagination.html" with page_obj=contracts %}{% endif %}
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    <div class="ol-empty">
+                        <div class="ol-empty-icon"><i class="fa-solid fa-file-contract"></i></div>
+                        {% if current_status %}
+                        <h3>Aucun contrat avec ce statut</h3>
+                        <p class="mb-3">Essayez un autre filtre ou affichez tous vos contrats.</p>
+                        <a href="{% url 'partners:contracts_list' %}" class="btn btn-light btn-sm">Voir tous les contrats</a>
+                        {% else %}
+                        <h3>Aucun contrat pour le moment</h3>
+                        <p class="mb-3">Soumettez votre premier contrat pour commencer à gagner des commissions.</p>
+                        <a href="{% url 'partners:submit_contract' %}" class="btn btn-primary btn-sm">Soumettre un contrat</a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

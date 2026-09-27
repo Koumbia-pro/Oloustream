@@ -4,6 +4,8 @@ Envoi des emails transactionnels d'Oloustream.
 Chaque fonction peut lever une exception SMTP : les vues les appellent
 via `apps.core.utils.send_safely` pour ne jamais bloquer l'utilisateur.
 """
+import re
+
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMultiAlternatives
@@ -12,6 +14,15 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_encode
+
+
+def _html_to_text(html):
+    """Version texte lisible d'un email HTML (sans le <head> ni les styles)."""
+    html = re.sub(r"(?is)<(head|style|script)\b.*?</\1>", "", html)
+    html = re.sub(r"(?i)<br\s*/?>|</(p|div|tr|h[1-6]|li)>", "\n", html)
+    text = strip_tags(html)
+    lines = [line.strip() for line in text.splitlines()]
+    return re.sub(r"\n{3,}", "\n\n", "\n".join(lines)).strip()
 
 
 def _absolute(path):
@@ -26,7 +37,7 @@ def _send(subject, template, context, to, text_body=None):
     html = render_to_string(template, context)
     msg = EmailMultiAlternatives(
         subject=subject,
-        body=text_body or strip_tags(html),
+        body=text_body or _html_to_text(html),
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=recipients,
     )

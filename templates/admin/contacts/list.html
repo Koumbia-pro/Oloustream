@@ -1,0 +1,77 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Demandes & devis{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Tableau de bord</a></li><li class="breadcrumb-item active">Demandes & devis</li></ol></nav>
+        <h1>Demandes de contact & devis</h1>
+        <p class="subtitle">Messages envoyés depuis le formulaire de contact du site.</p>
+    </div>
+</div>
+
+<div class="stat-grid">
+    <a href="{% url 'dashboard:contacts_list' %}" class="ol-stat"><span class="ol-stat-icon is-slate"><i class="fa-regular fa-envelope"></i></span><div><div class="ol-stat-value">{{ stats.total }}</div><div class="ol-stat-label">Demandes au total</div></div></a>
+    <a href="?status=NEW" class="ol-stat"><span class="ol-stat-icon"><i class="fa-solid fa-envelope-open-text"></i></span><div><div class="ol-stat-value">{{ stats.new }}</div><div class="ol-stat-label">Nouvelles</div></div></a>
+    <a href="?status=IN_PROGRESS" class="ol-stat"><span class="ol-stat-icon is-gold"><i class="fa-regular fa-hourglass-half"></i></span><div><div class="ol-stat-value">{{ stats.in_progress }}</div><div class="ol-stat-label">En cours de traitement</div></div></a>
+    <a href="?status=DONE" class="ol-stat"><span class="ol-stat-icon is-green"><i class="fa-solid fa-circle-check"></i></span><div><div class="ol-stat-value">{{ stats.done }}</div><div class="ol-stat-label">Traitées</div></div></a>
+</div>
+
+<div class="ol-card">
+    <form method="get" class="filter-bar">
+        <div class="search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Nom, structure, email, téléphone, message…" aria-label="Rechercher">
+        </div>
+        <select name="status" class="form-select" aria-label="Statut">
+            <option value="">Tous les statuts</option>
+            {% for value, label in status_choices %}<option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+        <select name="subject" class="form-select" aria-label="Objet">
+            <option value="">Tous les objets</option>
+            {% for value, label in subject_choices %}<option value="{{ value }}" {% if selected_subject == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+        <button type="submit" class="btn btn-dark">Filtrer</button>
+        {% if base_querystring %}<a href="{% url 'dashboard:contacts_list' %}" class="btn btn-ghost">Réinitialiser</a>{% endif %}
+    </form>
+
+    {% if page_obj.object_list %}
+    <div class="ol-table-wrap">
+        <table class="ol-table">
+            <thead>
+                <tr><th>Contact</th><th>Objet</th><th>Message</th><th>Reçue le</th><th>Statut</th><th class="cell-actions">Actions</th></tr>
+            </thead>
+            <tbody>
+            {% for c in page_obj %}
+                <tr>
+                    <td>
+                        <a href="{% url 'dashboard:contact_detail' c.pk %}" class="cell-title">{% if c.status == "NEW" %}<i class="fa-solid fa-circle text-red me-1" style="font-size: .5rem; vertical-align: middle" aria-label="Nouvelle"></i>{% endif %}{{ c.full_name }}</a>
+                        <div class="cell-sub">{% if c.company %}{{ c.company }} · {% endif %}{{ c.email }}</div>
+                    </td>
+                    <td>{{ c.get_subject_display }}{% if c.event_date %}<div class="cell-sub">Pour le {{ c.event_date|date:"d/m/Y" }}</div>{% endif %}</td>
+                    <td class="cell-sub" style="min-width: 220px">{{ c.message|truncatechars:90 }}</td>
+                    <td class="text-nowrap">{{ c.created_at|date:"d/m/Y" }}<div class="cell-sub">{{ c.created_at|date:"H:i" }}</div></td>
+                    <td><span class="ol-badge status-{{ c.status }}">{{ c.get_status_display }}</span></td>
+                    <td class="cell-actions">
+                        <div class="row-actions">
+                            <a href="{% url 'dashboard:contact_detail' c.pk %}" class="btn" title="Voir" aria-label="Voir la demande de {{ c.full_name }}"><i class="fa-regular fa-eye"></i></a>
+                            <a href="mailto:{{ c.email }}" class="btn" title="Répondre par email" aria-label="Répondre par email"><i class="fa-regular fa-envelope"></i></a>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="table-foot">{% include "partials/pagination.html" with querystring=base_querystring %}</div>
+    {% else %}
+    <div class="ol-empty">
+        <div class="ol-empty-icon"><i class="fa-regular fa-envelope"></i></div>
+        <h3>Aucune demande trouvée</h3>
+        <p>{% if base_querystring %}Aucun résultat pour ces filtres.{% else %}Les demandes envoyées depuis la page Contact apparaîtront ici.{% endif %}</p>
+        {% if base_querystring %}<a href="{% url 'dashboard:contacts_list' %}" class="btn btn-light btn-sm">Réinitialiser les filtres</a>{% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

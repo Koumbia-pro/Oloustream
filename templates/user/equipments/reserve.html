@@ -1,131 +1,61 @@
 {% extends "base.html" %}
 
-{% block title %}Réserver {{ equipment.name }}{% endblock %}
+{% block title %}Réserver {{ equipment.name }} — Oloustream{% endblock %}
+
 
 {% block content %}
-
-<style>
-    .reserve-layout {
-        display: grid;
-        grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.1fr);
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-    .reserve-eq-card {
-        border-radius: 1rem;
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 10px 25px rgba(15,23,42,0.09);
-        padding: 1.1rem 1.3rem;
-    }
-    .reserve-form-card {
-        border-radius: 1rem;
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 10px 25px rgba(15,23,42,0.09);
-        padding: 1.1rem 1.3rem;
-    }
-    .reserve-eq-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-    }
-    .reserve-eq-meta {
-        font-size: 0.86rem;
-        color: #6b7280;
-    }
-    .reserve-eq-media {
-        border-radius: 0.8rem;
-        overflow: hidden;
-        margin-top: 0.7rem;
-        background: #020617;
-        height: 190px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .reserve-eq-media img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    @media (max-width: 768px) {
-        .reserve-layout {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-
-<a href="{% url 'studio:user_equipment_detail' equipment.pk %}" class="btn btn-sm btn-outline-secondary mb-3">
-    ← Retour au détail du matériel
-</a>
-
-<div class="reserve-layout">
-    <div class="reserve-eq-card">
-        <div class="reserve-eq-title">{{ equipment.name }}</div>
-        <div class="reserve-eq-meta">
-            {% if equipment.category %}
-                {{ equipment.category.name }} ·
-            {% endif %}
-            {% if equipment.brand or equipment.model %}
-                {{ equipment.brand }} {{ equipment.model }}
-            {% endif %}
-        </div>
-        <div class="reserve-eq-media mt-2">
-            {% if equipment.photo %}
-                <img src="{{ equipment.photo.url }}" alt="{{ equipment.name }}">
-            {% else %}
-                <span class="text-light" style="font-size:0.85rem;">
-                    Aucune image disponible
-                </span>
-            {% endif %}
-        </div>
-        {% if equipment.accessories_included %}
-            <p class="mt-3" style="font-size:0.85rem;color:#4b5563;">
-                <strong>Accessoires inclus :</strong><br>
-                {{ equipment.accessories_included }}
-            </p>
-        {% endif %}
+<section class="page-hero page-hero-light">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item"><a href="{% url 'studio:user_equipment_list' %}">Matériel</a></li><li class="breadcrumb-item"><a href="{% url 'studio:user_equipment_detail' equipment.pk %}">{{ equipment.name }}</a></li><li class="breadcrumb-item active" aria-current="page">Réservation</li></ol></nav>
+        <h1>Réserver ce matériel</h1>
+        <p>Indiquez la période souhaitée. Votre demande sera validée par notre équipe avant confirmation.</p>
     </div>
+</section>
 
-    <div class="reserve-form-card">
-        <h2 class="h5 mb-3">Réserver ce matériel</h2>
-        <p class="text-muted" style="font-size:0.86rem;">
-            Choisissez la date et l'heure de début et de fin de la réservation.
-            La demande sera d'abord validée par notre équipe.
-        </p>
-
-        <form method="post" novalidate>
-            {% csrf_token %}
-            <div class="mb-2">
-                <label for="{{ form.start_datetime.id_for_label }}" class="form-label">
-                    Date et heure de début
-                </label>
-                {{ form.start_datetime }}
-                {% if form.start_datetime.errors %}
-                    <div class="text-danger small">{{ form.start_datetime.errors }}</div>
-                {% endif %}
-            </div>
-            <div class="mb-3">
-                <label for="{{ form.end_datetime.id_for_label }}" class="form-label">
-                    Date et heure de fin
-                </label>
-                {{ form.end_datetime }}
-                {% if form.end_datetime.errors %}
-                    <div class="text-danger small">{{ form.end_datetime.errors }}</div>
-                {% endif %}
-            </div>
-
-            {% if form.non_field_errors %}
-                <div class="alert alert-danger">
-                    {{ form.non_field_errors }}
+<section class="section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="ol-card ol-card-body p-lg-5">
+                    <form method="post" class="ol-form" novalidate>
+                        {% csrf_token %}
+                        {% include "partials/form_errors.html" %}
+                        <section class="ol-form-section">
+                            <h2 class="ol-form-section-title"><span class="step">1</span> Période de location</h2>
+                            <p class="ol-form-section-desc">Date et heure de retrait puis de retour du matériel.</p>
+                            <div class="row g-3">
+                                <div class="col-md-6">{% include "partials/field.html" with field=form.start_datetime %}</div>
+                                <div class="col-md-6">{% include "partials/field.html" with field=form.end_datetime %}</div>
+                            </div>
+                        </section>
+                        <div class="ol-form-actions">
+                            <a href="{% url 'studio:user_equipment_detail' equipment.pk %}" class="btn btn-light">Annuler</a>
+                            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Envoyer la demande</button>
+                        </div>
+                    </form>
                 </div>
-            {% endif %}
-
-            <button type="submit" class="btn btn-primary">
-                Envoyer la demande de réservation
-            </button>
-        </form>
+            </div>
+            <div class="col-lg-4">
+                <aside class="ol-card ol-media-card" aria-label="Matériel réservé">
+                    <div class="ol-media">
+                        {% if equipment.photo %}
+                        <img src="{{ equipment.photo.url }}" alt="{{ equipment.name }}">
+                        {% else %}
+                        <div class="ol-media-placeholder"><i class="fa-solid fa-camera" aria-hidden="true"></i></div>
+                        {% endif %}
+                    </div>
+                    <div class="ol-card-body">
+                        <h2 class="ol-card-title h6">{{ equipment.name }}</h2>
+                        <p class="ol-card-text mb-2">{% if equipment.category %}{{ equipment.category.name }}{% if equipment.brand or equipment.model %} · {% endif %}{% endif %}{{ equipment.brand }} {{ equipment.model }}</p>
+                        {% if equipment.accessories_included %}
+                        <h3 class="small-caps text-muted mt-2 mb-1">Accessoires inclus</h3>
+                        <p class="small mb-0">{{ equipment.accessories_included|linebreaksbr }}</p>
+                        {% endif %}
+                    </div>
+                </aside>
+                <p class="small text-muted mt-3 mb-0"><i class="fa-solid fa-circle-info me-1" aria-hidden="true"></i>Vous suivrez l'état de votre demande dans <a href="{% url 'studio:user_reservations_list' %}">Mes réservations</a>.</p>
+            </div>
+        </div>
     </div>
-</div>
-
+</section>
 {% endblock %}

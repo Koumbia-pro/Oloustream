@@ -1,17 +1,20 @@
-<!doctype html>
-<html lang="fr">
-  <body style="font-family: Arial, sans-serif; line-height: 1.5;">
-    <h2>Confirmation de candidature</h2>
-    <p>Bonjour <strong>{{ full_name }}</strong>,</p>
-    <p>
-      Nous confirmons la réception de votre candidature pour l’offre :
-      <strong>{{ offer.title }}</strong>.
-    </p>
-    <p>Notre équipe reviendra vers vous si votre profil correspond.</p>
-    <p style="margin-top: 24px;">
-      Merci,<br>
-      <strong>Oloustream</strong><br>
-      <a href="https://www.oloustream.com">www.oloustream.com</a>
-    </p>
-  </body>
-</html>
+{% extends "emails/_base_email.html" %}
+{% block title %}Confirmation de candidature{% endblock %}
+{% block preheader %}Nous avons bien reçu votre candidature{% if offer %} pour « {{ offer.title }} »{% endif %}.{% endblock %}
+{% block content %}
+<h1 style="margin:0 0 16px;font-size:20px;line-height:28px;color:#0F172A;">Confirmation de votre candidature</h1>
+<p style="margin:0 0 16px;">Bonjour {{ full_name }},</p>
+<p style="margin:0 0 20px;">Nous confirmons la bonne réception de votre candidature{% if offer %} pour l'offre :{% else %}.{% endif %}</p>
+{% if offer %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;margin:0 0 20px;">
+<tr><td style="padding:16px 20px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:22px;color:#334155;">
+<strong style="color:#0F172A;font-size:16px;">{{ offer.title }}</strong>
+{% if offer.location or offer.get_contract_type_display %}<br>
+{% if offer.get_contract_type_display %}{{ offer.get_contract_type_display }}{% endif %}{% if offer.location and offer.get_contract_type_display %} · {% endif %}{{ offer.location }}{% endif %}
+</td></tr>
+</table>
+{% endif %}
+<p style="margin:0 0 16px;">Notre équipe étudie chaque dossier avec attention. Si votre profil correspond à nos besoins, nous vous contacterons pour la suite du processus de recrutement.</p>
+<p style="margin:0;">Merci de l'intérêt que vous portez à Oloustream.<br>
+L'équipe Oloustream</p>
+{% endblock %}

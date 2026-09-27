@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Mentions légales — Oloustream{% endblock %}
+{% block meta_description %}Mentions légales du site Oloustream : éditeur, hébergeur, propriété intellectuelle et responsabilité.{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item active" aria-current="page">Mentions légales</li></ol></nav>
+        <h1>Mentions légales</h1>
+        <p>Informations relatives à l'éditeur et à l'hébergeur du site {{ SITE.name }}.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-8">
+                <article class="prose">
+                    <h2 class="mt-0">1. Éditeur du site</h2>
+                    <dl class="ol-meta">
+                        <dt>Raison sociale</dt><dd>{{ SITE.name }} S.A.S.</dd>
+                        <dt>Siège social</dt><dd>{% for line in SITE.address_lines %}{{ line }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</dd>
+                        <dt>RCCM</dt><dd>[à compléter]</dd>
+                        <dt>IFU</dt><dd>[à compléter]</dd>
+                        <dt>Directeur de la publication</dt><dd>[à compléter]</dd>
+                        <dt>Email</dt><dd><a href="mailto:{{ SITE.email }}">{{ SITE.email }}</a></dd>
+                        <dt>Téléphone</dt><dd><a href="tel:{{ SITE.phone_link }}">{{ SITE.phone }}</a> · <a href="tel:{{ SITE.phone_2_link }}">{{ SITE.phone_2 }}</a></dd>
+                    </dl>
+
+                    <h2>2. Hébergement</h2>
+                    <dl class="ol-meta">
+                        <dt>Hébergeur</dt><dd>O2Switch</dd>
+                        <dt>Adresse</dt><dd>Chemin des Pardiaux<br>63000 Clermont-Ferrand, France</dd>
+                        <dt>Site web</dt><dd><a href="https://www.o2switch.fr" target="_blank" rel="noopener noreferrer">www.o2switch.fr</a></dd>
+                    </dl>
+
+                    <h2>3. Objet du site</h2>
+                    <p>
+                        Le site {{ SITE.name }} présente les activités de la société (location de studios, live streaming,
+                        captation et production audiovisuelle, location de matériel, formations) et permet aux utilisateurs
+                        de créer un compte, d'effectuer des réservations, de demander un devis, de postuler à des offres
+                        d'emploi ou de rejoindre le programme partenaires.
+                    </p>
+
+                    <h2>4. Conditions d'utilisation</h2>
+                    <p>
+                        L'utilisation du site implique l'acceptation pleine et entière des présentes mentions. L'utilisateur
+                        s'engage à fournir des informations exactes lors de la création de son compte et de ses demandes,
+                        à préserver la confidentialité de ses identifiants et à ne pas utiliser le site à des fins illicites.
+                        {{ SITE.name }} se réserve le droit de suspendre un compte en cas d'usage abusif.
+                    </p>
+                    <p>
+                        Les réservations et prestations sont confirmées par l'équipe {{ SITE.name }} ; les conditions
+                        tarifaires et modalités particulières sont précisées dans le devis ou la confirmation adressée au client.
+                    </p>
+
+                    <h2>5. Propriété intellectuelle</h2>
+                    <p>
+                        L'ensemble des éléments du site (textes, logos, marques, photographies, vidéos, graphismes, mise en page)
+                        est la propriété exclusive de {{ SITE.name }} S.A.S. ou de ses partenaires, et est protégé par les
+                        lois relatives à la propriété intellectuelle. Toute reproduction, représentation, modification ou
+                        diffusion, totale ou partielle, sans autorisation écrite préalable est interdite.
+                    </p>
+                    <p>
+                        Les logos des clients et partenaires présentés sur le site restent la propriété de leurs titulaires
+                        respectifs et sont reproduits avec leur accord à titre de référence.
+                    </p>
+
+                    <h2>6. Responsabilité</h2>
+                    <p>
+                        {{ SITE.name }} s'efforce d'assurer l'exactitude et la mise à jour des informations diffusées sur le site,
+                        sans pouvoir en garantir l'exhaustivité. Les informations (tarifs, disponibilités, programmes de formation)
+                        sont données à titre indicatif et peuvent évoluer. {{ SITE.name }} ne saurait être tenue responsable
+                        des interruptions du site, d'éventuels dysfonctionnements techniques ou des dommages résultant de
+                        l'utilisation du site.
+                    </p>
+                    <p>
+                        Le site peut contenir des liens vers des sites tiers (YouTube, réseaux sociaux, WhatsApp).
+                        {{ SITE.name }} n'exerce aucun contrôle sur leur contenu et décline toute responsabilité à leur égard.
+                    </p>
+
+                    <h2>7. Données personnelles et cookies</h2>
+                    <p>
+                        Le traitement des données personnelles collectées sur le site est décrit dans notre
+                        <a href="{% url 'core:privacy' %}">politique de confidentialité</a>. Le site n'utilise que des cookies
+                        techniques nécessaires à son fonctionnement (session et sécurité des formulaires).
+                    </p>
+
+                    <h2>8. Droit applicable</h2>
+                    <p>
+                        Les présentes mentions sont régies par le droit burkinabè. En cas de litige, et à défaut de résolution
+                        amiable, les tribunaux compétents de Ouagadougou seront seuls compétents.
+                    </p>
+
+                    <p class="text-muted small mt-5 mb-0">Dernière mise à jour : septembre 2026.</p>
+                </article>
+            </div>
+            <div class="col-lg-4">
+                <div class="ol-card ol-card-body side-sticky">
+                    <h2 class="h6 mb-2">Une question ?</h2>
+                    <p class="small text-muted">Pour toute question relative au site ou à ces mentions, contactez-nous.</p>
+                    <div class="d-grid gap-2">
+                        <a href="mailto:{{ SITE.email }}" class="btn btn-light btn-sm"><i class="fa-solid fa-envelope"></i> {{ SITE.email }}</a>
+                        <a href="{% url 'core:contact' %}" class="btn btn-primary btn-sm">Formulaire de contact</a>
+                        <a href="{% url 'core:privacy' %}" class="link-arrow mt-2">Politique de confidentialité <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

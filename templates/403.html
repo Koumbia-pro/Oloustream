@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Accès refusé — Oloustream{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="ol-empty py-5" style="max-width:560px;margin:0 auto">
+            <div class="ol-empty-icon" style="width:72px;height:72px;font-size:1.75rem"><i class="fa-solid fa-lock"></i></div>
+            <p class="small-caps text-red mb-2">Erreur 403</p>
+            <h1 class="h2">Accès refusé</h1>
+            <p class="mb-4">Vous n'avez pas l'autorisation d'accéder à cette page. Si vous pensez qu'il s'agit d'une erreur, contactez l'équipe Oloustream.</p>
+            <div class="d-flex justify-content-center flex-wrap gap-2">
+                <a href="{% url 'core:home' %}" class="btn btn-primary"><i class="fa-solid fa-house"></i> Retour à l'accueil</a>
+                <a href="{% url 'core:contact' %}" class="btn btn-light">Nous contacter</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

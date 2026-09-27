@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Mes paiements — Espace partenaire Oloustream{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero-light">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'partners:dashboard' %}">Espace partenaire</a></li><li class="breadcrumb-item active" aria-current="page">Paiements</li></ol></nav>
+        <h1>Historique des paiements</h1>
+        <p>Les commissions qui vous ont été versées par Oloustream.</p>
+    </div>
+</section>
+
+<section class="section-sm">
+    <div class="container">
+        <div class="account-layout">
+            {% include "partners/_partner_nav.html" %}
+
+            <div class="d-grid gap-4">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="ol-card ol-stat h-100">
+                            <div class="ol-stat-icon is-green"><i class="fa-solid fa-circle-check"></i></div>
+                            <div><div class="ol-stat-value">{{ total_paid|floatformat:0|intcomma }}</div><div class="ol-stat-label">Total perçu (FCFA)</div></div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="ol-card ol-stat h-100">
+                            <div class="ol-stat-icon is-gold"><i class="fa-solid fa-hourglass-half"></i></div>
+                            <div><div class="ol-stat-value">{{ pending_commission|floatformat:0|intcomma }}</div><div class="ol-stat-label">Commission restant à percevoir (FCFA)</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ol-card">
+                    {% if payments %}
+                    <div class="ol-table-wrap">
+                        <table class="ol-table">
+                            <thead>
+                                <tr><th>Date</th><th>Montant</th><th>Méthode</th><th>Référence</th><th>Contrats</th><th class="cell-actions">Reçu</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in payments %}
+                                <tr>
+                                    <td class="text-nowrap">{{ payment.paid_at|date:"d/m/Y" }}</td>
+                                    <td class="text-nowrap"><span class="fw-semibold text-ink">{{ payment.amount|floatformat:0|intcomma }} FCFA</span>{% if payment.notes %}<div class="cell-sub">{{ payment.notes|truncatechars:60 }}</div>{% endif %}</td>
+                                    <td>{{ payment.get_payment_method_display }}</td>
+                                    <td>{{ payment.reference|default:"—" }}</td>
+                                    <td>
+                                        {% for contract in payment.contracts.all %}
+                                        <a href="{% url 'partners:contract_detail' contract.pk %}" class="d-block">{{ contract.client_name|truncatechars:28 }}</a>
+                                        {% empty %}<span class="text-muted">—</span>{% endfor %}
+                                    </td>
+                                    <td class="cell-actions">
+                                        {% if payment.receipt %}
+                                        <a href="{% url 'core:protected_file' 'recu' payment.pk %}" class="btn btn-light btn-sm" target="_blank" rel="noopener"><i class="fa-solid fa-download"></i> Reçu</a>
+                                        {% else %}<span class="text-muted">—</span>{% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if payments.paginator.num_pages > 1 %}
+                    <div class="ol-card-footer">{% include "partials/pagination.html" with page_obj=payments %}</div>
+                    {% endif %}
+                    {% else %}
+                    <div class="ol-empty">
+                        <div class="ol-empty-icon"><i class="fa-solid fa-money-bill-transfer"></i></div>
+                        <h3>Aucun paiement pour le moment</h3>
+                        <p class="mb-3">Vos commissions sont versées une fois vos contrats validés.</p>
+                        <a href="{% url 'partners:contracts_list' %}" class="btn btn-light btn-sm">Voir mes contrats</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

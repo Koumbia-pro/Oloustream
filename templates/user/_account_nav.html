@@ -1,0 +1,28 @@
+{% comment %}
+Navigation de l'espace client.
+Usage : {% include "user/_account_nav.html" with active="profile" %}
+Valeurs de « active » : profile, reservations, chat, notifications
+{% endcomment %}
+<nav class="ol-card account-nav" aria-label="Mon compte">
+    <div class="who">
+        {% if user.avatar %}
+        <img src="{{ user.avatar.url }}" alt="" class="ol-avatar">
+        {% else %}
+        <span class="ol-avatar" aria-hidden="true">{{ user.first_name|default:user.username|slice:":1"|upper }}</span>
+        {% endif %}
+        <div style="min-width:0">
+            <strong class="text-truncate">{{ user.get_full_name|default:user.username }}</strong>
+            <small class="d-block text-truncate">{{ user.email }}</small>
+        </div>
+    </div>
+    <a href="{% url 'accounts:profile' %}" class="{% if active == 'profile' %}active{% endif %}" {% if active == 'profile' %}aria-current="page"{% endif %}><i class="fa-regular fa-user"></i> Mon profil</a>
+    <a href="{% url 'studio:user_reservations_list' %}" class="{% if active == 'reservations' %}active{% endif %}" {% if active == 'reservations' %}aria-current="page"{% endif %}><i class="fa-regular fa-calendar-check"></i> Mes réservations</a>
+    <a href="{% url 'messaging:user_chat' %}" class="{% if active == 'chat' %}active{% endif %}" {% if active == 'chat' %}aria-current="page"{% endif %}><i class="fa-regular fa-comments"></i> Messagerie</a>
+    <a href="{% url 'notifications:list' %}" class="{% if active == 'notifications' %}active{% endif %}" {% if active == 'notifications' %}aria-current="page"{% endif %}><i class="fa-regular fa-bell"></i> Notifications</a>
+    {% if user.business_partner %}
+    <a href="{% url 'partners:dashboard' %}"><i class="fa-solid fa-handshake"></i> Espace partenaire</a>
+    {% endif %}
+    {% if user.is_staff %}
+    <a href="{% url 'dashboard:index' %}"><i class="fa-solid fa-gauge-high"></i> Tableau de bord</a>
+    {% endif %}
+</nav>

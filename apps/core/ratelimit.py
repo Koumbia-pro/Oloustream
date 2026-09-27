@@ -3,9 +3,7 @@ from django.core.cache import cache
 
 
 def client_ip(request):
-    forwarded = request.META.get("HTTP_X_FORWARDED_FOR", "")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
+    # REMOTE_ADDR uniquement : l'en-tête X-Forwarded-For peut être falsifié par le client.
     return request.META.get("REMOTE_ADDR", "")
 
 

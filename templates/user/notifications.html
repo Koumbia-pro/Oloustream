@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications — Oloustream{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero-light">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item"><a href="{% url 'accounts:profile' %}">Mon compte</a></li><li class="breadcrumb-item active" aria-current="page">Notifications</li></ol></nav>
+        <h1>Notifications</h1>
+        <p>Suivez les mises à jour de vos réservations, messages et paiements.</p>
+    </div>
+</section>
+
+<section class="section-sm">
+    <div class="container">
+        <div class="account-layout">
+            {% include "user/_account_nav.html" with active="notifications" %}
+
+            <div class="ol-card">
+                <div class="ol-card-header flex-wrap">
+                    <nav class="ol-tabs mb-0 border-0" aria-label="Filtrer les notifications">
+                        <a href="{% url 'notifications:list' %}" class="{% if filter_status != 'unread' %}active{% endif %}" {% if filter_status != 'unread' %}aria-current="page"{% endif %}>Toutes <span class="text-muted fw-normal">({{ total_count }})</span></a>
+                        <a href="{% url 'notifications:list' %}?status=unread" class="{% if filter_status == 'unread' %}active{% endif %}" {% if filter_status == 'unread' %}aria-current="page"{% endif %}>Non lues <span class="text-muted fw-normal">({{ unread_count }})</span></a>
+                    </nav>
+                    {% if unread_count %}
+                    <form method="post" action="{% url 'notifications:mark_all_read' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-light btn-sm"><i class="fa-solid fa-check-double"></i> Tout marquer comme lu</button>
+                    </form>
+                    {% endif %}
+                </div>
+
+                {% if page_obj.object_list %}
+                <ul class="list-unstyled mb-0">
+                    {% for n in page_obj %}
+                    <li class="border-bottom{% if not n.is_read %} bg-surface{% endif %}">
+                        <a href="{% url 'notifications:mark_read' n.id %}" class="d-flex gap-3 p-3 px-md-4 text-decoration-none">
+                            <span class="ol-stat-icon {% if n.notification_type == 'MESSAGE_RECEIVED' %}is-blue{% elif n.notification_type == 'PAYMENT_STATUS' %}is-green{% elif n.notification_type == 'RESERVATION_CREATED' or n.notification_type == 'RESERVATION_STATUS_CHANGED' %}is-gold{% else %}is-slate{% endif %} flex-shrink-0" aria-hidden="true">
+                                <i class="fa-solid {% if n.notification_type == 'MESSAGE_RECEIVED' %}fa-comment-dots{% elif n.notification_type == 'PAYMENT_STATUS' %}fa-money-bill-wave{% elif n.notification_type == 'RESERVATION_CREATED' or n.notification_type == 'RESERVATION_STATUS_CHANGED' %}fa-calendar-check{% else %}fa-bell{% endif %}"></i>
+                            </span>
+                            <span class="flex-grow-1" style="min-width:0">
+                                <span class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                                    <strong class="text-ink">{{ n.title }}</strong>
+                                    {% if not n.is_read %}<span class="ol-badge ol-badge-red">Nouveau</span>{% endif %}
+                                </span>
+                                <span class="d-block text-muted small">{{ n.message|truncatechars:220 }}</span>
+                                <span class="d-block small text-muted mt-1">
+                                    {{ n.get_notification_type_display }} · <time datetime="{{ n.created_at|date:'c' }}">{{ n.created_at|date:"d/m/Y H:i" }}</time>
+                                </span>
+                            </span>
+                            <i class="fa-solid fa-chevron-right text-muted small align-self-center" aria-hidden="true"></i>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% if page_obj.paginator.num_pages > 1 %}
+                <div class="ol-card-footer">
+                    {% if filter_status == 'unread' %}
+                    {% include "partials/pagination.html" with page_obj=page_obj querystring="status=unread" %}
+                    {% else %}
+                    {% include "partials/pagination.html" with page_obj=page_obj %}
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="ol-empty">
+                    <div class="ol-empty-icon"><i class="fa-regular fa-bell"></i></div>
+                    {% if filter_status == 'unread' %}
+                    <h3>Aucune notification non lue</h3>
+                    <p class="mb-3">Vous êtes à jour.</p>
+                    <a href="{% url 'notifications:list' %}" class="btn btn-light btn-sm">Voir toutes les notifications</a>
+                    {% else %}
+                    <h3>Aucune notification</h3>
+                    <p class="mb-3">Vous serez informé ici de l'avancement de vos réservations et des réponses de notre équipe.</p>
+                    <a href="{% url 'studio:user_studio_list' %}" class="btn btn-primary btn-sm">Réserver un studio</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

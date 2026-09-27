@@ -256,6 +256,10 @@ img { max-width: 100%; }
 }
 .ol-media-card .ol-card-actions { margin-top: auto; display: flex; gap: .5rem; flex-wrap: wrap; }
 
+/* Variante logo (références clients) */
+.ol-media-card .ol-media.is-logo { background: var(--ol-white); border-bottom: 1px solid var(--ol-border); }
+.ol-media-card .ol-media.is-logo img { object-fit: contain; padding: 1.25rem; }
+
 /* Liste clé/valeur (fiches détail) */
 .ol-meta {
     display: grid;
@@ -332,13 +336,13 @@ img { max-width: 100%; }
 .ol-badge-gold { background: var(--ol-gold-50); color: var(--ol-gold); }
 
 /* Statuts métier : réservations, candidatures, contrats, paiements… */
-.status-pending, .status-PENDING, .status-draft, .status-new, .status-NEW, .status-submitted {
+.status-pending, .status-PENDING, .status-draft, .status-DRAFT, .status-new, .status-NEW, .status-submitted {
     background: var(--ol-warning-50); color: var(--ol-warning);
 }
 .status-confirmed, .status-CONFIRMED, .status-approved, .status-APPROVED, .status-active,
 .status-ACTIVE, .status-validated, .status-paid, .status-PAID, .status-completed,
 .status-COMPLETED, .status-AVAILABLE, .status-available, .status-accepted, .status-ACCEPTED,
-.status-HIRED, .status-hired {
+.status-HIRED, .status-hired, .status-PUBLISHED, .status-published, .status-DONE {
     background: var(--ol-success-50); color: var(--ol-success);
 }
 .status-rejected, .status-REJECTED, .status-cancelled, .status-CANCELLED, .status-inactive,
@@ -346,10 +350,10 @@ img { max-width: 100%; }
     background: var(--ol-danger-50); color: var(--ol-danger);
 }
 .status-in_review, .status-IN_REVIEW, .status-reviewing, .status-REVIEWING, .status-IN_USE,
-.status-sent, .status-INTERVIEW, .status-interview, .status-SHORTLISTED, .status-shortlisted {
+.status-sent, .status-IN_PROGRESS, .status-signed, .status-in_progress, .status-INTERVIEW, .status-interview, .status-SHORTLISTED, .status-shortlisted {
     background: var(--ol-info-50); color: var(--ol-info);
 }
-.status-MAINTENANCE, .status-maintenance, .status-RETIRED, .status-expired, .status-closed {
+.status-MAINTENANCE, .status-maintenance, .status-RETIRED, .status-expired, .status-closed, .status-CLOSED {
     background: var(--ol-surface-2); color: var(--ol-muted);
 }
 
@@ -594,6 +598,18 @@ ul.errorlist { list-style: none; padding: 0; margin: .25rem 0 0; }
     background: var(--ol-white); border: 2px solid var(--ol-red);
 }
 .ol-timeline .when { font-size: .75rem; color: var(--ol-muted); }
+
+/* ---------- Chat ---------- */
+.chat-box { display: flex; flex-direction: column; height: min(70vh, 640px); }
+.chat-scroll { flex: 1; overflow-y: auto; padding: 1.5rem; background: var(--ol-surface); display: flex; flex-direction: column; gap: .75rem; }
+.chat-msg { max-width: 75%; }
+.chat-msg .bubble { padding: .75rem 1rem; border-radius: 14px; font-size: .9375rem; white-space: pre-wrap; word-break: break-word; }
+.chat-msg .meta { font-size: .75rem; color: var(--ol-muted); margin-top: .25rem; }
+.chat-msg.them .bubble { background: var(--ol-white); border: 1px solid var(--ol-border); border-bottom-left-radius: 4px; color: var(--ol-ink); }
+.chat-msg.me { align-self: flex-end; text-align: right; }
+.chat-msg.me .bubble { background: var(--ol-ink); color: #fff; border-bottom-right-radius: 4px; text-align: left; }
+.chat-compose { display: flex; gap: .5rem; padding: 1rem; border-top: 1px solid var(--ol-border); background: var(--ol-white); border-radius: 0 0 var(--ol-radius) var(--ol-radius); }
+.chat-compose textarea { resize: none; }
 
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }

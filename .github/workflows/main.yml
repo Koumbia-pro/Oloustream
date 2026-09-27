@@ -1,22 +1,59 @@
-name: Déploiement O2Switch
+name: Tests et déploiement O2Switch
 
 on:
   push:
     branches:
       - main
+  pull_request:
   workflow_dispatch:
 
 jobs:
-  deploy:
-    name: Déployer via FTP
+  test:
+    name: Vérifications et tests
     runs-on: ubuntu-latest
-    
     steps:
-      # 1. Récupérer le code
       - name: Checkout du code
         uses: actions/checkout@v4
-      
-      # 2. Déployer via FTP
+
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Dépendances système (MySQL client)
+        run: sudo apt-get update && sudo apt-get install -y default-libmysqlclient-dev pkg-config
+
+      - name: Dépendances Python
+        run: pip install -r requirements.txt
+
+      - name: Vérifications Django
+        env:
+          DJANGO_DEBUG: "True"
+        run: |
+          python manage.py check
+          python manage.py makemigrations --check --dry-run
+
+      - name: Vérifications de sécurité (configuration production)
+        env:
+          DJANGO_ENV: production
+          DJANGO_SECRET_KEY: ci-only-${{ github.sha }}-ci-only-key-with-enough-length-and-entropy
+        run: python manage.py check --deploy --fail-level ERROR
+
+      - name: Tests automatisés
+        env:
+          DJANGO_DEBUG: "True"
+        run: python manage.py test apps
+
+  deploy:
+    name: Déployer via FTP
+    needs: test
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
       - name: Déployer sur O2Switch
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -38,4 +75,6 @@ jobs:
             **/staticfiles/**
             **/media/**
             **/.github/**
-            **/logs/*.log
+            **/logs/**
+            **/.cache/**
+            arborescence.txt

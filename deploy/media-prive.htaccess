@@ -1,0 +1,12 @@
+# À copier (sous le nom ".htaccess") dans CHACUN de ces dossiers sur le serveur :
+#   media/partners/documents/    (pièces d'identité des candidats partenaires)
+#   media/partners/contracts/    (contrats apportés par les partenaires)
+#   media/partners/payments/     (reçus de paiement des commissions)
+#   media/contracts/             (contrats des employés)
+#   media/job_applications/cv/   (CV des candidats)
+#
+# Ces fichiers restent téléchargeables depuis le site via /fichiers/…,
+# qui vérifie que la personne connectée a le droit de les voir.
+# Ne PAS mettre ce fichier dans media/partners/ lui-même : les logos des références clients y sont publics.
+
+Require all denied
