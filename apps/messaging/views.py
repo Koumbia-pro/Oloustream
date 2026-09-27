@@ -1,42 +1,42 @@
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404, redirect
-from django.db.models import Q, Max
+from django.db.models import Count, Exists, Max, OuterRef, Q, Subquery
+from django.shortcuts import get_object_or_404, redirect, render
 
-from .models import Conversation, Message
-from apps.notifications.models import Notification, NotificationTypeChoices
 from apps.notifications.services import notify_new_chat_message
 
+from .models import Conversation, Message
 
-# ---------- CHAT UTILISATEUR (HTTP) ----------
+MAX_MESSAGE_LENGTH = 4000
+
+
+def _post_message(request, conversation):
+    content = request.POST.get('message', '').strip()[:MAX_MESSAGE_LENGTH]
+    if content:
+        msg = Message.objects.create(conversation=conversation, sender=request.user, content=content)
+        notify_new_chat_message(msg)
+
+
+# ---------- CHAT UTILISATEUR ----------
 
 @login_required
 def user_chat_view(request):
-    """
-    Un utilisateur a UNE conversation unique.
-    Envoi du message via HTTP (POST) + notification pour l'admin.
-    """
+    """Chaque utilisateur dispose d'une conversation unique avec l'équipe Oloustream."""
     conversation = Conversation.objects.filter(user=request.user).order_by('created_at').first()
     if conversation is None:
         conversation = Conversation.objects.create(user=request.user)
 
     if request.method == "POST":
-        content = request.POST.get('message', '').strip()
-        if content:
-            msg = Message.objects.create(
-                conversation=conversation,
-                sender=request.user,
-                content=content
-            )
-            # Notification de chat (vers admin)
-            notify_new_chat_message(msg)
+        _post_message(request, conversation)
         return redirect('messaging:user_chat')
 
-    messages_qs = conversation.messages.select_related('sender').order_by('sent_at')
+    # Les réponses de l'équipe sont marquées comme lues à l'ouverture
+    conversation.messages.filter(is_read=False).exclude(sender=request.user).update(is_read=True)
 
+    # NB : « chat_messages » et non « messages », qui est réservé au système de messages Django
     return render(request, "user/chat.html", {
         "conversation": conversation,
-        "messages": messages_qs,
+        "chat_messages": conversation.messages.select_related('sender').order_by('sent_at'),
     })
 
 
@@ -44,117 +44,62 @@ def user_chat_view(request):
 
 @staff_member_required
 def admin_conversation_list_view(request):
-    """
-    Liste des conversations avec :
-    - dernier message,
-    - badge non lus,
-    - recherche,
-    - filtre "avec non lus".
-    """
-    # Annoter la dernière date de message
+    last_message = Message.objects.filter(conversation=OuterRef('pk')).order_by('-sent_at')
+    unread_from_client = Message.objects.filter(
+        conversation=OuterRef('pk'), is_read=False, sender=OuterRef('user'),
+    )
     conversations = (
         Conversation.objects
         .select_related('user', 'admin')
-        .annotate(last_sent=Max('messages__sent_at'))
-        .order_by('-last_sent', '-created_at')
+        .annotate(
+            last_sent=Max('messages__sent_at'),
+            messages_count=Count('messages'),
+            last_content=Subquery(last_message.values('content')[:1]),
+            last_sender_id=Subquery(last_message.values('sender_id')[:1]),
+            has_unread=Exists(unread_from_client),
+        )
+        .filter(messages_count__gt=0)
+        .order_by('-last_sent')
     )
 
-    # Recherche sur client / dernier message
     q = request.GET.get('q', '').strip()
     if q:
         conversations = conversations.filter(
-            Q(user__username__icontains=q) |
-            Q(user__first_name__icontains=q) |
-            Q(user__last_name__icontains=q) |
-            Q(user__email__icontains=q) |
-            Q(messages__content__icontains=q)
+            Q(user__username__icontains=q) | Q(user__first_name__icontains=q)
+            | Q(user__last_name__icontains=q) | Q(user__email__icontains=q)
+            | Q(messages__content__icontains=q)
         ).distinct()
 
-    # Filtre "non lus"
     only_unread = request.GET.get('only_unread', '') == 'yes'
     if only_unread:
-        # au moins un message non lu pour l'admin
-        conversations = conversations.filter(
-            messages__is_read=False
-        ).exclude(messages__sender=request.user).distinct()
+        conversations = conversations.filter(has_unread=True)
 
-    # Construire des infos dérivées pour l’affichage
-    conv_data = []
-    for c in conversations:
-        last_msg = c.messages.select_related('sender').order_by('-sent_at').first()
-        has_unread = c.messages.filter(is_read=False).exclude(sender=request.user).exists()
-
-        conv_data.append({
-            "conversation": c,
-            "last_message": last_msg,
-            "has_unread": has_unread,
-        })
-
-    context = {
-        "conversations_data": conv_data,
+    conversations = list(conversations)
+    return render(request, "admin/messages/list.html", {
+        "conversations": conversations,
         "q": q,
         "only_unread": only_unread,
-        "unread_notifications_count": Notification.objects.filter(
-            user=request.user,
-            is_read=False
-        ).count(),
-        "unread_messages_count": Notification.objects.filter(
-            user=request.user,
-            notification_type=NotificationTypeChoices.MESSAGE_RECEIVED,
-            is_read=False
-        ).count(),
-    }
-    return render(request, "admin/messages/list.html", context)
+        "total_conversations": len(conversations),
+        "unread_conversations": sum(1 for c in conversations if c.has_unread),
+    })
 
 
 @staff_member_required
 def admin_conversation_chat_view(request, conversation_id):
-    """
-    Vue admin pour discuter dans une conversation donnée.
-    Envoi du message via HTTP + notification pour l’utilisateur.
-    Marque les messages reçus comme lus.
-    """
-    conversation = get_object_or_404(
-        Conversation.objects.select_related('user', 'admin'),
-        pk=conversation_id
-    )
+    conversation = get_object_or_404(Conversation.objects.select_related('user', 'admin'), pk=conversation_id)
 
-    # Assigner automatiquement l'admin à la conversation si pas encore défini
-    if conversation.admin is None and request.user.is_staff:
+    if conversation.admin is None:
         conversation.admin = request.user
         conversation.save(update_fields=['admin'])
 
     if request.method == "POST":
-        content = request.POST.get('message', '').strip()
-        if content:
-            msg = Message.objects.create(
-                conversation=conversation,
-                sender=request.user,
-                content=content
-            )
-            # Notification de chat (vers l'utilisateur)
-            notify_new_chat_message(msg)
+        _post_message(request, conversation)
         return redirect('messaging:admin_conversation_chat', conversation_id=conversation.id)
 
-    # Marquer comme lus les messages non lus envoyés par l’autre (l’utilisateur)
-    Message.objects.filter(
-        conversation=conversation,
-        is_read=False
-    ).exclude(sender=request.user).update(is_read=True)
+    conversation.messages.filter(is_read=False).exclude(sender=request.user).update(is_read=True)
 
-    messages_qs = conversation.messages.select_related('sender').order_by('sent_at')
-
-    context = {
+    return render(request, "admin/messages/chat.html", {
         "conversation": conversation,
-        "messages": messages_qs,
-        "unread_notifications_count": Notification.objects.filter(
-            user=request.user,
-            is_read=False
-        ).count(),
-        "unread_messages_count": Notification.objects.filter(
-            user=request.user,
-            notification_type=NotificationTypeChoices.MESSAGE_RECEIVED,
-            is_read=False
-        ).count(),
-    }
-    return render(request, "admin/messages/chat.html", context)
+        "chat_messages": conversation.messages.select_related('sender').order_by('sent_at'),
+        "client_reservations": conversation.user.reservations.order_by('-created_at')[:5],
+    })

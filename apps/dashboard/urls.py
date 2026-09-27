@@ -1,64 +1,7 @@
 from django.urls import path
-from . import views
-from .views import (
-    dashboard_view,
-    # Employés
-    employee_list_view,
-    employee_create_view,
-    employee_update_view,
-    employee_detail_view,
-    employee_delete_view,
-    employee_change_password_view,
-    employee_export_excel_view, 
-    # Équipements
-    equipment_list_view,
-    equipment_create_view,
-    equipment_update_view,
-    equipment_delete_view,
-    equipment_detail_view, 
-    equipment_export_excel_view,
-    # Réservations
-    reservation_list_view,
-    reservation_detail_view,
-    reservation_export_excel_view,
-    reservation_quick_cancel_view,
-    reservation_set_status_view, 
-    # Services
-    service_list_view,
-    service_create_view,
-    service_update_view,
-    service_delete_view,
-    service_export_excel_view,
-    service_detail_view,
-    # Offres
-    offer_list_view,
-    offer_create_view,
-    offer_update_view,
-    offer_delete_view,
-    offer_export_excel_view,
-    offer_detail_view,
-    # Formations
-    training_list_view,
-    training_create_view,
-    training_update_view,
-    training_delete_view,
-    training_detail_view,
-    training_export_excel_view,
-    # Partenaires
-    partner_list_view,
-    partner_create_view,
-    partner_update_view,
-    partner_delete_view,
-    partner_detail_view,
-    partner_export_excel_view,
-    # Studios
-    studio_list_view,
-    studio_create_view,
-    studio_detail_view,
-    studio_update_view,
-    studio_delete_view,
 
-)
+from . import views
+from .views import *  # noqa: F401,F403
 
 app_name = "dashboard"
 
@@ -134,6 +77,12 @@ urlpatterns = [
     path('studios/<int:studio_id>/edit/', studio_update_view, name='studios_edit'),
     path('studios/<int:studio_id>/delete/', studio_delete_view, name='studios_delete'),
 
+
+    # Demandes de contact / devis
+    path('contacts/', contacts_list_view, name='contacts_list'),
+    path('contacts/<int:pk>/', contact_detail_view, name='contact_detail'),
+    path('contacts/<int:pk>/update/', contact_update_view, name='contact_update'),
+    path('contacts/<int:pk>/delete/', contact_delete_view, name='contact_delete'),
 
     # Candidatures
     path('partenaires/candidatures/', 

@@ -1,0 +1,14 @@
+{% if messages %}
+<div class="flash-stack" role="status" aria-live="polite">
+    {% for message in messages %}
+    {% with level=message.tags|default:"info" %}
+    <div class="alert alert-{% if level == 'error' %}danger{% else %}{{ level }}{% endif %} alert-dismissible fade show"
+         {% if level == 'success' or level == 'info' %}data-autohide{% endif %}>
+        <i class="fa-solid {% if level == 'success' %}fa-circle-check{% elif level == 'error' %}fa-circle-exclamation{% elif level == 'warning' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %}"></i>
+        <div class="flex-grow-1">{{ message }}</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+    </div>
+    {% endwith %}
+    {% endfor %}
+</div>
+{% endif %}

@@ -1,8 +1,11 @@
 from django import forms
-from .models import PartnerApplication, Contract
+
+from apps.core.validators import UploadValidationMixin, validate_document
+
+from .models import Contract, PartnerApplication, Region
 
 
-class PartnerApplicationForm(forms.ModelForm):
+class PartnerApplicationForm(UploadValidationMixin, forms.ModelForm):
     """Formulaire de candidature partenaire"""
     
     terms_accepted = forms.BooleanField(
@@ -84,12 +87,30 @@ class PartnerApplicationForm(forms.ModelForm):
                 'rows': 3,
                 'placeholder': 'Nom, fonction, contact (facultatif)'
             }),
+            'id_document': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': '.pdf,.jpg,.jpeg,.png,.webp',
+            }),
         }
 
+    upload_rules = {'id_document': validate_document}
 
-class ContractSubmissionForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['city'].queryset = Region.objects.filter(active=True)
+        self.fields['email'].required = True
+        for name in ('id_type', 'city', 'network_strength', 'availability'):
+            self.fields[name].widget.attrs['class'] = 'form-select'
+
+    def clean_email(self):
+        return self.cleaned_data['email'].strip().lower()
+
+
+class ContractSubmissionForm(UploadValidationMixin, forms.ModelForm):
     """Formulaire pour qu'un partenaire soumette un contrat"""
-    
+
+    upload_rules = {'contract_file': validate_document}
+
     class Meta:
         model = Contract
         fields = [
@@ -99,5 +120,11 @@ class ContractSubmissionForm(forms.ModelForm):
         ]
         
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 4}),
+            'client_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du client ou de la structure'}),
+            'client_type': forms.Select(attrs={'class': 'form-select'}),
+            'client_contact': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Téléphone ou email du client'}),
+            'service_type': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex : live streaming, captation, formation…'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'contract_amount': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'step': 1000}),
+            'contract_file': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.pdf,.jpg,.jpeg,.png,.webp'}),
         }

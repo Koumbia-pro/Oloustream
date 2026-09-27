@@ -2,7 +2,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.admin.views.decorators import staff_member_required
 
 from .forms import (
     ReservationCreateForm,
@@ -13,14 +12,20 @@ from .models import Reservation, Equipment, Studio
 from .choices import ReservationStatus, EquipmentStatus
 from .services import log_reservation_status_change
 from apps.notifications.services import notify_admins_new_reservation
-from apps.notifications.emailing import send_reservation_received_email, send_reservation_status_changed_email
+from apps.notifications.emailing import send_reservation_received_email
+from apps.core.utils import send_safely
 
 
 # ---------- RÉSERVATIONS UTILISATEUR ----------
 
 @login_required
 def user_reservation_list_view(request):
-    reservations = Reservation.objects.filter(user=request.user).order_by("-created_at")
+    reservations = (
+        Reservation.objects.filter(user=request.user)
+        .select_related("studio", "service")
+        .prefetch_related("equipments")
+        .order_by("-created_at")
+    )
     return render(request, "user/reservations/list.html", {"reservations": reservations})
 
 
@@ -45,6 +50,7 @@ def user_reservation_create_view(request):
             )
 
             notify_admins_new_reservation(reservation)
+            send_safely(send_reservation_received_email, request, reservation)
 
             messages.success(request, "Votre réservation a été créée et est en attente de validation.")
             return redirect("studio:user_reservations_list")
@@ -56,18 +62,16 @@ def user_reservation_create_view(request):
 
 # ---------- MATÉRIEL ----------
 
-@login_required
 def user_equipment_list_view(request):
     equipments = Equipment.objects.filter(
         is_available_for_rent=True,
         status=EquipmentStatus.AVAILABLE,
-    ).select_related("category")
+    ).select_related("category").order_by("category__name", "name")
     return render(request, "user/equipments/list.html", {"equipments": equipments})
 
 
-@login_required
 def user_equipment_detail_view(request, pk):
-    equipment = get_object_or_404(Equipment, pk=pk)
+    equipment = get_object_or_404(Equipment.objects.select_related("category"), pk=pk, is_available_for_rent=True)
     return render(request, "user/equipments/detail.html", {"equipment": equipment})
 
 
@@ -80,7 +84,7 @@ def user_equipment_reserve_view(request, pk):
         return redirect("studio:user_equipment_detail", pk=equipment.pk)
 
     if request.method == "POST":
-        form = EquipmentReservationForm(request.POST)
+        form = EquipmentReservationForm(request.POST, equipment=equipment)
         if form.is_valid():
             reservation = form.save(commit=False)
             reservation.user = request.user
@@ -98,11 +102,12 @@ def user_equipment_reserve_view(request, pk):
             )
 
             notify_admins_new_reservation(reservation)
+            send_safely(send_reservation_received_email, request, reservation)
 
             messages.success(request, "Votre demande de réservation a été envoyée et est en attente de validation.")
             return redirect("studio:user_reservations_list")
     else:
-        form = EquipmentReservationForm()
+        form = EquipmentReservationForm(equipment=equipment)
 
     return render(request, "user/equipments/reserve.html", {"equipment": equipment, "form": form})
 
@@ -114,10 +119,10 @@ def user_studio_list_view(request):
     return render(request, "user/studios/list.html", {"studios": studios})
 
 
-@login_required
 def user_studio_detail_view(request, pk):
     studio = get_object_or_404(Studio, pk=pk, is_active=True)
-    return render(request, "user/studios/detail.html", {"studio": studio})
+    others = Studio.objects.filter(is_active=True).exclude(pk=studio.pk)[:3]
+    return render(request, "user/studios/detail.html", {"studio": studio, "other_studios": others})
 
 
 @login_required
@@ -155,7 +160,7 @@ def user_project_reservation_create_view(request, studio_pk=None):
             )
 
             notify_admins_new_reservation(reservation)
-            send_reservation_received_email(request, reservation)
+            send_safely(send_reservation_received_email, request, reservation)
 
             messages.success(
                 request,
@@ -164,42 +169,13 @@ def user_project_reservation_create_view(request, studio_pk=None):
             )
             return redirect("studio:user_reservations_list")
     else:
-        form = ProjectReservationForm(studio=studio)
+        initial = {}
+        if request.user.is_authenticated:
+            initial = {
+                "contact_full_name": request.user.get_full_name(),
+                "contact_email": request.user.email,
+                "contact_phone": getattr(request.user, "phone", ""),
+            }
+        form = ProjectReservationForm(studio=studio, initial=initial)
 
     return render(request, "user/reservations/project_create.html", {"form": form, "studio": studio})
-
-
-# ---------- ADMIN (STAFF) ----------
-
-@staff_member_required
-def admin_reservation_list_view(request):
-    reservations = (
-        Reservation.objects
-        .select_related("user", "studio", "service")
-        .order_by("-created_at")
-    )
-
-    status_filter = request.GET.get("status")
-    if status_filter:
-        reservations = reservations.filter(status=status_filter)
-
-    return render(
-        request,
-        "admin/reservations/list.html",
-        {"reservations": reservations, "status_filter": status_filter},
-    )
-
-
-@staff_member_required
-def admin_reservation_detail_view(request, pk):
-    reservation = get_object_or_404(
-        Reservation.objects.select_related("user", "studio", "service"),
-        pk=pk,
-    )
-    history = reservation.status_history.select_related("changed_by").all()
-
-    return render(
-        request,
-        "admin/reservations/detail.html",
-        {"reservation": reservation, "history": history},
-    )

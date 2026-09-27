@@ -1,4 +1,8 @@
 from django import forms
+
+from apps.core.forms import BootstrapFormMixin
+from apps.core.validators import UploadValidationMixin, validate_image, validate_pdf
+
 from .models import (
     Service, Offer, Training, Partner, OfferApplication,
     ServiceCategory, TrainingCategory,
@@ -7,7 +11,9 @@ from .models import (
 )
 
 
-class ServiceForm(forms.ModelForm):
+class ServiceForm(BootstrapFormMixin, UploadValidationMixin, forms.ModelForm):
+    upload_rules = {'image': validate_image}
+
     class Meta:
         model = Service
         fields = (
@@ -38,7 +44,7 @@ class ServiceForm(forms.ModelForm):
             'internal_notes': forms.Textarea(attrs={'rows': 3}),
         }
 
-class OfferForm(forms.ModelForm):
+class OfferForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Offer
         fields = (
@@ -75,7 +81,9 @@ class OfferForm(forms.ModelForm):
         return cleaned_data
 
 
-class TrainingForm(forms.ModelForm):
+class TrainingForm(BootstrapFormMixin, UploadValidationMixin, forms.ModelForm):
+    upload_rules = {'image': validate_image, 'brochure': validate_pdf}
+
     class Meta:
         model = Training
         fields = (
@@ -119,7 +127,9 @@ class TrainingForm(forms.ModelForm):
         }
 
 
-class PartnerForm(forms.ModelForm):
+class PartnerForm(BootstrapFormMixin, UploadValidationMixin, forms.ModelForm):
+    upload_rules = {'logo': validate_image}
+
     class Meta:
         model = Partner
         fields = (
@@ -138,7 +148,7 @@ class PartnerForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={'rows': 3}),
         }
 
-class OfferApplicationForm(forms.ModelForm):
+class OfferApplicationForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = OfferApplication
         fields = ('message',)
@@ -147,15 +157,12 @@ class OfferApplicationForm(forms.ModelForm):
         }
 
 
-from django import forms
-from .models import (
-    JobOffer, JobApplication,
-    ContractTypeChoices, EducationLevelChoices,
-    JobApplicationStatusChoices
-)
+from .models import JobApplication, JobOffer
 
 
-class JobOfferForm(forms.ModelForm):
+class JobOfferForm(BootstrapFormMixin, UploadValidationMixin, forms.ModelForm):
+    upload_rules = {'poster': validate_image}
+
     class Meta:
         model = JobOffer
         fields = (
@@ -176,24 +183,23 @@ class JobOfferForm(forms.ModelForm):
         }
 
 
-class JobApplicationForm(forms.ModelForm):
+class JobApplicationForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = JobApplication
         fields = ("full_name", "email", "phone", "portfolio_url", "cv", "cover_letter")
-        widgets = {"cover_letter": forms.Textarea(attrs={"rows": 5})}
+        widgets = {
+            "cover_letter": forms.Textarea(attrs={"rows": 5}),
+            "cv": forms.FileInput(attrs={"accept": ".pdf,application/pdf"}),
+        }
 
     def clean_cv(self):
         f = self.cleaned_data.get("cv")
-        if not f:
-            return f
-        if not f.name.lower().endswith(".pdf"):
-            raise forms.ValidationError("Le CV doit être un fichier PDF.")
-        if f.size > 5 * 1024 * 1024:
-            raise forms.ValidationError("Le CV ne doit pas dépasser 5MB.")
+        if f and hasattr(f, "content_type"):
+            validate_pdf(f, max_size_mb=5)
         return f
 
 
-class JobApplicationStatusForm(forms.ModelForm):
+class JobApplicationStatusForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = JobApplication
         fields = ("status", "internal_note")

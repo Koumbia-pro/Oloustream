@@ -5,11 +5,27 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-from .choices import ReservationStatus
+from apps.core.forms import BootstrapFormMixin
+from apps.core.validators import UploadValidationMixin, validate_image, validate_pdf
+
 from .models import Equipment, Reservation, Studio
+from .services import overlapping_reservations
 
 
-class EquipmentForm(forms.ModelForm):
+def _validate_slot(start, end, *, studio=None, equipments=None, exclude_pk=None):
+    if not (start and end):
+        return
+    if start >= end:
+        raise ValidationError("La date/heure de début doit être avant la date/heure de fin.")
+    if start < timezone.now():
+        raise ValidationError("La date/heure de début doit être dans le futur.")
+    if overlapping_reservations(start, end, studio=studio, equipments=equipments, exclude_pk=exclude_pk).exists():
+        raise ValidationError("Ce créneau n'est plus disponible. Merci de choisir un autre horaire.")
+
+
+class EquipmentForm(BootstrapFormMixin, UploadValidationMixin, forms.ModelForm):
+    upload_rules = {'photo': validate_image, 'manual': validate_pdf}
+
     class Meta:
         model = Equipment
         fields = (
@@ -44,7 +60,7 @@ class EquipmentForm(forms.ModelForm):
         }
 
 
-class ReservationAdminForm(forms.ModelForm):
+class ReservationAdminForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Reservation
         fields = (
@@ -65,7 +81,7 @@ class ReservationAdminForm(forms.ModelForm):
         }
 
 
-class ReservationCreateForm(forms.ModelForm):
+class ReservationCreateForm(BootstrapFormMixin, forms.ModelForm):
     """
     Formulaire générique (studio + équipements + service)
     """
@@ -85,22 +101,22 @@ class ReservationCreateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["studio"].queryset = Studio.objects.filter(is_active=True)
         self.fields["equipments"].queryset = Equipment.objects.filter(is_available_for_rent=True)
+        self.fields["service"].queryset = self.fields["service"].queryset.filter(is_active=True)
 
     def clean(self):
         cleaned_data = super().clean()
-        start = cleaned_data.get("start_datetime")
-        end = cleaned_data.get("end_datetime")
-
-        if start and end:
-            if start >= end:
-                raise ValidationError("La date/heure de début doit être avant la date/heure de fin.")
-            if start < timezone.now():
-                raise ValidationError("La date/heure de début doit être dans le futur.")
+        equipments = list(cleaned_data.get("equipments") or [])
+        studio = cleaned_data.get("studio")
+        if not studio and not equipments and not cleaned_data.get("service"):
+            raise ValidationError("Choisissez au moins un studio, un service ou du matériel.")
+        _validate_slot(cleaned_data.get("start_datetime"), cleaned_data.get("end_datetime"),
+                       studio=studio, equipments=equipments, exclude_pk=self.instance.pk)
         return cleaned_data
 
 
-class EquipmentReservationForm(forms.ModelForm):
+class EquipmentReservationForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Reservation
         fields = ("start_datetime", "end_datetime")
@@ -109,72 +125,20 @@ class EquipmentReservationForm(forms.ModelForm):
             "end_datetime": forms.DateTimeInput(attrs={"type": "datetime-local"}),
         }
 
-    def clean(self):
-        cleaned_data = super().clean()
-        start = cleaned_data.get("start_datetime")
-        end = cleaned_data.get("end_datetime")
-
-        if start and end:
-            if start >= end:
-                raise ValidationError("La date/heure de début doit être avant la date/heure de fin.")
-            if start < timezone.now():
-                raise ValidationError("La date/heure de début doit être dans le futur.")
-        return cleaned_data
-
-
-class StudioReservationForm(forms.ModelForm):
-    EVENT_TYPE_CHOICES = [
-        ("", "Choisir..."),
-        ("RECORDING", "Enregistrement"),
-        ("REHEARSAL", "Répétition"),
-        ("PODCAST", "Podcast"),
-        ("DJ_SET", "DJ / Live mix"),
-        ("OTHER", "Autre"),
-    ]
-
-    event_type = forms.ChoiceField(
-        label="Type d’événement",
-        choices=EVENT_TYPE_CHOICES,
-        required=False,
-        help_text="Ex : enregistrement, répétition, podcast, DJ set…",
-    )
-
-    guests_count = forms.IntegerField(
-        label="Nombre de personnes",
-        min_value=1,
-        required=False,
-        help_text="Nombre approximatif de personnes présentes dans le studio.",
-    )
-
-    message = forms.CharField(
-        label="Message / détails du projet",
-        widget=forms.Textarea(attrs={"rows": 3}),
-        required=False,
-        help_text="Optionnel : précisez le type d'événement, besoins spécifiques, nombre de caméras, etc.",
-    )
-
-    class Meta:
-        model = Reservation
-        fields = ("start_datetime", "end_datetime", "event_type", "guests_count", "message")
-        widgets = {
-            "start_datetime": forms.DateTimeInput(attrs={"type": "datetime-local"}),
-            "end_datetime": forms.DateTimeInput(attrs={"type": "datetime-local"}),
-        }
+    def __init__(self, *args, equipment=None, **kwargs):
+        self.equipment = equipment
+        super().__init__(*args, **kwargs)
 
     def clean(self):
         cleaned_data = super().clean()
-        start = cleaned_data.get("start_datetime")
-        end = cleaned_data.get("end_datetime")
-
-        if start and end:
-            if start >= end:
-                raise ValidationError("La date/heure de début doit être avant la date/heure de fin.")
-            if start < timezone.now():
-                raise ValidationError("La date/heure de début doit être dans le futur.")
+        _validate_slot(cleaned_data.get("start_datetime"), cleaned_data.get("end_datetime"),
+                       equipments=[self.equipment] if self.equipment else None)
         return cleaned_data
 
 
-class StudioForm(forms.ModelForm):
+class StudioForm(BootstrapFormMixin, UploadValidationMixin, forms.ModelForm):
+    upload_rules = {'image': validate_image}
+
     class Meta:
         model = Studio
         fields = (
@@ -229,7 +193,7 @@ class StudioForm(forms.ModelForm):
 # NOUVEAU FORMULAIRE PROJET (CORRIGÉ)
 # Date + heure début + heure fin (obligatoire)
 # ==============================
-class ProjectReservationForm(forms.ModelForm):
+class ProjectReservationForm(BootstrapFormMixin, forms.ModelForm):
     reservation_date = forms.DateField(
         label="Date",
         widget=forms.DateInput(attrs={"type": "date", "class": "form-control"})
@@ -350,12 +314,7 @@ class ProjectReservationForm(forms.ModelForm):
             raise ValidationError("La réservation doit être dans le futur.")
 
         # Anti double réservation studio (PENDING + CONFIRMED)
-        conflict = Reservation.objects.filter(
-            studio=studio,
-            status__in=[ReservationStatus.PENDING, ReservationStatus.CONFIRMED],
-            start_datetime__lt=end_dt,
-            end_datetime__gt=start_dt,
-        ).exclude(pk=self.instance.pk).exists()
+        conflict = overlapping_reservations(start_dt, end_dt, studio=studio, exclude_pk=self.instance.pk).exists()
 
         if conflict:
             raise ValidationError("Ce créneau est déjà réservé pour ce studio. Choisissez un autre horaire.")

@@ -1,6 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
-from apps.business_partners.models import Partner
+from django.conf import settings
 from django.core.validators import MinValueValidator
 from decimal import Decimal
 
@@ -62,8 +61,8 @@ class Invoice(models.Model):
     
     # Relations
     template = models.ForeignKey(InvoiceTemplate, on_delete=models.PROTECT)
-    client = models.ForeignKey(Partner, on_delete=models.PROTECT, related_name='invoices')
-    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    client = models.ForeignKey('services_app.Partner', on_delete=models.PROTECT, related_name='invoices')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     
     # Informations client (snapshot au moment de la facture)
     client_name = models.CharField(max_length=200)

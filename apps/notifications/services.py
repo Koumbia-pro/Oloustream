@@ -1,10 +1,10 @@
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
-from django.conf import settings
+
+from apps.accounts.models import User
+from apps.messaging.models import Message
 
 from .models import Notification, NotificationTypeChoices
-from apps.accounts.models import User
-from apps.messaging.models import Conversation, Message
 
 UserModel = User  # pour clarté
 
@@ -66,12 +66,14 @@ def notify_admins_new_reservation(reservation):
     """
     Notifie les admins / staff d'une nouvelle réservation créée par un utilisateur.
     """
-    admins = UserModel.objects.filter(is_staff=True)
+    admins = UserModel.objects.filter(is_staff=True, is_active=True)
     title = f"Nouvelle réservation #{reservation.id}"
+    target = reservation.studio.name if reservation.studio else (
+        reservation.service.name if reservation.service else "matériel"
+    )
     message = (
-        f"L'utilisateur {reservation.user.get_full_name() or reservation.user.username} "
-        f"a créé une nouvelle réservation pour le service "
-        f"'{reservation.service.name if reservation.service else '-'}'."
+        f"{reservation.user.get_full_name() or reservation.user.username} "
+        f"a envoyé une demande de réservation ({target})."
     )
     link = f"/dashboard/reservations/{reservation.id}/"
 
@@ -92,11 +94,7 @@ def notify_user_reservation_status_change(reservation, old_status, new_status, a
     Notifie le client qu'un statut de réservation a changé.
     """
     title = f"Mise à jour de votre réservation #{reservation.id}"
-    message = (
-        f"Le statut de votre réservation pour le service "
-        f"'{reservation.service.name if reservation.service else '-'}' a changé : "
-        f"'{old_status}' → '{new_status}'."
-    )
+    message = f"Le statut de votre réservation #{reservation.id} est passé de « {old_status} » à « {new_status} »."
     link = f"/studio/my/reservations/"
 
     create_notification(
@@ -108,9 +106,6 @@ def notify_user_reservation_status_change(reservation, old_status, new_status, a
         target_object=reservation,
         link=link,
     )
-
-
-from apps.messaging.models import Conversation, Message
 
 
 def notify_new_chat_message(message: Message):
@@ -196,3 +191,38 @@ def notify_users_new_training_session(training, users_qs):
             target_object=training,
             link=link,
         )
+
+# ==== PARTENAIRES D'AFFAIRES ==== #
+
+def notify_new_contract_submission(contract):
+    """Prévient l'équipe qu'un partenaire a soumis un contrat à valider."""
+    partner = contract.partner
+    for admin in UserModel.objects.filter(is_staff=True, is_active=True):
+        create_notification(
+            user=admin,
+            actor=partner.user,
+            title=f"Nouveau contrat à valider ({partner.partner_code})",
+            message=f"{contract.client_name} — {contract.contract_amount:,.0f} FCFA".replace(",", " "),
+            notification_type=NotificationTypeChoices.GENERAL,
+            target_object=contract,
+            link=f"/dashboard/partenaires/contrats/{contract.pk}/",
+        )
+
+
+def notify_contract_validated(contract):
+    """Notifie le partenaire (in-app + email) qu'un contrat est validé."""
+    from apps.core.utils import send_safely
+    from .emailing import send_contract_validated_email
+
+    create_notification(
+        user=contract.partner.user,
+        title="Contrat validé",
+        message=(
+            f"Votre contrat avec {contract.client_name} a été validé. "
+            f"Commission : {contract.commission_amount:,.0f} FCFA."
+        ).replace(",", " "),
+        notification_type=NotificationTypeChoices.GENERAL,
+        target_object=contract,
+        link=f"/partenaires/contrats/{contract.pk}/",
+    )
+    send_safely(send_contract_validated_email, contract)

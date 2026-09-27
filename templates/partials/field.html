@@ -1,0 +1,20 @@
+{% comment %}
+Rendu standard d'un champ de formulaire Django.
+Usage : {% include "partials/field.html" with field=form.email %}
+Options : help="texte" (remplace l'aide du modèle), col="col-md-6" (ignoré ici, à placer sur le parent)
+{% endcomment %}
+{% if field.is_hidden %}{{ field }}{% else %}
+<div class="ol-field{% if field.field.required %} required{% endif %}{% if field.errors %} has-error{% endif %}">
+    {% if field.field.widget.input_type == "checkbox" %}
+    <div class="form-check">
+        {{ field }}
+        <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+    </div>
+    {% else %}
+    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+    {{ field }}
+    {% endif %}
+    {% if help %}<div class="form-text">{{ help }}</div>{% elif field.help_text %}<div class="form-text">{{ field.help_text|safe }}</div>{% endif %}
+    {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+</div>
+{% endif %}

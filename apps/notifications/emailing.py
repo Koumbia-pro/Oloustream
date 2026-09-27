@@ -1,141 +1,145 @@
+"""
+Envoi des emails transactionnels d'Oloustream.
+
+Chaque fonction peut lever une exception SMTP : les vues les appellent
+via `apps.core.utils.send_safely` pour ne jamais bloquer l'utilisateur.
+"""
 from django.conf import settings
+from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.html import strip_tags
+from django.utils.http import urlsafe_base64_encode
 
 
-def send_reservation_received_email(request, reservation):
-    user = reservation.user
-    if not user.email:
-        return
+def _absolute(path):
+    return f"{settings.SITE_URL}{path}"
 
-    subject = f"Oloustream – Demande reçue (Réservation #{reservation.id})"
-    html = render_to_string("emails/reservation_received.html", {
-        "reservation_id": reservation.id,
-        "user_name": user.get_full_name() or user.username,
-        "start": reservation.start_datetime,
-        "end": reservation.end_datetime,
-        "studio_name": reservation.studio.name if reservation.studio else "",
-        "status_label": reservation.get_status_display(),
-    })
 
+def _send(subject, template, context, to, text_body=None):
+    recipients = [email for email in to if email]
+    if not recipients:
+        return False
+    context = {"site_url": settings.SITE_URL, **context}
+    html = render_to_string(template, context)
     msg = EmailMultiAlternatives(
         subject=subject,
-        body="Votre demande de réservation a bien été reçue.",
+        body=text_body or strip_tags(html),
         from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[user.email],
+        to=recipients,
     )
     msg.attach_alternative(html, "text/html")
     msg.send(fail_silently=False)
+    return True
+
+
+# ---------- Réservations ----------
+
+def send_reservation_received_email(request, reservation):
+    user = reservation.user
+    return _send(
+        f"Oloustream – Demande reçue (réservation #{reservation.id})",
+        "emails/reservation_received.html",
+        {
+            "reservation_id": reservation.id,
+            "user_name": user.get_full_name() or user.username,
+            "start": reservation.start_datetime,
+            "end": reservation.end_datetime,
+            "studio_name": reservation.studio.name if reservation.studio else "",
+            "status_label": reservation.get_status_display(),
+            "reservations_url": _absolute(reverse("studio:user_reservations_list")),
+        },
+        [reservation.contact_email or user.email],
+        text_body="Votre demande de réservation a bien été reçue. Notre équipe revient vers vous rapidement.",
+    )
 
 
 def send_reservation_status_changed_email(request, reservation, old_status_label, new_status_label, admin_note=""):
     user = reservation.user
-    if not user.email:
-        return
-
-    subject = f"Oloustream – Mise à jour réservation #{reservation.id} ({new_status_label})"
-    user_reservations_url = request.build_absolute_uri(reverse("studio:user_reservations_list"))
-
-    html = render_to_string("emails/reservation_status_changed.html", {
-        "reservation_id": reservation.id,
-        "user_name": user.get_full_name() or user.username,
-        "old_status": old_status_label,
-        "new_status": new_status_label,
-        "start": reservation.start_datetime,
-        "end": reservation.end_datetime,
-        "studio_name": reservation.studio.name if reservation.studio else "",
-        "admin_note": admin_note,
-        "user_reservations_url": user_reservations_url,
-    })
-
-    msg = EmailMultiAlternatives(
-        subject=subject,
-        body=f"Statut mis à jour : {old_status_label} -> {new_status_label}",
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[user.email],
+    return _send(
+        f"Oloustream – Réservation #{reservation.id} : {new_status_label}",
+        "emails/reservation_status_changed.html",
+        {
+            "reservation_id": reservation.id,
+            "user_name": user.get_full_name() or user.username,
+            "old_status": old_status_label,
+            "new_status": new_status_label,
+            "start": reservation.start_datetime,
+            "end": reservation.end_datetime,
+            "studio_name": reservation.studio.name if reservation.studio else "",
+            "admin_note": admin_note,
+            "user_reservations_url": _absolute(reverse("studio:user_reservations_list")),
+        },
+        [reservation.contact_email or user.email],
+        text_body=f"Statut de votre réservation #{reservation.id} : {old_status_label} → {new_status_label}.",
     )
-    msg.attach_alternative(html, "text/html")
-    msg.send(fail_silently=False)
 
 
+# ---------- Recrutement ----------
+
+def send_job_application_confirmation(application):
+    return _send(
+        "Oloustream – Confirmation de votre candidature",
+        "emails/job_application_confirmation.html",
+        {"full_name": application.full_name, "offer": application.offer},
+        [application.email],
+    )
 
 
-# AJOUTER ces fonctions dans ton fichier emailing.py existant
-#==================================================== pour la partie business partners ====================================
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.conf import settings
-
+# ---------- Partenaires d'affaires ----------
 
 def send_partner_application_notification(application):
-    """Notifie l'équipe d'une nouvelle candidature partenaire"""
-    subject = f"🤝 Nouvelle candidature partenaire - {application.full_name}"
-    
-    message = f"""
-    Nouvelle candidature partenaire reçue :
-    
-    Nom : {application.full_name}
-    Ville : {application.city}
-    Téléphone : {application.phone}
-    Réseau : {application.get_network_strength_display()}
-    
-    👉 Voir la candidature : {settings.SITE_URL}/admin/partners/applications/{application.id}/
-    """
-    
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [settings.ADMIN_EMAIL],  # À définir dans settings.py
-        fail_silently=True,
+    """Notifie l'équipe d'une nouvelle candidature partenaire."""
+    url = _absolute(reverse("dashboard:partner_application_detail", args=[application.id]))
+    msg = EmailMultiAlternatives(
+        subject=f"[Oloustream] Nouvelle candidature partenaire – {application.full_name}",
+        body=(
+            "Nouvelle candidature partenaire reçue :\n\n"
+            f"Nom : {application.full_name}\n"
+            f"Ville : {application.city or '-'}\n"
+            f"Téléphone : {application.phone}\n"
+            f"Email : {application.email or '-'}\n"
+            f"Réseau : {application.get_network_strength_display()}\n\n"
+            f"Voir la candidature : {url}\n"
+        ),
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[settings.ADMIN_EMAIL],
+    )
+    msg.send(fail_silently=False)
+    return True
+
+
+def send_partner_activation_email(partner):
+    """Envoie au nouveau partenaire un lien sécurisé pour définir son mot de passe."""
+    user = partner.user
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = default_token_generator.make_token(user)
+    return _send(
+        f"Bienvenue chez Oloustream – Votre code partenaire : {partner.partner_code}",
+        "emails/partner_activation.html",
+        {
+            "partner": partner,
+            "username": user.username,
+            "set_password_url": _absolute(reverse("password_reset_confirm", args=[uid, token])),
+            "login_url": _absolute(reverse("accounts:login")),
+            "dashboard_url": _absolute(reverse("partners:dashboard")),
+        },
+        [user.email],
     )
 
 
-def send_partner_activation_email(partner, password):
-    """Envoie les identifiants au nouveau partenaire"""
-    subject = f"🎉 Bienvenue chez Oloustream - Votre code partenaire : {partner.partner_code}"
-    
-    context = {
-        'partner': partner,
-        'password': password,
-        'login_url': f"{settings.SITE_URL}/partners/login/",
-    }
-    
-    html_message = render_to_string('emails/partner_activation.html', context)
-    
-    send_mail(
-        subject,
-        f"Votre code partenaire : {partner.partner_code}\nMot de passe : {password}",
-        settings.DEFAULT_FROM_EMAIL,
-        [partner.user.email],
-        html_message=html_message,
-        fail_silently=False,
-    )
-
-
-def notify_contract_validated(contract):
-    """Notifie le partenaire qu'un contrat est validé"""
-    subject = f"✅ Contrat validé - Commission : {contract.commission_amount:,.0f} FCFA"
-    
-    message = f"""
-    Félicitations {contract.partner.user.get_full_name()} !
-    
-    Votre contrat a été validé :
-    
-    Client : {contract.client_name}
-    Montant : {contract.contract_amount:,.0f} FCFA
-    Commission : {contract.commission_amount:,.0f} FCFA ({contract.commission_rate}%)
-    
-    Votre commission sera versée prochainement.
-    
-    Merci pour votre collaboration !
-    """
-    
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [contract.partner.user.email],
-        fail_silently=True,
+def send_contract_validated_email(contract):
+    """Informe le partenaire qu'un de ses contrats est validé."""
+    partner_user = contract.partner.user
+    return _send(
+        f"Oloustream – Contrat validé : commission de {contract.commission_amount:,.0f} FCFA".replace(",", " "),
+        "emails/contract_validated.html",
+        {
+            "contract": contract,
+            "partner_name": partner_user.get_full_name() or partner_user.username,
+            "contract_url": _absolute(reverse("partners:contract_detail", args=[contract.pk])),
+        },
+        [partner_user.email],
     )

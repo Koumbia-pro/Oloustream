@@ -1,83 +1,65 @@
-import qrcode
+_UNITS = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf",
+          "dix", "onze", "douze", "treize", "quatorze", "quinze", "seize",
+          "dix-sept", "dix-huit", "dix-neuf"]
+_TENS = {2: "vingt", 3: "trente", 4: "quarante", 5: "cinquante", 6: "soixante"}
+
+
+def _below_100(n):
+    if n < 20:
+        return _UNITS[n]
+    ten, unit = divmod(n, 10)
+    if ten in (7, 9):  # 70-79 = soixante-dix…, 90-99 = quatre-vingt-dix…
+        base = "soixante" if ten == 7 else "quatre-vingt"
+        if ten == 7 and unit == 1:
+            return "soixante et onze"
+        return f"{base}-{_UNITS[10 + unit]}"
+    if ten == 8:
+        return "quatre-vingts" if unit == 0 else f"quatre-vingt-{_UNITS[unit]}"
+    word = _TENS[ten]
+    if unit == 0:
+        return word
+    if unit == 1:
+        return f"{word} et un"
+    return f"{word}-{_UNITS[unit]}"
+
+
+def _below_1000(n, final=True):
+    hundred, rest = divmod(n, 100)
+    parts = []
+    if hundred:
+        if hundred == 1:
+            parts.append("cent")
+        else:
+            # « cents » prend un s seulement s'il termine le nombre
+            parts.append(f"{_UNITS[hundred]} cent" + ("s" if rest == 0 and final else ""))
+    if rest:
+        word = _below_100(rest)
+        if not final and word == "quatre-vingts":
+            word = "quatre-vingt"
+        parts.append(word)
+    return " ".join(parts)
+
 
 def number_to_words_french(n):
-    """Convertit un nombre en lettres (français)"""
+    """Convertit un entier positif en lettres, selon l'orthographe française traditionnelle."""
+    n = int(n)
     if n == 0:
         return "zéro"
-    
-    units = ["", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf"]
-    teens = ["dix", "onze", "douze", "treize", "quatorze", "quinze", "seize", 
-             "dix-sept", "dix-huit", "dix-neuf"]
-    tens = ["", "dix", "vingt", "trente", "quarante", "cinquante", 
-            "soixante", "soixante-dix", "quatre-vingt", "quatre-vingt-dix"]
-    
-    def convert_hundreds(num):
-        result = ""
-        
-        # Centaines
-        hundred = num // 100
-        if hundred > 1:
-            result += units[hundred] + " cent"
-            if num % 100 == 0:
-                result += "s"
-        elif hundred == 1:
-            result += "cent"
-        
-        # Dizaines et unités
-        remainder = num % 100
-        if remainder >= 20:
-            ten = remainder // 10
-            unit = remainder % 10
-            if result:
-                result += " "
-            result += tens[ten]
-            if unit > 0:
-                if ten == 8:
-                    result += "-" + units[unit]
-                else:
-                    result += ("-" if ten else "") + units[unit]
-        elif remainder >= 10:
-            if result:
-                result += " "
-            result += teens[remainder - 10]
-        elif remainder > 0:
-            if result:
-                result += " "
-            result += units[remainder]
-        
-        return result
-    
-    def convert_group(num, scale):
-        if num == 0:
-            return ""
-        result = convert_hundreds(num)
-        if scale:
-            result += " " + scale
-            if num > 1 and scale != "mille":
-                result += "s"
-        return result
-    
-    # Groupes de milliers
-    if n < 1000:
-        return convert_hundreds(n)
-    elif n < 1000000:
-        thousands = n // 1000
-        hundreds = n % 1000
-        result = convert_group(thousands, "mille")
-        if hundreds:
-            result += " " + convert_hundreds(hundreds)
-        return result
-    elif n < 1000000000:
-        millions = n // 1000000
-        remainder = n % 1000000
-        result = convert_group(millions, "million")
-        if remainder >= 1000:
-            result += " " + convert_group(remainder // 1000, "mille")
-        if remainder % 1000:
-            result += " " + convert_hundreds(remainder % 1000)
-        return result
-    else:
-        return "Nombre trop grand"
+    if n < 0:
+        return "moins " + number_to_words_french(-n)
+
+    scales = [(10 ** 9, "milliard"), (10 ** 6, "million")]
+    parts = []
+    for value, name in scales:
+        count, n = divmod(n, value)
+        if count:
+            parts.append(f"{number_to_words_french(count)} {name}{'s' if count > 1 else ''}")
+    thousands, n = divmod(n, 1000)
+    if thousands:
+        parts.append("mille" if thousands == 1 else f"{_below_1000(thousands, final=False)} mille")
+    if n:
+        parts.append(_below_1000(n))
+    return " ".join(parts)
 
 
 def generate_qr_code(data):

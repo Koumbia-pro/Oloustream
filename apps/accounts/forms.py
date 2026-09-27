@@ -1,5 +1,8 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+
+from apps.core.validators import UploadValidationMixin, validate_document, validate_image
+
 from .models import (
     User,
     EmployeeProfile,
@@ -9,45 +12,130 @@ from .models import (
 )
 
 
+def _add_css(form):
+    """Ajoute les classes Bootstrap aux champs d'un formulaire."""
+    for field in form.fields.values():
+        widget = field.widget
+        if isinstance(widget, (forms.CheckboxInput, forms.RadioSelect, forms.CheckboxSelectMultiple)):
+            widget.attrs.setdefault("class", "form-check-input")
+        elif isinstance(widget, forms.Select):
+            widget.attrs.setdefault("class", "form-select")
+        else:
+            widget.attrs.setdefault("class", "form-control")
+
+
+class LoginForm(AuthenticationForm):
+    remember_me = forms.BooleanField(required=False, initial=True, label="Rester connecté")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].label = "Nom d'utilisateur ou email"
+        self.fields["username"].widget.attrs.update({"placeholder": "Votre identifiant", "autocomplete": "username"})
+        self.fields["password"].widget.attrs.update({"placeholder": "Votre mot de passe", "autocomplete": "current-password"})
+        _add_css(self)
+
+    def clean(self):
+        # Autorise la connexion avec l'adresse email
+        username = self.cleaned_data.get("username")
+        if username and "@" in username:
+            match = User.objects.filter(email__iexact=username).only("username").first()
+            if match:
+                self.cleaned_data["username"] = match.username
+        return super().clean()
+
+
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField(required=True, label="Email")
+    first_name = forms.CharField(required=True, label="Prénom", max_length=150)
+    last_name = forms.CharField(required=True, label="Nom", max_length=150)
+    accept_terms = forms.BooleanField(
+        required=True,
+        label="J'accepte les conditions d'utilisation et la politique de confidentialité",
+        error_messages={"required": "Vous devez accepter les conditions pour créer un compte."},
+    )
 
     class Meta:
         model = User
-        fields = (
-            "username",
-            "email",
-            "first_name",
-            "last_name",
-            "password1",
-            "password2",
-        )
+        fields = ("first_name", "last_name", "username", "email", "password1", "password2")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _add_css(self)
+
+    def clean_email(self):
+        email = self.cleaned_data["email"].strip().lower()
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError("Un compte existe déjà avec cet email.")
+        return email
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data["email"]
+        user.role = User.Role.CLIENT
+        if commit:
+            user.save()
+        return user
 
 
-class UserProfileForm(forms.ModelForm):
+class UserProfileForm(UploadValidationMixin, forms.ModelForm):
+    upload_rules = {"avatar": validate_image}
+
     class Meta:
         model = User
         fields = ("first_name", "last_name", "email", "phone", "avatar")
+        widgets = {"avatar": forms.FileInput()}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _add_css(self)
+
+    def clean_email(self):
+        email = self.cleaned_data["email"].strip().lower()
+        if email and User.objects.filter(email__iexact=email).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("Cet email est déjà utilisé par un autre compte.")
+        return email
 
 
 # ---------- FORMULAIRES EMPLOYÉS (ADMIN) ----------
 
-class EmployeeCreateForm(UserCreationForm):
+EMPLOYEE_ROLE_CHOICES = [
+    (User.Role.SUPERADMIN, "Super Administrateur"),
+    (User.Role.MANAGER, "Manager"),
+    (User.Role.TECHNICIAN, "Technicien"),
+    (User.Role.MODERATOR, "Modérateur"),
+]
+
+
+class EmployeeAccessMixin(UploadValidationMixin):
+    """
+    Restreint les champs sensibles selon la personne qui remplit le formulaire :
+    seul un super-utilisateur ou un Super Administrateur peut attribuer ce rôle.
+    """
+    upload_rules = {"contract_document": validate_document}
+
+    def __init__(self, *args, acting_user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.acting_user = acting_user
+        can_grant_superadmin = bool(acting_user) and (
+            acting_user.is_superuser or acting_user.role == User.Role.SUPERADMIN
+        )
+        if not can_grant_superadmin:
+            self.fields["role"].choices = [c for c in EMPLOYEE_ROLE_CHOICES if c[0] != User.Role.SUPERADMIN]
+        manager_qs = User.objects.filter(is_employee=True).order_by("first_name", "last_name")
+        if getattr(self.instance, "pk", None):
+            manager_qs = manager_qs.exclude(pk=self.instance.pk)
+        self.fields["manager"].queryset = manager_qs
+        _add_css(self)
+
+
+class EmployeeCreateForm(EmployeeAccessMixin, UserCreationForm):
     """
     Formulaire pour créer un employé depuis le dashboard admin.
     Gère User + EmployeeProfile.
     """
     email = forms.EmailField(required=True, label="Email")
 
-    role = forms.ChoiceField(
-        label="Rôle",
-        choices=[
-            (User.Role.SUPERADMIN, "Super Administrateur"),
-            (User.Role.MANAGER, "Manager"),
-            (User.Role.TECHNICIAN, "Technicien"),
-            (User.Role.MODERATOR, "Modérateur"),
-        ],
-    )
+    role = forms.ChoiceField(label="Rôle", choices=EMPLOYEE_ROLE_CHOICES)
     is_staff = forms.BooleanField(
         required=False,
         initial=True,
@@ -182,19 +270,11 @@ class EmployeeCreateForm(UserCreationForm):
     
 
 
-class EmployeeUpdateForm(forms.ModelForm):
+class EmployeeUpdateForm(EmployeeAccessMixin, forms.ModelForm):
     """
     Formulaire pour modifier un employé depuis le dashboard admin (User + EmployeeProfile).
     """
-    role = forms.ChoiceField(
-        label="Rôle",
-        choices=[
-            (User.Role.SUPERADMIN, "Super Administrateur"),
-            (User.Role.MANAGER, "Manager"),
-            (User.Role.TECHNICIAN, "Technicien"),
-            (User.Role.MODERATOR, "Modérateur"),
-        ],
-    )
+    role = forms.ChoiceField(label="Rôle", choices=EMPLOYEE_ROLE_CHOICES)
 
     # Champs du profil employé (mêmes que pour la création)
     gender = forms.ChoiceField(
@@ -300,7 +380,7 @@ class EmployeeUpdateForm(forms.ModelForm):
             self.fields['manager'].initial = profile.manager
 
     def save(self, commit=True):
-        user = super().save(commit=commit)
+        user = super().save(commit=True)
         # Récupérer ou créer le profil employé
         profile, _ = EmployeeProfile.objects.get_or_create(user=user)
         cd = self.cleaned_data
@@ -325,7 +405,5 @@ class EmployeeUpdateForm(forms.ModelForm):
         profile.contract_end_date = cd.get("contract_end_date")
         profile.manager = cd.get("manager")
 
-        if commit:
-            profile.save()
-
+        profile.save()
         return user

@@ -113,3 +113,9 @@ media/
 # **/migrations/**
 # !**/migrations
 # !**/migrations/__init__.py
+# Local
+.env
+logs/
+.cache/
+staticfiles/
+oloustream/info.py
