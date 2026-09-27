@@ -95,13 +95,12 @@ Oloustream/
 
 - **Python 3.11 ou plus récent** : `python3 --version`
 - **Git**
-- Sous **Linux (Ubuntu/Debian)**, le paquet `mysqlclient` a besoin de bibliothèques système :
-  ```bash
-  sudo apt update
-  sudo apt install -y python3-venv python3-dev default-libmysqlclient-dev build-essential pkg-config
-  ```
+- Sous **Linux (Ubuntu/Debian)** : `sudo apt install -y python3-venv`
 - Sous **Windows** : installer Python depuis python.org en cochant « Add Python to PATH ».
-  Si `mysqlclient` refuse de s'installer, voir la section [Problèmes fréquents](#12-problèmes-fréquents).
+
+> Les dépendances sont séparées en deux fichiers :
+> - `requirements.txt` : tout ce qu'il faut pour travailler **en local** (base SQLite, aucune installation MySQL nécessaire) ;
+> - `requirements-prod.txt` : la même chose **+ le pilote MySQL** (`mysqlclient`), utilisé seulement sur le serveur.
 
 ### Étape 2 — Récupérer le code
 
@@ -128,6 +127,10 @@ venv\Scripts\Activate.ps1
 
 Le début de la ligne de commande affiche alors `(venv)`. Il faut réactiver l'environnement
 (`source venv/bin/activate`) à chaque nouveau terminal.
+
+> Utiliser **un seul** environnement virtuel. Si VS Code en a créé un second (`.venv`),
+> choisir le même dans VS Code (`Ctrl+Maj+P` › « Python: Select Interpreter » › `./venv/bin/python`)
+> ou supprimer l'un des deux.
 
 ### Étape 4 — Installer les dépendances
 
@@ -297,7 +300,7 @@ Les fichiers `.env`, `media/`, `db.sqlite3`, `logs/` et `staticfiles/` ne sont j
    ```bash
    source /home/olba9744/virtualenv/oloustream/3.11/bin/activate
    cd /home/olba9744/oloustream
-   pip install -r requirements.txt
+   pip install -r requirements-prod.txt
    python manage.py migrate
    python manage.py collectstatic --noinput
    python manage.py check --deploy
@@ -390,15 +393,15 @@ DJANGO_DEBUG=True python manage.py test apps  # lancer les tests
 
 ## 12. Problèmes fréquents
 
-**`pip install` échoue sur `mysqlclient`**
-- Linux : installer les paquets de l'étape 1 (`default-libmysqlclient-dev pkg-config build-essential`).
-- Windows / en local seulement : MySQL n'est pas utilisé en local, on peut donc installer
-  tout le reste en excluant ce paquet :
-  ```bash
-  grep -v mysqlclient requirements.txt > requirements-local.txt
-  pip install -r requirements-local.txt
-  ```
-  (PowerShell : `Get-Content requirements.txt | Select-String -NotMatch mysqlclient | Set-Content requirements-local.txt`)
+**`pip install` échoue sur `mysqlclient` (« Can not find valid pkg-config name »)**
+→ En local, installer `requirements.txt` (sans MySQL), pas `requirements-prod.txt`.
+Si vous avez vraiment besoin de MySQL en local (Ubuntu) :
+`sudo apt install -y default-libmysqlclient-dev build-essential pkg-config python3-dev`.
+
+**`No module named 'django'`**
+→ L'environnement virtuel n'est pas activé (`source venv/bin/activate`), ou l'installation des
+dépendances s'est arrêtée sur une erreur : relancer `pip install -r requirements.txt` et vérifier
+qu'elle se termine par « Successfully installed ».
 
 **`ImproperlyConfigured: DJANGO_SECRET_KEY doit être défini en production`**
 → `DJANGO_ENV=production` est dans votre `.env` local. Le vider en local, ou ajouter la clé sur le serveur.

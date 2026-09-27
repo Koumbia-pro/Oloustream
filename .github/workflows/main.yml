@@ -25,7 +25,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y default-libmysqlclient-dev pkg-config
 
       - name: Dépendances Python
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-prod.txt
 
       - name: Vérifications Django
         env:

@@ -1,0 +1,4 @@
+# Dépendances de production (serveur O2Switch) : tout requirements.txt + le pilote MySQL.
+# Nécessite les bibliothèques système MySQL (déjà présentes sur O2Switch).
+-r requirements.txt
+mysqlclient==2.2.7

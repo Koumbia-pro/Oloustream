@@ -19,7 +19,6 @@ hyperlink==21.0.0
 idna==3.11
 incremental==24.7.2
 msgpack==1.1.2
-mysqlclient==2.2.7
 openpyxl==3.1.2
 packaging==25.0
 pillow==10.4.0
