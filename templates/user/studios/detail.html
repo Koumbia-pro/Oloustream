@@ -3,6 +3,7 @@
 
 {% block title %}{{ studio.name }} — Studios Oloustream{% endblock %}
 {% block meta_description %}{{ studio.get_studio_type_display }}{% if studio.city %} à {{ studio.city }}{% endif %} : {{ studio.description|default:"studio professionnel équipé, réservable avec accompagnement technique."|truncatechars:140 }}{% endblock %}
+{% block body_class %}studio-detail-page{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -11,6 +12,43 @@
     .studio-cover .ol-media-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--ol-subtle); font-size: 3rem; }
     .price-row { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: .625rem 0; border-bottom: 1px solid var(--ol-border); }
     .price-row:last-child { border-bottom: 0; }
+    .studio-detail-page .section,
+    .studio-detail-page .section-alt { color: #fff; }
+    body.site.studio-detail-page .page-hero p,
+    body.site.studio-detail-page .page-hero .breadcrumb,
+    body.site.studio-detail-page .page-hero .breadcrumb a,
+    body.site.studio-detail-page .ol-card .text-muted,
+    body.site.studio-detail-page .ol-card small.text-muted { color: #fff !important; }
+    body.site.studio-detail-page .ol-stat-value,
+    body.site.studio-detail-page .ol-stat-label { color: #fff !important; }
+    body.site.studio-detail-page .ol-stat-icon,
+    body.site.studio-detail-page .ol-stat-icon i { color: #0f172a !important; }
+    body.site.studio-detail-page .ol-badge.status-AVAILABLE,
+    body.site.studio-detail-page .ol-badge.status-available,
+    body.site.studio-detail-page .ol-badge.ol-badge-gold { color: #0f172a !important; }
+    .studio-detail-page .ol-card,
+    .studio-detail-page .ol-card p,
+    .studio-detail-page .ol-card small,
+    .studio-detail-page .ol-card span,
+    .studio-detail-page .ol-card li,
+    .studio-detail-page .ol-card dt,
+    .studio-detail-page .ol-card dd,
+    .studio-detail-page .ol-card .text-muted,
+    .studio-detail-page .ol-card .small-caps { color: #fff !important; }
+    .studio-detail-page .ol-card-header h2,
+    .studio-detail-page .ol-card-header h3,
+    .studio-detail-page .ol-card h3,
+    .studio-detail-page .ol-card a:not(.btn) { color: #fff !important; }
+    .studio-detail-page .ol-card .text-gold { color: #ffd166 !important; }
+    .studio-detail-page .ol-card .ol-price { color: #ff7065 !important; }
+    .studio-detail-page .ol-card .ol-icon-list i,
+    .studio-detail-page .ol-card .text-red { color: #ff7065 !important; }
+    .studio-detail-page .ol-card .btn-light { color: #080607 !important; }
+    .studio-detail-page .ol-card .btn-primary { color: #fff !important; }
+    .studio-detail-page .bg-white,
+    .studio-detail-page .badge-float.bg-white { color: #080607 !important; }
+    .studio-detail-page .btn-light,
+    .studio-detail-page .panel { color: #0f172a !important; }
 </style>
 {% endblock %}
 
@@ -233,7 +271,7 @@
                         {% else %}
                         <div class="ol-media-placeholder"><i class="fa-solid fa-video" aria-hidden="true"></i></div>
                         {% endif %}
-                        <span class="badge-float ol-badge no-dot bg-white">{{ other.get_studio_type_display }}</span>
+                        <span class="badge-float ol-badge no-dot bg-white text-dark">{{ other.get_studio_type_display }}</span>
                     </a>
                     <div class="ol-card-body">
                         <h3 class="ol-card-title"><a href="{% url 'studio:user_studio_detail' other.pk %}" class="text-ink">{{ other.name }}</a></h3>

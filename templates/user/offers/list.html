@@ -2,29 +2,38 @@
 
 {% block title %}Offres et promotions — Oloustream{% endblock %}
 {% block meta_description %}Profitez des offres promotionnelles Oloustream sur nos services : live streaming, captation vidéo, location de studio et plus encore.{% endblock %}
+{% block body_class %}offers-page{% endblock %}
 
 {% block content %}
-<section class="page-hero">
-    <div class="container">
+<section class="offers-hero">
+    <div class="offers-hero-media" aria-hidden="true"></div>
+    <div class="container offers-hero-content">
         <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item active" aria-current="page">Offres</li></ol></nav>
-        <h1>Offres du moment</h1>
+        <span class="about-kicker">Offres · Oloustream</span>
+        <h1>Donnez plus de portée à vos projets.</h1>
         <p>Des conditions préférentielles sur nos services, pour une durée limitée. Manifestez votre intérêt : notre équipe revient vers vous.</p>
+        <a href="#offres-en-cours" class="btn btn-primary btn-lg mt-3">Découvrir les offres <i class="fa-solid fa-arrow-down ms-2" aria-hidden="true"></i></a>
     </div>
 </section>
 
-<section class="section">
+<section class="section offers-list-section" id="offres-en-cours">
     <div class="container">
+        <div class="section-head offers-section-head">
+            <span class="about-kicker">Opportunités limitées</span>
+            <h2>Les conditions du moment.</h2>
+            <p>Choisissez l'offre qui correspond à votre besoin et laissez-nous préparer la suite avec vous.</p>
+        </div>
         {% if offers %}
         <div class="row g-4">
             {% for o in offers %}
             <div class="col-md-6 col-lg-4">
-                <article class="ol-card ol-media-card">
+                <article class="ol-card ol-media-card offer-card">
                     <div class="ol-card-body">
                         <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
                             <span class="ol-badge no-dot">{{ o.service.name }}</span>
                             {% if o.discount_percent %}<span class="ol-badge ol-badge-red no-dot">-{{ o.discount_percent }} %</span>{% endif %}
                         </div>
-                        <h2 class="ol-card-title h5">{{ o.title }}</h2>
+                        <h2 class="ol-card-title h5"><span class="offer-card-mark"><i class="fa-solid fa-bolt" aria-hidden="true"></i></span>{{ o.title }}</h2>
                         {% if o.description %}<p class="ol-card-text">{{ o.description|truncatechars:180 }}</p>{% endif %}
                         <p class="small text-muted mb-0 mt-auto"><i class="fa-regular fa-calendar me-1" aria-hidden="true"></i>Du {{ o.start_date|date:"d/m/Y" }} au {{ o.end_date|date:"d/m/Y" }}</p>
                     </div>

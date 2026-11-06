@@ -3,6 +3,8 @@
 
 {% block title %}Connexion — Oloustream{% endblock %}
 {% block meta_description %}Connectez-vous à votre espace Oloustream pour suivre vos réservations de studio, vos demandes et vos échanges avec l'équipe.{% endblock %}
+{% block meta_robots %}noindex,nofollow{% endblock %}
+{% block body_class %}auth-page{% endblock %}
 
 {% block messages %}{% endblock %}
 
@@ -10,12 +12,12 @@
 <div class="auth-wrap">
     <aside class="auth-aside" aria-label="Pourquoi créer un compte Oloustream">
         <a href="{% url 'core:home' %}" class="brand">
-            <img src="{% static 'img/logo.jpg' %}" alt="" width="38" height="38">
+            <img src="{% static 'img/logo.jpg' %}" alt="Logo Oloustream" width="38" height="38">
             <span class="brand-name text-white">OLOU<span>STREAM</span></span>
         </a>
 
-        <div>
-            <div class="eyebrow">Espace client</div>
+        <div class="auth-aside-copy">
+            <div class="auth-kicker">Espace client · Oloustream</div>
             <h2 class="mb-3">Vos projets audiovisuels, suivis au même endroit.</h2>
             <p class="mb-4">Réservez un studio, suivez l'avancement de vos demandes et échangez directement avec notre équipe technique.</p>
             <ul class="ol-icon-list">

@@ -1,4 +1,3 @@
-# Dépendances de production (serveur O2Switch) : tout requirements.txt + le pilote MySQL.
-# Nécessite les bibliothèques système MySQL (déjà présentes sur O2Switch).
+# Dépendances de production (serveur O2Switch) : tout requirements.txt.
+# PyMySQL est déjà installé comme remplacement de MySQLdb dans oloustream/__init__.py.
 -r requirements.txt
-mysqlclient==2.2.7

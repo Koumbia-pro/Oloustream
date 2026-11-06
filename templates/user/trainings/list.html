@@ -3,23 +3,27 @@
 
 {% block title %}Formations audiovisuelles — Oloustream{% endblock %}
 {% block meta_description %}Formations Oloustream : tournage, montage, prise de son, live streaming. Sessions en présentiel, en ligne ou hybrides, avec certification.{% endblock %}
+{% block body_class %}trainings-page{% endblock %}
 
 {% block content %}
-<section class="page-hero">
-    <div class="container">
+<section class="trainings-hero">
+    <div class="trainings-hero-media" aria-hidden="true"></div>
+    <div class="container trainings-hero-content">
         <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item active" aria-current="page">Formations</li></ol></nav>
-        <h1>Nos formations</h1>
+        <span class="about-kicker">Transmission · Oloustream</span>
+        <h1>Transformez votre passion en compétence.</h1>
         <p>Montez en compétences avec nos formateurs : tournage, montage, son, lumière et diffusion en direct. Sessions pratiques, en petits groupes.</p>
     </div>
 </section>
 
-<section class="section">
+<section class="section trainings-list-section">
     <div class="container">
+        <div class="section-head trainings-section-head"><span class="about-kicker">Apprendre en pratiquant</span><h2>Les prochaines sessions.</h2><p>Des formations concrètes, pensées pour vous faire progresser sur le terrain.</p></div>
         {% if trainings %}
         <div class="row g-4">
             {% for t in trainings %}
             <div class="col-md-6 col-lg-4">
-                <article class="ol-card ol-media-card">
+                <article class="ol-card ol-media-card training-card">
                     <div class="ol-media">
                         {% if t.image %}
                         <img src="{{ t.image.url }}" alt="{{ t.title }}" loading="lazy">

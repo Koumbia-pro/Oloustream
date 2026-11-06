@@ -29,7 +29,7 @@ class ContactRequestForm(forms.ModelForm):
         fields = ("full_name", "company", "email", "phone", "subject", "event_date", "budget", "message")
         widgets = {
             "full_name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Prénom et nom", "autocomplete": "name"}),
-            "company": forms.TextInput(attrs={"class": "form-control", "placeholder": "Facultatif", "autocomplete": "organization"}),
+            "company": forms.TextInput(attrs={"class": "form-control", "placeholder": "Nom de l’entreprise (facultatif)", "autocomplete": "organization"}),
             "email": forms.EmailInput(attrs={"class": "form-control", "placeholder": "vous@exemple.com", "autocomplete": "email"}),
             "phone": forms.TextInput(attrs={"class": "form-control", "placeholder": "+226 …", "autocomplete": "tel"}),
             "subject": forms.Select(attrs={"class": "form-select"}),

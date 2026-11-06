@@ -19,9 +19,12 @@ contact_limiter = RateLimiter("contact", limit=5, window_seconds=60 * 60)
 
 # Chiffres clés affichés sur le site vitrine
 KEY_FIGURES = {
-    "projects_count": 936,
-    "streaming_views": 29,
+    "founded_year": 2019,
+    "projects_count": 796,
+    "streaming_views": 32,
     "countries_count": 7,
+    "institutional_partners": 30,
+    "distinctions_count": 5,
 }
 
 
@@ -36,7 +39,6 @@ def home_view(request):
         "partners": partners,
         "studios": studios,
         "trainings": trainings,
-        "hero_video_url": settings.MEDIA_URL + "hero/hero.mp4",
         "partners_count": Partner.objects.filter(active=True).count(),
         "contact_form": ContactRequestForm(),
         **KEY_FIGURES,

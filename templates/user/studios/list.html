@@ -3,17 +3,21 @@
 
 {% block title %}Location de studios — Oloustream{% endblock %}
 {% block meta_description %}Réservez un studio vidéo, audio / podcast ou photo équipé à Ouagadougou avec Oloustream : plateaux professionnels, éclairage et accompagnement technique.{% endblock %}
+{% block body_class %}studios-page{% endblock %}
 
 {% block content %}
-<section class="page-hero">
-    <div class="container">
+<section class="studios-hero">
+    <div class="studios-hero-media" aria-hidden="true"></div>
+    <div class="container studios-hero-content">
         <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item active" aria-current="page">Studios</li></ol></nav>
-        <h1>Nos studios</h1>
-        <p>Plateaux vidéo, studios audio / podcast et photo, équipés et accompagnés par notre équipe technique. Choisissez votre espace et décrivez votre projet.</p>
+        <span class="about-kicker">Des espaces pensés pour créer</span>
+        <h1>Votre prochaine production commence ici.</h1>
+        <p>Des plateaux vidéo, podcast et photo prêts à accueillir vos idées, avec l’équipement et l’accompagnement technique qu’il vous faut.</p>
+        <a href="#catalogue-studios" class="btn btn-primary btn-lg mt-3">Explorer les studios <i class="fa-solid fa-arrow-down"></i></a>
     </div>
 </section>
 
-<section class="section">
+<section class="section studios-catalogue" id="catalogue-studios">
     <div class="container">
         {% if studios %}
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">

@@ -2,18 +2,41 @@
 
 {% block title %}Recrutement : emplois et stages — Oloustream{% endblock %}
 {% block meta_description %}Rejoignez Oloustream : offres d'emploi et de stage en production audiovisuelle, live streaming et communication.{% endblock %}
+{% block body_class %}careers-page{% endblock %}
 
 {% block content %}
-<section class="page-hero">
-    <div class="container">
+<section class="careers-hero">
+    <div class="careers-hero-media" aria-hidden="true"></div>
+    <div class="container careers-hero-content">
         <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item active" aria-current="page">Recrutement</li></ol></nav>
-        <h1>Emplois & stages</h1>
-        <p>Vous êtes passionné d'image, de son ou de diffusion en direct ? Découvrez nos offres et rejoignez l'équipe Oloustream.</p>
+        <span class="about-kicker">Carrières · Oloustream</span>
+        <h1>Construisez la suite avec nous.</h1>
+        <p>Vous êtes passionné d'image, de son ou de diffusion en direct ? Rejoignez une équipe qui transforme les idées en expériences audiovisuelles fortes.</p>
+        <a class="btn btn-primary btn-lg mt-3" href="#offres">Voir les opportunités <i class="fa-solid fa-arrow-down ms-2" aria-hidden="true"></i></a>
     </div>
 </section>
 
-<section class="section">
+<section class="section careers-values-section">
     <div class="container">
+        <div class="section-head careers-section-head">
+            <span class="about-kicker">Une équipe, une énergie</span>
+            <h2>Grandir en créant du mouvement.</h2>
+            <p>Chez Oloustream, chaque talent contribue à donner une voix, une image et une portée aux projets qui comptent.</p>
+        </div>
+        <div class="row g-3 careers-values" aria-label="Les valeurs d'Oloustream">
+            <div class="col-md-4"><article class="career-value"><span class="career-value-icon"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i></span><h3>Créer avec audace</h3><p>Des idées ambitieuses, une exécution précise et un regard toujours tourné vers l'impact.</p></article></div>
+            <div class="col-md-4"><article class="career-value"><span class="career-value-icon"><i class="fa-solid fa-people-group" aria-hidden="true"></i></span><h3>Avancer ensemble</h3><p>Une équipe qui partage ses savoir-faire et transforme chaque défi en réussite collective.</p></article></div>
+            <div class="col-md-4"><article class="career-value"><span class="career-value-icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span><h3>Faire grandir les talents</h3><p>Des responsabilités, de la confiance et des occasions concrètes de progresser.</p></article></div>
+        </div>
+    </div>
+</section>
+
+<section class="section careers-offers-section" id="offres">
+    <div class="container">
+        <div class="section-head careers-section-head">
+            <span class="about-kicker">Les opportunités</span>
+            <h2>Trouvez votre prochain terrain de jeu.</h2>
+        </div>
         <form method="get" class="ol-card ol-card-body mb-4" role="search">
             <div class="row g-3 align-items-end">
                 <div class="col-md-6">
@@ -41,7 +64,7 @@
         <div class="row g-4">
             {% for o in offers %}
             <div class="col-md-6 col-lg-4">
-                <article class="ol-card ol-card-hover ol-media-card">
+                <article class="ol-card ol-card-hover ol-media-card career-offer-card">
                     <a href="{% url 'services_app:user_jobs_detail' o.slug %}" class="ol-media" aria-label="Voir l'offre {{ o.title }}">
                         {% if o.poster %}
                         <img src="{{ o.poster.url }}" alt="{{ o.title }}" loading="lazy">

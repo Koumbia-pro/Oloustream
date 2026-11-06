@@ -1,66 +1,109 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Nos réalisations — Oloustream{% endblock %}
 {% block meta_description %}Événements institutionnels, concerts, conférences, lancements de marque, webinaires : découvrez les réalisations audiovisuelles d'Oloustream.{% endblock %}
+{% block body_class %}realisations-page{% endblock %}
 
 {% block content %}
-<section class="page-hero">
-    <div class="container">
+<section class="realisations-hero" data-reveal="hero">
+    <div class="realisations-hero-media" aria-hidden="true"></div>
+    <div class="container realisations-hero-content">
         <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item active" aria-current="page">Réalisations</li></ol></nav>
-        <h1>Nos réalisations</h1>
-        <p>Événements institutionnels, concerts, webinaires, documentaires, teasers… Chaque vidéo reflète notre engagement pour un contenu impactant, fluide et professionnel.</p>
-        <a href="{{ SITE.youtube }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary mt-4"><i class="fa-brands fa-youtube"></i> Parcourir notre chaîne YouTube</a>
+        <span class="about-kicker">La preuve par l'image</span>
+        <h1>Des projets qui se regardent. Des résultats qui se ressentent.</h1>
+        <p>Événements institutionnels, concerts, webinaires, documentaires, teasers… Chaque réalisation transforme un moment important en expérience mémorable.</p>
+        <div class="d-flex flex-wrap gap-2 mt-4">
+            <a href="#galerie" class="btn btn-primary"><i class="fa-solid fa-images" aria-hidden="true"></i> Voir la galerie</a>
+            <a href="{{ SITE.youtube }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light"><i class="fa-brands fa-youtube"></i> Parcourir notre chaîne YouTube</a>
+        </div>
     </div>
 </section>
 
 {# ================= VIDÉOS ================= #}
-<section class="section">
+<section class="section realisations-showcase" data-reveal="section">
     <div class="container">
         <div class="section-head">
             <div class="eyebrow">Showreel & extraits</div>
             <h2 class="section-title">Quelques productions récentes</h2>
             <p class="section-lead">Un aperçu de nos captations, lives et projets audiovisuels pour les institutions, ONG, marques et événements culturels.</p>
         </div>
+        <div class="realisation-filters" role="group" aria-label="Filtrer les réalisations">
+            <button type="button" class="realisation-filter is-active" data-realisation-filter="all" aria-pressed="true">Tout voir</button>
+            <button type="button" class="realisation-filter" data-realisation-filter="live" aria-pressed="false">Live & événements</button>
+            <button type="button" class="realisation-filter" data-realisation-filter="production" aria-pressed="false">Production vidéo</button>
+            <button type="button" class="realisation-filter" data-realisation-filter="digital" aria-pressed="false">Digital</button>
+        </div>
         <div class="row g-4">
-            <div class="col-md-6 col-lg-4">
-                <article class="ol-card ol-card-hover ol-media-card">
-                    <a href="https://www.youtube.com/watch?v=UzgzuAyIudM" target="_blank" rel="noopener noreferrer" class="ol-media d-block" aria-label="Regarder « Captation & diffusion en direct » sur YouTube">
-                        <img src="https://i.ytimg.com/vi/UzgzuAyIudM/hqdefault.jpg" alt="" loading="lazy">
-                        <span class="position-absolute top-50 start-50 translate-middle btn btn-primary btn-icon rounded-circle" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
-                    </a>
+            <div class="col-md-6 col-lg-4" data-realisation-card data-realisation-category="live">
+                <article class="ol-card ol-card-hover ol-media-card realisation-video-card" data-reveal="card">
+                    <div class="ol-media ratio ratio-16x9">
+                        <iframe src="https://www.youtube.com/embed/UzgzuAyIudM?rel=0" title="Captation et diffusion en direct" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                    </div>
                     <div class="ol-card-body">
                         <h3 class="ol-card-title">Captation & diffusion en direct</h3>
                         <p class="ol-card-text">Dispositif multicaméra et diffusion en direct sur les plateformes de nos clients.</p>
-                        <div class="d-flex gap-2"><span class="ol-badge no-dot">Multicaméra</span><span class="ol-badge no-dot">Streaming</span></div>
+                        <div class="d-flex flex-wrap gap-2"><span class="ol-badge no-dot">Live</span><span class="ol-badge no-dot">Multicaméra</span></div>
                     </div>
                 </article>
             </div>
-            <div class="col-md-6 col-lg-4">
-                <article class="ol-card ol-card-hover ol-media-card">
-                    <a href="https://www.youtube.com/watch?v=k6hIpItwEgs" target="_blank" rel="noopener noreferrer" class="ol-media d-block" aria-label="Regarder « Production & postproduction » sur YouTube">
-                        <img src="https://i.ytimg.com/vi/k6hIpItwEgs/hqdefault.jpg" alt="" loading="lazy">
-                        <span class="position-absolute top-50 start-50 translate-middle btn btn-primary btn-icon rounded-circle" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
-                    </a>
+            <div class="col-md-6 col-lg-4" data-realisation-card data-realisation-category="production">
+                <article class="ol-card ol-card-hover ol-media-card realisation-video-card" data-reveal="card">
+                    <div class="ol-media ratio ratio-16x9">
+                        <iframe src="https://www.youtube.com/embed/k6hIpItwEgs?rel=0" title="Production et postproduction" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                    </div>
                     <div class="ol-card-body">
                         <h3 class="ol-card-title">Production & postproduction</h3>
                         <p class="ol-card-text">Tournage, montage et habillage graphique pour des contenus de qualité broadcast.</p>
-                        <div class="d-flex gap-2"><span class="ol-badge no-dot">Tournage</span><span class="ol-badge no-dot">Montage</span></div>
+                        <div class="d-flex flex-wrap gap-2"><span class="ol-badge no-dot">Production</span><span class="ol-badge no-dot">Montage</span></div>
                     </div>
                 </article>
             </div>
-            <div class="col-md-6 col-lg-4">
-                <article class="ol-card ol-card-hover ol-media-card">
-                    <a href="https://www.youtube.com/watch?v=p-_6oKCw_n4" target="_blank" rel="noopener noreferrer" class="ol-media d-block" aria-label="Regarder « Événement & live » sur YouTube">
-                        <img src="https://i.ytimg.com/vi/p-_6oKCw_n4/hqdefault.jpg" alt="" loading="lazy">
-                        <span class="position-absolute top-50 start-50 translate-middle btn btn-primary btn-icon rounded-circle" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
-                    </a>
+            <div class="col-md-6 col-lg-4" data-realisation-card data-realisation-category="digital">
+                <article class="ol-card ol-card-hover ol-media-card realisation-video-card" data-reveal="card">
+                    <div class="ol-media ratio ratio-16x9">
+                        <iframe src="https://www.youtube.com/embed/p-_6oKCw_n4?rel=0" title="Événement et live" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                    </div>
                     <div class="ol-card-body">
                         <h3 class="ol-card-title">Événement & live</h3>
                         <p class="ol-card-text">Couverture audio et vidéo d'événements, de la régie à la diffusion.</p>
-                        <div class="d-flex gap-2"><span class="ol-badge no-dot">Audio</span><span class="ol-badge no-dot">Caméras</span></div>
+                        <div class="d-flex flex-wrap gap-2"><span class="ol-badge no-dot">Digital</span><span class="ol-badge no-dot">Diffusion</span></div>
                     </div>
                 </article>
             </div>
+        </div>
+    </div>
+</section>
+
+{# ================= GALERIE ================= #}
+<section class="section gallery-section" id="galerie" data-reveal="section">
+    <div class="container">
+        <div class="section-head gallery-section-head">
+            <div class="eyebrow">Dans les coulisses</div>
+            <h2 class="section-title">Une galerie qui raconte notre savoir-faire.</h2>
+            <p class="section-lead">Du plateau de tournage à la régie, découvrez les équipes et les moments qui donnent vie à vos projets.</p>
+        </div>
+        <div class="gallery-grid" data-gallery>
+            <button type="button" class="gallery-item gallery-item-tall" data-gallery-image="{% static 'img/generated/about-vision.png' %}" data-gallery-caption="Une vision créative, de l'idée à l'image.">
+                <img src="{% static 'img/generated/about-vision.png' %}" alt="Équipe Oloustream en production" loading="lazy">
+                <span class="gallery-item-label">Notre vision</span>
+            </button>
+            <button type="button" class="gallery-item" data-gallery-image="{% static 'img/generated/live-streaming.png' %}" data-gallery-caption="Une régie prête pour vos événements en direct.">
+                <img src="{% static 'img/generated/live-streaming.png' %}" alt="Régie vidéo pendant un événement" loading="lazy">
+                <span class="gallery-item-label">Live streaming</span>
+            </button>
+            <button type="button" class="gallery-item" data-gallery-image="{% static 'img/generated/studio-podcast.png' %}" data-gallery-caption="Des studios pensés pour les conversations qui comptent.">
+                <img src="{% static 'img/generated/studio-podcast.png' %}" alt="Podcast enregistré en studio" loading="lazy">
+                <span class="gallery-item-label">Studio podcast</span>
+            </button>
+            <button type="button" class="gallery-item" data-gallery-image="{% static 'img/generated/training-team.png' %}" data-gallery-caption="Transmettre les bons gestes aux créateurs de demain.">
+                <img src="{% static 'img/generated/training-team.png' %}" alt="Formation audiovisuelle en studio" loading="lazy">
+                <span class="gallery-item-label">Formation</span>
+            </button>
+            <button type="button" class="gallery-item gallery-item-wide" data-gallery-image="{% static 'img/generated/careers-team.png' %}" data-gallery-caption="Une équipe engagée sur chaque production.">
+                <img src="{% static 'img/generated/careers-team.png' %}" alt="Équipe technique Oloustream" loading="lazy">
+                <span class="gallery-item-label">L'équipe</span>
+            </button>
         </div>
     </div>
 </section>
@@ -74,7 +117,7 @@
         </div>
         <div class="row g-4">
             <div class="col-md-6 col-lg-4">
-                <div class="ol-card feature">
+                <div class="ol-card feature project-type">
                     <div class="feature-icon"><i class="fa-solid fa-landmark"></i></div>
                     <div class="small-caps text-muted mb-1">Institutionnel & ONG</div>
                     <h3>Forums & conférences internationales</h3>
@@ -82,7 +125,7 @@
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
-                <div class="ol-card feature">
+                <div class="ol-card feature project-type">
                     <div class="feature-icon"><i class="fa-solid fa-people-group"></i></div>
                     <div class="small-caps text-muted mb-1">Conférences & séminaires</div>
                     <h3>Séminaires d'entreprise & AG</h3>
@@ -90,7 +133,7 @@
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
-                <div class="ol-card feature">
+                <div class="ol-card feature project-type">
                     <div class="feature-icon"><i class="fa-solid fa-rocket"></i></div>
                     <div class="small-caps text-muted mb-1">Lancements de marque</div>
                     <h3>Lancements produits & campagnes</h3>
@@ -98,7 +141,7 @@
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
-                <div class="ol-card feature">
+                <div class="ol-card feature project-type">
                     <div class="feature-icon"><i class="fa-solid fa-microphone"></i></div>
                     <div class="small-caps text-muted mb-1">Personnalités & influenceurs</div>
                     <h3>Talks, interviews & émissions</h3>
@@ -106,7 +149,7 @@
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
-                <div class="ol-card feature">
+                <div class="ol-card feature project-type">
                     <div class="feature-icon"><i class="fa-solid fa-music"></i></div>
                     <div class="small-caps text-muted mb-1">Concerts & spectacles</div>
                     <h3>Concerts, festivals & culture</h3>
@@ -114,7 +157,7 @@
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
-                <div class="ol-card feature">
+                <div class="ol-card feature project-type">
                     <div class="feature-icon"><i class="fa-solid fa-display"></i></div>
                     <div class="small-caps text-muted mb-1">Webinaires & digital</div>
                     <h3>Webinaires & événements 100 % en ligne</h3>
@@ -142,4 +185,12 @@
         </div>
     </div>
 </section>
+
+<div class="gallery-lightbox" data-gallery-lightbox hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Aperçu de la galerie">
+    <button type="button" class="gallery-lightbox-close" data-gallery-close aria-label="Fermer l'image"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    <figure>
+        <img src="" alt="" data-gallery-lightbox-image>
+        <figcaption data-gallery-lightbox-caption></figcaption>
+    </figure>
+</div>
 {% endblock %}

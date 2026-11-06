@@ -2,23 +2,25 @@
 {% load static %}
 
 {% block title %}Oloustream — Studios, live streaming et production audiovisuelle au Burkina Faso{% endblock %}
+{% block meta_description %}Oloustream crée des expériences audiovisuelles à fort impact au Burkina Faso : studios, podcasts, production vidéo, live streaming, matériel et formations.{% endblock %}
+{% block og_title %}Oloustream — Des expériences audiovisuelles à fort impact{% endblock %}
+{% block og_description %}Studios, production vidéo, live streaming et formations audiovisuelles à Ouagadougou.{% endblock %}
+
+{% block body_class %}mockup-home{% endblock %}
 
 {% block content %}
 {# ================= HERO ================= #}
 <section class="hero">
-    <div class="hero-media" aria-hidden="true">
-        <video autoplay muted loop playsinline preload="metadata" poster="{% static 'img/image_1.jpg' %}">
-            <source src="{{ hero_video_url }}" type="video/mp4">
-        </video>
+    <div class="hero-media" aria-hidden="true" style="background-image: url('{% static 'img/maquette-hero-000.jpg' %}');">
     </div>
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-xl-7">
-                <span class="hero-badge"><span class="dot"></span> Leader du live streaming événementiel au Burkina Faso</span>
-                <h1>Vos événements méritent une <span class="accent">image professionnelle</span>.</h1>
+                <span class="hero-badge"><span class="dot"></span> Studio créatif audiovisuel en Afrique de l'Ouest</span>
+                <h1>Des expériences <span class="accent">audiovisuelles</span> à fort impact.</h1>
                 <p class="lead">
-                    Studios équipés, captation multicaméra, diffusion en direct et formations :
-                    Oloustream vous accompagne de la préparation à la diffusion, avec une équipe technique dédiée.
+                    Production audiovisuelle, live streaming, événementiel et formation :
+                    nous créons des expériences professionnelles, cohérentes et performantes.
                 </p>
                 <div class="d-flex flex-wrap gap-2">
                     <a href="{% url 'core:contact' %}" class="btn btn-primary btn-lg">Demander un devis <i class="fa-solid fa-arrow-right"></i></a>
@@ -26,10 +28,12 @@
                 </div>
 
                 <div class="hero-trust">
+                    <div><div class="num">Depuis {{ founded_year }}</div><div class="lbl">À vos côtés</div></div>
                     <div><div class="num">{{ projects_count }}+</div><div class="lbl">Projets réalisés</div></div>
                     <div><div class="num">{{ streaming_views }} M+</div><div class="lbl">Vues en streaming</div></div>
                     <div><div class="num">{{ countries_count }}</div><div class="lbl">Pays couverts</div></div>
-                    {% if partners_count %}<div><div class="num">{{ partners_count }}</div><div class="lbl">Partenaires</div></div>{% endif %}
+                    <div><div class="num">{{ institutional_partners }}+</div><div class="lbl">Partenaires institutionnels</div></div>
+                    <div><div class="num">{{ distinctions_count }}</div><div class="lbl">Distinctions</div></div>
                 </div>
             </div>
         </div>
@@ -45,55 +49,13 @@
             <p class="section-lead">De la captation en direct à la postproduction, nous prenons en charge chaque étape de votre projet.</p>
         </div>
 
-        <div class="row g-4">
-            <div class="col-md-6 col-lg-4">
-                <div class="ol-card ol-card-hover feature">
-                    <div class="feature-icon"><i class="fa-solid fa-tower-broadcast"></i></div>
-                    <h3>Live streaming multiplateforme</h3>
-                    <p>Diffusion en direct sur Facebook, YouTube, Zoom, LinkedIn ou plateformes privées, avec régie multicaméra.</p>
-                    <a href="{% url 'core:contact' %}?sujet=live" class="link-arrow">Demander un devis <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="ol-card ol-card-hover feature">
-                    <div class="feature-icon"><i class="fa-solid fa-film"></i></div>
-                    <h3>Production vidéo</h3>
-                    <p>Tournage multicaméra, montage, motion design et étalonnage pour des contenus de qualité broadcast.</p>
-                    <a href="{% url 'core:contact' %}?sujet=quote" class="link-arrow">Parler de votre projet <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="ol-card ol-card-hover feature">
-                    <div class="feature-icon"><i class="fa-solid fa-microphone-lines"></i></div>
-                    <h3>Studios podcast & émission</h3>
-                    <p>Plateaux clé en main avec éclairage professionnel, fond vert et prise de son haute qualité.</p>
-                    <a href="{% url 'studio:user_studio_list' %}" class="link-arrow">Voir les studios <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="ol-card ol-card-hover feature">
-                    <div class="feature-icon"><i class="fa-solid fa-camera"></i></div>
-                    <h3>Location de matériel</h3>
-                    <p>Caméras, micros, éclairages, régies vidéo et écrans LED, avec ou sans technicien.</p>
-                    <a href="{% url 'studio:user_equipment_list' %}" class="link-arrow">Voir le matériel <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="ol-card ol-card-hover feature">
-                    <div class="feature-icon"><i class="fa-solid fa-graduation-cap"></i></div>
-                    <h3>Formations</h3>
-                    <p>Formations pratiques en cadrage, montage, live streaming et production de contenu.</p>
-                    <a href="{% url 'services_app:user_trainings_list' %}" class="link-arrow">Voir les formations <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="ol-card ol-card-hover feature">
-                    <div class="feature-icon"><i class="fa-solid fa-laptop-code"></i></div>
-                    <h3>Solutions événementielles</h3>
-                    <p>Plateforme VOD, billetterie en ligne et sites web événementiels pour prolonger vos événements.</p>
-                    <a href="{% url 'core:contact' %}" class="link-arrow">Nous contacter <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-            </div>
+        <div class="row g-4 expertise-grid">
+            <div class="col-md-6 col-lg-4"><article class="ol-card ol-card-hover feature expertise-feature"><img src="{% static 'img/expertises/expertise-001.jpg' %}" alt="Studio podcast vidéo" loading="lazy"><div class="expertise-content"><div class="feature-icon"><i class="fa-solid fa-microphone-lines"></i></div><h3>Studio podcast vidéo</h3><p>Plateaux professionnels et décors premium pour podcasts, interviews et émissions.</p><a href="{% url 'studio:user_studio_list' %}" class="link-arrow">Voir les studios <i class="fa-solid fa-arrow-right"></i></a></div></article></div>
+            <div class="col-md-6 col-lg-4"><article class="ol-card ol-card-hover feature expertise-feature"><img src="{% static 'img/expertises/expertise-003.jpg' %}" alt="Studio photo corporate" loading="lazy"><div class="expertise-content"><div class="feature-icon"><i class="fa-solid fa-camera-retro"></i></div><h3>Studio photo corporate</h3><p>Portraits professionnels et création de banques d'images de marque.</p><a href="{% url 'core:contact' %}?sujet=quote" class="link-arrow">Parler du projet <i class="fa-solid fa-arrow-right"></i></a></div></article></div>
+            <div class="col-md-6 col-lg-4"><article class="ol-card ol-card-hover feature expertise-feature"><img src="{% static 'img/expertises/expertise-005.jpg' %}" alt="Régie vidéo et live streaming" loading="lazy"><div class="expertise-content"><div class="feature-icon"><i class="fa-solid fa-tower-broadcast"></i></div><h3>Régie vidéo & live streaming</h3><p>Captation multicaméra, retransmission en direct et diffusion multiplateforme.</p><a href="{% url 'core:contact' %}?sujet=live" class="link-arrow">Demander un devis <i class="fa-solid fa-arrow-right"></i></a></div></article></div>
+            <div class="col-md-6 col-lg-4"><article class="ol-card ol-card-hover feature expertise-feature"><img src="{% static 'img/expertises/expertise-007.jpg' %}" alt="Prises de vue par drone" loading="lazy"><div class="expertise-content"><div class="feature-icon"><i class="fa-solid fa-drone"></i></div><h3>Prises de vue par drone</h3><p>Captation aérienne sécurisée pour infrastructures, événements et projets institutionnels.</p><a href="{% url 'core:contact' %}?sujet=quote" class="link-arrow">Parler du projet <i class="fa-solid fa-arrow-right"></i></a></div></article></div>
+            <div class="col-md-6 col-lg-4"><article class="ol-card ol-card-hover feature expertise-feature"><img src="{% static 'img/expertises/expertise-009.jpg' %}" alt="Montage et post-production" loading="lazy"><div class="expertise-content"><div class="feature-icon"><i class="fa-solid fa-film"></i></div><h3>Montage & post-production</h3><p>Montage, étalonnage, mixage audio, motion design et contenus corporate.</p><a href="{% url 'core:contact' %}?sujet=quote" class="link-arrow">Parler du projet <i class="fa-solid fa-arrow-right"></i></a></div></article></div>
+            <div class="col-md-6 col-lg-4"><article class="ol-card ol-card-hover feature expertise-feature"><img src="{% static 'img/expertises/expertise-011.jpg' %}" alt="Formation audiovisuelle" loading="lazy"><div class="expertise-content"><div class="feature-icon"><i class="fa-solid fa-graduation-cap"></i></div><h3>Formation audiovisuelle</h3><p>Formations pratiques en vidéo, storytelling, montage, lumière et infographie.</p><a href="{% url 'services_app:user_trainings_list' %}" class="link-arrow">Voir les formations <i class="fa-solid fa-arrow-right"></i></a></div></article></div>
         </div>
     </div>
 </section>

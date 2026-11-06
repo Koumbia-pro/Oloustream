@@ -3,23 +3,27 @@
 
 {% block title %}À propos — Oloustream{% endblock %}
 {% block meta_description %}Oloustream S.A.S, entreprise burkinabè fondée en 2019 : production audiovisuelle, live streaming événementiel, podcasts de marque et solutions digitales.{% endblock %}
+{% block body_class %}about-page{% endblock %}
 
 {% block content %}
-<section class="page-hero">
-    <div class="container">
+<section class="about-hero">
+    <div class="about-hero-media" aria-hidden="true"></div>
+    <div class="container about-hero-content">
         <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item active" aria-current="page">À propos</li></ol></nav>
-        <h1>Creative Audio-Video Experiences</h1>
-        <p>Leader du live streaming au Burkina Faso, Oloustream transforme vos idées en images, sons et histoires puissantes depuis 2019.</p>
+        <span class="about-kicker">Creative Audio-Video Experiences</span>
+        <h1>Nous donnons une image forte à vos idées.</h1>
+        <p>Depuis 2019, Oloustream transforme vos événements, vos marques et vos histoires en expériences audiovisuelles qui se regardent, s'écoutent et se retiennent.</p>
+        <a href="#notre-histoire" class="btn btn-primary btn-lg">Découvrir notre histoire <i class="fa-solid fa-arrow-down"></i></a>
     </div>
 </section>
 
 {# ================= QUI SOMMES-NOUS ================= #}
-<section class="section">
+<section class="section about-intro" id="notre-histoire">
     <div class="container">
         <div class="row g-5 align-items-center">
             <div class="col-lg-6">
                 <div class="eyebrow">Qui sommes-nous ?</div>
-                <h2 class="section-title">Live, vidéo et innovation en Afrique de l'Ouest</h2>
+                <h2 class="section-title">Un studio créatif au service des projets qui comptent.</h2>
                 <p>
                     <strong class="text-ink">Oloustream S.A.S</strong> est une entreprise burkinabè fondée en 2019, spécialisée dans
                     la production audiovisuelle, le live streaming événementiel, les podcasts de marque natifs et les solutions digitales innovantes.
@@ -35,11 +39,15 @@
                 </div>
             </div>
             <div class="col-lg-6">
+                <div class="about-visual mb-4">
+                    <img src="{% static 'img/about-event.jpg' %}" alt="Équipe Oloustream en action lors d'un événement" loading="lazy">
+                    <span class="about-visual-badge"><strong>2019</strong><small>Depuis, à vos côtés</small></span>
+                </div>
                 <div class="row g-3">
-                    <div class="col-6"><div class="ol-card ol-stat h-100"><div><div class="ol-stat-value">+800</div><div class="ol-stat-label">projets audiovisuels réalisés</div></div></div></div>
-                    <div class="col-6"><div class="ol-card ol-stat h-100"><div><div class="ol-stat-value">+29M</div><div class="ol-stat-label">vues en streaming</div></div></div></div>
-                    <div class="col-6"><div class="ol-card ol-stat h-100"><div><div class="ol-stat-value">7</div><div class="ol-stat-label">pays couverts</div></div></div></div>
-                    <div class="col-6"><div class="ol-card ol-stat h-100"><div><div class="ol-stat-value">+30</div><div class="ol-stat-label">partenaires clés</div></div></div></div>
+                    <div class="col-6"><div class="ol-card ol-stat h-100 about-stat"><div><div class="ol-stat-value" data-counter="796" data-prefix="+">0</div><div class="ol-stat-label">projets audiovisuels réalisés</div></div></div></div>
+                    <div class="col-6"><div class="ol-card ol-stat h-100 about-stat"><div><div class="ol-stat-value" data-counter="32" data-prefix="+" data-suffix="M">0</div><div class="ol-stat-label">vues en streaming</div></div></div></div>
+                    <div class="col-6"><div class="ol-card ol-stat h-100 about-stat"><div><div class="ol-stat-value" data-counter="7">0</div><div class="ol-stat-label">pays couverts</div></div></div></div>
+                    <div class="col-6"><div class="ol-card ol-stat h-100 about-stat"><div><div class="ol-stat-value" data-counter="30" data-prefix="+">0</div><div class="ol-stat-label">partenaires clés</div></div></div></div>
                 </div>
             </div>
         </div>

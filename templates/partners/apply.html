@@ -2,11 +2,14 @@
 
 {% block title %}Candidature partenaire — Oloustream{% endblock %}
 {% block meta_description %}Déposez votre candidature au programme de partenaires d'affaires Oloustream.{% endblock %}
+{% block body_class %}partner-apply-page{% endblock %}
 
 {% block content %}
-<section class="page-hero page-hero-light">
-    <div class="container">
+<section class="partner-apply-hero">
+    <div class="partner-apply-hero-media" aria-hidden="true"></div>
+    <div class="container partner-apply-hero-content">
         <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item"><a href="{% url 'partners:program_info' %}">Programme partenaires</a></li><li class="breadcrumb-item active" aria-current="page">Candidature</li></ol></nav>
+        <span class="about-kicker">Votre prochaine opportunité</span>
         <h1>Candidature partenaire</h1>
         <p>Rejoignez notre réseau et développez vos revenus avec Oloustream. Comptez environ 5 minutes pour remplir ce formulaire.</p>
     </div>

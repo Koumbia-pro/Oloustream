@@ -2,12 +2,29 @@
 
 {% block title %}{{ equipment.name }} — Location de matériel Oloustream{% endblock %}
 {% block meta_description %}Louez {{ equipment.name }}{% if equipment.brand %} ({{ equipment.brand }} {{ equipment.model }}){% endif %} chez Oloustream pour vos tournages et événements.{% endblock %}
+{% block body_class %}equipment-detail-page{% endblock %}
 
 {% block extra_css %}
 <style>
     .equipment-cover { aspect-ratio: 4 / 3; background: var(--ol-surface-2); border-radius: var(--ol-radius); overflow: hidden; display: flex; align-items: center; justify-content: center; }
     .equipment-cover img { width: 100%; height: 100%; object-fit: contain; background: var(--ol-white); }
     .equipment-cover .placeholder-icon { color: var(--ol-subtle); font-size: 3rem; }
+    body.site.equipment-detail-page .section { color: #fff; }
+    body.site.equipment-detail-page .page-hero p,
+    body.site.equipment-detail-page .page-hero .breadcrumb,
+    body.site.equipment-detail-page .page-hero .breadcrumb a { color: #fff !important; }
+    body.site.equipment-detail-page .ol-card,
+    body.site.equipment-detail-page .ol-card p,
+    body.site.equipment-detail-page .ol-card small,
+    body.site.equipment-detail-page .ol-card span,
+    body.site.equipment-detail-page .ol-card dt,
+    body.site.equipment-detail-page .ol-card dd,
+    body.site.equipment-detail-page .ol-card .text-muted { color: #fff !important; }
+    body.site.equipment-detail-page .ol-card-header h2,
+    body.site.equipment-detail-page .ol-card a:not(.btn) { color: #fff !important; }
+    body.site.equipment-detail-page .ol-badge.status-AVAILABLE,
+    body.site.equipment-detail-page .ol-badge.status-available { color: #0f172a !important; }
+    body.site.equipment-detail-page .btn-light { color: #0f172a !important; }
 </style>
 {% endblock %}
 

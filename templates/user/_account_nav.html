@@ -6,7 +6,7 @@ Valeurs de « active » : profile, reservations, chat, notifications
 <nav class="ol-card account-nav" aria-label="Mon compte">
     <div class="who">
         {% if user.avatar %}
-        <img src="{{ user.avatar.url }}" alt="" class="ol-avatar">
+                <img src="{{ user.avatar.url }}" alt="Photo de profil de {{ user.get_full_name|default:user.username }}" class="ol-avatar" width="40" height="40">
         {% else %}
         <span class="ol-avatar" aria-hidden="true">{{ user.first_name|default:user.username|slice:":1"|upper }}</span>
         {% endif %}

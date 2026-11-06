@@ -2,13 +2,16 @@
 
 {% block title %}Programme partenaires d'affaires — Oloustream{% endblock %}
 {% block meta_description %}Devenez partenaire d'affaires Oloustream : apportez des projets de live streaming, captation ou formation et percevez jusqu'à 20 % de commission sur chaque contrat.{% endblock %}
+{% block body_class %}partner-page{% endblock %}
 
 {% block content %}
-<section class="page-hero">
-    <div class="container">
+<section class="partner-hero">
+    <div class="partner-hero-media" aria-hidden="true"></div>
+    <div class="container partner-hero-content">
         <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item active" aria-current="page">Programme partenaires</li></ol></nav>
         <div class="row g-4 align-items-end">
             <div class="col-lg-7">
+                <span class="about-kicker">Programme partenaires · Oloustream</span>
                 <h1>Devenez partenaire d'affaires Oloustream</h1>
                 <p>Rejoignez le réseau de partenaires du leader du live streaming au Burkina Faso : apportez des projets à nos équipes et percevez une commission sur chaque contrat signé.</p>
                 <div class="d-flex flex-wrap gap-2 mt-4">
@@ -28,7 +31,7 @@
 </section>
 
 {# ================= AVANTAGES ================= #}
-<section class="section">
+<section class="section partner-advantages">
     <div class="container">
         <div class="section-head center">
             <div class="eyebrow">Avantages</div>
@@ -37,28 +40,28 @@
         </div>
         <div class="row g-4">
             <div class="col-md-6 col-lg-3">
-                <div class="ol-card feature">
+                <div class="ol-card feature partner-feature">
                     <div class="feature-icon"><i class="fa-solid fa-percent"></i></div>
                     <h3>Commissions attractives</h3>
                     <p>Jusqu'à 20 % du montant de chaque contrat que vous apportez, sans plafond.</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-3">
-                <div class="ol-card feature">
+                <div class="ol-card feature partner-feature">
                     <div class="feature-icon"><i class="fa-solid fa-award"></i></div>
                     <h3>Marque reconnue</h3>
                     <p>Représentez le leader du live streaming au Burkina Faso, fort de plus de 790 projets réalisés.</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-3">
-                <div class="ol-card feature">
+                <div class="ol-card feature partner-feature">
                     <div class="feature-icon"><i class="fa-solid fa-person-walking-arrow-right"></i></div>
                     <h3>Indépendance totale</h3>
                     <p>Travaillez à votre rythme et développez votre réseau librement, en complément de votre activité.</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-3">
-                <div class="ol-card feature">
+                <div class="ol-card feature partner-feature">
                     <div class="feature-icon"><i class="fa-solid fa-chart-line"></i></div>
                     <h3>Suivi en ligne</h3>
                     <p>Un espace partenaire dédié pour soumettre vos contrats et suivre vos commissions et paiements.</p>
@@ -69,7 +72,7 @@
 </section>
 
 {# ================= FONCTIONNEMENT ================= #}
-<section class="section section-alt" id="fonctionnement">
+<section class="section section-alt partner-process" id="fonctionnement">
     <div class="container">
         <div class="row g-5 align-items-center">
             <div class="col-lg-5">
@@ -91,7 +94,7 @@
 </section>
 
 {# ================= COMMISSION ================= #}
-<section class="section">
+<section class="section partner-commission">
     <div class="container">
         <div class="row g-5 align-items-center">
             <div class="col-lg-6">

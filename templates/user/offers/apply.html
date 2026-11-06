@@ -1,11 +1,16 @@
 {% extends "base.html" %}
 
 {% block title %}{{ offer.title }} — Offres Oloustream{% endblock %}
+{% block meta_description %}Découvrez l'offre {{ offer.title }} et envoyez votre demande à Oloustream.{% endblock %}
+{% block meta_robots %}noindex,nofollow{% endblock %}
+{% block body_class %}offer-detail-page{% endblock %}
 
 {% block content %}
-<section class="page-hero page-hero-light">
-    <div class="container">
+<section class="offer-detail-hero">
+    <div class="offer-detail-hero-media" aria-hidden="true"></div>
+    <div class="container offer-detail-hero-content">
         <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li><li class="breadcrumb-item"><a href="{% url 'services_app:user_offers_list' %}">Offres</a></li><li class="breadcrumb-item active" aria-current="page">{{ offer.title }}</li></ol></nav>
+        <span class="about-kicker">Offre exclusive · {{ offer.service.name }}</span>
         <h1>{{ offer.title }}</h1>
         <p>Manifestez votre intérêt pour cette offre : notre équipe vous recontacte pour organiser votre prestation.</p>
     </div>

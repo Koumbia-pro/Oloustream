@@ -4,7 +4,7 @@
         <div class="row g-4 g-lg-5">
             <div class="col-lg-4">
                 <a href="{% url 'core:home' %}" class="brand">
-                    <img src="{% static 'img/logo.jpg' %}" alt="" width="38" height="38">
+                    <img src="{% static 'img/logo.jpg' %}" alt="Logo Oloustream" width="38" height="38">
                     <span class="brand-name">OLOU<span class="text-red">STREAM</span></span>
                 </a>
                 <p class="footer-about">
@@ -59,6 +59,14 @@
                     </li>
                     <li><i class="fa-regular fa-clock"></i><span>Lundi – samedi, 8 h – 18 h</span></li>
                 </ul>
+            </div>
+
+            <div class="col-md-4 col-lg-2 footer-qr-column">
+                <h4>Nous suivre</h4>
+                <a class="footer-qr" href="{% url 'core:home' %}" aria-label="Découvrir Oloustream">
+                    <img src="{% static 'img/qr-code.png' %}" alt="Code QR pour découvrir Oloustream" loading="lazy">
+                    <span>Scannez pour découvrir<br>Oloustream</span>
+                </a>
             </div>
         </div>
 
