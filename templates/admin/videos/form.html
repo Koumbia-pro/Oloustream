@@ -55,7 +55,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
+<script nonce="{{ csp_nonce }}">
 (function () {
     var input = document.getElementById("{{ form.youtube_url.id_for_label }}");
     var img = document.getElementById("yt-preview");

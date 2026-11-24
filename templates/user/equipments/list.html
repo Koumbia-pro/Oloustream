@@ -81,7 +81,7 @@
 
 {% block extra_js %}
 {% if equipments %}
-<script>
+<script nonce="{{ csp_nonce }}">
 (function () {
     var chips = document.querySelectorAll("[data-filter]");
     var items = document.querySelectorAll("[data-item]");

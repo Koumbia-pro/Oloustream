@@ -192,7 +192,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
+<script nonce="{{ csp_nonce }}">
 (function () {
     var known = document.getElementById("{{ form.budget_known.id_for_label }}");
     var range = document.getElementById("budget-range");

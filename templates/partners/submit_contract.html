@@ -87,7 +87,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
+<script nonce="{{ csp_nonce }}">
 (function () {
     var rate = parseFloat(JSON.parse(document.getElementById("commission-rate").textContent)) || 0;
     var input = document.getElementById("{{ form.contract_amount.auto_id }}");

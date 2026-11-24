@@ -566,7 +566,7 @@ body.site { padding-top: var(--ol-header-h); display: flex; flex-direction: colu
 .mockup-home .logo-wall .logo-item { background: #fff; border: 0; }
 .mockup-home .cta-band { background: #120b0b; border: 1px solid rgba(239,43,31,.35); }
 .mockup-home .site-footer { background: #050405; border-top: 1px solid rgba(239,43,31,.35); }
-.mockup-home .btn-primary { --bs-btn-bg: var(--mock-red); --bs-btn-border-color: var(--mock-red); --bs-btn-hover-bg: #c91f16; --bs-btn-hover-border-color: #c91f16; }
+.mockup-home .btn-primary { --bs-btn-bg: var(--ol-red); --bs-btn-border-color: var(--ol-red); --bs-btn-hover-bg: #c91f16; --bs-btn-hover-border-color: #c91f16; }
 .mockup-home .btn-light { --bs-btn-bg: #fff; --bs-btn-border-color: #fff; }
 .mockup-home .ol-form label,
 .mockup-home .ol-form .form-label { color: #fff !important; }

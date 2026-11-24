@@ -114,3 +114,32 @@ class HttpsUrlFieldTests(SimpleTestCase):
         from apps.accounts.forms import EmployeeCreateForm
         field = EmployeeCreateForm.base_fields["linkedin_url"]
         self.assertEqual(field.clean("linkedin.com/in/test"), "https://linkedin.com/in/test")
+
+
+class ContentSecurityPolicyTests(TestCase):
+    def test_entete_et_nonce_de_la_page(self):
+        import re
+        response = self.client.get(reverse("core:home"))
+        policy = response.headers["Content-Security-Policy"]
+        self.assertIn("frame-ancestors 'none'", policy)
+        self.assertIn("object-src 'none'", policy)
+        nonce = re.search(r"'nonce-([^']+)'", policy).group(1)
+        self.assertContains(response, f'<script nonce="{nonce}">')
+
+    def test_nonce_change_a_chaque_page(self):
+        first = self.client.get(reverse("core:home")).headers["Content-Security-Policy"]
+        second = self.client.get(reverse("core:home")).headers["Content-Security-Policy"]
+        self.assertNotEqual(first, second)
+
+    def test_tous_les_scripts_integres_portent_le_nonce(self):
+        """Garde-fou : un <script> écrit dans un gabarit sans nonce serait bloqué en ligne."""
+        import re
+        from pathlib import Path
+        from django.conf import settings
+        oublis = []
+        for template in Path(settings.BASE_DIR, "templates").rglob("*.html"):
+            for tag in re.findall(r"<script\b[^>]*>", template.read_text(encoding="utf-8")):
+                if "src=" in tag or "nonce=" in tag or re.search(r'type="application/(ld\+)?json"', tag):
+                    continue
+                oublis.append(f"{template}: {tag}")
+        self.assertEqual(oublis, [], "Ajoutez nonce=\"{{ csp_nonce }}\" à ces balises <script>")

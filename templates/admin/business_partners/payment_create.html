@@ -120,7 +120,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
+<script nonce="{{ csp_nonce }}">
 (function () {
     var btn = document.getElementById("fill-pending");
     var input = document.getElementById("pay-amount");

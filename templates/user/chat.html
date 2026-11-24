@@ -68,7 +68,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
+<script nonce="{{ csp_nonce }}">
 (function () {
     var scroller = document.getElementById("chat-scroll");
     if (scroller) scroller.scrollTop = scroller.scrollHeight;

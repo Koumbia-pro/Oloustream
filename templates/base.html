@@ -9,7 +9,7 @@
     <meta name="author" content="Oloustream">
     <link rel="canonical" href="{% block canonical_url %}{{ request.build_absolute_uri }}{% endblock %}">
     <meta name="theme-color" content="#080607">
-    <script>
+    <script nonce="{{ csp_nonce }}">
         /* Thème choisi par le visiteur, appliqué avant l'affichage pour éviter un flash de couleur. */
         (function () {
             var theme = "dark";

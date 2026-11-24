@@ -78,3 +78,19 @@ jobs:
             **/logs/**
             **/.cache/**
             arborescence.txt
+            tmp/**
+
+      # Redémarrage automatique : Passenger redémarre l'application dès que
+      # tmp/restart.txt change. Envoyé en dernier, une fois tout le code en place.
+      - name: Préparer le redémarrage
+        run: mkdir -p restart && echo "Déploiement ${{ github.sha }} – $(date -u '+%Y-%m-%d %H:%M:%S UTC')" > restart/restart.txt
+
+      - name: Redémarrer l'application
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 21
+          local-dir: ./restart/
+          server-dir: /oloustream.com/tmp/
