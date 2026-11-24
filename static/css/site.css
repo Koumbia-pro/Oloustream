@@ -1098,3 +1098,32 @@ body.site:not(.mockup-home) .ol-chip:hover { color: #fff; background: #ef2b1f; b
     .whatsapp-fab { right: .8rem; bottom: 5.1rem; width: 46px; height: 46px; font-size: 1.3rem; }
     body { padding-bottom: 4.25rem; }
 }
+
+/* Fenêtre vidéo agrandie : toujours en 16/9 et jamais plus haute que l'écran */
+.video-modal .modal-dialog {
+    max-width: min(1140px, calc(100vw - 1rem), calc((100vh - 7rem) * 16 / 9));
+    margin-left: auto;
+    margin-right: auto;
+}
+.video-modal .modal-content {
+    background: #0b0b0d;
+    color: #fff;
+    border: 0;
+    border-radius: .75rem;
+    overflow: hidden;
+}
+.video-modal .modal-header {
+    border-bottom: 0;
+    padding: .6rem .9rem;
+}
+.video-modal .modal-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.video-modal-frame iframe { border: 0; }
+@supports (height: 100dvh) {
+    .video-modal .modal-dialog {
+        max-width: min(1140px, calc(100vw - 1rem), calc((100dvh - 7rem) * 16 / 9));
+    }
+}

@@ -202,3 +202,50 @@
         if (event.key === "Escape" && galleryLightbox && !galleryLightbox.hidden) closeGallery();
     });
 })();
+
+/* Lecture des vidéos YouTube sur le site, dans une fenêtre agrandie et responsive */
+(function () {
+    var modal, frameBox, titleEl;
+
+    function buildModal() {
+        modal = document.createElement('div');
+        modal.className = 'modal fade video-modal';
+        modal.tabIndex = -1;
+        modal.setAttribute('aria-hidden', 'true');
+        modal.innerHTML =
+            '<div class="modal-dialog modal-dialog-centered modal-xl">' +
+            '  <div class="modal-content">' +
+            '    <div class="modal-header">' +
+            '      <h2 class="modal-title h6 mb-0"></h2>' +
+            '      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>' +
+            '    </div>' +
+            '    <div class="ratio ratio-16x9 video-modal-frame"></div>' +
+            '  </div>' +
+            '</div>';
+        document.body.appendChild(modal);
+        frameBox = modal.querySelector('.video-modal-frame');
+        titleEl = modal.querySelector('.modal-title');
+        // Coupe la vidéo à la fermeture
+        modal.addEventListener('hidden.bs.modal', function () { frameBox.innerHTML = ''; });
+    }
+
+    document.addEventListener('click', function (event) {
+        var link = event.target.closest('[data-yt-play]');
+        if (!link || !window.bootstrap) return;
+        var id = link.getAttribute('data-yt-play');
+        if (!/^[A-Za-z0-9_-]{6,20}$/.test(id)) return;
+        event.preventDefault();
+        if (!modal) buildModal();
+        var img = link.querySelector('img');
+        var title = img ? img.alt : 'Vidéo';
+        titleEl.textContent = title;
+        var iframe = document.createElement('iframe');
+        iframe.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&playsinline=1';
+        iframe.title = title;
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen';
+        iframe.allowFullscreen = true;
+        frameBox.innerHTML = '';
+        frameBox.appendChild(iframe);
+        window.bootstrap.Modal.getOrCreateInstance(modal).show();
+    });
+})();
