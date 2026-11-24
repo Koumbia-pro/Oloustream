@@ -14,11 +14,14 @@
     <meta property="og:description" content="{% block og_description %}Studios, live streaming, captation et formations audiovisuelles à Ouagadougou.{% endblock %}">
     <meta property="og:type" content="{% block og_type %}website{% endblock %}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
-    <meta property="og:image" content="{% block og_image %}{{ SITE_URL }}{% static 'img/logo.jpg' %}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ SITE_URL }}{% static 'img/og-oloustream.jpg' %}{% endblock %}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Studio Oloustream à Ouagadougou">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{% block twitter_title %}{{ self.title }}{% endblock %}">
     <meta name="twitter:description" content="{% block twitter_description %}Studios, live streaming, captation et formations audiovisuelles à Ouagadougou.{% endblock %}">
-    <meta name="twitter:image" content="{% block twitter_image %}{{ SITE_URL }}{% static 'img/logo.jpg' %}{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{{ SITE_URL }}{% static 'img/og-oloustream.jpg' %}{% endblock %}">
     <link rel="icon" type="image/png" href="{% static 'img/icone-oloustream.png' %}">
     <link rel="apple-touch-icon" href="{% static 'img/icone-oloustream.png' %}">
 

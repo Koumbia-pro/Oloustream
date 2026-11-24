@@ -4,11 +4,14 @@ from django.contrib import messages
 from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.utils.html import escape
 from django.views.decorators.http import require_GET
 from django.views.generic import TemplateView
 
 from apps.services_app.models import Partner, Service, Training
-from apps.studio.models import Studio
+from apps.services_app.models import JobOffer, JobOfferStatusChoices
+from apps.studio.models import Equipment, Studio
 
 from .forms import ContactRequestForm
 from .ratelimit import RateLimiter, client_ip
@@ -142,5 +145,52 @@ def robots_txt(request):
         "Disallow: /fichiers/",
         "Disallow: /partenaires/dashboard/",
         "Disallow: /studio/my/",
+        "",
+        f"Sitemap: {settings.SITE_URL}{reverse('core:sitemap')}",
     ]
     return HttpResponse("\n".join(lines) + "\n", content_type="text/plain")
+
+
+# Pages publiques fixes du plan du site : (nom d'URL, priorité, fréquence de mise à jour)
+SITEMAP_STATIC_PAGES = [
+    ("core:home", "1.0", "weekly"),
+    ("core:realisations", "0.9", "weekly"),
+    ("studio:user_studio_list", "0.9", "weekly"),
+    ("core:about", "0.8", "monthly"),
+    ("services_app:user_trainings_list", "0.8", "weekly"),
+    ("studio:user_equipment_list", "0.7", "weekly"),
+    ("core:contact", "0.7", "monthly"),
+    ("services_app:user_jobs_list", "0.6", "weekly"),
+    ("services_app:user_offers_list", "0.6", "weekly"),
+    ("core:legal", "0.2", "yearly"),
+    ("core:privacy", "0.2", "yearly"),
+]
+
+
+@require_GET
+def sitemap_xml(request):
+    """Plan du site pour les moteurs de recherche (pages publiques uniquement)."""
+    entries = [(reverse(name), priority, freq) for name, priority, freq in SITEMAP_STATIC_PAGES]
+    entries += [
+        (reverse("studio:user_studio_detail", args=[pk]), "0.8", "monthly")
+        for pk in Studio.objects.filter(is_active=True).values_list("pk", flat=True)
+    ]
+    entries += [
+        (reverse("studio:user_equipment_detail", args=[pk]), "0.5", "monthly")
+        for pk in Equipment.objects.filter(is_available_for_rent=True).values_list("pk", flat=True)
+    ]
+    entries += [
+        (reverse("services_app:user_jobs_detail", args=[slug]), "0.5", "weekly")
+        for slug in JobOffer.objects.filter(status=JobOfferStatusChoices.PUBLISHED)
+        .exclude(slug="").values_list("slug", flat=True)
+    ]
+
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for path, priority, freq in entries:
+        lines.append(
+            f"  <url><loc>{escape(settings.SITE_URL + path)}</loc>"
+            f"<changefreq>{freq}</changefreq><priority>{priority}</priority></url>"
+        )
+    lines.append("</urlset>")
+    return HttpResponse("\n".join(lines) + "\n", content_type="application/xml")
