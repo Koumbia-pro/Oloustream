@@ -90,3 +90,13 @@ class AssetVersionTests(SimpleTestCase):
         url = asset("css/site.css")
         self.assertRegex(url, r"^/static/css/site\.css\?v=[0-9a-f]{10}$")
         self.assertNotEqual(asset("css/site.css"), asset("js/site.js").replace("js/site.js", "css/site.css"))
+
+
+class CssBundleTests(SimpleTestCase):
+    def test_fichiers_css_regroupes_a_jour(self):
+        from apps.core.cssbundle import BUNDLES, STATIC_DIR, build_bundle
+
+        for bundle in BUNDLES:
+            current = (STATIC_DIR / bundle).read_text(encoding="utf-8")
+            self.assertEqual(current, build_bundle(bundle),
+                             f"{bundle} n'est pas à jour : lancez « python manage.py build_css ».")
