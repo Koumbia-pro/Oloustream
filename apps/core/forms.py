@@ -1,7 +1,15 @@
 from django import forms
+from django.db import models
 
 from .models import ContactRequest, Testimonial, VideoRealisation
 from .validators import UploadValidationMixin, validate_image
+
+
+def https_formfield(db_field, **kwargs):
+    """Champs « lien web » : un lien saisi sans protocole est complété en https://."""
+    if isinstance(db_field, models.URLField):
+        kwargs.setdefault("assume_scheme", "https")
+    return db_field.formfield(**kwargs)
 
 
 class BootstrapFormMixin:

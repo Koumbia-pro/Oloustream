@@ -1,9 +1,11 @@
 from django.contrib import admin
+from django.db import models
 from .models import Partner, Service, Offer, Training, TrainingEnrollment, OfferApplication
 
 
 @admin.register(Partner)
 class PartnerAdmin(admin.ModelAdmin):
+    formfield_overrides = {models.URLField: {"assume_scheme": "https"}}
     list_display = ('name', 'website', 'active')
     list_filter = ('active',)
     search_fields = ('name',)

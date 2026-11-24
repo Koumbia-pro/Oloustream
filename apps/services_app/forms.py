@@ -1,6 +1,6 @@
 from django import forms
 
-from apps.core.forms import BootstrapFormMixin
+from apps.core.forms import BootstrapFormMixin, https_formfield
 from apps.core.validators import UploadValidationMixin, validate_image, validate_pdf
 
 from .models import (
@@ -132,6 +132,7 @@ class PartnerForm(BootstrapFormMixin, UploadValidationMixin, forms.ModelForm):
 
     class Meta:
         model = Partner
+        formfield_callback = https_formfield
         fields = (
             'name',
             'logo',
@@ -186,6 +187,7 @@ class JobOfferForm(BootstrapFormMixin, UploadValidationMixin, forms.ModelForm):
 class JobApplicationForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = JobApplication
+        formfield_callback = https_formfield
         fields = ("full_name", "email", "phone", "portfolio_url", "cv", "cover_letter")
         widgets = {
             "cover_letter": forms.Textarea(attrs={"rows": 5}),

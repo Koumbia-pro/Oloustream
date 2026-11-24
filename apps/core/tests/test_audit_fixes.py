@@ -100,3 +100,17 @@ class CssBundleTests(SimpleTestCase):
             current = (STATIC_DIR / bundle).read_text(encoding="utf-8")
             self.assertEqual(current, build_bundle(bundle),
                              f"{bundle} n'est pas à jour : lancez « python manage.py build_css ».")
+
+
+class HttpsUrlFieldTests(SimpleTestCase):
+    """Un lien saisi sans protocole est complété en https:// (comportement de Django 6)."""
+
+    def test_formulaire_partenaire(self):
+        from apps.services_app.forms import PartnerForm
+        field = PartnerForm.base_fields["website"]
+        self.assertEqual(field.clean("oloustream.com"), "https://oloustream.com")
+
+    def test_formulaire_profil(self):
+        from apps.accounts.forms import EmployeeCreateForm
+        field = EmployeeCreateForm.base_fields["linkedin_url"]
+        self.assertEqual(field.clean("linkedin.com/in/test"), "https://linkedin.com/in/test")

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db import models
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from .models import User, EmployeeProfile
 
@@ -12,4 +13,5 @@ class UserAdmin(DjangoUserAdmin):
 
 @admin.register(EmployeeProfile)
 class EmployeeProfileAdmin(admin.ModelAdmin):
+    formfield_overrides = {models.URLField: {"assume_scheme": "https"}}
     list_display = ('user', 'position')

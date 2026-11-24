@@ -199,10 +199,10 @@ class EmployeeCreateForm(EmployeeAccessMixin, UserCreationForm):
     )
 
     # 3. Contacts personnels (complémentaires)
-    linkedin_url = forms.URLField(label="LinkedIn", required=False)
-    facebook_url = forms.URLField(label="Facebook", required=False)
-    twitter_url = forms.URLField(label="Twitter / X", required=False)
-    instagram_url = forms.URLField(label="Instagram", required=False)
+    linkedin_url = forms.URLField(label="LinkedIn", required=False, assume_scheme="https")
+    facebook_url = forms.URLField(label="Facebook", required=False, assume_scheme="https")
+    twitter_url = forms.URLField(label="Twitter / X", required=False, assume_scheme="https")
+    instagram_url = forms.URLField(label="Instagram", required=False, assume_scheme="https")
 
     # 4. Données administratives
     hire_date = forms.DateField(
@@ -319,10 +319,10 @@ class EmployeeUpdateForm(EmployeeAccessMixin, forms.ModelForm):
         label="Diplômes principaux",
         required=False,
     )
-    linkedin_url = forms.URLField(label="LinkedIn", required=False)
-    facebook_url = forms.URLField(label="Facebook", required=False)
-    twitter_url = forms.URLField(label="Twitter / X", required=False)
-    instagram_url = forms.URLField(label="Instagram", required=False)
+    linkedin_url = forms.URLField(label="LinkedIn", required=False, assume_scheme="https")
+    facebook_url = forms.URLField(label="Facebook", required=False, assume_scheme="https")
+    twitter_url = forms.URLField(label="Twitter / X", required=False, assume_scheme="https")
+    instagram_url = forms.URLField(label="Instagram", required=False, assume_scheme="https")
     hire_date = forms.DateField(
         label="Date d'embauche",
         required=False,
