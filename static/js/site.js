@@ -249,3 +249,28 @@
         window.bootstrap.Modal.getOrCreateInstance(modal).show();
     });
 })();
+
+/* Choix du thème clair / sombre, mémorisé dans le navigateur du visiteur */
+(function () {
+    var root = document.documentElement;
+    var metaColor = document.querySelector('meta[name="theme-color"]');
+
+    function apply(theme) {
+        root.setAttribute('data-theme', theme);
+        if (metaColor) metaColor.setAttribute('content', theme === 'light' ? '#ffffff' : '#080607');
+        var label = theme === 'light' ? 'Passer au thème sombre' : 'Passer au thème clair';
+        document.querySelectorAll('[data-theme-toggle]').forEach(function (button) {
+            button.setAttribute('aria-label', label);
+            button.setAttribute('title', label);
+        });
+    }
+
+    apply(root.getAttribute('data-theme') === 'light' ? 'light' : 'dark');
+
+    document.addEventListener('click', function (event) {
+        if (!event.target.closest('[data-theme-toggle]')) return;
+        var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        apply(next);
+        try { localStorage.setItem('ol-theme', next); } catch (e) {}
+    });
+})();

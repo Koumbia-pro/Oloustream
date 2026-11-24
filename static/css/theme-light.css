@@ -1,0 +1,192 @@
+/* =====================================================================
+   Thème clair d'Oloustream
+   Le site est conçu en sombre (site.css). Cette feuille ne s'applique que
+   lorsque le visiteur choisit le thème clair : <html data-theme="light">.
+   Les « îlots sombres » (bandeaux photo, pied de page, bandeaux d'appel à
+   l'action, vignettes photo) restent sombres dans les deux thèmes, pour que
+   leur texte blanc reste toujours lisible : les règles ci-dessous les
+   excluent avec :not(îlot) et :not(îlot *).
+   ===================================================================== */
+html[data-theme="light"] {
+    color-scheme: light;
+    --lt-bg: #ffffff;
+    --lt-bg-alt: #f7f2f0;
+    --lt-card: #ffffff;
+    --lt-border: #eadfdc;
+    --lt-border-strong: #d6c8c4;
+    --lt-ink: #170d0c;        /* titres          — contraste 18:1 sur blanc */
+    --lt-text: #3a2f2d;       /* texte courant   — contraste 12:1 */
+    --lt-muted: #665a57;      /* texte secondaire — contraste 6,5:1 */
+    --lt-red-text: #c0150b;   /* liens et prix rouges — contraste 6:1 */
+    --lt-shadow: 0 1px 2px rgba(23, 13, 12, .05), 0 8px 24px rgba(23, 13, 12, .06);
+}
+html[data-theme="dark"] { color-scheme: dark; }
+
+/* ---------- Fonds de page et sections ---------- */
+html[data-theme="light"] body.site,
+html[data-theme="light"] body.site .site-main,
+html[data-theme="light"] body.site .section:not(.section-dark),
+html[data-theme="light"] body.site :is(.careers-offers-section, .partner-advantages, .offers-list-section,
+    .contact-section, .trainings-list-section, .equipment-list-section, .gallery-section,
+    .auth-wrap) {
+    background: var(--lt-bg);
+    color: var(--lt-text);
+}
+html[data-theme="light"] body.site :is(.section-alt:not(.section-dark), .careers-values-section, .partner-process) {
+    background: var(--lt-bg-alt);
+    border-color: var(--lt-border);
+}
+html[data-theme="light"] body.site .auth-main {
+    background: radial-gradient(circle at 15% 20%, rgba(239, 43, 31, .07), transparent 32%), var(--lt-bg-alt);
+}
+html[data-theme="light"] body.site .page-hero-light {
+    background: var(--lt-bg-alt);
+    border-bottom: 1px solid var(--lt-border);
+}
+html[data-theme="light"] body.site .page-hero-light::before { display: none; }
+
+/* ---------- En-tête ---------- */
+html[data-theme="light"] body.site .site-header {
+    background: rgba(255, 255, 255, .95);
+    border-bottom-color: var(--lt-border);
+}
+html[data-theme="light"] body.site .site-header.is-scrolled { box-shadow: 0 4px 20px rgba(23, 13, 12, .08); }
+html[data-theme="light"] body.site .site-header :is(.brand-name, .main-nav .nav-a, .nav-burger, .btn-ghost) { color: var(--lt-ink); }
+html[data-theme="light"] body.site .site-header .main-nav .nav-a:hover,
+html[data-theme="light"] body.site .site-header .main-nav .nav-a[aria-expanded="true"] { background: rgba(23, 13, 12, .06); }
+
+/* ---------- Titres ---------- */
+html[data-theme="light"] body.site :is(h1, h2, h3, h4, h5, h6, .text-ink, .section-title, .ol-card-title,
+    .ol-card-title a, .feature h3, .career-value h3, .partner-feature h3, .steps > .step h4,
+    .ol-form-section-title, .auth-card h1, .account-nav .who strong, .offer-detail-page .ol-meta dd):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *) {
+    color: var(--lt-ink) !important;
+}
+
+/* ---------- Textes secondaires ---------- */
+html[data-theme="light"] body.site :is(.text-muted, .small.text-muted, .section-lead, .ol-card-text,
+    .ol-icon-list, .ol-empty p, .feature p, .steps > .step p, .careers-section-head p, .career-value p,
+    .partner-feature p, .offers-section-head p, .trainings-section-head p, .auth-card .sub,
+    .ol-form-section-desc, .auth-divider, .password-field .toggle-pw):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *) {
+    color: var(--lt-muted) !important;
+}
+
+/* ---------- Cartes ---------- */
+html[data-theme="light"] body.site :is(.ol-card, .feature, .career-value, .auth-card, .realisation-filter):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *) {
+    background: var(--lt-card);
+    border-color: var(--lt-border);
+    color: var(--lt-text);
+    box-shadow: var(--lt-shadow);
+}
+html[data-theme="light"] body.site :is(.ol-card-header, .ol-card-footer, .offer-card .ol-card-footer):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *) {
+    background: var(--lt-bg-alt);
+    border-color: var(--lt-border);
+}
+html[data-theme="light"] body.site :is(.ol-form-section, .offer-card .ol-badge):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *) { border-color: var(--lt-border); }
+
+/* ---------- Accents rouges : version foncée pour rester lisible sur blanc ---------- */
+html[data-theme="light"] body.site :is(.link-arrow, .ol-price, .studios-page .ol-price, .trainings-page .ol-price,
+    .partner-commission .ol-price, .auth-card a:not(.btn), .auth-kicker):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *) { color: var(--lt-red-text); }
+html[data-theme="light"] body.site .ol-badge-gold:not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *) { background: rgba(239, 43, 31, .1); color: var(--lt-red-text); }
+html[data-theme="light"] body.site .realisation-filter.is-active,
+html[data-theme="light"] body.site .realisation-filter:hover { background: #ef2b1f; border-color: #ef2b1f; color: #fff; }
+
+/* ---------- Formulaires ---------- */
+html[data-theme="light"] body.site :is(.form-label, .ol-form label, .ol-form .form-label, .auth-card label, .auth-card .form-label):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *) {
+    color: var(--lt-ink) !important;
+}
+html[data-theme="light"] body.site :is(.form-control, .form-select, .ol-form select, .ol-form textarea,
+    .ol-form input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+    .auth-card .form-control):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *),
+html[data-theme="light"] body.site .ol-form #id_company {
+    color: var(--lt-ink) !important;
+    background-color: #fff !important;
+    border-color: var(--lt-border-strong);
+}
+html[data-theme="light"] body.site :is(.form-control, .ol-form input, .ol-form textarea, .auth-card .form-control)::placeholder,
+html[data-theme="light"] body.site .ol-form #id_company::placeholder { color: #85776f !important; }
+html[data-theme="light"] body.site :is(.form-control, .form-select):focus { border-color: #ef2b1f; box-shadow: 0 0 0 .2rem rgba(239, 43, 31, .15); }
+html[data-theme="light"] body.site :is(.ol-form .text-muted, .ol-form small, .form-text):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *) { color: var(--lt-muted) !important; }
+html[data-theme="light"] body.site :is(.ol-form .invalid-feedback, .ol-form .errorlist, .auth-card .errorlist, .auth-card .invalid-feedback):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *) { color: #b91c1c; }
+html[data-theme="light"] body.site .auth-card .form-check-input { background-color: #fff; border-color: var(--lt-border-strong); }
+html[data-theme="light"] body.site .auth-card .form-check-input:checked { background-color: #ef2b1f; border-color: #ef2b1f; }
+html[data-theme="light"] body.site .auth-divider::before,
+html[data-theme="light"] body.site .auth-divider::after { background: var(--lt-border); }
+
+/* ---------- Boutons clairs posés sur fond clair ---------- */
+html[data-theme="light"] body.site .btn-light:not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *) {
+    --bs-btn-color: var(--lt-ink);
+    --bs-btn-bg: #f4eeec;
+    --bs-btn-border-color: var(--lt-border-strong);
+    --bs-btn-hover-color: var(--lt-ink);
+    --bs-btn-hover-bg: #ebe2df;
+    --bs-btn-hover-border-color: #c9b9b5;
+    --bs-btn-active-bg: #e2d6d3;
+}
+
+/* ---------- Espace client : menu, tableaux, puces ---------- */
+html[data-theme="light"] body.site .account-nav a:not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *) { color: var(--lt-text); }
+html[data-theme="light"] body.site .account-nav a:hover:not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *) { background: rgba(23, 13, 12, .05); }
+html[data-theme="light"] body.site .account-nav a.active:not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *) { background: rgba(239, 43, 31, .1); color: var(--lt-red-text); }
+html[data-theme="light"] body.site .table:not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *) { color: var(--lt-text); }
+html[data-theme="light"] body.site .table > :not(caption) > * > *:not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *) { border-bottom-color: var(--lt-border); }
+html[data-theme="light"] body.site .table thead th:not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *) { color: var(--lt-ink); }
+html[data-theme="light"] body.site .ol-chip:not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual)):not(:is(.hero, .page-hero:not(.page-hero-light), [class*="-hero"]:not(.page-hero-light), .section-dark, .site-footer, .cta-band, .expertise-feature, .project-type, .gallery-item, .gallery-lightbox, .auth-aside, .video-modal, .ol-media, .about-visual) *) { color: var(--lt-text); border-color: var(--lt-border-strong); }
+html[data-theme="light"] body.site .ol-chip.active,
+html[data-theme="light"] body.site .ol-chip:hover { color: #fff; background: #ef2b1f; border-color: #ef2b1f; }
+
+/* ---------- Programme partenaires : questions fréquentes ---------- */
+html[data-theme="light"] body.site.partner-page .accordion {
+    --bs-accordion-bg: #fff;
+    --bs-accordion-color: var(--lt-text);
+    --bs-accordion-border-color: var(--lt-border);
+    --bs-accordion-btn-color: var(--lt-ink);
+    --bs-accordion-btn-bg: #fff;
+    --bs-accordion-active-color: var(--lt-red-text);
+    --bs-accordion-active-bg: rgba(239, 43, 31, .07);
+}
+html[data-theme="light"] body.site.partner-page .accordion-button::after { filter: none; }
+
+/* ---------- Îlots sombres : fond plein pour ne pas laisser passer le blanc de la page ---------- */
+html[data-theme="light"] body.site :is(.expertise-feature, .project-type, .gallery-item) { background-color: #120b0b; }
+
+/* ---------- Accueil : mur de logos ---------- */
+html[data-theme="light"] body.site .logo-wall .logo-item { border: 1px solid var(--lt-border); box-shadow: var(--lt-shadow); }
+
+/* ---------- Barre d'actions mobile ---------- */
+@media (max-width: 767.98px) {
+    html[data-theme="light"] body.site .mobile-quick-actions {
+        background: rgba(255, 255, 255, .97);
+        border-color: var(--lt-border);
+        box-shadow: 0 10px 30px rgba(23, 13, 12, .14);
+    }
+    html[data-theme="light"] body.site .mobile-quick-action { color: var(--lt-ink); }
+    html[data-theme="light"] body.site .mobile-quick-action i { color: var(--lt-red-text); }
+    html[data-theme="light"] body.site .mobile-quick-whatsapp i { color: #1a9e4b; }
+    html[data-theme="light"] body.site .mobile-quick-action:hover { background: rgba(239, 43, 31, .08); color: var(--lt-ink); }
+}
+
+/* ---------- Bouton de changement de thème ---------- */
+.theme-toggle {
+    display: inline-grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, .28);
+    border-radius: 50%;
+    background: transparent;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
+}
+.theme-toggle:hover { background: rgba(255, 255, 255, .1); transform: rotate(-12deg); }
+.theme-toggle:focus-visible { outline: 3px solid rgba(239, 43, 31, .45); outline-offset: 2px; }
+html[data-theme="light"] .theme-toggle { color: var(--lt-ink); border-color: var(--lt-border-strong); }
+html[data-theme="light"] .theme-toggle:hover { background: rgba(23, 13, 12, .06); }
+.theme-toggle .icon-sun { display: none; }
+html[data-theme="light"] .theme-toggle .icon-sun { display: inline; }
+html[data-theme="light"] .theme-toggle .icon-moon { display: none; }
+.theme-toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+@media (prefers-reduced-motion: reduce) { .theme-toggle, .theme-toggle:hover { transition: none; transform: none; } }
