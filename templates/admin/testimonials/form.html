@@ -1,0 +1,53 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}{% if testimonial %}Modifier le témoignage{% else %}Ajouter un témoignage{% endif %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Tableau de bord</a></li><li class="breadcrumb-item"><a href="{% url 'dashboard:testimonials_list' %}">Témoignages</a></li><li class="breadcrumb-item active">{% if testimonial %}Modifier{% else %}Ajouter{% endif %}</li></ol></nav>
+        <h1>{% if testimonial %}Modifier le témoignage{% else %}Ajouter un témoignage{% endif %}</h1>
+    </div>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="ol-form" novalidate>
+    {% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="ol-card ol-card-body">
+                <section class="ol-form-section">
+                    <h2 class="ol-form-section-title"><span class="step">1</span> Le témoignage</h2>
+                    <p class="ol-form-section-desc">Une à trois phrases suffisent. Les guillemets sont ajoutés automatiquement.</p>
+                    {% include "partials/field.html" with field=form.quote %}
+                </section>
+                <section class="ol-form-section">
+                    <h2 class="ol-form-section-title"><span class="step">2</span> Le client</h2>
+                    <div class="row g-3">
+                        <div class="col-md-6">{% include "partials/field.html" with field=form.author_name %}</div>
+                        <div class="col-md-6">{% include "partials/field.html" with field=form.author_role %}</div>
+                        <div class="col-12">{% include "partials/field.html" with field=form.organization %}</div>
+                    </div>
+                </section>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="side-sticky d-grid gap-4">
+                <div class="ol-card ol-card-body">
+                    <h2 class="h6 mb-3">Publication</h2>
+                    {% include "partials/field.html" with field=form.is_published help="Seuls les témoignages publiés apparaissent sur l'accueil." %}
+                    {% include "partials/field.html" with field=form.order %}
+                    <div class="ol-divider my-3"></div>
+                    <h2 class="h6 mb-3">Photo ou logo (facultatif)</h2>
+                    {% if testimonial.photo %}<div class="file-current"><img src="{{ testimonial.photo.url }}" alt="" style="object-fit: cover"><span>Image actuelle</span></div>{% endif %}
+                    {% include "partials/field.html" with field=form.photo help="Image carrée de préférence (JPG, PNG ou WebP) — 5 Mo maximum." %}
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> {% if testimonial %}Enregistrer les modifications{% else %}Ajouter le témoignage{% endif %}</button>
+                    <a href="{% url 'dashboard:testimonials_list' %}" class="btn btn-light">Annuler</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

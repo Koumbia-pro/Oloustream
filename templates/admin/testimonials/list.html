@@ -1,0 +1,70 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Témoignages clients{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Tableau de bord</a></li><li class="breadcrumb-item active">Témoignages</li></ol></nav>
+        <h1>Témoignages clients</h1>
+        <p class="subtitle">Avis de clients affichés sur l'accueil, dans la section « Ils nous font confiance ».</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'core:home' %}" target="_blank" rel="noopener" class="btn btn-light"><i class="fa-solid fa-arrow-up-right-from-square"></i> Voir sur le site</a>
+        <a href="{% url 'dashboard:testimonials_create' %}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Ajouter un témoignage</a>
+    </div>
+</div>
+
+<div class="stat-grid">
+    <div class="ol-stat"><span class="ol-stat-icon is-slate"><i class="fa-solid fa-quote-left"></i></span><div><div class="ol-stat-value">{{ stats.total }}</div><div class="ol-stat-label">Témoignages au total</div></div></div>
+    <div class="ol-stat"><span class="ol-stat-icon is-green"><i class="fa-solid fa-eye"></i></span><div><div class="ol-stat-value">{{ home_ids|length }} / {{ home_limit }}</div><div class="ol-stat-label">Affichés sur l'accueil</div></div></div>
+    <div class="ol-stat"><span class="ol-stat-icon"><i class="fa-solid fa-eye-slash"></i></span><div><div class="ol-stat-value">{{ stats.hidden }}</div><div class="ol-stat-label">Masqués</div></div></div>
+</div>
+
+<p class="small text-muted mb-3"><i class="fa-solid fa-circle-info"></i> L'accueil affiche jusqu'à {{ home_limit }} témoignages publiés, dans l'ordre de leur numéro. Demandez toujours l'accord du client avant de publier ses mots et son nom.</p>
+
+{% if testimonials %}
+<div class="row g-4">
+    {% for testimonial in testimonials %}
+    <div class="col-md-6 col-xxl-4">
+        <article class="ol-card ol-card-body h-100 d-flex flex-column{% if not testimonial.is_published %} opacity-75{% endif %}">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <i class="fa-solid fa-quote-left text-gold fs-5" aria-hidden="true"></i>
+                <span class="d-flex gap-1">
+                    {% if testimonial.is_published %}<span class="ol-badge status-active">Publié</span>{% else %}<span class="ol-badge status-inactive">Masqué</span>{% endif %}
+                    {% if testimonial.id in home_ids %}<span class="ol-badge">Accueil</span>{% endif %}
+                </span>
+            </div>
+            <blockquote class="mb-3 flex-grow-1">« {{ testimonial.quote|truncatechars:220 }} »</blockquote>
+            <div class="d-flex align-items-center gap-3 small mb-3">
+                {% if testimonial.photo %}<img src="{{ testimonial.photo.url }}" alt="" width="40" height="40" class="rounded-circle" style="object-fit:cover">{% endif %}
+                <span>
+                    <strong class="text-ink d-block">{{ testimonial.author_name|default:testimonial.author_role }}</strong>
+                    <span class="text-muted">{% if testimonial.author_name %}{{ testimonial.author_role }}{% if testimonial.organization %}, {% endif %}{% endif %}{{ testimonial.organization }}</span>
+                </span>
+            </div>
+            <div class="ol-card-actions justify-content-between">
+                <form method="post" action="{% url 'dashboard:testimonials_toggle' testimonial.id %}">{% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-light">{% if testimonial.is_published %}<i class="fa-regular fa-eye-slash"></i> Masquer{% else %}<i class="fa-regular fa-eye"></i> Publier{% endif %}</button>
+                </form>
+                <div class="row-actions">
+                    <span class="small text-muted me-2">N° {{ testimonial.order }}</span>
+                    <a href="{% url 'dashboard:testimonials_edit' testimonial.id %}" class="btn" title="Modifier" aria-label="Modifier"><i class="fa-regular fa-pen-to-square"></i></a>
+                    <a href="{% url 'dashboard:testimonials_delete' testimonial.id %}" class="btn is-danger" title="Supprimer" aria-label="Supprimer"><i class="fa-regular fa-trash-can"></i></a>
+                </div>
+            </div>
+        </article>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="ol-card">
+    <div class="ol-empty">
+        <div class="ol-empty-icon"><i class="fa-solid fa-quote-left"></i></div>
+        <h3>Aucun témoignage pour l'instant</h3>
+        <p>Ajoutez l'avis d'un client satisfait : il apparaîtra sur l'accueil.</p>
+        <a href="{% url 'dashboard:testimonials_create' %}" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Ajouter un témoignage</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

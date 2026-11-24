@@ -160,6 +160,11 @@
             <div class="col-12"><p class="text-secondary mb-0">Nos dernières productions arrivent bientôt.</p></div>
             {% endfor %}
         </div>
+        <div class="d-flex flex-wrap align-items-center justify-content-center gap-3 mt-5 pt-2 text-center">
+            <span class="fw-semibold">Un projet du même genre en tête ?</span>
+            <a href="{% url 'core:contact' %}?sujet=quote" class="btn btn-primary"><i class="fa-solid fa-file-signature"></i> Demander un devis</a>
+            <a href="{% url 'studio:user_studio_list' %}" class="btn btn-outline-light"><i class="fa-solid fa-video"></i> Réserver un studio</a>
+        </div>
     </div>
 </section>
 
@@ -209,29 +214,29 @@
             <div class="eyebrow">Ils nous font confiance</div>
             <h2 class="section-title">Entreprises, institutions et créateurs</h2>
         </div>
-        <div class="row g-4 mb-5">
-            <div class="col-md-4">
-                <figure class="ol-card ol-card-body h-100 mb-0">
-                    <i class="fa-solid fa-quote-left text-gold fs-4 mb-3"></i>
-                    <blockquote class="mb-3">« Grâce à Oloustream, nous avons professionnalisé nos conférences en ligne avec une qualité d'image et de son digne des grandes chaînes. »</blockquote>
-                    <figcaption class="small"><strong class="text-ink d-block">Responsable communication</strong><span class="text-muted">Entreprise événementielle, Ouagadougou</span></figcaption>
+        {% if testimonials %}
+        <div class="row g-4 mb-5 justify-content-center">
+            {% for testimonial in testimonials %}
+            <div class="col-md-6 col-lg-4">
+                <figure class="ol-card ol-card-body h-100 mb-0 d-flex flex-column">
+                    <i class="fa-solid fa-quote-left text-gold fs-4 mb-3" aria-hidden="true"></i>
+                    <blockquote class="mb-3 flex-grow-1">« {{ testimonial.quote }} »</blockquote>
+                    <figcaption class="small d-flex align-items-center gap-3">
+                        {% if testimonial.photo %}
+                        <img src="{{ testimonial.photo.url }}" alt="" width="44" height="44" class="rounded-circle flex-shrink-0" style="object-fit:cover" loading="lazy">
+                        {% elif testimonial.author_name %}
+                        <span class="rounded-circle flex-shrink-0 d-inline-flex align-items-center justify-content-center fw-bold text-white bg-primary" style="width:44px;height:44px" aria-hidden="true">{{ testimonial.initials }}</span>
+                        {% endif %}
+                        <span>
+                            <strong class="d-block">{{ testimonial.author_name|default:testimonial.author_role }}</strong>
+                            <span class="text-muted">{% if testimonial.author_name %}{{ testimonial.author_role }}{% if testimonial.organization %}, {% endif %}{% endif %}{{ testimonial.organization }}</span>
+                        </span>
+                    </figcaption>
                 </figure>
             </div>
-            <div class="col-md-4">
-                <figure class="ol-card ol-card-body h-100 mb-0">
-                    <i class="fa-solid fa-quote-left text-gold fs-4 mb-3"></i>
-                    <blockquote class="mb-3">« L'équipe technique est à l'écoute, réactive et force de proposition pour mettre en valeur nos événements en direct. »</blockquote>
-                    <figcaption class="small"><strong class="text-ink d-block">Chargé de projet digital</strong><span class="text-muted">Institution publique</span></figcaption>
-                </figure>
-            </div>
-            <div class="col-md-4">
-                <figure class="ol-card ol-card-body h-100 mb-0">
-                    <i class="fa-solid fa-quote-left text-gold fs-4 mb-3"></i>
-                    <blockquote class="mb-3">« Un vrai partenaire, pas seulement un prestataire. De la préparation au rendu final, tout est maîtrisé. »</blockquote>
-                    <figcaption class="small"><strong class="text-ink d-block">Créateur de contenu</strong><span class="text-muted">Chaîne YouTube</span></figcaption>
-                </figure>
-            </div>
+            {% endfor %}
         </div>
+        {% endif %}
 
         <div class="logo-wall">
             {% for partner in partners %}

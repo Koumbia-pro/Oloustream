@@ -85,6 +85,13 @@ urlpatterns = [
     path('videos/<int:video_id>/toggle/', video_toggle_view, name='videos_toggle'),
     path('videos/<int:video_id>/delete/', video_delete_view, name='videos_delete'),
 
+    # Témoignages clients (accueil)
+    path('testimonials/', testimonial_list_view, name='testimonials_list'),
+    path('testimonials/create/', testimonial_create_view, name='testimonials_create'),
+    path('testimonials/<int:testimonial_id>/edit/', testimonial_update_view, name='testimonials_edit'),
+    path('testimonials/<int:testimonial_id>/toggle/', testimonial_toggle_view, name='testimonials_toggle'),
+    path('testimonials/<int:testimonial_id>/delete/', testimonial_delete_view, name='testimonials_delete'),
+
     # Demandes de contact / devis
     path('contacts/', contacts_list_view, name='contacts_list'),
     path('contacts/<int:pk>/', contact_detail_view, name='contact_detail'),

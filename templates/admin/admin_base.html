@@ -64,6 +64,9 @@
             <a href="{% url 'dashboard:videos_list' %}" class="{% if 'videos_' in url_name %}active{% endif %}">
                 <i class="fa-brands fa-youtube"></i> Vidéos réalisations
             </a>
+            <a href="{% url 'dashboard:testimonials_list' %}" class="{% if 'testimonials_' in url_name %}active{% endif %}">
+                <i class="fa-solid fa-quote-left"></i> Témoignages
+            </a>
 
             <div class="group-title">Partenaires d'affaires</div>
             <a href="{% url 'dashboard:partner_applications_list' %}" class="{% if 'partner_application' in url_name %}active{% endif %}">

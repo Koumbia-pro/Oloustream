@@ -102,3 +102,33 @@ class VideoRealisation(models.Model):
     @property
     def watch_url(self):
         return f"https://www.youtube.com/watch?v={self.youtube_id}"
+
+
+class Testimonial(models.Model):
+    """Témoignage client affiché sur l'accueil (section « Ils nous font confiance »)."""
+
+    quote = models.TextField("Témoignage", help_text="Les mots du client, sans guillemets (ils sont ajoutés automatiquement).")
+    author_name = models.CharField("Nom de la personne", max_length=120, blank=True,
+                                   help_text="Laissez vide si le client préfère rester anonyme.")
+    author_role = models.CharField("Fonction", max_length=120, help_text="Ex. : Responsable communication")
+    organization = models.CharField("Structure / entreprise", max_length=150, blank=True,
+                                    help_text="Ex. : UNICEF Burkina Faso")
+    photo = models.ImageField("Photo ou logo", upload_to="testimonials/", blank=True, null=True)
+    is_published = models.BooleanField("Publié", default=True)
+    order = models.PositiveIntegerField("Ordre", default=0, help_text="Les plus petits numéros s'affichent en premier.")
+    created_at = models.DateTimeField("Ajouté le", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Témoignage client"
+        verbose_name_plural = "Témoignages clients"
+        ordering = ["order", "-created_at"]
+
+    def __str__(self):
+        who = self.author_name or self.author_role
+        return f"{who} — {self.organization}" if self.organization else who
+
+    @property
+    def initials(self):
+        source = self.author_name or self.organization or self.author_role
+        words = ["".join(ch for ch in word if ch.isalpha()) for word in source.split()]
+        return "".join(word[0] for word in words if word)[:2].upper()

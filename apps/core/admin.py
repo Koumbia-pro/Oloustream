@@ -43,3 +43,13 @@ class VideoRealisationAdmin(admin.ModelAdmin):
             return "L'aperçu apparaît après l'enregistrement."
         return format_html('<a href="{}" target="_blank" rel="noopener"><img src="{}" alt="" style="width:320px;border-radius:8px"></a>',
                            obj.watch_url, obj.thumbnail_url)
+
+
+from .models import Testimonial  # noqa: E402
+
+
+@admin.register(Testimonial)
+class TestimonialAdmin(admin.ModelAdmin):
+    list_display = ("__str__", "is_published", "order")
+    list_editable = ("is_published", "order")
+    search_fields = ("quote", "author_name", "organization")

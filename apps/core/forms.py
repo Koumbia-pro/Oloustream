@@ -1,6 +1,7 @@
 from django import forms
 
-from .models import ContactRequest, VideoRealisation
+from .models import ContactRequest, Testimonial, VideoRealisation
+from .validators import UploadValidationMixin, validate_image
 
 
 class BootstrapFormMixin:
@@ -62,4 +63,18 @@ class VideoRealisationForm(BootstrapFormMixin, forms.ModelForm):
             "subtitle": forms.TextInput(attrs={"placeholder": "Portrait · Entrepreneuriat"}),
             "description": forms.Textarea(attrs={"rows": 3}),
             "tags": forms.TextInput(attrs={"placeholder": "Portrait, Production"}),
+        }
+
+
+class TestimonialForm(BootstrapFormMixin, UploadValidationMixin, forms.ModelForm):
+    upload_rules = {"photo": validate_image}
+
+    class Meta:
+        model = Testimonial
+        fields = ("quote", "author_name", "author_role", "organization", "photo", "is_published", "order")
+        widgets = {
+            "quote": forms.Textarea(attrs={"rows": 4, "placeholder": "Grâce à Oloustream, nous avons…"}),
+            "author_name": forms.TextInput(attrs={"placeholder": "Awa Ouédraogo"}),
+            "author_role": forms.TextInput(attrs={"placeholder": "Responsable communication"}),
+            "organization": forms.TextInput(attrs={"placeholder": "Nom de la structure"}),
         }

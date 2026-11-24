@@ -14,7 +14,7 @@ from apps.services_app.models import JobOffer, JobOfferStatusChoices
 from apps.studio.models import Equipment, Studio
 
 from .forms import ContactRequestForm
-from .models import VideoRealisation
+from .models import Testimonial, VideoRealisation
 from .ratelimit import RateLimiter, client_ip
 from .utils import send_safely
 
@@ -45,6 +45,7 @@ def home_view(request):
         "trainings": trainings,
         "partners_count": Partner.objects.filter(active=True).count(),
         "home_videos": VideoRealisation.objects.filter(is_published=True, show_on_home=True)[:4],
+        "testimonials": Testimonial.objects.filter(is_published=True)[:6],
         "contact_form": ContactRequestForm(),
         **KEY_FIGURES,
     }
