@@ -20,11 +20,14 @@
                 </div>
             </div>
             <div class="col-lg-5">
+                {# Les compteurs ne s'affichent qu'une fois non nuls : un « 0 » mis en avant décourage. #}
+                {% if stats.total_partners or stats.total_contracts or stats.regions_covered %}
                 <div class="hero-trust mt-0 pt-0 border-0">
-                    <div><div class="num">{{ stats.total_partners }}</div><div class="lbl">Partenaires actifs</div></div>
-                    <div><div class="num">{{ stats.total_contracts }}</div><div class="lbl">Contrats réalisés</div></div>
-                    <div><div class="num">{{ stats.regions_covered }}</div><div class="lbl">Régions couvertes</div></div>
+                    {% if stats.total_partners %}<div><div class="num">{{ stats.total_partners }}</div><div class="lbl">Partenaires actifs</div></div>{% endif %}
+                    {% if stats.total_contracts %}<div><div class="num">{{ stats.total_contracts }}</div><div class="lbl">Contrats réalisés</div></div>{% endif %}
+                    {% if stats.regions_covered %}<div><div class="num">{{ stats.regions_covered }}</div><div class="lbl">Régions couvertes</div></div>{% endif %}
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>

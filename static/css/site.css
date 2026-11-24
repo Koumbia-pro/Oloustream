@@ -1127,3 +1127,30 @@ body.site:not(.mockup-home) .ol-chip:hover { color: #fff; background: #ef2b1f; b
         max-width: min(1140px, calc(100vw - 1rem), calc((100dvh - 7rem) * 16 / 9));
     }
 }
+
+/* ---------- Correctifs de lisibilité (audit du 24/11/2026) ---------- */
+/* Thème sombre : titres non colorés par la couche sombre de l'accueil (ex. « Téléphone », « WhatsApp », « Email ») */
+html[data-theme="dark"] .mockup-home :is(h1, h2, h3, h4, h5, h6) { color: #fff; }
+html[data-theme="dark"] body.site .contact-card :is(p, a) { color: #cfc5c2; }
+html[data-theme="dark"] body.site .contact-card a:hover { color: #ff7065; }
+/* Thème sombre : bouton « Connexion » de l'en-tête et bouton menu mobile */
+html[data-theme="dark"] .site-header .btn-ghost {
+    --bs-btn-color: #fff;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: rgba(255, 255, 255, .1);
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: rgba(255, 255, 255, .14);
+}
+html[data-theme="dark"] .site-header .nav-burger {
+    background: transparent;
+    border-color: rgba(255, 255, 255, .28);
+    color: #fff;
+}
+/* Petits téléphones : le grand titre de l'accueil ne doit jamais dépasser de l'écran */
+@media (max-width: 575.98px) {
+    .mockup-home .hero h1 { font-size: min(2.8rem, 10vw); overflow-wrap: anywhere; }
+    /* Les grandes gouttières (g-5) dépassaient la marge de la page et créaient un défilement horizontal */
+    .row.g-5, .row.gx-5 { --bs-gutter-x: 1.5rem; }
+}
+/* Filet de sécurité : rien ne doit faire défiler l'accueil sur le côté */
+.mockup-home .site-main { overflow-x: clip; }

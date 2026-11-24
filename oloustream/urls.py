@@ -20,8 +20,12 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
+from django.views.generic import RedirectView
 
 urlpatterns = [
+    # La connexion de /admin/ passe par la page de connexion du site, qui limite les essais
+    # de mot de passe (5 échecs = blocage 15 min). Le paramètre ?next= est conservé.
+    path('admin/login/', RedirectView.as_view(pattern_name='accounts:login', query_string=True)),
     path('admin/', admin.site.urls),
 
     # Front / site vitrine
