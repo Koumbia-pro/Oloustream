@@ -81,3 +81,12 @@ class PartnerCountersTests(TestCase):
     def test_compteurs_a_zero_masques(self):
         html = self.client.get(reverse("partners:program_info")).content.decode()
         self.assertNotIn("Partenaires actifs", html)
+
+
+class AssetVersionTests(SimpleTestCase):
+    def test_css_et_js_versionnes_par_leur_contenu(self):
+        from apps.core.templatetags.assets import asset
+
+        url = asset("css/site.css")
+        self.assertRegex(url, r"^/static/css/site\.css\?v=[0-9a-f]{10}$")
+        self.assertNotEqual(asset("css/site.css"), asset("js/site.js").replace("js/site.js", "css/site.css"))
