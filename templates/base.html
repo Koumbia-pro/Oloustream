@@ -206,7 +206,7 @@
     <div class="mobile-quick-actions" aria-label="Actions rapides">
         <a href="{% url 'core:contact' %}" class="mobile-quick-action"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i><span>Devis</span></a>
         <a href="{% url 'studio:user_studio_list' %}" class="mobile-quick-action"><i class="fa-solid fa-video" aria-hidden="true"></i><span>Studios</span></a>
-        <a href="https://wa.me/22664093196" target="_blank" rel="noopener noreferrer" class="mobile-quick-action mobile-quick-whatsapp"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i><span>WhatsApp</span></a>
+        <a href="{{ WHATSAPP_URL }}" target="_blank" rel="noopener noreferrer" class="mobile-quick-action mobile-quick-whatsapp"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i><span>WhatsApp</span></a>
         <a href="{% url 'core:realisations' %}" class="mobile-quick-action"><i class="fa-solid fa-images" aria-hidden="true"></i><span>Réalisations</span></a>
     </div>
 

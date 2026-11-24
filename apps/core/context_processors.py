@@ -1,4 +1,56 @@
+from urllib.parse import quote
+
 from django.conf import settings
+
+WHATSAPP_NUMBER = "22664093196"
+
+WHATSAPP_DEFAULT_MESSAGE = (
+    "Bonjour Oloustream 👋\n"
+    "Je viens de votre site et je souhaite des informations sur vos services.\n"
+    "Mon projet en quelques mots : …\n"
+    "Merci de me recontacter dès que possible."
+)
+
+# Message pré-rempli selon la page visitée (nom d'URL complet -> message)
+WHATSAPP_PAGE_MESSAGES = {
+    "studio:user_studio_list": (
+        "Bonjour l'équipe Oloustream 🎙️\n"
+        "Vos studios ont retenu mon attention. J'aimerais connaître leurs disponibilités "
+        "et leurs tarifs pour le … Merci !"
+    ),
+    "studio:user_equipment_list": (
+        "Bonjour l'équipe Oloustream 🎥\n"
+        "Je souhaite louer du matériel pour un tournage. Voici ce dont j'ai besoin : …\n"
+        "Pouvez-vous me faire une proposition ?"
+    ),
+    "services_app:user_trainings_list": (
+        "Bonjour l'équipe Oloustream 🎓\n"
+        "Vos formations m'intéressent beaucoup ! J'aimerais connaître les prochaines dates "
+        "et les modalités d'inscription."
+    ),
+    "core:realisations": (
+        "Bonjour l'équipe Oloustream 🎬\n"
+        "J'ai adoré vos réalisations ! J'aimerais un devis pour un projet du même type : …"
+    ),
+}
+WHATSAPP_PAGE_MESSAGES["studio:user_equipment_detail"] = WHATSAPP_PAGE_MESSAGES["studio:user_equipment_list"]
+
+
+def whatsapp_message_for(request):
+    """Choisit le message WhatsApp pré-rempli adapté à la page visitée."""
+    match = getattr(request, "resolver_match", None)
+    view_name = match.view_name if match else ""
+    if view_name == "studio:user_studio_detail":
+        from apps.studio.models import Studio
+
+        name = Studio.objects.filter(pk=match.kwargs.get("pk"), is_active=True).values_list("name", flat=True).first()
+        if name:
+            return (
+                "Bonjour l'équipe Oloustream 🎙️\n"
+                f"Le {name} a retenu mon attention. J'aimerais connaître ses disponibilités "
+                "et ses tarifs pour le … Merci !"
+            )
+    return WHATSAPP_PAGE_MESSAGES.get(view_name, WHATSAPP_DEFAULT_MESSAGE)
 
 
 def site_settings(request):
@@ -12,7 +64,7 @@ def site_settings(request):
             "phone_link": "+22664093196",
             "phone_2": "+226 25 65 53 95",
             "phone_2_link": "+22625655395",
-            "whatsapp": "https://wa.me/22664093196",
+            "whatsapp": f"https://wa.me/{WHATSAPP_NUMBER}",
             "address_lines": ["Secteur 15, Ouaga 2000", "Parcelle 10, Lot 01", "Ouagadougou, Burkina Faso"],
             "facebook": "https://www.facebook.com/oloustream",
             "instagram": "https://www.instagram.com/oloustream",
@@ -20,6 +72,7 @@ def site_settings(request):
             "linkedin": "https://www.linkedin.com/company/oloustream",
         },
         "SITE_URL": settings.SITE_URL,
+        "WHATSAPP_URL": f"https://wa.me/{WHATSAPP_NUMBER}?text={quote(whatsapp_message_for(request))}",
     }
 
 
