@@ -35,54 +35,22 @@
             <button type="button" class="realisation-filter" data-realisation-filter="digital" aria-pressed="false">Digital</button>
         </div>
         <div class="row g-4">
-            <div class="col-md-6" data-realisation-card data-realisation-category="live">
+            {% for video in videos %}
+            <div class="col-md-6" data-realisation-card data-realisation-category="{{ video.category }}">
                 <article class="ol-card ol-card-hover ol-media-card realisation-video-card" data-reveal="card">
                     <div class="ol-media ratio ratio-16x9">
-                        <iframe src="https://www.youtube.com/embed/mDGgGi5hjFI?rel=0" title="Tes Blessures d’Enfance Dirigent Encore Ta Vie… Smarty &amp; Bintou Racontent Tout" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                        <iframe src="https://www.youtube.com/embed/{{ video.youtube_id }}?rel=0" title="{{ video.title }}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                     </div>
                     <div class="ol-card-body">
-                        <h3 class="ol-card-title">Tes Blessures d’Enfance Dirigent Encore Ta Vie… Smarty &amp; Bintou Racontent Tout</h3>
-                        <p class="ol-card-text">Smarty et Bintou se confient sans filtre sur les blessures d’enfance qui façonnent encore nos vies d’adultes.</p>
-                        <div class="d-flex flex-wrap gap-2"><span class="ol-badge no-dot">Émission</span><span class="ol-badge no-dot">Talk</span></div>
+                        <h3 class="ol-card-title">{{ video.title }}</h3>
+                        {% if video.description %}<p class="ol-card-text">{{ video.description }}</p>{% endif %}
+                        {% if video.tag_list %}<div class="d-flex flex-wrap gap-2">{% for tag in video.tag_list %}<span class="ol-badge no-dot">{{ tag }}</span>{% endfor %}</div>{% endif %}
                     </div>
                 </article>
             </div>
-            <div class="col-md-6" data-realisation-card data-realisation-category="digital">
-                <article class="ol-card ol-card-hover ol-media-card realisation-video-card" data-reveal="card">
-                    <div class="ol-media ratio ratio-16x9">
-                        <iframe src="https://www.youtube.com/embed/uAJghXeFpyU?rel=0" title="Pourquoi tant de femmes BRILLANTES s’éteignent sans le savoir" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                    </div>
-                    <div class="ol-card-body">
-                        <h3 class="ol-card-title">Pourquoi tant de femmes BRILLANTES s’éteignent sans le savoir</h3>
-                        <p class="ol-card-text">Un échange sincère sur ce qui pousse tant de femmes talentueuses à s’effacer, souvent sans en avoir conscience.</p>
-                        <div class="d-flex flex-wrap gap-2"><span class="ol-badge no-dot">Digital</span><span class="ol-badge no-dot">Société</span></div>
-                    </div>
-                </article>
-            </div>
-            <div class="col-md-6" data-realisation-card data-realisation-category="production">
-                <article class="ol-card ol-card-hover ol-media-card realisation-video-card" data-reveal="card">
-                    <div class="ol-media ratio ratio-16x9">
-                        <iframe src="https://www.youtube.com/embed/9OXVHp_wnj8?rel=0" title="Comment une Femme a brisé tous les codes du Secteur Minier Africain | Aïda Tamboura" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                    </div>
-                    <div class="ol-card-body">
-                        <h3 class="ol-card-title">Comment une Femme a brisé tous les codes du Secteur Minier Africain | Aïda Tamboura</h3>
-                        <p class="ol-card-text">Le parcours d’Aïda Tamboura, qui s’est imposée dans un secteur minier africain longtemps réservé aux hommes.</p>
-                        <div class="d-flex flex-wrap gap-2"><span class="ol-badge no-dot">Portrait</span><span class="ol-badge no-dot">Production</span></div>
-                    </div>
-                </article>
-            </div>
-            <div class="col-md-6" data-realisation-card data-realisation-category="production">
-                <article class="ol-card ol-card-hover ol-media-card realisation-video-card" data-reveal="card">
-                    <div class="ol-media ratio ratio-16x9">
-                        <iframe src="https://www.youtube.com/embed/F6hcwbLx6pY?rel=0" title="Elle gagne sa VIE avec la MORT : l’incroyable histoire de Céline Bamouni" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                    </div>
-                    <div class="ol-card-body">
-                        <h3 class="ol-card-title">Elle gagne sa VIE avec la MORT : l’incroyable histoire de Céline Bamouni</h3>
-                        <p class="ol-card-text">L’histoire inattendue de Céline Bamouni, qui a bâti son activité autour des métiers du funéraire.</p>
-                        <div class="d-flex flex-wrap gap-2"><span class="ol-badge no-dot">Portrait</span><span class="ol-badge no-dot">Production</span></div>
-                    </div>
-                </article>
-            </div>
+            {% empty %}
+            <div class="col-12"><p class="mb-0">Nos réalisations arrivent bientôt.</p></div>
+            {% endfor %}
         </div>
     </div>
 </section>

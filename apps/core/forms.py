@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import ContactRequest
+from .models import ContactRequest, VideoRealisation
 
 
 class BootstrapFormMixin:
@@ -49,3 +49,17 @@ class ContactRequestForm(forms.ModelForm):
         if len(message) < 10:
             raise forms.ValidationError("Merci de décrire votre demande en quelques mots.")
         return message[:5000]
+
+
+class VideoRealisationForm(BootstrapFormMixin, forms.ModelForm):
+    class Meta:
+        model = VideoRealisation
+        fields = ("youtube_url", "title", "subtitle", "description", "tags",
+                  "category", "show_on_home", "is_published", "order")
+        widgets = {
+            "youtube_url": forms.TextInput(attrs={"placeholder": "https://youtu.be/…", "autocomplete": "off"}),
+            "title": forms.TextInput(attrs={"placeholder": "Titre de la vidéo"}),
+            "subtitle": forms.TextInput(attrs={"placeholder": "Portrait · Entrepreneuriat"}),
+            "description": forms.Textarea(attrs={"rows": 3}),
+            "tags": forms.TextInput(attrs={"placeholder": "Portrait, Production"}),
+        }

@@ -61,6 +61,9 @@
             <a href="{% url 'dashboard:partners_list' %}" class="{% if url_name|slice:':9' == 'partners_' %}active{% endif %}">
                 <i class="fa-solid fa-building"></i> Références clients
             </a>
+            <a href="{% url 'dashboard:videos_list' %}" class="{% if 'videos_' in url_name %}active{% endif %}">
+                <i class="fa-brands fa-youtube"></i> Vidéos réalisations
+            </a>
 
             <div class="group-title">Partenaires d'affaires</div>
             <a href="{% url 'dashboard:partner_applications_list' %}" class="{% if 'partner_application' in url_name %}active{% endif %}">

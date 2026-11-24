@@ -1,0 +1,84 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}{% if video %}Modifier la vidéo{% else %}Ajouter une vidéo{% endif %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Tableau de bord</a></li><li class="breadcrumb-item"><a href="{% url 'dashboard:videos_list' %}">Vidéos réalisations</a></li><li class="breadcrumb-item active">{% if video %}Modifier{% else %}Ajouter{% endif %}</li></ol></nav>
+        <h1>{% if video %}Modifier « {{ video.title|truncatechars:60 }} »{% else %}Ajouter une vidéo{% endif %}</h1>
+    </div>
+</div>
+
+<form method="post" class="ol-form" novalidate>
+    {% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="ol-card ol-card-body">
+                <section class="ol-form-section">
+                    <h2 class="ol-form-section-title"><span class="step">1</span> La vidéo</h2>
+                    <p class="ol-form-section-desc">Sur YouTube, cliquez sur « Partager » puis « Copier » et collez le lien ici.</p>
+                    {% include "partials/field.html" with field=form.youtube_url %}
+                    <div class="row g-3 mt-1">
+                        <div class="col-12">{% include "partials/field.html" with field=form.title %}</div>
+                        <div class="col-md-6">{% include "partials/field.html" with field=form.subtitle %}</div>
+                        <div class="col-md-6">{% include "partials/field.html" with field=form.tags %}</div>
+                        <div class="col-12">{% include "partials/field.html" with field=form.description %}</div>
+                    </div>
+                </section>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="side-sticky d-grid gap-4">
+                <div class="ol-card ol-card-body">
+                    <h2 class="h6 mb-3">Aperçu</h2>
+                    <div class="ratio ratio-16x9 rounded-3 overflow-hidden bg-light mb-2">
+                        <img id="yt-preview" src="{% if video %}{{ video.thumbnail_url }}{% endif %}" alt="" style="object-fit:cover;{% if not video %}display:none{% endif %}">
+                    </div>
+                    <p id="yt-preview-hint" class="small text-muted mb-0">{% if not video %}L'aperçu apparaît dès que vous collez un lien YouTube.{% endif %}</p>
+                    <div class="ol-divider my-3"></div>
+                    <h2 class="h6 mb-3">Affichage</h2>
+                    {% include "partials/field.html" with field=form.category %}
+                    {% include "partials/field.html" with field=form.order %}
+                    {% include "partials/field.html" with field=form.is_published %}
+                    {% include "partials/field.html" with field=form.show_on_home %}
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> {% if video %}Enregistrer les modifications{% else %}Ajouter la vidéo{% endif %}</button>
+                    <a href="{% url 'dashboard:videos_list' %}" class="btn btn-light">Annuler</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var input = document.getElementById("{{ form.youtube_url.id_for_label }}");
+    var img = document.getElementById("yt-preview");
+    var hint = document.getElementById("yt-preview-hint");
+    if (!input || !img) return;
+    function extractId(value) {
+        value = (value || "").trim();
+        if (/^[A-Za-z0-9_-]{11}$/.test(value)) return value;
+        var m = value.match(/(?:youtu\.be\/|[?&]v=|\/(?:embed|shorts|live|v)\/)([A-Za-z0-9_-]{11})/);
+        return m ? m[1] : "";
+    }
+    function update() {
+        var id = extractId(input.value);
+        if (id) {
+            img.src = "https://i.ytimg.com/vi/" + id + "/hqdefault.jpg";
+            img.style.display = "";
+            hint.textContent = "";
+        } else if (input.value.trim()) {
+            img.style.display = "none";
+            hint.textContent = "Lien YouTube non reconnu pour l'instant.";
+        }
+    }
+    input.addEventListener("input", update);
+})();
+</script>
+{% endblock %}

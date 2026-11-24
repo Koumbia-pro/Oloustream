@@ -78,6 +78,13 @@ urlpatterns = [
     path('studios/<int:studio_id>/delete/', studio_delete_view, name='studios_delete'),
 
 
+    # Vidéos des réalisations (site public)
+    path('videos/', video_list_view, name='videos_list'),
+    path('videos/create/', video_create_view, name='videos_create'),
+    path('videos/<int:video_id>/edit/', video_update_view, name='videos_edit'),
+    path('videos/<int:video_id>/toggle/', video_toggle_view, name='videos_toggle'),
+    path('videos/<int:video_id>/delete/', video_delete_view, name='videos_delete'),
+
     # Demandes de contact / devis
     path('contacts/', contacts_list_view, name='contacts_list'),
     path('contacts/<int:pk>/', contact_detail_view, name='contact_detail'),

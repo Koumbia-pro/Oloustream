@@ -1,0 +1,22 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Supprimer la vidéo{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="ol-card danger-zone mt-4">
+            <div class="ol-card-body text-center p-5">
+                <div class="ol-empty-icon" style="background: var(--ol-danger-50); color: var(--ol-danger)"><i class="fa-regular fa-trash-can"></i></div>
+                <h1 class="h4">Supprimer la vidéo « {{ video.title|truncatechars:80 }} » ?</h1>
+                <p class="text-muted">Elle ne sera plus affichée sur le site. La vidéo reste sur YouTube.<br>Pour la cacher sans la supprimer, utilisez plutôt « Masquer ».</p>
+                <form method="post" class="d-flex justify-content-center gap-2 mt-4">
+                    {% csrf_token %}
+                    <a href="{% url 'dashboard:videos_list' %}" class="btn btn-light">Annuler</a>
+                    <button type="submit" class="btn btn-danger"><i class="fa-regular fa-trash-can"></i> Supprimer définitivement</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

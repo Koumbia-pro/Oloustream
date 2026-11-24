@@ -39,3 +39,66 @@ class ContactRequest(models.Model):
 
     def __str__(self):
         return f"{self.full_name} — {self.get_subject_display()} ({self.created_at:%d/%m/%Y})"
+
+
+class VideoRealisation(models.Model):
+    """Vidéo YouTube affichée dans les réalisations (accueil et page Réalisations)."""
+
+    class Category(models.TextChoices):
+        LIVE = "live", "Live & événements"
+        PRODUCTION = "production", "Production vidéo"
+        DIGITAL = "digital", "Digital"
+
+    title = models.CharField("Titre", max_length=200)
+    youtube_url = models.CharField(
+        "Lien YouTube",
+        max_length=300,
+        help_text="Collez le lien de la vidéo (youtu.be/…, youtube.com/watch?v=…, Shorts…).",
+    )
+    youtube_id = models.CharField("Identifiant YouTube", max_length=20, editable=False)
+    category = models.CharField("Catégorie (filtre)", max_length=20, choices=Category.choices,
+                                default=Category.PRODUCTION)
+    subtitle = models.CharField("Sous-titre court", max_length=80, blank=True,
+                                help_text="Affiché sous la vidéo sur l'accueil. Ex. : Portrait · Entrepreneuriat")
+    description = models.TextField("Description", blank=True,
+                                   help_text="Affichée sur la page Réalisations (1 ou 2 phrases).")
+    tags = models.CharField("Étiquettes", max_length=120, blank=True,
+                            help_text="Séparées par des virgules. Ex. : Portrait, Production")
+    show_on_home = models.BooleanField("Afficher sur l'accueil", default=True,
+                                       help_text="Les 4 premières vidéos cochées apparaissent sur l'accueil.")
+    is_published = models.BooleanField("Publiée", default=True)
+    order = models.PositiveIntegerField("Ordre", default=0, help_text="Les plus petits numéros s'affichent en premier.")
+    created_at = models.DateTimeField("Ajoutée le", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Vidéo de réalisation"
+        verbose_name_plural = "Vidéos de réalisations"
+        ordering = ["order", "-created_at"]
+
+    def __str__(self):
+        return self.title
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        from .utils import youtube_id_from_url
+
+        if not youtube_id_from_url(self.youtube_url):
+            raise ValidationError({"youtube_url": "Lien YouTube non reconnu. Copiez le lien depuis le bouton « Partager » de YouTube."})
+
+    def save(self, *args, **kwargs):
+        from .utils import youtube_id_from_url
+
+        self.youtube_id = youtube_id_from_url(self.youtube_url) or self.youtube_id
+        super().save(*args, **kwargs)
+
+    @property
+    def tag_list(self):
+        return [t.strip() for t in self.tags.split(",") if t.strip()]
+
+    @property
+    def thumbnail_url(self):
+        return f"https://i.ytimg.com/vi/{self.youtube_id}/hqdefault.jpg"
+
+    @property
+    def watch_url(self):
+        return f"https://www.youtube.com/watch?v={self.youtube_id}"

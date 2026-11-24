@@ -1,5 +1,6 @@
 """Petits utilitaires partagés entre les applications."""
 import logging
+import re
 
 from django.http import HttpResponse
 from django.shortcuts import redirect
@@ -102,3 +103,28 @@ def fmt_datetime(value):
 
 def yes_no(value):
     return "Oui" if value else "Non"
+
+
+_YOUTUBE_ID_RE = re.compile(r"^[A-Za-z0-9_-]{11}$")
+
+
+def youtube_id_from_url(value):
+    """Extrait l'identifiant d'une vidéo YouTube depuis un lien (ou l'identifiant seul)."""
+    from urllib.parse import parse_qs, urlparse
+
+    value = (value or "").strip()
+    if _YOUTUBE_ID_RE.match(value):
+        return value
+    parsed = urlparse(value if "://" in value else f"https://{value}")
+    host = (parsed.hostname or "").lower().removeprefix("www.").removeprefix("m.")
+    candidate = ""
+    if host == "youtu.be":
+        candidate = parsed.path.strip("/").split("/")[0]
+    elif host in ("youtube.com", "youtube-nocookie.com", "music.youtube.com"):
+        if parsed.path == "/watch":
+            candidate = parse_qs(parsed.query).get("v", [""])[0]
+        else:
+            parts = parsed.path.strip("/").split("/")
+            if len(parts) >= 2 and parts[0] in ("embed", "shorts", "live", "v"):
+                candidate = parts[1]
+    return candidate if _YOUTUBE_ID_RE.match(candidate) else ""

@@ -1,0 +1,86 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Vidéos réalisations{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <nav aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Tableau de bord</a></li><li class="breadcrumb-item active">Vidéos réalisations</li></ol></nav>
+        <h1>Vidéos réalisations</h1>
+        <p class="subtitle">Vidéos YouTube affichées sur l'accueil et sur la page Réalisations du site.</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'core:realisations' %}" target="_blank" rel="noopener" class="btn btn-light"><i class="fa-solid fa-arrow-up-right-from-square"></i> Voir sur le site</a>
+        <a href="{% url 'dashboard:videos_create' %}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Ajouter une vidéo</a>
+    </div>
+</div>
+
+<div class="stat-grid">
+    <div class="ol-stat"><span class="ol-stat-icon is-slate"><i class="fa-brands fa-youtube"></i></span><div><div class="ol-stat-value">{{ stats.total }}</div><div class="ol-stat-label">Vidéos au total</div></div></div>
+    <div class="ol-stat"><span class="ol-stat-icon is-green"><i class="fa-solid fa-eye"></i></span><div><div class="ol-stat-value">{{ stats.published }}</div><div class="ol-stat-label">Publiées (page Réalisations)</div></div></div>
+    <div class="ol-stat"><span class="ol-stat-icon is-gold"><i class="fa-solid fa-house"></i></span><div><div class="ol-stat-value">{{ home_count }} / {{ home_limit }}</div><div class="ol-stat-label">Sur l'accueil</div></div></div>
+    <div class="ol-stat"><span class="ol-stat-icon"><i class="fa-solid fa-eye-slash"></i></span><div><div class="ol-stat-value">{{ stats.hidden }}</div><div class="ol-stat-label">Masquées</div></div></div>
+</div>
+
+<div class="ol-card mb-4">
+    <form method="get" class="filter-bar">
+        <div class="search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Titre, description ou étiquette…" aria-label="Rechercher une vidéo">
+        </div>
+        <select name="category" class="form-select" aria-label="Catégorie">
+            <option value="">Toutes les catégories</option>
+            {% for value, label in category_choices %}<option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+        <button type="submit" class="btn btn-dark">Filtrer</button>
+        {% if is_filtered %}<a href="{% url 'dashboard:videos_list' %}" class="btn btn-ghost">Réinitialiser</a>{% endif %}
+    </form>
+</div>
+
+<p class="small text-muted mb-3"><i class="fa-solid fa-circle-info"></i> Les vidéos s'affichent dans l'ordre de leur numéro (le plus petit d'abord). L'accueil montre les {{ home_limit }} premières vidéos publiées marquées « accueil ».</p>
+
+{% if videos %}
+<div class="row g-4">
+    {% for video in videos %}
+    <div class="col-sm-6 col-lg-4 col-xxl-3">
+        <article class="ol-card ol-card-hover ol-media-card">
+            <a href="{{ video.watch_url }}" target="_blank" rel="noopener noreferrer" class="ol-media" title="Ouvrir sur YouTube">
+                <img src="{{ video.thumbnail_url }}" alt="" loading="lazy">
+                <span class="badge-float d-flex gap-1">
+                    {% if video.is_published %}<span class="ol-badge status-active">Publiée</span>{% else %}<span class="ol-badge status-inactive">Masquée</span>{% endif %}
+                    {% if video.id in home_ids %}<span class="ol-badge">Accueil</span>{% endif %}
+                </span>
+            </a>
+            <div class="ol-card-body">
+                <h2 class="ol-card-title h6"><a href="{% url 'dashboard:videos_edit' video.id %}" class="text-ink">{{ video.title|truncatechars:90 }}</a></h2>
+                <p class="small text-muted mb-3">N° {{ video.order }} · {{ video.get_category_display }}{% if video.subtitle %} · {{ video.subtitle }}{% endif %}</p>
+                <div class="ol-card-actions justify-content-between">
+                    <div class="d-flex gap-1">
+                        <form method="post" action="{% url 'dashboard:videos_toggle' video.id %}">{% csrf_token %}<input type="hidden" name="field" value="is_published">
+                            <button type="submit" class="btn btn-sm btn-light" title="{% if video.is_published %}Masquer du site{% else %}Publier sur le site{% endif %}">{% if video.is_published %}<i class="fa-regular fa-eye-slash"></i> Masquer{% else %}<i class="fa-regular fa-eye"></i> Publier{% endif %}</button>
+                        </form>
+                        <form method="post" action="{% url 'dashboard:videos_toggle' video.id %}">{% csrf_token %}<input type="hidden" name="field" value="show_on_home">
+                            <button type="submit" class="btn btn-sm btn-light" title="{% if video.show_on_home %}Retirer de l'accueil{% else %}Mettre sur l'accueil{% endif %}" aria-label="{% if video.show_on_home %}Retirer de l'accueil{% else %}Mettre sur l'accueil{% endif %}"><i class="fa-solid fa-house{% if not video.show_on_home %} opacity-25{% endif %}"></i></button>
+                        </form>
+                    </div>
+                    <div class="row-actions">
+                        <a href="{% url 'dashboard:videos_edit' video.id %}" class="btn" title="Modifier" aria-label="Modifier"><i class="fa-regular fa-pen-to-square"></i></a>
+                        <a href="{% url 'dashboard:videos_delete' video.id %}" class="btn is-danger" title="Supprimer" aria-label="Supprimer"><i class="fa-regular fa-trash-can"></i></a>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="ol-card">
+    <div class="ol-empty">
+        <div class="ol-empty-icon"><i class="fa-brands fa-youtube"></i></div>
+        <h3>Aucune vidéo trouvée</h3>
+        <p>{% if is_filtered %}Modifiez vos filtres ou{% else %}Commencez par{% endif %} ajouter une vidéo YouTube.</p>
+        <a href="{% url 'dashboard:videos_create' %}" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Ajouter une vidéo</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

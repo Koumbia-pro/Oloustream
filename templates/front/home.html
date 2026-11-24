@@ -147,38 +147,18 @@
             <a href="{% url 'core:realisations' %}" class="btn btn-outline-light">Voir toutes les réalisations</a>
         </div>
         <div class="row g-4">
+            {% for video in home_videos %}
             <div class="col-md-6 col-lg-3">
-                <a class="d-block rounded-3 overflow-hidden position-relative" href="https://www.youtube.com/watch?v=mDGgGi5hjFI" data-yt-play="mDGgGi5hjFI" aria-label="Lire la vidéo ici">
-                    <img src="https://i.ytimg.com/vi/mDGgGi5hjFI/hqdefault.jpg" alt="Tes Blessures d’Enfance Dirigent Encore Ta Vie… Smarty &amp; Bintou Racontent Tout" class="w-100" style="aspect-ratio:16/9;object-fit:cover" loading="lazy">
+                <a class="d-block rounded-3 overflow-hidden position-relative" href="{{ video.watch_url }}" data-yt-play="{{ video.youtube_id }}" aria-label="Lire la vidéo ici">
+                    <img src="{{ video.thumbnail_url }}" alt="{{ video.title }}" class="w-100" style="aspect-ratio:16/9;object-fit:cover" loading="lazy">
                     <span class="position-absolute top-50 start-50 translate-middle btn btn-primary rounded-circle btn-icon" style="width:52px;height:52px" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
                 </a>
-                <h3 class="h6 mt-3 mb-1">Tes Blessures d’Enfance Dirigent Encore Ta Vie… Smarty &amp; Bintou Racontent Tout</h3>
-                <small class="text-secondary">Émission · Témoignage</small>
+                <h3 class="h6 mt-3 mb-1">{{ video.title }}</h3>
+                {% if video.subtitle %}<small class="text-secondary">{{ video.subtitle }}</small>{% endif %}
             </div>
-            <div class="col-md-6 col-lg-3">
-                <a class="d-block rounded-3 overflow-hidden position-relative" href="https://www.youtube.com/watch?v=uAJghXeFpyU" data-yt-play="uAJghXeFpyU" aria-label="Lire la vidéo ici">
-                    <img src="https://i.ytimg.com/vi/uAJghXeFpyU/hqdefault.jpg" alt="Pourquoi tant de femmes BRILLANTES s’éteignent sans le savoir" class="w-100" style="aspect-ratio:16/9;object-fit:cover" loading="lazy">
-                    <span class="position-absolute top-50 start-50 translate-middle btn btn-primary rounded-circle btn-icon" style="width:52px;height:52px" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
-                </a>
-                <h3 class="h6 mt-3 mb-1">Pourquoi tant de femmes BRILLANTES s’éteignent sans le savoir</h3>
-                <small class="text-secondary">Émission · Société</small>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <a class="d-block rounded-3 overflow-hidden position-relative" href="https://www.youtube.com/watch?v=9OXVHp_wnj8" data-yt-play="9OXVHp_wnj8" aria-label="Lire la vidéo ici">
-                    <img src="https://i.ytimg.com/vi/9OXVHp_wnj8/hqdefault.jpg" alt="Comment une Femme a brisé tous les codes du Secteur Minier Africain | Aïda Tamboura" class="w-100" style="aspect-ratio:16/9;object-fit:cover" loading="lazy">
-                    <span class="position-absolute top-50 start-50 translate-middle btn btn-primary rounded-circle btn-icon" style="width:52px;height:52px" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
-                </a>
-                <h3 class="h6 mt-3 mb-1">Comment une Femme a brisé tous les codes du Secteur Minier Africain | Aïda Tamboura</h3>
-                <small class="text-secondary">Portrait · Entrepreneuriat</small>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <a class="d-block rounded-3 overflow-hidden position-relative" href="https://www.youtube.com/watch?v=F6hcwbLx6pY" data-yt-play="F6hcwbLx6pY" aria-label="Lire la vidéo ici">
-                    <img src="https://i.ytimg.com/vi/F6hcwbLx6pY/hqdefault.jpg" alt="Elle gagne sa VIE avec la MORT : l’incroyable histoire de Céline Bamouni" class="w-100" style="aspect-ratio:16/9;object-fit:cover" loading="lazy">
-                    <span class="position-absolute top-50 start-50 translate-middle btn btn-primary rounded-circle btn-icon" style="width:52px;height:52px" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
-                </a>
-                <h3 class="h6 mt-3 mb-1">Elle gagne sa VIE avec la MORT : l’incroyable histoire de Céline Bamouni</h3>
-                <small class="text-secondary">Portrait · Histoire vraie</small>
-            </div>
+            {% empty %}
+            <div class="col-12"><p class="text-secondary mb-0">Nos dernières productions arrivent bientôt.</p></div>
+            {% endfor %}
         </div>
     </div>
 </section>

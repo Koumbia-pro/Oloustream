@@ -10,6 +10,7 @@ Vues du dashboard d'administration, regroupées par domaine :
 - studios.py           studios
 - business_partners.py programme de partenaires d'affaires
 - contacts.py          demandes de contact / devis
+- videos.py            vidéos des réalisations (site public)
 """
 from .business_partners import *  # noqa: F401,F403
 from .catalog import *  # noqa: F401,F403
@@ -20,3 +21,4 @@ from .home import *  # noqa: F401,F403
 from .partners import *  # noqa: F401,F403
 from .reservations import *  # noqa: F401,F403
 from .studios import *  # noqa: F401,F403
+from .videos import *  # noqa: F401,F403
